@@ -178,6 +178,15 @@ function update() {
 
 	document.getElementById("bodycount").innerHTML = world.GetBodyCount() + " bodies";
 	document.getElementById("score").innerHTML = "Score: " + score + " High Score: " + hiscore;
+
+	if (world.block.GetPosition().y * world.scale > canvas.height) {
+		//You lose!
+		while (projectiles.length) {
+			world.DestroyBody(projectiles.pop());
+		}
+		world.block.SetPosition(new b2Vec2(canvas.width / 2 / world.scale, canvas.height / 2 / world.scale));
+		world.block.SetLinearVelocity(new b2Vec2(0, 0));
+	}
 }; // update()
 
 init();
