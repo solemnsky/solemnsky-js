@@ -45,7 +45,7 @@
 				, true                 //allow sleep
 			);
 			 
-			var SCALE = 30;
+			world.scale = 30;
 		 
 			var fixDef = new b2FixtureDef;
 			fixDef.density = 1.0;
@@ -58,13 +58,13 @@
 			bodyDef.type = b2Body.b2_staticBody;
 			 
 			// positions the center of the object (not upper left!)
-			bodyDef.position.x = canvas.width / 2 / SCALE;
-			bodyDef.position.y = canvas.height / SCALE;
+			bodyDef.position.x = canvas.width / 2 / world.scale;
+			bodyDef.position.y = canvas.height / world.scale;
 			 
 			fixDef.shape = new b2PolygonShape;
 			 
 			// half width, half height. eg actual height here is 1 unit
-			fixDef.shape.SetAsBox((600 / SCALE) / 2, (10/SCALE) / 2);
+			fixDef.shape.SetAsBox((600 / world.scale) / 2, (10/world.scale) / 2);
 			world.CreateBody(bodyDef).CreateFixture(fixDef);
 		 
 			//create some objects
@@ -89,7 +89,7 @@
 			//setup debug draw
 			var debugDraw = new b2DebugDraw();
 			debugDraw.SetSprite(document.getElementById("c").getContext("2d"));
-			debugDraw.SetDrawScale(SCALE);
+			debugDraw.SetDrawScale(world.scale);
 			debugDraw.SetFillAlpha(0.3);
 			debugDraw.SetLineThickness(1.0);
 			debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
