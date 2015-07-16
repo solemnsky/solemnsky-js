@@ -115,7 +115,7 @@ function update() {
 
 	var linearVelocity = world.block.GetLinearVelocity();
 	if (movement.forward) {
-		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
+		linearVelocity.Add(b2Vec2.Make(0, -100.0 / world.scale));
 	}
 	if (movement.backward) {
 		linearVelocity.Add(b2Vec2.Make(0, 10.0 / world.scale));
