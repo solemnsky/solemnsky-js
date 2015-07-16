@@ -70,11 +70,11 @@ function init() {
 		,	10 / world.scale
 	);
 
-	world.block = bodyDef;
-
 	bodyDef.position.x = canvas.width / 2 / world.scale;
 	bodyDef.position.y = canvas.height / 2 / world.scale;
-	world.CreateBody(bodyDef).CreateFixture(fixDef);
+	world.block = world.CreateBody(bodyDef);
+	world.block.CreateFixture(fixDef);
+	world.block.SetSleepingAllowed(false);
  
 	//setup debug draw
 	var debugDraw = new b2DebugDraw();
@@ -102,5 +102,5 @@ init();
 requestAnimFrame(update);
 
 Mousetrap.bind('r', function() {
-	init();
+	world.block.SetLinearVelocity(b2Vec2.Make(0, -200.0 / world.scale));
 });
