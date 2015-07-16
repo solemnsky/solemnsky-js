@@ -34,6 +34,7 @@ window.requestAnimFrame = (function(){
 
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
+var hiscore = 0;
 
 var world;
 var movement = {
@@ -172,8 +173,11 @@ function update() {
 		score ++;
 	}
 
+	if (score > hiscore)
+		hiscore = score;
+
 	document.getElementById("bodycount").innerHTML = world.GetBodyCount() + " bodies";
-	document.getElementById("score").innerHTML = "Score: " + score;
+	document.getElementById("score").innerHTML = "Score: " + score + " High Score: " + hiscore;
 }; // update()
 
 init();
