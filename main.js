@@ -51,29 +51,38 @@ function createBox(x, y, w, h, static) {
 	fixDef.shape = new b2PolygonShape;
 	 
 	// half width, half height. eg actual height here is 1 unit
-	fixDef.shape.SetAsBox(w / world.scale, h / world.scale);
+	fixDef.shape.SetAsBox(w / 2 / world.scale, h / 2 / world.scale);
 	box = world.CreateBody(bodyDef);
 	box.CreateFixture(fixDef);
 	return box;
 }
 
 function init() {
+	gravity = new b2Vec2(0, 10);
 	world = new b2World(
-		new b2Vec2(0, 0)     //gravity
-		, true               //allow sleep
+		gravity        //gravity
+		, true         //allow sleep
 	);
-	world.gravity = new b2Vec2(0, 10);
+	world.gravity = gravity;
 	 
 	world.scale = 30;
 
-	world.block = createBox(canvas.width / 2, canvas.height / 2, 20, 10, false);
+	world.block = createBox(canvas.width / 2, canvas.height / 2, 40, 40, false);
 	world.block.SetSleepingAllowed(false);
 
-	world.hitme = createBox(canvas.width / 3, canvas.height / 2, 30, 30, false);
+	createBox(90,  30, 50, 50, false);
+	createBox(130, 30, 50, 50, false);
+	createBox(170, 30, 50, 50, false);
+	createBox(210, 30, 50, 50, false);
+	createBox(250, 30, 50, 50, false);
+	createBox(290, 30, 50, 50, false);
+	createBox(330, 30, 50, 50, false);
+	createBox(370, 30, 50, 50, false);
+
 	// world.hitme.SetGravityScale(0);
 
 
-	createBox(canvas.width / 2, canvas.height, 300, 5, true);
+	createBox(canvas.width / 2, canvas.height, 600, 10, true);
  
 	//setup debug draw
 	var debugDraw = new b2DebugDraw();
@@ -97,7 +106,6 @@ function update() {
 	requestAnimFrame(update);
 
 	var linearVelocity = world.block.GetLinearVelocity();
-	linearVelocity.Add(world.gravity.Multiply(1 / 60));
 	if (movement.forward) {
 		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
 	}
@@ -111,7 +119,6 @@ function update() {
 		linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
 	}
 	world.block.SetLinearVelocity(linearVelocity);
-
 }; // update()
 
 init();
