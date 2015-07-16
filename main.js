@@ -42,6 +42,7 @@ var movement = {
 	up: false,
 	down: false
 };
+var projectiles = [];
 
 function createBox(x, y, w, h, static, fields) {
 	var fixDef = new b2FixtureDef;
@@ -120,24 +121,34 @@ function update() {
 	if (movement.forward) {
 		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
 		var box = createBox(blockPos.x, blockPos.y + 10, 10, 10, false, {});
+		projectiles.push(box);
 		box.SetLinearVelocity(new b2Vec2(0, 1000 / world.scale));
 	}
 	if (movement.backward) {
 		linearVelocity.Add(b2Vec2.Make(0, 10.0 / world.scale));
 		var box = createBox(blockPos.x, blockPos.y - 10, 10, 10, false, {});
+		projectiles.push(box);
 		box.SetLinearVelocity(new b2Vec2(0, -1000 / world.scale));
 	}
 	if (movement.left) {
 		linearVelocity.Add(b2Vec2.Make(-10.0 / world.scale, 0));
 		var box = createBox(blockPos.x + 10, blockPos.y, 10, 10, false, {});
+		projectiles.push(box);
 		box.SetLinearVelocity(new b2Vec2(1000 / world.scale, 0));
 	}
 	if (movement.right) {
 		linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
 		var box = createBox(blockPos.x - 10, blockPos.y, 10, 10, false, {});
+		projectiles.push(box);
 		box.SetLinearVelocity(new b2Vec2(-1000 / world.scale, 0));
 	}
 	world.block.SetLinearVelocity(linearVelocity);
+
+	for (var i = projectiles.length - 1; i >= 0; i--) {
+		if (projectiles[i].GetPosition().y * world.scale > canvas.height) {
+			world.DestroyBody(projectiles[i]);
+		}
+	};
 }; // update()
 
 init();
