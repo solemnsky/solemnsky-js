@@ -96,22 +96,28 @@ function update() {
  
 	requestAnimFrame(update);
 
+	var linearVelocity = world.block.GetLinearVelocity();
 	if (movement.forward) {
-		var linearVelocity = world.block.GetLinearVelocity();
 		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
-
-		world.block.SetLinearVelocity(linearVelocity);
 	}
+	if (movement.left) {
+		linearVelocity.Add(b2Vec2.Make(-10.0 / world.scale, 0));
+	}
+	if (movement.right) {
+		linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
+	}
+	world.block.SetLinearVelocity(linearVelocity);
 }; // update()
 
 init();
 requestAnimFrame(update);
 
-Mousetrap.bind('up', function() {
-	movement.forward = true;
-}, 'keydown');
-
-Mousetrap.bind('up', function() {
-	movement.forward = false;
-}, 'keyup');
+Mousetrap.bind('up',    function() { movement.forward  =  true; }, 'keydown');
+Mousetrap.bind('up',    function() { movement.forward  = false; }, 'keyup');
+Mousetrap.bind('down',  function() { movement.backward =  true; }, 'keydown');
+Mousetrap.bind('down',  function() { movement.backward = false; }, 'keyup');
+Mousetrap.bind('left',  function() { movement.left     =  true; }, 'keydown');
+Mousetrap.bind('left',  function() { movement.left     = false; }, 'keyup');
+Mousetrap.bind('right', function() { movement.right    =  true; }, 'keydown');
+Mousetrap.bind('right', function() { movement.right    = false; }, 'keyup');
 
