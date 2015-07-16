@@ -87,14 +87,14 @@ function init() {
 	*/
 	fixDef.shape.SetAsBox(20, 2)
 	bodyDef.position.Set(10, 400 / 30 + 1.8)
-	world.CreateBody(bodyDef).createFixture(fixDef)
+	world.CreateBody(bodyDef).CreateFixture(fixDef)
 	bodyDef.position.Set(10, -1.8)
-	world.CreateBody(bodyDef).createFixture(fixDef)
+	world.CreateBody(bodyDef).CreateFixture(fixDef)
 	fixDef.shape.SetAsBox(2, 14)
 	bodyDef.position.Set(-1.8, 13)
-	world.CreateBody(bodyDef).createFixture(fixDef)
+	world.CreateBody(bodyDef).CreateFixture(fixDef)
 	bodyDef.position.Set(21.8, 13)
-	world.CreateBody(bodyDef).createFixture(fixDef)
+	world.CreateBody(bodyDef).CreateFixture(fixDef)
 	
 	
 	world.block.CreateFixture(fixDef);
