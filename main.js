@@ -96,11 +96,23 @@ function update() {
 	world.ClearForces();
  
 	requestAnimFrame(update);
+
+	if (movement.forward) {
+		var linearVelocity = world.block.GetLinearVelocity();
+		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
+
+		world.block.SetLinearVelocity(linearVelocity);
+	}
 }; // update()
 
 init();
 requestAnimFrame(update);
 
-Mousetrap.bind('r', function() {
-	world.block.SetLinearVelocity(b2Vec2.Make(0, -200.0 / world.scale));
-});
+Mousetrap.bind('up', function() {
+	movement.forward = true;
+}, 'keydown');
+
+Mousetrap.bind('up', function() {
+	movement.forward = false;
+}, 'keyup');
+
