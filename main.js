@@ -10,11 +10,11 @@ var 	 b2Vec2          = Box2D.Common.Math.b2Vec2
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
  
 var boxes = [
-	{x: 90,  y: 30, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
+	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
 	{x: 130, y: 110, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
 	{x: 470, y: 230, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
 	{x: 210, y: 130, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
-	{x: 350, y: 30, w: 40, h: 40, static: true, fields: {restitution: 1.1}},
+	{x: 350, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
 	{x: 390, y: 140, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
 	{x: 430, y: 270, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
 	{x: 570, y: 300, w: 40, h: 40, static: true, fields: {restitution: 0.7}}
