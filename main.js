@@ -14,7 +14,7 @@ var boxes = [
 	{x: 130, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
 	{x: 170, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
 	{x: 210, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
-	{x: 250, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
+	{x: 250, y: 30, w: 40, h: 40, static: false, fields: {restitution: 1.1}},
 	{x: 290, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
 	{x: 330, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
 	{x: 370, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}}
