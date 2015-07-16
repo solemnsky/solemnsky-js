@@ -9,6 +9,16 @@ var 	 b2Vec2          = Box2D.Common.Math.b2Vec2
 	, b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
  
+var boxes = [
+	{x: 90,  y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
+	{x: 130, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
+	{x: 170, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
+	{x: 210, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
+	{x: 250, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
+	{x: 290, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
+	{x: 330, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}},
+	{x: 370, y: 30, w: 40, h: 40, static: false, fields: {restitution: 0.7}}
+];
 
 //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
@@ -64,24 +74,19 @@ function createBox(x, y, w, h, static, fields) {
 function init() {
 	gravity = new b2Vec2(0, 10);
 	world = new b2World(
-		gravity        //gravity
-		, true         //allow sleep
+		gravity //gravity
+		, true  //allow sleep
 	);
 	world.gravity = gravity;
 	 
 	world.scale = 30;
 
-	world.block = createBox(canvas.width / 2, canvas.height / 2, 40, 40, false, {});
+	world.block = createBox(canvas.width / 2, canvas.height / 2, 30, 30, false, {});
 	world.block.SetSleepingAllowed(false);
 
-	createBox(90,  30, 50, 50, false, {restitution: 0.7});
-	createBox(130, 30, 50, 50, false, {restitution: 0.7});
-	createBox(170, 30, 50, 50, false, {restitution: 0.7});
-	createBox(210, 30, 50, 50, false, {restitution: 0.7});
-	createBox(250, 30, 50, 50, false, {restitution: 0.7});
-	createBox(290, 30, 50, 50, false, {restitution: 0.7});
-	createBox(330, 30, 50, 50, false, {restitution: 0.7});
-	createBox(370, 30, 50, 50, false, {restitution: 0.7});
+	for (var i = 0; i < boxes.length; i ++) {
+		createBox(boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h, boxes[i].static, boxes[i].fields);
+	}
 
 	// world.hitme.SetGravityScale(0);
 
