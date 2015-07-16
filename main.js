@@ -37,7 +37,7 @@ var movement = {
 function init() {
 	world = new b2World(
 		new b2Vec2(0, 10)    //gravity
-		, false               //allow sleep
+		, true               //allow sleep
 	);
 	 
 	world.scale = 30;
