@@ -134,6 +134,15 @@ function init() {
 	debugDraw.SetLineThickness(1.0);
 	debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
 	world.SetDebugDraw(debugDraw);
+
+	var listener = new Box2D.Dynamics.b2ContactListener;
+	listener.BeginContact = function(contact) {
+		var bodyA = contact.GetFixtureA().GetBody();
+		var bodyB = contact.GetFixtureB().GetBody();
+
+		//TODO: Something with contacts	
+	};
+	world.SetContactListener(listener);
 }; // init()
 
 /**
