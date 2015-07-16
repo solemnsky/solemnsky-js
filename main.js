@@ -113,18 +113,29 @@ function update() {
  
 	requestAnimFrame(update);
 
+	var blockPos = world.block.GetPosition();
+	blockPos.Multiply(world.scale);
+
 	var linearVelocity = world.block.GetLinearVelocity();
 	if (movement.forward) {
-		linearVelocity.Add(b2Vec2.Make(0, -20.0 / world.scale));
+		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
+		var box = createBox(blockPos.x, blockPos.y, 10, 10, false, {});
+		box.SetLinearVelocity(new b2Vec2(0, 1000 / world.scale));
 	}
 	if (movement.backward) {
 		linearVelocity.Add(b2Vec2.Make(0, 10.0 / world.scale));
+		var box = createBox(blockPos.x, blockPos.y, 10, 10, false, {});
+		box.SetLinearVelocity(new b2Vec2(0, -1000 / world.scale));
 	}
 	if (movement.left) {
 		linearVelocity.Add(b2Vec2.Make(-10.0 / world.scale, 0));
+		var box = createBox(blockPos.x, blockPos.y, 10, 10, false, {});
+		box.SetLinearVelocity(new b2Vec2(1000 / world.scale, 0));
 	}
 	if (movement.right) {
 		linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
+		var box = createBox(blockPos.x, blockPos.y, 10, 10, false, {});
+		box.SetLinearVelocity(new b2Vec2(-1000 / world.scale, 0));
 	}
 	world.block.SetLinearVelocity(linearVelocity);
 }; // update()
@@ -141,6 +152,4 @@ Mousetrap.bind('left',  function() { movement.left     = false; }, 'keyup');
 Mousetrap.bind('right', function() { movement.right    =  true; }, 'keydown');
 Mousetrap.bind('right', function() { movement.right    = false; }, 'keyup');
 Mousetrap.bind('space', function() {
-	var box = createBox(canvas.width / 2, 0, 20, 20, false, {});
-	box.SetLinearVelocity(new b2Vec2(0, 1000 / world.scale));
 });
