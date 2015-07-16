@@ -33,11 +33,15 @@ var movement = {
 	down: false
 };
 
-function createBox(x, y, w, h, static) {
+function createBox(x, y, w, h, static, fields) {
 	var fixDef = new b2FixtureDef;
 	fixDef.density = 1.0;
 	fixDef.friction = 0.5;
 	fixDef.restitution = 0.6;
+
+	if (typeof fields.density !== "undefined") fixDef.density = fields.density;
+	if (typeof fields.friction !== "undefined") fixDef.friction = fields.friction;
+	if (typeof fields.restitution !== "undefined") fixDef.restitution = fields.restitution;
  
 	var bodyDef = new b2BodyDef;
 
@@ -67,22 +71,21 @@ function init() {
 	 
 	world.scale = 30;
 
-	world.block = createBox(canvas.width / 2, canvas.height / 2, 40, 40, false);
+	world.block = createBox(canvas.width / 2, canvas.height / 2, 40, 40, false, {});
 	world.block.SetSleepingAllowed(false);
 
-	createBox(90,  30, 50, 50, false);
-	createBox(130, 30, 50, 50, false);
-	createBox(170, 30, 50, 50, false);
-	createBox(210, 30, 50, 50, false);
-	createBox(250, 30, 50, 50, false);
-	createBox(290, 30, 50, 50, false);
-	createBox(330, 30, 50, 50, false);
-	createBox(370, 30, 50, 50, false);
+	createBox(90,  30, 50, 50, false, {restitution: 0.7});
+	createBox(130, 30, 50, 50, false, {restitution: 0.7});
+	createBox(170, 30, 50, 50, false, {restitution: 0.7});
+	createBox(210, 30, 50, 50, false, {restitution: 0.7});
+	createBox(250, 30, 50, 50, false, {restitution: 0.7});
+	createBox(290, 30, 50, 50, false, {restitution: 0.7});
+	createBox(330, 30, 50, 50, false, {restitution: 0.7});
+	createBox(370, 30, 50, 50, false, {restitution: 0.7});
 
 	// world.hitme.SetGravityScale(0);
 
-
-	createBox(canvas.width / 2, canvas.height, 600, 10, true);
+	createBox(canvas.width / 2, canvas.height, 600, 10, true, {});
  
 	//setup debug draw
 	var debugDraw = new b2DebugDraw();
