@@ -52,7 +52,9 @@ function createBox(x, y, w, h) {
 	 
 	// half width, half height. eg actual height here is 1 unit
 	fixDef.shape.SetAsBox(w / world.scale, h / world.scale);
-	world.CreateBody(bodyDef).CreateFixture(fixDef);
+	box = world.CreateBody(bodyDef);
+	box.CreateFixture(fixDef);
+	return box;
 }
 
 function init() {
