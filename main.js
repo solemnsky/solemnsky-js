@@ -94,7 +94,7 @@ function createBox(x, y, w, h, static, fields) {
 	box = world.CreateBody(bodyDef);
 	box.CreateFixture(fixDef);
 	return box;
-}
+} // createBox()
 
 /**
  * Initialize the game world 
