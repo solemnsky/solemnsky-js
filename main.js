@@ -171,6 +171,8 @@ function update() {
 			continue;
 		}
 		score ++;
+		if (!projectiles[i].IsAwake())
+			score ++;
 	}
 
 	if (score > hiscore)
