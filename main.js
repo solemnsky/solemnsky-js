@@ -80,11 +80,15 @@ function init() {
 		,	10 / world.scale
 	);
 
-	/*
 	bodyDef.position.x = canvas.width / 2 / world.scale;
 	bodyDef.position.y = canvas.height / 2 / world.scale;
-	world.block = world.CreateBody(bodyDef);
+
+	/*
+	
+	
 	*/
+	
+	world.block = world.CreateBody(bodyDef);
 	fixDef.shape.SetAsBox(20, 2)
 	bodyDef.position.Set(10, 400 / 30 + 1.8)
 	world.CreateBody(bodyDef).CreateFixture(fixDef)
