@@ -147,6 +147,21 @@ function update() {
 	for (var i = projectiles.length - 1; i >= 0; i--) {
 		if (projectiles[i].GetPosition().y * world.scale > canvas.height) {
 			world.DestroyBody(projectiles[i]);
+			projectiles.splice(i, 1);
+			i --;
+			continue;
+		}
+		if (projectiles[i].GetPosition().x * world.scale > canvas.width) {
+			world.DestroyBody(projectiles[i]);
+			projectiles.splice(i, 1);
+			i --;
+			continue;
+		}
+		if (projectiles[i].GetPosition().x * world.scale < 0) {
+			world.DestroyBody(projectiles[i]);
+			projectiles.splice(i, 1);
+			i --;
+			continue;
 		}
 	};
 }; // update()
