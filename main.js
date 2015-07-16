@@ -113,28 +113,28 @@ function update() {
  
 	requestAnimFrame(update);
 
-	var blockPos = world.block.GetPosition();
+	var blockPos = new b2Vec2(world.block.GetPosition().x, world.block.GetPosition().y);
 	blockPos.Multiply(world.scale);
 
 	var linearVelocity = world.block.GetLinearVelocity();
 	if (movement.forward) {
 		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
-		var box = createBox(blockPos.x, blockPos.y, 10, 10, false, {});
+		var box = createBox(blockPos.x, blockPos.y + 10, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, 1000 / world.scale));
 	}
 	if (movement.backward) {
 		linearVelocity.Add(b2Vec2.Make(0, 10.0 / world.scale));
-		var box = createBox(blockPos.x, blockPos.y, 10, 10, false, {});
+		var box = createBox(blockPos.x, blockPos.y - 10, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, -1000 / world.scale));
 	}
 	if (movement.left) {
 		linearVelocity.Add(b2Vec2.Make(-10.0 / world.scale, 0));
-		var box = createBox(blockPos.x, blockPos.y, 10, 10, false, {});
+		var box = createBox(blockPos.x + 10, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(1000 / world.scale, 0));
 	}
 	if (movement.right) {
 		linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
-		var box = createBox(blockPos.x, blockPos.y, 10, 10, false, {});
+		var box = createBox(blockPos.x - 10, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(-1000 / world.scale, 0));
 	}
 	world.block.SetLinearVelocity(linearVelocity);
