@@ -33,7 +33,7 @@ var movement = {
 	down: false
 };
 
-function createBox(x, y, w, h) {
+function createBox(x, y, w, h, static) {
 	var fixDef = new b2FixtureDef;
 	fixDef.density = 1.0;
 	fixDef.friction = 0.5;
@@ -42,7 +42,7 @@ function createBox(x, y, w, h) {
 	var bodyDef = new b2BodyDef;
 
 	//create ground
-	bodyDef.type = b2Body.b2_staticBody;
+	bodyDef.type = (static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
 	 
 	// positions the center of the object (not upper left!)
 	bodyDef.position.x = x / world.scale;
@@ -59,52 +59,21 @@ function createBox(x, y, w, h) {
 
 function init() {
 	world = new b2World(
-		new b2Vec2(0, 10)    //gravity
+		new b2Vec2(0, 0)     //gravity
 		, true               //allow sleep
 	);
+	world.gravity = new b2Vec2(0, 10);
 	 
 	world.scale = 30;
- 
-	var fixDef = new b2FixtureDef;
-	fixDef.density = 1.0;
-	fixDef.friction = 0.5;
-	fixDef.restitution = 1.0;
- 
-	var bodyDef = new b2BodyDef;
 
-	//create some objects
-	bodyDef.type = b2Body.b2_dynamicBody;
-	fixDef.shape = new b2PolygonShape;
-	fixDef.shape.SetAsBox(
-			20 / world.scale
-		,	10 / world.scale
-	);
-
-	bodyDef.position.x = canvas.width / 2 / world.scale;
-	bodyDef.position.y = canvas.height / 2 / world.scale;
-
-	/*
-	
-	
-	*/
-	
-	world.block = world.CreateBody(bodyDef);
-	fixDef.shape.SetAsBox(20, 2)
-	bodyDef.position.Set(10, 400 / 30 + 1.8)
-	world.CreateBody(bodyDef).CreateFixture(fixDef)
-	bodyDef.position.Set(10, -1.8)
-	world.CreateBody(bodyDef).CreateFixture(fixDef)
-	fixDef.shape.SetAsBox(2, 14)
-	bodyDef.position.Set(-1.8, 13)
-	world.CreateBody(bodyDef).CreateFixture(fixDef)
-	bodyDef.position.Set(21.8, 13)
-	world.CreateBody(bodyDef).CreateFixture(fixDef)
-	
-	
-	world.block.CreateFixture(fixDef);
+	world.block = createBox(canvas.width / 2, canvas.height / 2, 20, 10, false);
 	world.block.SetSleepingAllowed(false);
 
-	createBox(canvas.width / 2, canvas.height, 300, 5);
+	world.hitme = createBox(canvas.width / 3, canvas.height / 2, 30, 30, false);
+	// world.hitme.SetGravityScale(0);
+
+
+	createBox(canvas.width / 2, canvas.height, 300, 5, true);
  
 	//setup debug draw
 	var debugDraw = new b2DebugDraw();
@@ -128,6 +97,7 @@ function update() {
 	requestAnimFrame(update);
 
 	var linearVelocity = world.block.GetLinearVelocity();
+	linearVelocity.Add(world.gravity.Multiply(1 / 60));
 	if (movement.forward) {
 		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
 	}
@@ -141,6 +111,7 @@ function update() {
 		linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
 	}
 	world.block.SetLinearVelocity(linearVelocity);
+
 }; // update()
 
 init();
