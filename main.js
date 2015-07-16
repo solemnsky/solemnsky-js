@@ -37,7 +37,7 @@ function createBox(x, y, w, h, static) {
 	var fixDef = new b2FixtureDef;
 	fixDef.density = 1.0;
 	fixDef.friction = 0.5;
-	fixDef.restitution = 1.0;
+	fixDef.restitution = 0.6;
  
 	var bodyDef = new b2BodyDef;
 
