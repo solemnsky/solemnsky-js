@@ -140,4 +140,7 @@ Mousetrap.bind('left',  function() { movement.left     =  true; }, 'keydown');
 Mousetrap.bind('left',  function() { movement.left     = false; }, 'keyup');
 Mousetrap.bind('right', function() { movement.right    =  true; }, 'keydown');
 Mousetrap.bind('right', function() { movement.right    = false; }, 'keyup');
-
+Mousetrap.bind('space', function() {
+	var box = createBox(canvas.width / 2, 0, 20, 20, false, {});
+	box.SetLinearVelocity(new b2Vec2(0, 1000 / world.scale));
+});
