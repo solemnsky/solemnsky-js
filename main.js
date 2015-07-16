@@ -164,6 +164,8 @@ function update() {
 			continue;
 		}
 	};
+
+	document.getElementById("bodycount").innerHTML = world.GetBodyCount() + " bodies";
 }; // update()
 
 init();
