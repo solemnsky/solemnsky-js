@@ -1,3 +1,0 @@
-window.solemnSky = function(){
-	
-}
