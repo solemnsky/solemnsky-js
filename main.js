@@ -113,6 +113,9 @@ function update() {
 	if (movement.forward) {
 		linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
 	}
+	if (movement.forward) {
+		linearVelocity.Add(b2Vec2.Make(0, 10.0 / world.scale));
+	}
 	if (movement.left) {
 		linearVelocity.Add(b2Vec2.Make(-10.0 / world.scale, 0));
 	}
