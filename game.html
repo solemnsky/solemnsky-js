@@ -3,6 +3,7 @@
 	<head>
 		<title>Solemn Sky</title>
 		<script src="assets/box2d.min.js"></script>
+		<script src="assets/mousetrap.min.js"></script>
 	</head>
 	<body>
 		
@@ -93,8 +94,6 @@
 			debugDraw.SetLineThickness(1.0);
 			debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
 			world.SetDebugDraw(debugDraw);
-		
-			setTimeout(init, 6000);
 		}; // init()
 	
 		function update() {
@@ -111,6 +110,10 @@
 	
 		init();
 		requestAnimFrame(update);
+
+		Mousetrap.bind('r', function() {
+			init();
+		});
 		</script>
 	</body>
 </html>
