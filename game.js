@@ -159,8 +159,6 @@ Game.prototype.init = function() {
 		}
 	};
 	this.world.SetContactListener(listener);
-
-	SolemnSky.createBox(windowSize.width / 2, windowSize.height, 600, 30, true, {});
 }; // init()
 
 /**
