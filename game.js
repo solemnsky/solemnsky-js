@@ -162,25 +162,43 @@ Game.prototype.update = function() {
     world.DrawDebugData();
     world.ClearForces();
 
+    players.forEach(function each(player) {
+        player.update();
+    });
+
+Player.prototype.update = function() {
     //What position is our player at? Use this for the new projectiles
-    var blockPos = new b2Vec2(world.block.GetPosition().x, world.block.GetPosition().y);
+    var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
     blockPos.Multiply(world.scale);
 
     //Modify your velocity to fly around in midair
-    var linearVelocity = world.block.GetLinearVelocity();
-    world.block.SetLinearVelocity(linearVelocity);
+    var linearVelocity = this.block.GetLinearVelocity();
+    if (this.movement.forward) {
+        //Move our player
+        linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
+    }
+    if (this.movement.backward) {
+        //Move our player
+        linearVelocity.Add(b2Vec2.Make(0, 10.0 / world.scale));
+    }
+    if (this.movement.left) {
+        //Move our player
+        linearVelocity.Add(b2Vec2.Make(-10.0 / world.scale, 0));
+    }
+    if (this.movement.right) {
+        //Move our player
+        linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
+    }
+    this.block.SetLinearVelocity(linearVelocity);
 
     //If we've fallen off the bottom of the screen
-    if (world.block.GetPosition().y * world.scale > canvas.height) {
+    if (this.block.GetPosition().y * world.scale > canvas.height) {
         //You lose!
-        while (projectiles.length) {
-            world.DestroyBody(projectiles.pop());
-        }
         //Reset our position back to the center
-        world.block.SetPosition(new b2Vec2(canvas.width / 2 / world.scale, canvas.height / 2 / world.scale));
-        world.block.SetLinearVelocity(new b2Vec2(0, 0));
+        this.block.SetPosition(new b2Vec2(canvas.width / 2 / world.scale, canvas.height / 2 / world.scale));
+        this.block.SetLinearVelocity(new b2Vec2(0, 0));
     }
-}; // update()
+}
 
 if (typeof(module) !== "undefined")
     module.exports = Game;
