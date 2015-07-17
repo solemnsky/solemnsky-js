@@ -133,11 +133,6 @@ Game.prototype.init = function() {
     //Meters -> Pixels scale
     world.scale = 30;
 
-    //Create the player (who is a block)
-    world.block = this.createBox(canvas.width / 2, canvas.height / 2, 30, 30, false, {});
-    //Don't sleep the player so we can move it all the time
-    world.block.SetSleepingAllowed(false);
-
     var listener = new Box2D.Dynamics.b2ContactListener;
     listener.BeginContact = function(contact) {
         var bodyA = contact.GetFixtureA().GetBody();
@@ -197,14 +192,6 @@ Player.prototype.update = function() {
         linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
     }
     this.block.SetLinearVelocity(linearVelocity);
-
-    //If we've fallen off the bottom of the screen
-    if (this.block.GetPosition().y * world.scale > canvas.height) {
-        //You lose!
-        //Reset our position back to the center
-        this.block.SetPosition(new b2Vec2(canvas.width / 2 / world.scale, canvas.height / 2 / world.scale));
-        this.block.SetLinearVelocity(new b2Vec2(0, 0));
-    }
 }
 
 if (typeof(module) !== "undefined")
