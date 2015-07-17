@@ -9,6 +9,7 @@ Game = require("./game.js");
 SolemnSky = new Game();
 SolemnSky.init();
 
+
 Game.prototype.emitBlob = function() {
     var blob = players.length;
     for (var i = 0; i < players.length; i ++) {
@@ -35,8 +36,6 @@ Server.prototype.openSocket = function(port) {
 
 		ws.send(SolemnSky.emitBlob() + "\n");
 	});
-
-	setInterval(this.onTick, 1 / 20.0);
 }
 
 Server.prototype.parseData = function(ws, data) {
@@ -59,8 +58,6 @@ Server.prototype.parseData = function(ws, data) {
 }
 
 Server.prototype.onTick = function() {
-	SolemnSky.update();
-
 	//Send all the clients a tick message
 	wss.clients.forEach(function each(client) {
 		try {
@@ -74,3 +71,8 @@ Server.prototype.onTick = function() {
 
 GameServer = new Server();
 GameServer.openSocket(50042);
+SolemnSky.addUpdateCallback(GameServer.onTick);
+
+
+//Start the tick loop
+setInterval(SolemnSky.update, 1 / 60);

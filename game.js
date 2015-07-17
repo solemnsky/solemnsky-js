@@ -1,6 +1,7 @@
 function Game() {
     world = null;
     players = [];
+    updateCallbacks = [];
 };
 
 if (typeof(canvas) === "undefined") {
@@ -23,7 +24,6 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
 
 var lastId = 0;
-
 var fps = 60.0;
 var tickTime = 1 / fps;
 
@@ -64,6 +64,10 @@ Game.prototype.deletePlayer = function(id) {
 
 Game.prototype.updatePlayer = function(id) {
     //TODO
+}
+
+Game.prototype.addUpdateCallback = function(callback) {
+    updateCallbacks.push(callback);
 }
 
 /**
@@ -165,6 +169,10 @@ Game.prototype.update = function() {
     players.forEach(function each(player) {
         player.update();
     });
+    updateCallbacks.forEach(function each(callback) {
+        callback();
+    });
+}; // update()
 
 Player.prototype.update = function() {
     //What position is our player at? Use this for the new projectiles

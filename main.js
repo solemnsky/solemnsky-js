@@ -70,6 +70,10 @@ function render() {
 //Start up the game
 SolemnSky = new Game();
 SolemnSky.init();
+SolemnSky.addUpdateCallback(render);
+SolemnSky.addUpdateCallback(function() {
+	requestAnimFrame(SolemnSky.update);
+});
 requestAnimFrame(SolemnSky.update);
 
 //Keyboard keys, just set movement variables
