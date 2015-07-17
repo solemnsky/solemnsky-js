@@ -1,0 +1,11 @@
+body {
+	margin: 0;
+}
+
+html, body, .game {
+	height: 100%;
+}
+
+.game {
+	width: 100%;
+}
