@@ -99,10 +99,22 @@ function render() {
 	});
 } // render()
 
+now = Date.now();
+then = Date.now();
+
 function update() {
-	SolemnSky.update();
-	render();
+	now = Date.now();
+
+	elapsed = now - then;
+	// console.log(elapsed);
 	requestAnimFrame(update);
+
+	if (elapsed > SolemnSky.tickTimeMs) {
+		then = now - (elapsed % SolemnSky.tickTimeMs);
+
+		SolemnSky.update();
+		render();
+	}
 } // update()
 //Start up the game
 SolemnSky = new Game();
