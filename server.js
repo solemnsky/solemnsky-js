@@ -71,6 +71,7 @@ Server.prototype.onTick = function() {
 }
 
 SolemnSky = new Game();
+SolemnSky.setFPS(5);
 SolemnSky.init();
 
 GameServer = new Server();

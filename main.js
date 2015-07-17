@@ -106,6 +106,7 @@ function update() {
 } // update()
 //Start up the game
 SolemnSky = new Game();
+SolemnSky.setFPS(60);
 SolemnSky.init();
 requestAnimFrame(update);
 

@@ -69,6 +69,15 @@ Game.prototype.updatePlayer = function(id) {
 
 Game.prototype.addUpdateCallback = function(callback) {
     this.updateCallbacks.push(callback);
+
+Game.prototype.setSimulating = function(simulating) {
+	this.simulating = simulating;
+}
+
+Game.prototype.setFPS = function(fps) {
+	this.fps = fps;
+	this.tickTime = 1 / this.fps;
+	this.tickTimeMs = 1000 / this.fps;
 }
 
 /**
@@ -153,46 +162,50 @@ Game.prototype.init = function() {
  * Method that is called on every update 
  */
 Game.prototype.update = function() {
-    this.world.Step(
-        this.tickTime   //frame-rate
-    ,   10       //velocity iterations
-    ,   10       //position iterations
-    );
-    this.world.ClearForces();
-    
-    var game = this;
-    this.players.forEach(function each(player) {
-        player.update(game);
-    });
-    this.updateCallbacks.forEach(function each(callback) {
-        callback();
-    });
+	if (this.simulating) {
+		this.world.Step(
+			this.tickTime   //frame-rate
+		,   10       //velocity iterations
+		,   10       //position iterations
+		);
+		this.world.ClearForces();
+
+		var game = this;
+		this.players.forEach(function each(player) {
+			player.update(game);
+		});
+	}
+	this.updateCallbacks.forEach(function each(callback) {
+		callback();
+	});
 }; // update()
 
 Player.prototype.update = function(game) {
-    //What position is our player at? Use this for the new projectiles
-    // var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
-    // blockPos.Multiply(this.scale);
+	//What position is our player at? Use this for the new projectiles
+	// var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
+	// blockPos.Multiply(this.scale);
 
-    //Modify your velocity to fly around in midair
-    var linearVelocity = this.block.GetLinearVelocity();
-    if (this.movement.forward) {
-        //Move our player
-        linearVelocity.Add(b2Vec2.Make(0, -10.0 / game.scale));
-    }
-    if (this.movement.backward) {
-        //Move our player
-        linearVelocity.Add(b2Vec2.Make(0, 10.0 / game.scale));
-    }
-    if (this.movement.left) {
-        //Move our player
-        linearVelocity.Add(b2Vec2.Make(-10.0 / game.scale, 0));
-    }
-    if (this.movement.right) {
-        //Move our player
-        linearVelocity.Add(b2Vec2.Make(10.0 / game.scale, 0));
-    }
-    this.block.SetLinearVelocity(linearVelocity);
+	var speed = 10 * game.tickTime * game.scale; //20 u/sec
+
+	//Modify your velocity to fly around in midair
+	var linearVelocity = this.block.GetLinearVelocity();
+	if (this.movement.forward) {
+		//Move our player
+		linearVelocity.Add(b2Vec2.Make(0, -speed / game.scale));
+	}
+	if (this.movement.backward) {
+		//Move our player
+		linearVelocity.Add(b2Vec2.Make(0, speed / game.scale));
+	}
+	if (this.movement.left) {
+		//Move our player
+		linearVelocity.Add(b2Vec2.Make(-speed / game.scale, 0));
+	}
+	if (this.movement.right) {
+		//Move our player
+		linearVelocity.Add(b2Vec2.Make(speed / game.scale, 0));
+	}
+	this.block.SetLinearVelocity(linearVelocity);
 }
 
 if (typeof(module) !== "undefined")
