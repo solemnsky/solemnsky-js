@@ -43,6 +43,7 @@ window.requestAnimFrame = (function() {
 var world;
 //Current list of projectiles shot from the box
 var projectiles = [];
+var blocks = [];
 
 //Current high score
 var hiscore = 0;
@@ -121,7 +122,7 @@ function init() {
 
 	//Create all the boxes from the list above
 	for (var i = 0; i < boxes.length; i ++) {
-		createBox(boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h, boxes[i].static, boxes[i].fields);
+		blocks.push(createBox(boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h, boxes[i].static, boxes[i].fields));
 	}
 
 	//setup debug draw
