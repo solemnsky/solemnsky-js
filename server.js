@@ -28,7 +28,7 @@ Server.prototype.openSocket = function(port) {
 			GameServer.parseData(ws, message);
 		});
 		ws.on("close", function close() {
-			deletePlayer(ws.playerId);
+			SolemnSky.deletePlayer(ws.playerId);
 		});
 
 		ws.send(SolemnSky.emitBlob() + "\n");
