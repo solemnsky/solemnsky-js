@@ -124,14 +124,14 @@ requestAnimFrame(update);
 
 
 //Keyboard keys, just set movement variables
-Mousetrap.bind('up',    function() { kbdState[0] = true  }, 'keydown');
-Mousetrap.bind('up',    function() { kbdState[0] = false }, 'keyup');
-Mousetrap.bind('down',  function() { kbdState[1] = true  }, 'keydown');
-Mousetrap.bind('down',  function() { kbdState[1] = false }, 'keyup');
-Mousetrap.bind('left',  function() { kbdState[2] = true  }, 'keydown');
-Mousetrap.bind('left',  function() { kbdState[2] = false }, 'keyup');
-Mousetrap.bind('right', function() { kbdState[3] = true  }, 'keydown');
-Mousetrap.bind('right', function() { kbdState[3] = false }, 'keyup');
+Mousetrap.bind('up',    function() { kbdState[0] = true;  sendData("MOVEMENT forward 1") }, 'keydown');
+Mousetrap.bind('up',    function() { kbdState[0] = false; sendData("MOVEMENT forward 0") }, 'keyup');
+Mousetrap.bind('down',  function() { kbdState[1] = true;  sendData("MOVEMENT backward 1") }, 'keydown');
+Mousetrap.bind('down',  function() { kbdState[1] = false; sendData("MOVEMENT backward 0") }, 'keyup');
+Mousetrap.bind('left',  function() { kbdState[2] = true;  sendData("MOVEMENT left 1") }, 'keydown');
+Mousetrap.bind('left',  function() { kbdState[2] = false; sendData("MOVEMENT left 0") }, 'keyup');
+Mousetrap.bind('right', function() { kbdState[3] = true;  sendData("MOVEMENT right 1") }, 'keydown');
+Mousetrap.bind('right', function() { kbdState[3] = false; sendData("MOVEMENT right 0") }, 'keyup');
 
 function sendEvent() {
 	sendData(makeMotionEvent.apply(kbdState).show) //makeMotionEvent(array).show gives you a nice string 
