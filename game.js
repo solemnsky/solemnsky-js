@@ -164,7 +164,10 @@ Game.prototype.init = function() {
 /**
  * Method that is called on every update 
  */
+var last = Date.now();
 Game.prototype.update = function() {
+	var diff = Date.now() - last;
+	last = Date.now();
 	if (this.simulating) {
 		this.world.Step(
 			this.tickTime   //frame-rate
@@ -175,20 +178,20 @@ Game.prototype.update = function() {
 
 		var game = this;
 		this.players.forEach(function each(player) {
-			player.update(game);
+			player.update(game, diff);
 		});
 	}
 	this.updateCallbacks.forEach(function each(callback) {
-		callback();
+		callback(diff);
 	});
 }; // update()
 
-Player.prototype.update = function(game) {
+Player.prototype.update = function(game, delta) {
 	//What position is our player at? Use this for the new projectiles
 	// var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
 	// blockPos.Multiply(this.scale);
 
-	var speed = 10 * game.tickTime * game.scale; //20 u/sec
+	var speed = 10 * (delta / 1000) * game.scale; //20 u/sec
 
 	//Modify your velocity to fly around in midair
 	var linearVelocity = this.block.GetLinearVelocity();
