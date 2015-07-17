@@ -264,6 +264,7 @@ function renderBox(body, width, height) {
 	
 	//TODO: Use the shape's path
 	ctx.fillRect(-width / 2, -height / 2, width, height);
+	ctx.strokeRect(-width / 2, -height / 2, width, height);
 }
 
 function render() {
@@ -271,13 +272,23 @@ function render() {
 	ctx.resetTransform();
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+	ctx.fillStyle = "#bbffbb";
+	ctx.strokeStyle = "#77ff77";
+
 	//Render player
 	renderBox(world.block, 30, 30);
+
+	ctx.fillStyle = "#bbbbbb";
+	ctx.strokeStyle = "#777777";
 
 	//Render all the blocks
 	for (var i = blocks.length - 1; i >= 0; i--) {
 		renderBox(blocks[i], boxes[i].w, boxes[i].h);
 	}
+
+	ctx.fillStyle = "#ffbbbb";
+	ctx.strokeStyle = "#ff7777";
+
 	for (var i = projectiles.length - 1; i >= 0; i--) {
 		renderBox(projectiles[i], 10, 10);
 	}
