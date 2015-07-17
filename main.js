@@ -124,7 +124,35 @@ function sendData(data) {
 }
 
 function parseData(data) {
-	document.getElementById("lastmessage").innerHTML = data;
+	tick(data);
+}
+
+function tick(blob) {
+    //Example tick blob:
+    //numplayers;player;player;...
+
+    var blobParts = blob.split(';');
+    var numPlayers = parseInt(blobParts[0]);
+    
+    for (var i = 0; i < numPlayers; i ++) {
+        //playerid,x,y,vx,vy
+        var playerDetails = blobParts[i+1].split(',');
+        var playerName = playerDetails[0];
+        var playerId = parseInt(playerDetails[1]);
+        var playerX  = parseFloat(playerDetails[2]);
+        var playerY  = parseFloat(playerDetails[3]);
+        var playerVX = parseFloat(playerDetails[4]);
+        var playerVY = parseFloat(playerDetails[5]);
+        
+        if (SolemnSky.findPlayerById(playerId) === -1) {
+        	SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
+        }
+        var player = players[SolemnSky.findPlayerById(playerId)];
+        player.block.SetPosition(new b2Vec2(playerX, playerY));
+        player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
+    }
+
+    document.getElementById("lastmessage").innerHTML = blob;
 }
 
 connect("198.55.237.151", 50042, "/");
