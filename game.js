@@ -9,23 +9,7 @@ if (typeof(canvas) === "undefined") {
         width = 640;
         height = 480;
     }
-    requestAnimFrame = function(callback) {
-        setInterval(callback, 1000 / 60);
-    }
-} else {
-    //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-    window.requestAnimFrame = (function() {
-        return window.requestAnimationFrame   || 
-            window.webkitRequestAnimationFrame || 
-            window.mozRequestAnimationFrame    || 
-            window.oRequestAnimationFrame      || 
-            window.msRequestAnimationFrame     || 
-            function(callback, /* DOMElement */ element){
-                window.setTimeout(callback, 1000 / 60);
-            };
-    })();
 }
-
 //Shorthands so we don't have long names for the box2d types
 var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2BodyDef      = Box2D.Dynamics.b2BodyDef
@@ -179,8 +163,6 @@ Game.prototype.update = function() {
     );
     world.DrawDebugData();
     world.ClearForces();
-
-    requestAnimFrame(this.update);
 
     //What position is our player at? Use this for the new projectiles
     var blockPos = new b2Vec2(world.block.GetPosition().x, world.block.GetPosition().y);

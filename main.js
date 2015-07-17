@@ -15,6 +15,18 @@ var boxes = [
 	{x: 570, y: 300, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}}
 ];
 
+//http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+window.requestAnimFrame = (function() {
+    return window.requestAnimationFrame   || 
+        window.webkitRequestAnimationFrame || 
+        window.mozRequestAnimationFrame    || 
+        window.oRequestAnimationFrame      || 
+        window.msRequestAnimationFrame     || 
+        function(callback, /* DOMElement */ element){
+            window.setTimeout(callback, 1000 / 60);
+        };
+})();
+
 //Current high score
 var hiscore = 0;
 
@@ -56,8 +68,9 @@ function render() {
 } // render()
 
 //Start up the game
-init();
-requestAnimFrame(update);
+SolemnSky = new Game();
+SolemnSky.init();
+requestAnimFrame(SolemnSky.update);
 
 //Keyboard keys, just set movement variables
 Mousetrap.bind('up',    function() { movement.forward  =  true; }, 'keydown');
