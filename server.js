@@ -45,7 +45,7 @@ Server.prototype.parseData = function(ws, data) {
 	// console.log("Command: " + command + " data: " + data);
 	switch (command) {
 		case "NAME":
-			ws.playerId = addPlayer(320, 240, data, "#00ff00", "");
+			ws.playerId = SolemnSky.addPlayer(320, 240, data, "#00ff00", "");
 			break;
 	}
 }
