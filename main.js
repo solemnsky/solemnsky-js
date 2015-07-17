@@ -328,3 +328,30 @@ Mousetrap.bind('left',  function() { movement.left     =  true; }, 'keydown');
 Mousetrap.bind('left',  function() { movement.left     = false; }, 'keyup');
 Mousetrap.bind('right', function() { movement.right    =  true; }, 'keydown');
 Mousetrap.bind('right', function() { movement.right    = false; }, 'keyup');
+
+var socket = null;
+var connected = false;
+
+//Connect to a server (client only)
+function connect(address, port, path) {
+    socket = new WebSocket("ws://" + address + ":" + port + path);
+    
+    socket.onopen = function() {
+        //Connected
+        connected = true;
+        socket.send("CONNECTED\n");
+    };
+    socket.onclose = function() {
+        //Disconnected
+        connected = false;
+    };
+    socket.onerror = function() {
+        alert("Do something here.");
+        connected = false;
+    };
+    socket.onmessage = function(data) {
+        alert("We got some data: " + data.data);
+    };
+}
+
+connect("198.55.237.151", 50042, "/");
