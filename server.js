@@ -30,6 +30,7 @@ Server.prototype.openSocket = function(port) {
 			GameServer.parseData(ws, message);
 		});
 		ws.on("close", function close() {
+			console.log("Client left");
 			SolemnSky.deletePlayer(ws.playerId);
 		});
 
@@ -57,6 +58,10 @@ Server.prototype.parseData = function(ws, data) {
 }
 
 Server.prototype.onTick = function() {
+	setTimeout(function() {
+		GameServer.onTick();
+	}, SolemnSky.tickTimeMs);
+
 	var blob = SolemnSky.emitBlob();
 
 	//Send all the clients a tick message
@@ -68,19 +73,16 @@ Server.prototype.onTick = function() {
 
 		}
 	});
+
+	SolemnSky.update();
 }
 
 SolemnSky = new Game();
-SolemnSky.setFPS(5);
+SolemnSky.setFPS(30);
 SolemnSky.init();
 
 GameServer = new Server();
 GameServer.openSocket(50042);
-SolemnSky.addUpdateCallback(function() {
-	GameServer.onTick();
-});
 
 //Start the tick loop
-setInterval(function() {
-	SolemnSky.update();
-}, SolemnSky.tickTimeMs);
+GameServer.onTick();
