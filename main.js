@@ -85,7 +85,8 @@ function renderBox(body, width, height) {
 function render() {
 	//Clear the display before rendering
 	ctx.resetTransform();
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect(0, 0, 100, 100);
 
 	ctx.fillStyle = "#bbffbb";
 	ctx.strokeStyle = "#77ff77";
@@ -96,14 +97,17 @@ function render() {
 	});
 } // render()
 
+function update() {
+	SolemnSky.update();
+	render();
+	requestAnimFrame(update);
+} // update()
 //Start up the game
 SolemnSky = new Game();
 SolemnSky.init();
-SolemnSky.addUpdateCallback(function() {
-	requestAnimFrame(SolemnSky.update);
-});
-SolemnSky.addUpdateCallback(render);
-requestAnimFrame(SolemnSky.update);
+// SolemnSky.addUpdateCallback(render);
+requestAnimFrame(update);
+
 
 //Keyboard keys, just set movement variables
 Mousetrap.bind('up',    function() { kbdState[0] = true  }, 'keydown');
