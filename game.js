@@ -121,7 +121,7 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
  */
 Game.prototype.init = function() {
     //Default world gravity
-    gravity = new b2Vec2(0, 10);
+    gravity = new b2Vec2(0, 0);
 
     //Create the world
     world = new b2World(
@@ -146,6 +146,9 @@ Game.prototype.init = function() {
         }
     };
     world.SetContactListener(listener);
+
+    SolemnSky.createBox(canvas.width / 2, canvas.height, 600, 30, true, {});
+
 }; // init()
 
 /**
