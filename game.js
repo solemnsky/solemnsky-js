@@ -60,8 +60,11 @@ Game.prototype.findPlayerById = function(id) {
 }
 
 Game.prototype.deletePlayer = function(id) {
-	var player = this.players[id];
-	this.players.splice(this.players.indexOf(id), 1);
+	var index = this.findPlayerById(id);
+	var player = this.players[index];
+	var block = player.block;
+	this.world.DestroyBody(block);
+	this.players.splice(index, 1);
 }
 
 Game.prototype.updatePlayer = function(id) {
