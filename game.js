@@ -3,6 +3,29 @@ function Game() {
     players = [];
 };
 
+if (typeof(canvas) === "undefined") {
+    //Server, we need to init this stuff
+    canvas = function() {
+        width = 640;
+        height = 480;
+    }
+    requestAnimFrame = function(callback) {
+        setInterval(callback, 1000 / 60);
+    }
+} else {
+    //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+    window.requestAnimFrame = (function() {
+        return window.requestAnimationFrame   || 
+            window.webkitRequestAnimationFrame || 
+            window.mozRequestAnimationFrame    || 
+            window.oRequestAnimationFrame      || 
+            window.msRequestAnimationFrame     || 
+            function(callback, /* DOMElement */ element){
+                window.setTimeout(callback, 1000 / 60);
+            };
+    })();
+}
+
 //Shorthands so we don't have long names for the box2d types
 var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2BodyDef      = Box2D.Dynamics.b2BodyDef
@@ -38,13 +61,13 @@ function Player(x, y, name, color, image) {
     };
 }
 
-function addPlayer(x, y, name, color, image) {
+Game.prototype.addPlayer = function(x, y, name, color, image) {
     var player = new Player(x, y, name, color, image);
     players.push(player);
     return player.id;
 }
 
-function findPlayerById(id) {
+Game.prototype.findPlayerById = function(id) {
     for (var i = 0; i < players.length; i ++) {
         if (players[i].id == id)
             return i;
@@ -52,12 +75,12 @@ function findPlayerById(id) {
     return -1; //Blow up here
 }
 
-function deletePlayer(id) {
+Game.prototype.deletePlayer = function(id) {
     var player = players[id];
     players.splice(players.indexOf(id), 1);
 }
 
-function updatePlayer(id) {
+Game.prototype.updatePlayer = function(id) {
     //TODO
 }
 
@@ -70,7 +93,7 @@ function updatePlayer(id) {
  * @param static If the box should be static (true for dynamic)
  * @param fields An object containing fields for the box
  */
-function createBox(x, y, w, h, static, fields) {
+Game.prototype.createBox = function(x, y, w, h, static, fields) {
     //Create a fixture definition for the box
     var fixDef = new b2FixtureDef;
     fixDef.density = 1.0;
@@ -111,7 +134,7 @@ function createBox(x, y, w, h, static, fields) {
 /**
  * Initialize the game world 
  */
-function init() {
+Game.prototype.init = function() {
     //Default world gravity
     gravity = new b2Vec2(0, 10);
 
@@ -126,7 +149,7 @@ function init() {
     world.scale = 30;
 
     //Create the player (who is a block)
-    world.block = createBox(canvas.width / 2, canvas.height / 2, 30, 30, false, {});
+    world.block = this.createBox(canvas.width / 2, canvas.height / 2, 30, 30, false, {});
     //Don't sleep the player so we can move it all the time
     world.block.SetSleepingAllowed(false);
 
@@ -148,7 +171,7 @@ function init() {
 /**
  * Method that is called on every update 
  */
-function update() {
+Game.prototype.update = function() {
     world.Step(
         1 / 60   //frame-rate
     ,   10       //velocity iterations
@@ -157,9 +180,7 @@ function update() {
     world.DrawDebugData();
     world.ClearForces();
 
-    requestAnimFrame(update);
-
-    render();
+    requestAnimFrame(this.update);
 
     //What position is our player at? Use this for the new projectiles
     var blockPos = new b2Vec2(world.block.GetPosition().x, world.block.GetPosition().y);
@@ -167,88 +188,8 @@ function update() {
 
     //Modify your velocity to fly around in midair
     var linearVelocity = world.block.GetLinearVelocity();
-    if (movement.forward) {
-        //Move our player
-        linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
-        //Create a new box from our player
-        var box = createBox(blockPos.x, blockPos.y + 10, 10, 10, false, {});
-        //Add it to the list of projectiles
-        projectiles.push(box);
-        //Shoot it out from us
-        box.SetLinearVelocity(new b2Vec2(0, 1000 / world.scale));
-    }
-    if (movement.backward) {
-        //Move our player
-        linearVelocity.Add(b2Vec2.Make(0, 10.0 / world.scale));
-        //Create a new box from our player
-        var box = createBox(blockPos.x, blockPos.y - 10, 10, 10, false, {});
-        //Add it to the list of projectiles
-        projectiles.push(box);
-        //Shoot it out from us
-        box.SetLinearVelocity(new b2Vec2(0, -1000 / world.scale));
-    }
-    if (movement.left) {
-        //Move our player
-        linearVelocity.Add(b2Vec2.Make(-10.0 / world.scale, 0));
-        //Create a new box from our player
-        var box = createBox(blockPos.x + 10, blockPos.y, 10, 10, false, {});
-        //Add it to the list of projectiles
-        projectiles.push(box);
-        //Shoot it out from us
-        box.SetLinearVelocity(new b2Vec2(1000 / world.scale, 0));
-    }
-    if (movement.right) {
-        //Move our player
-        linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
-        //Create a new box from our player
-        var box = createBox(blockPos.x - 10, blockPos.y, 10, 10, false, {});
-        //Add it to the list of projectiles
-        projectiles.push(box);
-        //Shoot it out from us
-        box.SetLinearVelocity(new b2Vec2(-1000 / world.scale, 0));
-    }
     world.block.SetLinearVelocity(linearVelocity);
 
-    //Count score while garbage collecting
-    var score = 0;
-    //Garbage collector (backwards because faster and we can mutate it)
-    for (var i = projectiles.length - 1; i >= 0; i--) {
-        var projectile = projectiles[i];
-        //Below the bottom of the screen? Delete it
-        if (projectile.GetPosition().y * world.scale > canvas.height) {
-            world.DestroyBody(projectile);
-            projectiles.splice(i, 1);
-            continue;
-        }
-        //Off the side of the screen? Delete it
-        if (projectile.GetPosition().x * world.scale > canvas.width) {
-            world.DestroyBody(projectile);
-            projectiles.splice(i, 1);
-            continue;
-        }
-        //Off the side of the screen? Delete it
-        if (projectile.GetPosition().x * world.scale < 0) {
-            world.DestroyBody(projectile);
-            projectiles.splice(i, 1);
-            continue;
-        }
-        //Off the top of the screen? Don't delete it
-        if (projectile.GetPosition().y * world.scale < 0) {
-            //Don't let us get points though
-            continue;
-        }
-        //Points!
-        score ++;
-    }
-
-    for (var i = blocks.length - 1; i >= 0; i--) {
-        var box = blocks[i];
-        if (box.life <= 0) {
-            world.DestroyBody(box);
-            blocks.splice(i, 1);
-        }
-    }
-    
     //If we've fallen off the bottom of the screen
     if (world.block.GetPosition().y * world.scale > canvas.height) {
         //You lose!
