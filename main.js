@@ -10,12 +10,24 @@ Function.prototype.partial = function() {
 	};
 };
 
+window.addEventListener('resize', function(event){
+	updateWindowSize()
+});
+
 //Some global variables for the DOM
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
 
 //Current keyboard keys pressed: up down left right
 var kbdState = [false, false, false, false]
+
+//Current window size
+function updateWindowSize() {
+	windowSize = {
+		width: window.innerWidth || document.body.clientWidth,
+		height: window.innerHeight || document.body.clientHeight
+	}
+}; updateWindowSize();
 
 //List of boxes with which to initialize the world 
 var boxes = [
