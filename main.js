@@ -200,8 +200,6 @@ function tick(blob) {
 		player.block.SetPosition(new b2Vec2(playerX, playerY));
 		player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
 	}
-
-	document.getElementById("lastmessage").innerHTML = blob;
 }
 
 connect("198.55.237.151", 50042, "/");
