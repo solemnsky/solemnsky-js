@@ -365,7 +365,7 @@ function sendData(data) {
 }
 
 function parseData(data) {
-	alert("Data: " + data);
+	document.getElementById("lastmessage").innerHTML = data;
 }
 
 connect("198.55.237.151", 50042, "/");
