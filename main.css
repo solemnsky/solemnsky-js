@@ -8,4 +8,5 @@ html, body, .game {
 
 .game {
 	width: 100%;
+	position: absolute;
 }
