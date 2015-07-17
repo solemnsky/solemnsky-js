@@ -16,15 +16,15 @@ var ctx = canvas.getContext("2d");
 
 //List of boxes with which to initialize the world 
 var boxes = [
-	{x: canvas.width / 2, y: canvas.height, w: 600, h: 10, static: true, fields: {}},
-	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
-	{x: 130, y: 110, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
-	{x: 470, y: 230, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
-	{x: 210, y: 130, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
-	{x: 350, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
-	{x: 390, y: 140, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
-	{x: 430, y: 270, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
-	{x: 570, y: 300, w: 40, h: 40, static: true, fields: {restitution: 0.7}}
+	{x: canvas.width / 2, y: canvas.height, w: 600, h: 10, static: true, fields: {life: 1e300}},
+	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 130, y: 110, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 470, y: 230, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 210, y: 130, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 350, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 390, y: 140, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 430, y: 270, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 570, y: 300, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}}
 ];
 
 //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -95,6 +95,10 @@ function createBox(x, y, w, h, static, fields) {
 	fixDef.shape.SetAsBox(w / 2 / world.scale, h / 2 / world.scale);
 	box = world.CreateBody(bodyDef);
 	box.CreateFixture(fixDef);
+
+	box.life = 1;
+	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
+
 	return box;
 } // createBox()
 
@@ -122,7 +126,9 @@ function init() {
 
 	//Create all the boxes from the list above
 	for (var i = 0; i < boxes.length; i ++) {
-		blocks.push(createBox(boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h, boxes[i].static, boxes[i].fields));
+		var block = createBox(boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h, boxes[i].static, boxes[i].fields);
+		block.boxIndex = i;
+		blocks.push(block);
 	}
 
 	var listener = new Box2D.Dynamics.b2ContactListener;
@@ -130,7 +136,12 @@ function init() {
 		var bodyA = contact.GetFixtureA().GetBody();
 		var bodyB = contact.GetFixtureB().GetBody();
 
-		//TODO: Something with contacts	
+		if (typeof bodyA.life !== "undefined") {
+			bodyA.life --;
+		}
+		if (typeof bodyB.life !== "undefined") {
+			bodyB.life --;
+		}
 	};
 	world.SetContactListener(listener);
 }; // init()
@@ -203,31 +214,40 @@ function update() {
 	var score = 0;
 	//Garbage collector (backwards because faster and we can mutate it)
 	for (var i = projectiles.length - 1; i >= 0; i--) {
+		var projectile = projectiles[i];
 		//Below the bottom of the screen? Delete it
-		if (projectiles[i].GetPosition().y * world.scale > canvas.height) {
-			world.DestroyBody(projectiles[i]);
+		if (projectile.GetPosition().y * world.scale > canvas.height) {
+			world.DestroyBody(projectile);
 			projectiles.splice(i, 1);
 			continue;
 		}
 		//Off the side of the screen? Delete it
-		if (projectiles[i].GetPosition().x * world.scale > canvas.width) {
-			world.DestroyBody(projectiles[i]);
+		if (projectile.GetPosition().x * world.scale > canvas.width) {
+			world.DestroyBody(projectile);
 			projectiles.splice(i, 1);
 			continue;
 		}
 		//Off the side of the screen? Delete it
-		if (projectiles[i].GetPosition().x * world.scale < 0) {
-			world.DestroyBody(projectiles[i]);
+		if (projectile.GetPosition().x * world.scale < 0) {
+			world.DestroyBody(projectile);
 			projectiles.splice(i, 1);
 			continue;
 		}
 		//Off the top of the screen? Don't delete it
-		if (projectiles[i].GetPosition().y * world.scale < 0) {
+		if (projectile.GetPosition().y * world.scale < 0) {
 			//Don't let us get points though
 			continue;
 		}
 		//Points!
 		score ++;
+	}
+
+	for (var i = blocks.length - 1; i >= 0; i--) {
+		var box = blocks[i];
+		if (box.life <= 0) {
+			world.DestroyBody(box);
+			blocks.splice(i, 1);
+		}
 	}
 
 	//If this is our new high score, set it
@@ -278,12 +298,13 @@ function render() {
 	//Render player
 	renderBox(world.block, 30, 30);
 
-	ctx.fillStyle = "#bbbbbb";
-	ctx.strokeStyle = "#777777";
-
 	//Render all the blocks
 	for (var i = blocks.length - 1; i >= 0; i--) {
-		renderBox(blocks[i], boxes[i].w, boxes[i].h);
+		var box = blocks[i];
+		ctx.fillStyle = "#" + tinycolor("hsv(" + (100 * box.life / boxes[box.boxIndex].fields.life)+ ", 30, 100)").toHex();
+		ctx.strokeStyle = "#" + tinycolor("hsv(" + (100 * box.life / boxes[box.boxIndex].fields.life)+ ", 50, 100)").toHex();
+
+		renderBox(box, boxes[box.boxIndex].w, boxes[box.boxIndex].h);
 	}
 
 	ctx.fillStyle = "#ffbbbb";
