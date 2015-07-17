@@ -6,8 +6,6 @@ WebSocketServer = require("ws").Server;
 
 //Import common game engine code
 Game = require("./game.js");
-SolemnSky = new Game();
-SolemnSky.init();
 
 var lastId = 0;
 
@@ -72,10 +70,16 @@ Server.prototype.onTick = function() {
 	});
 }
 
+SolemnSky = new Game();
+SolemnSky.init();
+
 GameServer = new Server();
 GameServer.openSocket(50042);
-SolemnSky.addUpdateCallback(GameServer.onTick);
-
+SolemnSky.addUpdateCallback(function() {
+	GameServer.onTick();
+});
 
 //Start the tick loop
-setInterval(SolemnSky.update, 1 / 10);
+setInterval(function() {
+	SolemnSky.update();
+}, SolemnSky.tickTimeMs);
