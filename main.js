@@ -10,8 +10,13 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
 
+//Some global variables for the DOM
+var canvas = document.getElementById("c");
+var ctx = canvas.getContext("2d");
+
 //List of boxes with which to initialize the world 
 var boxes = [
+	{x: canvas.width / 2, y: canvas.height, w: 600, h: 10, static: true, fields: {}},
 	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
 	{x: 130, y: 110, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
 	{x: 470, y: 230, w: 40, h: 40, static: true, fields: {restitution: 0.7}},
@@ -33,10 +38,6 @@ window.requestAnimFrame = (function() {
 			window.setTimeout(callback, 1000 / 60);
 		};
 })();
-
-//Some global variables for the DOM
-var canvas = document.getElementById("c");
-var ctx = canvas.getContext("2d");
 
 //The game world
 var world;
@@ -122,9 +123,6 @@ function init() {
 	for (var i = 0; i < boxes.length; i ++) {
 		createBox(boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h, boxes[i].static, boxes[i].fields);
 	}
-
-	//Create the ground
-	createBox(canvas.width / 2, canvas.height, 600, 10, true, {});
 
 	//setup debug draw
 	var debugDraw = new b2DebugDraw();
