@@ -334,24 +334,38 @@ var connected = false;
 
 //Connect to a server (client only)
 function connect(address, port, path) {
-    socket = new WebSocket("ws://" + address + ":" + port + path);
-    
-    socket.onopen = function() {
-        //Connected
-        connected = true;
-        socket.send("CONNECTED\n");
-    };
-    socket.onclose = function() {
-        //Disconnected
-        connected = false;
-    };
-    socket.onerror = function() {
-        alert("Do something here.");
-        connected = false;
-    };
-    socket.onmessage = function(data) {
-        alert("We got some data: " + data.data);
-    };
+	var name = prompt("Enter name");
+	socket = new WebSocket("ws://" + address + ":" + port + path);
+	
+	socket.onopen = function() {
+		//Connected
+		connected = true;
+		//Send a connect message
+		sendData("CONNECT");
+		sendData("NAME " + name);
+	};
+	socket.onclose = function() {
+		//Disconnected
+		connected = false;
+	};
+	socket.onerror = function() {
+		alert("Do something here.");
+		connected = false;
+	};
+	socket.onmessage = function(data) {
+		parseData(data.data);
+	};
+}
+
+//Send data to the socket server
+function sendData(data) {
+	if (connected) {
+		socket.send(data);
+	}
+}
+
+function parseData(data) {
+	alert("Data: " + data);
 }
 
 connect("198.55.237.151", 50042, "/");
