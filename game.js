@@ -1,19 +1,20 @@
 function Game() {
-    this.world = null;
-    this.players = [];
-    this.updateCallbacks = [];
-    this.fps = 30.0;
-    this.tickTime = 1 / this.fps;
-    this.tickTimeMs = 1000 / this.fps;
-    this.scale = 30;
+	this.world = null;
+	this.players = [];
+	this.updateCallbacks = [];
+	this.fps = 60.0;
+	this.tickTime = 1 / this.fps;
+	this.tickTimeMs = 1000 / this.fps;
+	this.scale = 30;
+	this.simulating = true;
 };
 
 if (typeof(windowSize) === "undefined") {
-    //Server, we need to init this stuff
-    windowSize = function() {
-        width = 640;
-        height = 480;
-    }
+	//Server, we need to init this stuff
+	windowSize = function() {
+		width = 640;
+		height = 480;
+	}
 }
 //Shorthands so we don't have long names for the box2d types
 var	  b2Vec2         = Box2D.Common.Math.b2Vec2
@@ -28,47 +29,48 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
 
 function Player(id, x, y, name, color, image) {
-    this.name = name;
-    this.color = color;
-    this.image = image;
-    this.id = id;
-    
-    this.movement = {
-        forward: false,
-        backward: false,
-        left: false,
-        right: false
-    };
+	this.name = name;
+	this.color = color;
+	this.image = image;
+	this.id = id;
+	
+	this.movement = {
+		forward: false,
+		backward: false,
+		left: false,
+		right: false
+	};
 
-    this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
+	this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
 }
 
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
-    var player = new Player(id, x, y, name, color, image);
-    this.players.push(player);
-    player.block.SetSleepingAllowed(false);
-    return player.id;
+	var player = new Player(id, x, y, name, color, image);
+	this.players.push(player);
+	player.block.SetSleepingAllowed(false);
+	return player.id;
 }
 
 Game.prototype.findPlayerById = function(id) {
-    for (var i = 0; i < this.players.length; i ++) {
-        if (this.players[i].id == id)
-            return i;
-    }
-    return -1; //Blow up here
+	for (var i = 0; i < this.players.length; i ++) {
+		if (this.players[i].id == id)
+			return i;
+	}
+	return -1; //Blow up here
 }
 
 Game.prototype.deletePlayer = function(id) {
-    var player = this.players[id];
-    this.players.splice(this.players.indexOf(id), 1);
+	var player = this.players[id];
+	this.players.splice(this.players.indexOf(id), 1);
 }
 
 Game.prototype.updatePlayer = function(id) {
-    //TODO
+	//TODO
 }
 
 Game.prototype.addUpdateCallback = function(callback) {
-    this.updateCallbacks.push(callback);
+	this.updateCallbacks.push(callback);
+}
 
 Game.prototype.setSimulating = function(simulating) {
 	this.simulating = simulating;
@@ -90,40 +92,40 @@ Game.prototype.setFPS = function(fps) {
  * @param fields An object containing fields for the box
  */
 Game.prototype.createBox = function(x, y, w, h, static, fields) {
-    //Create a fixture definition for the box
-    var fixDef = new b2FixtureDef;
-    fixDef.density = 1.0;
-    fixDef.friction = 0.5;
-    fixDef.restitution = 0.6;
+	//Create a fixture definition for the box
+	var fixDef = new b2FixtureDef;
+	fixDef.density = 1.0;
+	fixDef.friction = 0.5;
+	fixDef.restitution = 0.6;
 
-    //Read from the fields, if they exist
-    if (typeof fields !== "undefined") {
-        if (typeof fields.density !== "undefined") fixDef.density = fields.density;
-        if (typeof fields.friction !== "undefined") fixDef.friction = fields.friction;
-        if (typeof fields.restitution !== "undefined") fixDef.restitution = fields.restitution;
-    }
+	//Read from the fields, if they exist
+	if (typeof fields !== "undefined") {
+		if (typeof fields.density !== "undefined") fixDef.density = fields.density;
+		if (typeof fields.friction !== "undefined") fixDef.friction = fields.friction;
+		if (typeof fields.restitution !== "undefined") fixDef.restitution = fields.restitution;
+	}
 
-    //Create the body definition
-    var bodyDef = new b2BodyDef;
+	//Create the body definition
+	var bodyDef = new b2BodyDef;
 
-    //Box type defined by the caller
-    bodyDef.type = (static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
-    
-    //Positions the center of the object (not upper left!)
-    bodyDef.position.x = x / this.scale;
-    bodyDef.position.y = y / this.scale;
-    
-    fixDef.shape = new b2PolygonShape;
-    
-    // half width, half height. eg actual height here is 1 unit
-    fixDef.shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale);
-    box = this.world.CreateBody(bodyDef);
-    box.CreateFixture(fixDef);
+	//Box type defined by the caller
+	bodyDef.type = (static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
+	
+	//Positions the center of the object (not upper left!)
+	bodyDef.position.x = x / this.scale;
+	bodyDef.position.y = y / this.scale;
+	
+	fixDef.shape = new b2PolygonShape;
+	
+	// half width, half height. eg actual height here is 1 unit
+	fixDef.shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale);
+	box = this.world.CreateBody(bodyDef);
+	box.CreateFixture(fixDef);
 
-    box.life = 1;
-    if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
+	box.life = 1;
+	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
 
-    return box;
+	return box;
 } // createBox()
 
 
@@ -131,31 +133,31 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
  * Initialize the game world 
  */
 Game.prototype.init = function() {
-    //Default world gravity
-    this.gravity = new b2Vec2(0, 0);
+	//Default world gravity
+	this.gravity = new b2Vec2(0, 0);
 
-    //Create the world
-    this.world = new b2World(
-        this.gravity //gravity
-        , true  //allow sleep
-    );
-    this.world.gravity = this.gravity;
+	//Create the world
+	this.world = new b2World(
+		this.gravity //gravity
+		, true  //allow sleep
+	);
+	this.world.gravity = this.gravity;
 
-    var listener = new Box2D.Dynamics.b2ContactListener;
-    listener.BeginContact = function(contact) {
-        var bodyA = contact.GetFixtureA().GetBody();
-        var bodyB = contact.GetFixtureB().GetBody();
+	var listener = new Box2D.Dynamics.b2ContactListener;
+	listener.BeginContact = function(contact) {
+		var bodyA = contact.GetFixtureA().GetBody();
+		var bodyB = contact.GetFixtureB().GetBody();
 
-        if (typeof bodyA.life !== "undefined") {
-            bodyA.life --;
-        }
-        if (typeof bodyB.life !== "undefined") {
-            bodyB.life --;
-        }
-    };
-    this.world.SetContactListener(listener);
+		if (typeof bodyA.life !== "undefined") {
+			bodyA.life --;
+		}
+		if (typeof bodyB.life !== "undefined") {
+			bodyB.life --;
+		}
+	};
+	this.world.SetContactListener(listener);
 
-    SolemnSky.createBox(windowSize.width / 2, windowSize.height, 600, 30, true, {});
+	SolemnSky.createBox(windowSize.width / 2, windowSize.height, 600, 30, true, {});
 }; // init()
 
 /**
@@ -209,4 +211,4 @@ Player.prototype.update = function(game) {
 }
 
 if (typeof(module) !== "undefined")
-    module.exports = Game;
+	module.exports = Game;

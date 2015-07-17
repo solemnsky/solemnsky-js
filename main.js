@@ -46,14 +46,14 @@ var boxes = [
 
 //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function() {
-    return window.requestAnimationFrame   || 
-        window.webkitRequestAnimationFrame || 
-        window.mozRequestAnimationFrame    || 
-        window.oRequestAnimationFrame      || 
-        window.msRequestAnimationFrame     || 
-        function(callback, /* DOMElement */ element){
-            window.setTimeout(callback, SolemnSky.tickTimeMs);
-        };
+	return window.requestAnimationFrame   || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame    || 
+		window.oRequestAnimationFrame      || 
+		window.msRequestAnimationFrame     || 
+		function(callback, /* DOMElement */ element){
+			window.setTimeout(callback, SolemnSky.tickTimeMs);
+		};
 })();
 
 //Current high score
@@ -168,7 +168,7 @@ function connect(address, port, path) {
 //Send data to the socket server
 function sendData(data) {
 	if (connected) {
-		socket.send(data);
+		socket.send(data + "\n");
 	}
 }
 
@@ -177,31 +177,31 @@ function parseData(data) {
 }
 
 function tick(blob) {
-    //Example tick blob:
-    //numplayers;player;player;...
+	//Example tick blob:
+	//numplayers;player;player;...
 
-    var blobParts = blob.split(';');
-    var numPlayers = parseInt(blobParts[0]);
-    
-    for (var i = 0; i < numPlayers; i ++) {
-        //playerid,x,y,vx,vy
-        var playerDetails = blobParts[i+1].split(',');
-        var playerName = playerDetails[0];
-        var playerId = parseInt(playerDetails[1]);
-        var playerX  = parseFloat(playerDetails[2]);
-        var playerY  = parseFloat(playerDetails[3]);
-        var playerVX = parseFloat(playerDetails[4]);
-        var playerVY = parseFloat(playerDetails[5]);
-        
-        if (SolemnSky.findPlayerById(playerId) === -1) {
-        	SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
-        }
-        var player = SolemnSky.players[SolemnSky.findPlayerById(playerId)];
-        player.block.SetPosition(new b2Vec2(playerX, playerY));
-        player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
-    }
+	var blobParts = blob.split(';');
+	var numPlayers = parseInt(blobParts[0]);
+	
+	for (var i = 0; i < numPlayers; i ++) {
+		//playerid,x,y,vx,vy
+		var playerDetails = blobParts[i+1].split(',');
+		var playerName = playerDetails[0];
+		var playerId = parseInt(playerDetails[1]);
+		var playerX  = parseFloat(playerDetails[2]);
+		var playerY  = parseFloat(playerDetails[3]);
+		var playerVX = parseFloat(playerDetails[4]);
+		var playerVY = parseFloat(playerDetails[5]);
+		
+		if (SolemnSky.findPlayerById(playerId) === -1) {
+			SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
+		}
+		var player = SolemnSky.players[SolemnSky.findPlayerById(playerId)];
+		player.block.SetPosition(new b2Vec2(playerX, playerY));
+		player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
+	}
 
-    document.getElementById("lastmessage").innerHTML = blob;
+	document.getElementById("lastmessage").innerHTML = blob;
 }
 
 connect("198.55.237.151", 50042, "/");

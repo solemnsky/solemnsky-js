@@ -10,13 +10,13 @@ Game = require("./game.js");
 var lastId = 0;
 
 Game.prototype.emitBlob = function() {
-    var blob = this.players.length;
-    for (var i = 0; i < this.players.length; i ++) {
-    	var position = this.players[i].block.GetPosition();
-    	var velocity = this.players[i].block.GetLinearVelocity();
-        blob += ';' + this.players[i].name + ',' + this.players[i].id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y;
-    }
-    return blob;
+	var blob = this.players.length;
+	for (var i = 0; i < this.players.length; i ++) {
+		var position = this.players[i].block.GetPosition();
+		var velocity = this.players[i].block.GetLinearVelocity();
+		blob += ';' + this.players[i].name + ',' + this.players[i].id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y;
+	}
+	return blob;
 }
 
 
