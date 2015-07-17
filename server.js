@@ -1,33 +1,8 @@
+//Import Box2D library
+Box2D = require("./assets/box2d.min.js");
 
-var players = [];
-var lastId = 0;
-
-var fps = 60.0;
-var tickTime = 1 / fps;
-
-function Player(x, y, name, color, image) {
-    this.x = x;
-    this.y = y;
-    this.vx = 0;
-    this.vy = 0;
-    this.name = name;
-    this.color = color;
-    this.image = image;
-    this.id = lastId ++;
-    
-    this.movement = {
-        forward: false,
-        backward: false,
-        left: false,
-        right: false
-    };
-}
-
-function addPlayer(x, y, name, color, image) {
-    var player = new Player(x, y, name, color, image);
-    players.push(player);
-    return player.id;
-}
+//Import common game engine code
+require("./game.js");
 
 function emitBlob() {
     var blob = players.length;
@@ -37,38 +12,23 @@ function emitBlob() {
     return blob;
 }
 
-function findPlayerById(id) {
-    for (var i = 0; i < players.length; i ++) {
-        if (players[i].id == id)
-            return i;
-    }
-    return -1; //Blow up here
-}
-
-function deletePlayer(id) {
-    var player = players[id];
-    delete players[id];
-}
-
-function updatePlayer(id) {
-    //TODO
-}
-
 var wss;
 var WebSocketServer = require("ws").Server;
 function openSocket(port) {
-
 	wss = new WebSocketServer({port: port});
 
 	wss.on("connection", function connection(ws) {
 		ws.on("message", function incoming(message) {
-			parseData(message);
+			parseData(ws, message);
+		});
+		ws.on("close", function close() {
+			deletePlayer(ws.playerId);
 		});
 
 		ws.send(emitBlob() + "\n");
 	});
 
-	function parseData(data) {
+	function parseData(ws, data) {
 		var split = data.split(" ");
 		var command = split[0];
 		split.splice(0, 1);
@@ -76,7 +36,7 @@ function openSocket(port) {
 		console.log("Command: " + command + " data: " + data);
 		switch (command) {
 			case "NAME":
-				addPlayer(320, 240, data, "#00ff00", "");
+				ws.playerId = addPlayer(320, 240, data, "#00ff00", "");
 				break;
 		}
 	}
