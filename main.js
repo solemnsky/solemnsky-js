@@ -1,13 +1,13 @@
 //Partial application yay
 Function.prototype.partial = function() {
-  var fn = this, args = arguments;
-  return function() { 
-    var filledArgs = Array.prototype.slice.call(args);
-    for (var i=0, arg=0; arg < arguments.length; i++)
-      if (filledArgs[i] === undefined)
-        filledArgs[i] = arguments[arg++];
-    return fn.apply(this, filledArgs);
-  };
+	var fn = this, args = arguments;
+	return function() { 
+		var filledArgs = Array.prototype.slice.call(args);
+		for (var i=0, arg=0; arg < arguments.length; i++)
+			if (filledArgs[i] === undefined)
+				filledArgs[i] = arguments[arg++];
+		return fn.apply(this, filledArgs);
+	};
 };
 
 //Some global variables for the DOM
