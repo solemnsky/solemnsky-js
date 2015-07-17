@@ -4,9 +4,9 @@ function Game() {
     updateCallbacks = [];
 };
 
-if (typeof(canvas) === "undefined") {
+if (typeof(windowSize) === "undefined") {
     //Server, we need to init this stuff
-    canvas = function() {
+    windowSize = function() {
         width = 640;
         height = 480;
     }
@@ -148,7 +148,7 @@ Game.prototype.init = function() {
     };
     world.SetContactListener(listener);
 
-    SolemnSky.createBox(canvas.width / 2, canvas.height, 600, 30, true, {});
+    SolemnSky.createBox(windowSize.width / 2, windowSize.height, 600, 30, true, {});
 
 }; // init()
 
