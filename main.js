@@ -65,22 +65,6 @@ function render() {
 
 	//Render player
 	renderBox(world.block, 30, 30);
-
-	//Render all the blocks
-	for (var i = blocks.length - 1; i >= 0; i--) {
-		var box = blocks[i];
-		ctx.fillStyle = "#" + tinycolor("hsv(" + (100 * box.life / boxes[box.boxIndex].fields.life)+ ", 30, 100)").toHex();
-		ctx.strokeStyle = "#" + tinycolor("hsv(" + (100 * box.life / boxes[box.boxIndex].fields.life)+ ", 50, 100)").toHex();
-
-		renderBox(box, boxes[box.boxIndex].w, boxes[box.boxIndex].h);
-	}
-
-	ctx.fillStyle = "#ffbbbb";
-	ctx.strokeStyle = "#ff7777";
-
-	for (var i = projectiles.length - 1; i >= 0; i--) {
-		renderBox(projectiles[i], 10, 10);
-	}
 } // render()
 
 //Start up the game

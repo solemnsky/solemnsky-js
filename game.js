@@ -1,3 +1,8 @@
+function Game() {
+    world = null;
+    players = [];
+};
+
 //Shorthands so we don't have long names for the box2d types
 var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2BodyDef      = Box2D.Dynamics.b2BodyDef
@@ -10,14 +15,6 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
 
-//The game world
-var world;
-
-//Current list of projectiles shot from the box
-var projectiles = [];
-var blocks = [];
-
-var players = [];
 var lastId = 0;
 
 var fps = 60.0;
@@ -132,13 +129,6 @@ function init() {
     world.block = createBox(canvas.width / 2, canvas.height / 2, 30, 30, false, {});
     //Don't sleep the player so we can move it all the time
     world.block.SetSleepingAllowed(false);
-
-    //Create all the boxes from the list above
-    for (var i = 0; i < boxes.length; i ++) {
-        var block = createBox(boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h, boxes[i].static, boxes[i].fields);
-        block.boxIndex = i;
-        blocks.push(block);
-    }
 
     var listener = new Box2D.Dynamics.b2ContactListener;
     listener.BeginContact = function(contact) {
@@ -270,3 +260,6 @@ function update() {
         world.block.SetLinearVelocity(new b2Vec2(0, 0));
     }
 }; // update()
+
+if (typeof(module) !== "undefined")
+    module.exports = Game;
