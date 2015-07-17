@@ -70,8 +70,8 @@ function renderBox(body, width, height) {
 	ctx.resetTransform();
 
 	//Box position
-	var playerX = body.GetPosition().x * world.scale;
-	var playerY = body.GetPosition().y * world.scale;
+	var playerX = body.GetPosition().x * SolemnSky.scale;
+	var playerY = body.GetPosition().y * SolemnSky.scale;
 
 	//Transform the context to render this in position
 	ctx.translate(playerX, playerY);
@@ -92,7 +92,7 @@ function render() {
 	ctx.strokeStyle = "#77ff77";
 
 	//Render player
-	players.forEach(function each(player) {
+	SolemnSky.players.forEach(function each(player) {
 		renderBox(player.block, 30, 30);
 	});
 } // render()
@@ -105,7 +105,6 @@ function update() {
 //Start up the game
 SolemnSky = new Game();
 SolemnSky.init();
-// SolemnSky.addUpdateCallback(render);
 requestAnimFrame(update);
 
 
@@ -182,7 +181,7 @@ function tick(blob) {
         if (SolemnSky.findPlayerById(playerId) === -1) {
         	SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
         }
-        var player = players[SolemnSky.findPlayerById(playerId)];
+        var player = SolemnSky.players[SolemnSky.findPlayerById(playerId)];
         player.block.SetPosition(new b2Vec2(playerX, playerY));
         player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
     }

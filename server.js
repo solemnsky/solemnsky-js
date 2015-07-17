@@ -10,11 +10,11 @@ Game = require("./game.js");
 var lastId = 0;
 
 Game.prototype.emitBlob = function() {
-    var blob = players.length;
-    for (var i = 0; i < players.length; i ++) {
-    	var position = players[i].block.GetPosition();
-    	var velocity = players[i].block.GetLinearVelocity();
-        blob += ';' + players[i].name + ',' + players[i].id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y;
+    var blob = this.players.length;
+    for (var i = 0; i < this.players.length; i ++) {
+    	var position = this.players[i].block.GetPosition();
+    	var velocity = this.players[i].block.GetLinearVelocity();
+        blob += ';' + this.players[i].name + ',' + this.players[i].id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y;
     }
     return blob;
 }
@@ -45,13 +45,13 @@ Server.prototype.parseData = function(ws, data) {
 	// console.log("Command: " + command + " data: " + data);
 	switch (command) {
 		case "NAME":
-			ws.playerId = SolemnSky.addPlayer(lastId++, 320 / world.scale, 240 / world.scale, data, "#00ff00", "");
+			ws.playerId = SolemnSky.addPlayer(lastId++, 320 / SolemnSky.scale, 240 / SolemnSky.scale, data, "#00ff00", "");
 			break;
 		case "MOVEMENT":
 			var id = ws.playerId;
 			var direction = split[0];
 			var state = parseInt(split[1]);
-			players[SolemnSky.findPlayerById(id)].movement[direction] = state;
+			SolemnSky.players[SolemnSky.findPlayerById(id)].movement[direction] = state;
 			break;
 	}
 }

@@ -1,10 +1,11 @@
 function Game() {
-    world = null;
-    players = [];
-    updateCallbacks = [];
-    this.fps = 60.0;
+    this.world = null;
+    this.players = [];
+    this.updateCallbacks = [];
+    this.fps = 30.0;
     this.tickTime = 1 / this.fps;
     this.tickTimeMs = 1000 / this.fps;
+    this.scale = 30;
 };
 
 if (typeof(windowSize) === "undefined") {
@@ -44,22 +45,22 @@ function Player(id, x, y, name, color, image) {
 
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
     var player = new Player(id, x, y, name, color, image);
-    players.push(player);
+    this.players.push(player);
     player.block.SetSleepingAllowed(false);
     return player.id;
 }
 
 Game.prototype.findPlayerById = function(id) {
-    for (var i = 0; i < players.length; i ++) {
-        if (players[i].id == id)
+    for (var i = 0; i < this.players.length; i ++) {
+        if (this.players[i].id == id)
             return i;
     }
     return -1; //Blow up here
 }
 
 Game.prototype.deletePlayer = function(id) {
-    var player = players[id];
-    players.splice(players.indexOf(id), 1);
+    var player = this.players[id];
+    this.players.splice(this.players.indexOf(id), 1);
 }
 
 Game.prototype.updatePlayer = function(id) {
@@ -67,7 +68,7 @@ Game.prototype.updatePlayer = function(id) {
 }
 
 Game.prototype.addUpdateCallback = function(callback) {
-    updateCallbacks.push(callback);
+    this.updateCallbacks.push(callback);
 }
 
 /**
@@ -100,14 +101,14 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
     bodyDef.type = (static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
     
     //Positions the center of the object (not upper left!)
-    bodyDef.position.x = x / world.scale;
-    bodyDef.position.y = y / world.scale;
+    bodyDef.position.x = x / this.scale;
+    bodyDef.position.y = y / this.scale;
     
     fixDef.shape = new b2PolygonShape;
     
     // half width, half height. eg actual height here is 1 unit
-    fixDef.shape.SetAsBox(w / 2 / world.scale, h / 2 / world.scale);
-    box = world.CreateBody(bodyDef);
+    fixDef.shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale);
+    box = this.world.CreateBody(bodyDef);
     box.CreateFixture(fixDef);
 
     box.life = 1;
@@ -122,17 +123,14 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
  */
 Game.prototype.init = function() {
     //Default world gravity
-    gravity = new b2Vec2(0, 0);
+    this.gravity = new b2Vec2(0, 0);
 
     //Create the world
-    world = new b2World(
-        gravity //gravity
+    this.world = new b2World(
+        this.gravity //gravity
         , true  //allow sleep
     );
-    world.gravity = gravity;
-    
-    //Meters -> Pixels scale
-    world.scale = 30;
+    this.world.gravity = this.gravity;
 
     var listener = new Box2D.Dynamics.b2ContactListener;
     listener.BeginContact = function(contact) {
@@ -146,52 +144,53 @@ Game.prototype.init = function() {
             bodyB.life --;
         }
     };
-    world.SetContactListener(listener);
+    this.world.SetContactListener(listener);
 
     SolemnSky.createBox(windowSize.width / 2, windowSize.height, 600, 30, true, {});
-
 }; // init()
 
 /**
  * Method that is called on every update 
  */
 Game.prototype.update = function() {
-    world.Step(
-        1 / 10   //frame-rate
+    this.world.Step(
+        this.tickTime   //frame-rate
     ,   10       //velocity iterations
     ,   10       //position iterations
     );
-    players.forEach(function each(player) {
-        player.update();
+    this.world.ClearForces();
+    
+    var game = this;
+    this.players.forEach(function each(player) {
+        player.update(game);
     });
-    updateCallbacks.forEach(function each(callback) {
+    this.updateCallbacks.forEach(function each(callback) {
         callback();
     });
-    world.ClearForces();
 }; // update()
 
-Player.prototype.update = function() {
+Player.prototype.update = function(game) {
     //What position is our player at? Use this for the new projectiles
-    var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
-    blockPos.Multiply(world.scale);
+    // var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
+    // blockPos.Multiply(this.scale);
 
     //Modify your velocity to fly around in midair
     var linearVelocity = this.block.GetLinearVelocity();
     if (this.movement.forward) {
         //Move our player
-        linearVelocity.Add(b2Vec2.Make(0, -10.0 / world.scale));
+        linearVelocity.Add(b2Vec2.Make(0, -10.0 / game.scale));
     }
     if (this.movement.backward) {
         //Move our player
-        linearVelocity.Add(b2Vec2.Make(0, 10.0 / world.scale));
+        linearVelocity.Add(b2Vec2.Make(0, 10.0 / game.scale));
     }
     if (this.movement.left) {
         //Move our player
-        linearVelocity.Add(b2Vec2.Make(-10.0 / world.scale, 0));
+        linearVelocity.Add(b2Vec2.Make(-10.0 / game.scale, 0));
     }
     if (this.movement.right) {
         //Move our player
-        linearVelocity.Add(b2Vec2.Make(10.0 / world.scale, 0));
+        linearVelocity.Add(b2Vec2.Make(10.0 / game.scale, 0));
     }
     this.block.SetLinearVelocity(linearVelocity);
 }
