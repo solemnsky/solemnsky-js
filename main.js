@@ -64,18 +64,18 @@ function render() {
 	ctx.strokeStyle = "#77ff77";
 
 	//Render player
-	players.forEach(function() {
-		renderBox(this.block, 30, 30);
+	players.forEach(function each(player) {
+		renderBox(player.block, 30, 30);
 	});
 } // render()
 
 //Start up the game
 SolemnSky = new Game();
 SolemnSky.init();
-SolemnSky.addUpdateCallback(render);
 SolemnSky.addUpdateCallback(function() {
 	requestAnimFrame(SolemnSky.update);
 });
+SolemnSky.addUpdateCallback(render);
 requestAnimFrame(SolemnSky.update);
 
 //Keyboard keys, just set movement variables
