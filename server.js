@@ -1,12 +1,13 @@
 //Import Box2D library
 Box2D = require("./assets/box2d.min.js");
 
+//Socket server
+WebSocketServer = require("ws").Server;
+
 //Import common game engine code
 Game = require("./game.js");
 SolemnSky = new Game();
-
-//Socket server
-WebSocketServer = require("ws").Server;
+SolemnSky.init();
 
 Game.prototype.emitBlob = function() {
     var blob = players.length;
@@ -50,6 +51,8 @@ Server.prototype.parseData = function(ws, data) {
 }
 
 Server.prototype.onTick = function() {
+	SolemnSky.update();
+
 	//Send all the clients a tick message
 	wss.clients.forEach(function each(client) {
 		try {
