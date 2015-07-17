@@ -49,6 +49,12 @@ Server.prototype.parseData = function(ws, data) {
 		case "NAME":
 			ws.playerId = SolemnSky.addPlayer(320, 240, data, "#00ff00", "");
 			break;
+		case "MOVEMENT":
+			var id = ws.playerId;
+			var direction = split[0];
+			var state = parseInt(split[1]);
+			players[SolemnSky.findPlayerById(id)].movement[direction] = state;
+			break;
 	}
 }
 

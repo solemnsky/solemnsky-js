@@ -73,14 +73,14 @@ SolemnSky.init();
 requestAnimFrame(SolemnSky.update);
 
 //Keyboard keys, just set movement variables
-Mousetrap.bind('up',    function() { movement.forward  =  true; }, 'keydown');
-Mousetrap.bind('up',    function() { movement.forward  = false; }, 'keyup');
-Mousetrap.bind('down',  function() { movement.backward =  true; }, 'keydown');
-Mousetrap.bind('down',  function() { movement.backward = false; }, 'keyup');
-Mousetrap.bind('left',  function() { movement.left     =  true; }, 'keydown');
-Mousetrap.bind('left',  function() { movement.left     = false; }, 'keyup');
-Mousetrap.bind('right', function() { movement.right    =  true; }, 'keydown');
-Mousetrap.bind('right', function() { movement.right    = false; }, 'keyup');
+Mousetrap.bind('up',    function() { sendData("MOVEMENT up 1");    }, 'keydown');
+Mousetrap.bind('up',    function() { sendData("MOVEMENT up 0");    }, 'keyup');
+Mousetrap.bind('down',  function() { sendData("MOVEMENT down 1");  }, 'keydown');
+Mousetrap.bind('down',  function() { sendData("MOVEMENT down 0");  }, 'keyup');
+Mousetrap.bind('left',  function() { sendData("MOVEMENT left 1");  }, 'keydown');
+Mousetrap.bind('left',  function() { sendData("MOVEMENT left 0");  }, 'keyup');
+Mousetrap.bind('right', function() { sendData("MOVEMENT right 1"); }, 'keydown');
+Mousetrap.bind('right', function() { sendData("MOVEMENT right 0"); }, 'keyup');
 
 var socket = null;
 var connected = false;
