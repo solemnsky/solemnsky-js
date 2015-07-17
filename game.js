@@ -23,15 +23,14 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
 
-var lastId = 0;
 var fps = 60.0;
 var tickTime = 1 / fps;
 
-function Player(x, y, name, color, image) {
+function Player(id, x, y, name, color, image) {
     this.name = name;
     this.color = color;
     this.image = image;
-    this.id = lastId ++;
+    this.id = id;
     
     this.movement = {
         forward: false,
@@ -43,8 +42,8 @@ function Player(x, y, name, color, image) {
     this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
 }
 
-Game.prototype.addPlayer = function(x, y, name, color, image) {
-    var player = new Player(x, y, name, color, image);
+Game.prototype.addPlayer = function(id, x, y, name, color, image) {
+    var player = new Player(id, x, y, name, color, image);
     players.push(player);
     return player.id;
 }

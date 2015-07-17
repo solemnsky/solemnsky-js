@@ -9,6 +9,7 @@ Game = require("./game.js");
 SolemnSky = new Game();
 SolemnSky.init();
 
+var lastId = 0;
 
 Game.prototype.emitBlob = function() {
     var blob = players.length;
@@ -46,7 +47,7 @@ Server.prototype.parseData = function(ws, data) {
 	// console.log("Command: " + command + " data: " + data);
 	switch (command) {
 		case "NAME":
-			ws.playerId = SolemnSky.addPlayer(320, 240, data, "#00ff00", "");
+			ws.playerId = SolemnSky.addPlayer(lastId++, 320 / world.scale, 240 / world.scale, data, "#00ff00", "");
 			break;
 		case "MOVEMENT":
 			var id = ws.playerId;
