@@ -1,6 +1,21 @@
+//Partial application yay
+Function.prototype.partial = function() {
+  var fn = this, args = arguments;
+  return function() { 
+    var filledArgs = Array.prototype.slice.call(args);
+    for (var i=0, arg=0; arg < arguments.length; i++)
+      if (filledArgs[i] === undefined)
+        filledArgs[i] = arguments[arg++];
+    return fn.apply(this, filledArgs);
+  };
+};
+
 //Some global variables for the DOM
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
+
+//Current keyboard keys pressed: up down left right
+var kbdState = [false, false, false, false]
 
 //List of boxes with which to initialize the world 
 var boxes = [
@@ -79,14 +94,18 @@ SolemnSky.addUpdateCallback(render);
 requestAnimFrame(SolemnSky.update);
 
 //Keyboard keys, just set movement variables
-Mousetrap.bind('up',    function() { sendData("MOVEMENT forward 1");  }, 'keydown');
-Mousetrap.bind('up',    function() { sendData("MOVEMENT forward 0");  }, 'keyup');
-Mousetrap.bind('down',  function() { sendData("MOVEMENT backward 1"); }, 'keydown');
-Mousetrap.bind('down',  function() { sendData("MOVEMENT backward 0"); }, 'keyup');
-Mousetrap.bind('left',  function() { sendData("MOVEMENT left 1");     }, 'keydown');
-Mousetrap.bind('left',  function() { sendData("MOVEMENT left 0");     }, 'keyup');
-Mousetrap.bind('right', function() { sendData("MOVEMENT right 1");    }, 'keydown');
-Mousetrap.bind('right', function() { sendData("MOVEMENT right 0");    }, 'keyup');
+Mousetrap.bind('up',    function() { kbdState[0] = true  }, 'keydown');
+Mousetrap.bind('up',    function() { kbdState[0] = false }, 'keyup');
+Mousetrap.bind('down',  function() { kbdState[1] = true  }, 'keydown');
+Mousetrap.bind('down',  function() { kbdState[1] = false }, 'keyup');
+Mousetrap.bind('left',  function() { kbdState[2] = true  }, 'keydown');
+Mousetrap.bind('left',  function() { kbdState[2] = false }, 'keyup');
+Mousetrap.bind('right', function() { kbdState[3] = true  }, 'keydown');
+Mousetrap.bind('right', function() { kbdState[3] = false }, 'keyup');
+
+function sendEvent() {
+	sendData(makeMotionEvent.apply(kbdState).show) //makeMotionEvent(array).show gives you a nice string 
+}
 
 var socket = null;
 var connected = false;
