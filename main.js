@@ -27,6 +27,8 @@ function updateWindowSize() {
 		width: window.innerWidth || document.body.clientWidth,
 		height: window.innerHeight || document.body.clientHeight
 	}
+	canvas.width = windowSize.width;
+	canvas.height = windowSize.height;
 }; updateWindowSize();
 
 //List of boxes with which to initialize the world 
@@ -86,7 +88,7 @@ function render() {
 	//Clear the display before rendering
 	ctx.resetTransform();
 	ctx.fillStyle = "#ffffff";
-	ctx.fillRect(0, 0, 100, 100);
+	ctx.fillRect(0, 0, windowSize.width, windowSize.height);
 
 	ctx.fillStyle = "#bbffbb";
 	ctx.strokeStyle = "#77ff77";
