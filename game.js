@@ -161,15 +161,13 @@ Game.prototype.update = function() {
     ,   10       //velocity iterations
     ,   10       //position iterations
     );
-    world.DrawDebugData();
-    world.ClearForces();
-
     players.forEach(function each(player) {
         player.update();
     });
     updateCallbacks.forEach(function each(callback) {
         callback();
     });
+    world.ClearForces();
 }; // update()
 
 Player.prototype.update = function() {
