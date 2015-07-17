@@ -45,6 +45,7 @@ function Player(id, x, y, name, color, image) {
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
     var player = new Player(id, x, y, name, color, image);
     players.push(player);
+    player.block.SetSleepingAllowed(false);
     return player.id;
 }
 
@@ -156,7 +157,7 @@ Game.prototype.init = function() {
  */
 Game.prototype.update = function() {
     world.Step(
-        1 / 60   //frame-rate
+        1 / 10   //frame-rate
     ,   10       //velocity iterations
     ,   10       //position iterations
     );

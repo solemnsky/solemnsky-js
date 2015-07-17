@@ -59,10 +59,12 @@ Server.prototype.parseData = function(ws, data) {
 }
 
 Server.prototype.onTick = function() {
+	var blob = SolemnSky.emitBlob();
+
 	//Send all the clients a tick message
 	wss.clients.forEach(function each(client) {
 		try {
-			client.send(SolemnSky.emitBlob() + "\n");
+			client.send(blob + "\n");
 		} catch (e) {
 			//They've disconnected
 
@@ -76,4 +78,4 @@ SolemnSky.addUpdateCallback(GameServer.onTick);
 
 
 //Start the tick loop
-setInterval(SolemnSky.update, 1 / 60);
+setInterval(SolemnSky.update, 1 / 10);
