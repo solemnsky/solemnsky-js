@@ -125,15 +125,6 @@ function init() {
 		blocks.push(createBox(boxes[i].x, boxes[i].y, boxes[i].w, boxes[i].h, boxes[i].static, boxes[i].fields));
 	}
 
-	//setup debug draw
-	var debugDraw = new b2DebugDraw();
-	debugDraw.SetSprite(document.getElementById("c").getContext("2d"));
-	debugDraw.SetDrawScale(world.scale);
-	debugDraw.SetFillAlpha(0.3);
-	debugDraw.SetLineThickness(1.0);
-	debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-	world.SetDebugDraw(debugDraw);
-
 	var listener = new Box2D.Dynamics.b2ContactListener;
 	listener.BeginContact = function(contact) {
 		var bodyA = contact.GetFixtureA().GetBody();
@@ -157,6 +148,8 @@ function update() {
 	world.ClearForces();
 
 	requestAnimFrame(update);
+
+	render();
 
 	//What position is our player at? Use this for the new projectiles
 	var blockPos = new b2Vec2(world.block.GetPosition().x, world.block.GetPosition().y);
@@ -256,6 +249,39 @@ function update() {
 		world.block.SetLinearVelocity(new b2Vec2(0, 0));
 	}
 }; // update()
+
+function renderBox(body, width, height) {
+	//Reset the transform of the context
+	ctx.resetTransform();
+
+	//Box position
+	var playerX = body.GetPosition().x * world.scale;
+	var playerY = body.GetPosition().y * world.scale;
+
+	//Transform the context to render this in position
+	ctx.translate(playerX, playerY);
+	ctx.rotate(body.GetAngle());
+	
+	//TODO: Use the shape's path
+	ctx.fillRect(-width / 2, -height / 2, width, height);
+}
+
+function render() {
+	//Clear the display before rendering
+	ctx.resetTransform();
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	//Render player
+	renderBox(world.block, 30, 30);
+
+	//Render all the blocks
+	for (var i = blocks.length - 1; i >= 0; i--) {
+		renderBox(blocks[i], boxes[i].w, boxes[i].h);
+	}
+	for (var i = projectiles.length - 1; i >= 0; i--) {
+		renderBox(projectiles[i], 10, 10);
+	}
+} // render()
 
 //Start up the game
 init();
