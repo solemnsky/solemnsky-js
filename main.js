@@ -64,7 +64,9 @@ function render() {
 	ctx.strokeStyle = "#77ff77";
 
 	//Render player
-	renderBox(world.block, 30, 30);
+	players.forEach(function() {
+		renderBox(this.block, 30, 30);
+	});
 } // render()
 
 //Start up the game
