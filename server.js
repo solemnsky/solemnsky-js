@@ -12,7 +12,9 @@ SolemnSky.init();
 Game.prototype.emitBlob = function() {
     var blob = players.length;
     for (var i = 0; i < players.length; i ++) {
-        blob += ';' + players[i].name + ',' + players[i].id + ',' + players[i].x + ',' + players[i].y + ',' + players[i].vx + ',' + players[i].vy;
+    	var position = players[i].block.GetPosition();
+    	var velocity = players[i].block.GetLinearVelocity();
+        blob += ';' + players[i].name + ',' + players[i].id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y;
     }
     return blob;
 }

@@ -28,10 +28,6 @@ var fps = 60.0;
 var tickTime = 1 / fps;
 
 function Player(x, y, name, color, image) {
-    this.x = x;
-    this.y = y;
-    this.vx = 0;
-    this.vy = 0;
     this.name = name;
     this.color = color;
     this.image = image;
@@ -43,6 +39,8 @@ function Player(x, y, name, color, image) {
         left: false,
         right: false
     };
+
+    this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
 }
 
 Game.prototype.addPlayer = function(x, y, name, color, image) {
