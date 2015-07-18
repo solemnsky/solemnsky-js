@@ -14,12 +14,11 @@ function Game() {
 // a modification of a single player's dynamic state (pos, vel)
 // if any of the parameters is null, that parameter
 // will not influence the target player's state
-function SnapshotPoint(id, movement, vel) {
-	this.id = id; this.movement =  movement 
-	this.pos = null;
-		if (pos != null) 
-			{ this.pos = 
-					new b2Vec2.make(vel.x, vel.y)}
+function SnapshotPoint(id, pos, movement, vel) {
+	this.id = id;
+	this.movement =  movement ;
+	this.pos = pos;
+	this.vel = vel;
 }
 
 Game.prototype.applySnapshotPoint = function(snapshot) {
@@ -37,11 +36,13 @@ Game.prototype.applySnapshot = function(snapshot) {
 
 // makes a snapshot concerning one player
 Game.prototype.makeSnapshotPoint = function(id) {
-	var player = this.findPlayerByID(id)
-	var velocity = player.block.GetLinearVelocity
- 	return SnapshotPoint (id
-		, movement = player.movement
-		, vel = {x: velocity.x, y: velocity.y})
+	var player = this.players[this.findPlayerById(id)]
+	var velocity = player.block.GetLinearVelocity()
+	var position = player.block.GetPosition();
+ 	return new SnapshotPoint (id
+ 		, {x: position.x, y: position.y}
+		, player.movement
+		, {x: velocity.x, y: velocity.y})
 }
 
 // makes a snapshot concerning an array of players
@@ -52,12 +53,13 @@ Game.prototype.makeSnapshot = function(ids) {
 }
 
 function serialiseSnapshot(snapshot) {
-	JSON.stringify(snapshot);	
+	return JSON.stringify(snapshot);	
 }
 
 function readSnapshot(str) {
-	JSON.parse(str);
+	return JSON.parse(str);
 }
+
 /**** }}} snapshots ****/
 
 if (typeof(windowSize) === "undefined") {
