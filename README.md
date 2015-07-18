@@ -1,4 +1,4 @@
-# SolemnSky technical reference for collaborators
+# SolemnSky technical reference 
 
 ## game engine reference card
 
@@ -23,6 +23,7 @@
 
 ### snapshots
   A snapshot represents a sort of delta in the dynamic part of the game state; a player, alone, might send snapshots of itself to the server, where they are simply merged, but in an engagement, where one player kills another player, perhaps the snapshot from the killer that said his shot hit could override the snapshot from the victim who thought the shot had missed (these sort of decisions are inevitable if we don't want to go back to the 'mile long keyboard')
+  Snapshots are simple arrays of JSON objects and can be modified after being created with makeSnapshot. Assigning a null value to a parameter makes that parameter have no effect when applied to an engine.
 
  - Game.makeSnapshot([id])
    - makes a snapshot with the dynamic state from the players whos id is an element of the array given
@@ -55,3 +56,50 @@
  - Game.readMap(string)
  - Game.emitMap()
    - emits the current map (useful for server)
+
+## outline of protocol
+
+>> represents a client action
+<< represents a server action
+
+All messages over the web socket are prefixed with a single-word descriptor in capital LETTERS.
+
+Connection protocol:
+
+    >> CONNECT
+    << MAP <serialiseMap()>
+    >> loadMap()
+    >> NAME <name>
+    << ID <new player id>
+    << addPlayer()
+    << LIST <serialiseListing()> (to all clients)
+    >> applyListing()
+
+Snapshot loop (~20Hz):
+
+    >> SNAP <serialiseSnapshot()> (to all clients)
+    << applySnapshot()
+    << broadcast SNAP <emitTotalSnapshot()> (from all clients)
+    >> applySnapshot() (in response to all clients)
+
+Chat protocol:
+
+    >> CHAT <message>
+    << CHAT <id> <message> (to all players)
+
+Quit protocol:
+
+    >> (stop responding)
+    << remove player from listing
+    << LIST <serialiseListing()> (to all clients)
+
+verbs:
+ - CONNECT (apparently just a dummy message)
+ - MAP: serialised map data
+ - NAME: client requests name
+ - ID: server confirms name, sends id
+ - LIST: listing data 
+ - SNAP: snapshot data
+ - CHAT: 
+   - (from client) say something
+   - (from server) broadcast a client's message (along with player id)
