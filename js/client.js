@@ -205,37 +205,16 @@ function tick(data) {
 
 	switch (command) {
 	case "SNAP":
-		SolemnSky.applySnapshot(readSnapshot(data))
-		break;
+		SolemnSky.applySnapshot(SolemnSky.readSnapshot(data)); break;
 	case "LIST":
-		SolemnSky.applyListing(readListing(data));
-		break;
+		SolemnSky.applyListing(SolemnSky.readListing(data)); break;
 	case "MAP":
-		var blobParts = data.split(";");
-		var numBoxes = parseInt(blobParts[0]);
-
-		for (var i = 0; i < numBoxes; i ++) {
-			var boxDetails = blobParts[i + 1].split(",");
-			var boxX = Utils.charToFloat(boxDetails[0]);
-			var boxY = Utils.charToFloat(boxDetails[1]);
-			var boxW = Utils.charToFloat(boxDetails[2]);
-			var boxH = Utils.charToFloat(boxDetails[3]);
-			var boxStatic = boxDetails[4];
-			var boxFields = JSON.parse(boxDetails[5].replace(/\\:/g, ","));
-
-			var box = SolemnSky.createBox(boxX, boxY, boxW, boxH, boxStatic, boxFields);
-			SolemnSky.boxes.push(box);
-		}
-		break;
+		SolemnSky.loadMap(SolemnSky.readMap(data)); break;
 	case "ID":
-		myid = parseInt(data[0]);
-
-		addChat("Joined Server");
-		break;
+		myid = parseInt(data[0])
+		addChat("Joined Server"); break;
 	case "JOIN":
-		var name = data;
-		addChat(name + " joined server.");
-		break;
+		addChat(data + " joined server."); break;
 	case "CHAT":
 		var id = split[0];
 		var message = split.slice(1).join(" ");

@@ -93,7 +93,6 @@ Server.prototype.openSocket = function(port) {
 	});
 }
 
-
 // previously emitBoxBlob, now reflects that this will
 // eventually before a form of distributing a more featureful map
 Server.prototype.emitMapBlob = function() {

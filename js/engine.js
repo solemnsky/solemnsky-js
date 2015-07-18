@@ -155,16 +155,22 @@ function readSnapshot(str) {
 
 Game.prototype.applyListing = function () {
 	listing.forEach(
-		function(player) {
-			// TODO
+		function(entry) {
+			this.addPlayer(
+				entry.id, null, null, entry.name, entry.color, entry.image)	
 		}
-	}
+		, this)
 }
 
 // get the listing of players currently 
 // in the game engine
 Game.prototype.makeListing = function() {
-	// TODO	
+	this.player.map(
+		function(player) {
+			{id: player.id, name: player.name
+			, color: player.color, image: player.image}
+		}
+		, this)
 }
 
 Game.prototype.emitListing = function() {
@@ -180,35 +186,68 @@ Game.prototype.serialiseListing = function(listing) {
 Game.prototype.readListing = function(str) {
 	return JSON.parse(str);
 }
-
 /**** }}} listings ****/
 
 /**** {{{ maps ****/
 /*
-	Time for maps, eh?
+	Right now a map is just an array of blocks.
+	Eventually it will be .. more exciting.
 */
 
-Game.prototype.loadMap = function () {
-	// TODO
+Game.prototype.loadMap = function (map) {
+	map.forEach(
+		function(box) {
+			this.createBox(
+				box.x, box.y, box.w, box.h, box.static, box.fields)		
+		}, this)
+}
+
+var serialiseBlock = function(box) {
+	return ';' + Utils.floatToChar(box.x)
+		 + ',' + Utils.floatToChar(box.y)
+		 + ',' + Utils.floatToChar(box.w)
+		 + ',' + Utils.floatToChar(box.h)
+		 + ',' + box.isStatic 
+		 + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
 }
 
 Game.prototype.serialiseMap = function(map) {
-	return JSON.stringify(listing);
-	// uhhhhh
+	var acc = function(acc, x) { return acc + x };
+  map.map(emitBox).reduce(acc, boxes.length)
 }
 
 Game.prototype.readMap = function(str) {
-	return JSON.parse(str);
+	var blobParts = data.split(";");
+	var numBoxes = parseInt(blobParts[0]);
+	var map = [];
+
+	for (var i = 0; i < numBoxes; i ++) {
+		var boxDetails = blobParts[i + 1].split(",");
+		var boxX = Utils.charToFloat(boxDetails[0]);
+		var boxY = Utils.charToFloat(boxDetails[1]);
+		var boxW = Utils.charToFloat(boxDetails[2]);
+		var boxH = Utils.charToFloat(boxDetails[3]);
+		var boxStatic = boxDetails[4];
+		var boxFields = JSON.parse(boxDetails[5].replace(/\\:/g, ","));
+
+		var box = {x: boxX, y: boxY, w: boxW, h: boxH, isStatic: boxStatic, fields: boxFields};
+		map.push(box);
+	}
+	return map;
 }
 
 /**** }}} listings ****/
 
 /**** {{{ static prototype methods ****/
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
-	var player = new Player(id, x, y, name, color, image);
-	this.players.push(player);
-	player.block.SetSleepingAllowed(false);
-	return player.id;
+	if this.players.some(player => player.id == id) {
+		return -1
+	} else {
+		var player = new Player(id, x, y, name, color, image);
+		this.players.push(player);
+		player.block.SetSleepingAllowed(false);
+		return player.id;
+	}
 }
 
 Game.prototype.findIndexById = function(id) {
