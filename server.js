@@ -31,7 +31,7 @@ Game.prototype.emitBlob = function() {
 		var angular = block.GetAngularVelocity();
 		return (';' + player.name + ',' + player.id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular)
 	}
-	var acc = function(acc, x) {acc + x };
+	var acc = function(acc, x) { return acc + x };
 	return this.players.map(showPlayer).reduce(acc);
 }
 
@@ -81,11 +81,9 @@ Server.prototype.parseData = function(ws, data) {
 		case "NAME":
 			ws.playerId = SolemnSky.addPlayer(lastId++, 320 / SolemnSky.scale, 240 / SolemnSky.scale, data, "#00ff00", "");
 			break;
-		case "MOVEMENT":
-			var id = ws.playerId;
-			var direction = split[0];
-			var state = parseInt(split[1]);
-			SolemnSky.players[SolemnSky.findPlayerById(id)].movement[direction] = state;
+		case "SNAPSHOT":
+			var snapshot = readSnapshot(data.slice(8))
+			SolemnSky.applySnapshot(snapshot)
 			break;
 	}
 }
