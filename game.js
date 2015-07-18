@@ -11,11 +11,7 @@ function Game() {
 };
 
 /**** {{{ snapshots ****/
-// a single element of action in a snapshot
-// represents a modification of a single 
-// player's dynamic data (position and velocity)
-
-// easily displable object (no b2Vec2)
+// a modification of a single player's dynamic state (pos, vel)
 function SnapshotPoint(id, movement, vel) {
   this.id = id; this.movement =  movement; 
 	this.vel = new b2Vec2.make(vel.x, vel.y);
@@ -28,7 +24,7 @@ function Game.prototype.applySnapshotPoint(snapshot) {
 }
 
 function Game.prototype.applySnapshot(snapshot) {
-	forEach(snapshot, this.applySnapshotPoint)
+	forEach(snapshot, function(i) {this.applySnapshotPoint(i)})
 }
 
 // makes a snapshot concerning one player
