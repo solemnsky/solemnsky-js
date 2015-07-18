@@ -161,6 +161,8 @@ Game.prototype.applyListing = function () {
 	}
 }
 
+// get the listing of players currently 
+// in the game engine
 Game.prototype.makeListing = function() {
 	// TODO	
 }
@@ -169,13 +171,33 @@ Game.prototype.emitListing = function() {
 	serialiseListing(this.makeListing)
 }
 
-function serialiseListing(listing) {
-	return JSON.stringify(listing);
+Game.prototype.serialiseListing = function(listing) {
+	return JSON.stringify(listing)
 	 // TODO: use glenn's utils to make this more efficent
 	// in terms of space
 }
 
-function readListing(str) {
+Game.prototype.readListing = function(str) {
+	return JSON.parse(str);
+}
+
+/**** }}} listings ****/
+
+/**** {{{ maps ****/
+/*
+	Time for maps, eh?
+*/
+
+Game.prototype.loadMap = function () {
+	// TODO
+}
+
+Game.prototype.serialiseMap = function(map) {
+	return JSON.stringify(listing);
+	// uhhhhh
+}
+
+Game.prototype.readMap = function(str) {
 	return JSON.parse(str);
 }
 
@@ -380,6 +402,4 @@ Player.prototype.update = function(game, delta) {
 
 if (typeof(module) !== "undefined") {
 	module.exports.Game = Game;
-	module.exports.readSnapshot = readSnapshot;
-	module.exports.serialiseSnapshot = serialiseSnapshot;
 }
