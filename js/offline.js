@@ -17,12 +17,11 @@ window.requestAnimFrame = (function() {
 /**** }}} constants, helper functions ****/
 
 /**** {{{ game state ****/
-
-//Start up the game
 SolemnSky = new Game();
 SolemnSky.setFPS(60);
 SolemnSky.init();
-requestAnimFrame(update);
+SolemnSky.addUpdateCallback(render);
+requestAnimFrame(SolemnSky.update);
 /**** }}} game state ****/
 
 /**** {{{ rendering functions ****/
@@ -73,58 +72,34 @@ function render() {
 
 		renderBox(box, data.w, data.h);
 	}, SolemnSky);
-
-	SolemnSky.projectiles.forEach(function each(projectile) {
-		var data = projectile.GetUserData();
-		var life = 1000 - (Date.now() - data.creationDate);
-		if (life <= 0 || life > 1000)
-			return;
-
-		//If the S is in [0, 1] then tinycolor thinks it's a float from [0, 1]
-		ctx.fillStyle = "#" + tinycolor("hsv(0, " + (Math.ceil(30 * (life / 1000)) + 1) + ", 100)").toHex();
-		ctx.strokeStyle = "#" + tinycolor("hsv(0, " + (Math.ceil(50 * (life / 1000)) + 1) + ", 100)").toHex();
-
-		renderBox(projectile, data.w, data.h);
-	}, SolemnSky);
-} // render()
+} 
 /**** }}} rendering functions ****/
 
-/**** {{{ safe update method ****/
-then = Date.now();
-function update() {
-	now = Date.now();
-
-	elapsed = now - then;
-	// console.log(elapsed);
-	requestAnimFrame(update);
-
-	if (elapsed > SolemnSky.tickTimeMs) {
-		then = now - (elapsed % SolemnSky.tickTimeMs);
-
-		SolemnSky.update();
-		render();
-	}
-} 
-/**** }}} safe update method ****/
-
 /**** {{{ key bindings ****/
-Mousetrap.bind('up', 
-	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.forward = true; sendSnapshot()}, 'keydown');
-Mousetrap.bind('up', 
-	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.forward = false; sendSnapshot()}, 'keyup');
-Mousetrap.bind('down', 
-	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.backward = true; sendSnapshot()}, 'keydown');
-Mousetrap.bind('down', 
-	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.backward = false; sendSnapshot()}, 'keyup');
-Mousetrap.bind('left', 
-	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.left = true; sendSnapshot()}, 'keydown');
-Mousetrap.bind('left',
-	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.left = false; sendSnapshot()}, 'keyup');
-Mousetrap.bind('right', 
-	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.right = true; sendSnapshot()}, 'keydown');
-Mousetrap.bind('right', 
-	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.right = false; sendSnapshot()}, 'keyup');
-// ugh what an ugly hack
+Mousetrap.bind('up', function() { 
+		SolemnSky.findPlayerById(myid).movement.forward = true;
+	}, 'keydown');
+Mousetrap.bind('up', function() { 
+		SolemnSky.findPlayerById(myid).movement.forward = false; 
+	}, 'keyup');
+Mousetrap.bind('down', function() { 
+		SolemnSky.findPlayerById(myid).movement.backward = true; 
+	}, 'keydown');
+Mousetrap.bind('down', function() { 
+		SolemnSky.findPlayerById(myid).movement.backward = false; 
+	}, 'keyup');
+Mousetrap.bind('left', function() { 
+		SolemnSky.findPlayerById(myid).movement.left = true; 
+	}, 'keydown');
+Mousetrap.bind('left', function() { 
+		SolemnSky.findPlayerById(myid).movement.left = false; 
+	}, 'keyup');
+Mousetrap.bind('right', function() { 
+		SolemnSky.findPlayerById(myid).movement.right = true; 
+	}, 'keydown');
+Mousetrap.bind('right', function() { 
+		SolemnSky.findPlayerById(myid).movement.right = false; 
+	}, 'keyup');
 /**** }}} key bindings ****/
 
 // start things up

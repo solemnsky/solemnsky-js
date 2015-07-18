@@ -256,17 +256,24 @@ var last = Date.now();
 Game.prototype.update = function() {
 	var diff = Date.now() - last;
 	last = Date.now();
-	if (this.simulating) {
-		this.world.Step(
-			this.tickTime   //frame-rate
-		,   10       //velocity iterations
-		,   10       //position iterations
-		);
-		this.world.ClearForces();
+	if (diff > SolemnSky.tickTimeMs) {
+		if (this.simulating) {
+			this.world.Step(
+				this.tickTime   //frame-rate
+			,   10       //velocity iterations
+			,   10       //position iterations
+			);
+			this.world.ClearForces();
 
-		this.players.forEach(function each(player) {
-			player.update(this, diff);
-		}, this);
+			this.players.forEach(function each(player) {
+				player.update(this, diff);
+			}, this);
+
+			this.updateCallbacks.forEach(function each(callback) {
+				callback(diff);
+			}, this);
+		}
+	}
 
 /* 
 		for (var i = this.projectiles.length - 1; i >= 0; i--) {
@@ -279,10 +286,7 @@ Game.prototype.update = function() {
 			}
 		}
 	*/ // commented out for simplicity for now
-	}
-	this.updateCallbacks.forEach(function each(callback) {
-		callback(diff);
-	}, this);
+
 }; // update()
 
 Player.prototype.update = function(game, delta) {
