@@ -275,12 +275,15 @@ function addChat(text) {
 	document.getElementById("chatcontainer").innerHTML += "<div>" + htmlEscape(text) + "</div>";
 }
 
-Mousetrap.bind('t', function() {
+function openChat() {
 	document.getElementById("chatentry").style.display = "block";
 	document.getElementById("chatentrybox").focus();
-}, "keyup");
+}
 
-document.getElementById("chatentrybox").onkeydown = function(e) {
+Mousetrap.bind('t', openChat, "keyup");
+Mousetrap.bind('enter', openChat, "keyup");
+
+document.getElementById("chatentrybox").onkeyup = function(e) {
 	if (e.keyCode === 13) {
 		var message = this.value;
 		sendData("CHAT " + message);
