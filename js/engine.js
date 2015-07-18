@@ -26,9 +26,6 @@ Game.prototype.applySnapshotPoint = function(snapshot, id) {
 	if (snapshot.movement != null) {
 		this.players[index].movement = snapshot.movement
 	}
-	// if (snapshot.pos != null) {
-	// 	this.players[index].block.SetPosition(snapshot.vel)
-	// }
 }
 
 Game.prototype.applySnapshot = function(snapshot, id) {
