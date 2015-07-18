@@ -184,7 +184,7 @@ function connect(address, port, path) {
 		connected = false;
 	};
 	socket.onmessage = function(data) {
-		parseData(data.data);
+		tick(data.data);
 	};
 }
 
@@ -193,10 +193,6 @@ function sendData(data) {
 	if (connected) {
 		socket.send(data);
 	}
-}
-
-function parseData(data) {
-	tick(data);
 }
 /**** }}} basic network functions / callbacks ****/
 
@@ -208,35 +204,9 @@ function tick(data) {
 	data = split.join(" ");
 
 	switch (command) {
-	case "PLAYERS":
-		//Example players blob:
-		//numplayers;player;player;...
-		var blobParts = data.split(';');
-		var numPlayers = parseInt(blobParts[0]);
-		
-		for (var i = 0; i < numPlayers; i ++) {
-			//playerid,x,y,vx,vy
-			var playerDetails = blobParts[i+1].split(',');
-			var playerName = playerDetails[0];
-			var playerId = Utils.charToInt(playerDetails[1]);
-			var playerX  = Utils.charToFloat(playerDetails[2]);
-			var playerY  = Utils.charToFloat(playerDetails[3]);
-			var playerVX = Utils.charToFloat(playerDetails[4]);
-			var playerVY = Utils.charToFloat(playerDetails[5]);
-			var playerA  = Utils.charToFloat(playerDetails[6]);
-			var playerAV = Utils.charToFloat(playerDetails[7]);
-			
-			if (SolemnSky.findIndexById(playerId) === -1) {
-				SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
-			}
-			var player = SolemnSky.players[SolemnSky.findIndexById(playerId)];
-			player.block.SetPosition(new b2Vec2(playerX, playerY));
-			player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
-			player.block.SetAngle(playerA);
-			player.block.SetAngularVelocity(playerAV);
-		}
-		break;
-	case "BOXES":
+	case "LIST":
+		SolemnSky.applyListing(readListing(data));
+	case "MAP":
 		var blobParts = data.split(";");
 		var numBoxes = parseInt(blobParts[0]);
 
@@ -252,44 +222,8 @@ function tick(data) {
 			var box = SolemnSky.createBox(boxX, boxY, boxW, boxH, boxStatic, boxFields);
 			SolemnSky.boxes.push(box);
 		}
-	case "PROJECTILES":
-		var blobParts = data.split(';');
-		var numProjectiles = parseInt(blobParts[0]);
-		
-		for (var i = 0; i < numProjectiles; i ++) {
-			var projectileDetails = blobParts[i+1].split(',');
-			var projectileLife = Utils.charToInt(projectileDetails[0]);
-			var projectileX  = Utils.charToFloat(projectileDetails[1]);
-			var projectileY  = Utils.charToFloat(projectileDetails[2]);
-			var projectileVX = Utils.charToFloat(projectileDetails[3]);
-			var projectileVY = Utils.charToFloat(projectileDetails[4]);
-			var projectileA  = Utils.charToFloat(projectileDetails[5]);
-			var projectileAV = Utils.charToFloat(projectileDetails[6]);
-
-			var projectile = null;
-			if (i < SolemnSky.projectiles.length) {
-				projectile = SolemnSky.projectiles[i];
-			} else {
-				var projectile = SolemnSky.createBox(projectileX * SolemnSky.scale, projectileY * SolemnSky.scale, 10, 10, false, {});
-				projectile.SetSleepingAllowed(false);
-				SolemnSky.projectiles.push(projectile);
-			}
-			projectile.GetUserData().creationDate = Date.now() - projectileLife;
-			projectile.SetPosition(new b2Vec2(projectileX, projectileY));
-			projectile.SetLinearVelocity(new b2Vec2(projectileVX, projectileVY));
-			projectile.SetAngle(projectileA);
-			projectile.SetAngularVelocity(projectileAV);
-		}
-
-		//Delete any extras
-		SolemnSky.projectiles.slice(numProjectiles).map(function(projectile) {
-			this.world.DestroyBody(projectile);
-		}, SolemnSky);
-		SolemnSky.projectiles.splice(numProjectiles);
-		break;
 	case "SNAP":
-		var snapshot = readSnapshot(data);
-		break;
+		SolemnSky.applySnapshot(readSnapshot data)
 	case "ID":
 		myid = parseInt(data[0]);
 
@@ -344,3 +278,44 @@ document.getElementById("chatentrybox").onkeyup = function(e) {
 /**** }}} chat feature ****/
 
 connect("198.55.237.151", 50042, "/");
+
+/**** {{{ commented code ****/
+	// from tick, used to recieve projectiles from the server
+	/* case "PROJECTILES":
+		var blobParts = data.split(';');
+		var numProjectiles = parseInt(blobParts[0]);
+		
+		for (var i = 0; i < numProjectiles; i ++) {
+			var projectileDetails = blobParts[i+1].split(',');
+			var projectileLife = Utils.charToInt(projectileDetails[0]);
+			var projectileX  = Utils.charToFloat(projectileDetails[1]);
+			var projectileY  = Utils.charToFloat(projectileDetails[2]);
+			var projectileVX = Utils.charToFloat(projectileDetails[3]);
+			var projectileVY = Utils.charToFloat(projectileDetails[4]);
+			var projectileA  = Utils.charToFloat(projectileDetails[5]);
+			var projectileAV = Utils.charToFloat(projectileDetails[6]);
+
+			var projectile = null;
+			if (i < SolemnSky.projectiles.length) {
+				projectile = SolemnSky.projectiles[i];
+			} else {
+				var projectile = SolemnSky.createBox(projectileX * SolemnSky.scale, projectileY * SolemnSky.scale, 10, 10, false, {});
+				projectile.SetSleepingAllowed(false);
+				SolemnSky.projectiles.push(projectile);
+			}
+			projectile.GetUserData().creationDate = Date.now() - projectileLife;
+			projectile.SetPosition(new b2Vec2(projectileX, projectileY));
+			projectile.SetLinearVelocity(new b2Vec2(projectileVX, projectileVY));
+			projectile.SetAngle(projectileA);
+			projectile.SetAngularVelocity(projectileAV);
+		}
+
+		//Delete any extras
+		SolemnSky.projectiles.slice(numProjectiles).map(function(projectile) {
+			this.world.DestroyBody(projectile);
+		}, SolemnSky);
+		SolemnSky.projectiles.splice(numProjectiles);
+		break;
+	*/ // commented out for now, will probably reintegrate
+		// with the snapshot infrastructure
+/**** }}} commented code ****/

@@ -15,8 +15,7 @@ readSnapshot = Engine.readSnapshot;
 serialiseSnapshot = Engine.serialiseSnapshot;
 /**** }}} dependencies ****/
 
-/**** {{{ arbitrary boxes array (map) ****/
-//List of boxes with which to initialize the world 
+/**** {{{ arbitrary box array (static game environment) ****/
 var boxes = [
 	{x: 320, y: 480, w: 600, h: 10, static: true, fields: {life: 1e300}},
 	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
@@ -30,7 +29,34 @@ var boxes = [
 ];
 /**** }}} arbitrary boxes array ****/
 
-/**** {{{ server initWorld and openSocket methods ****/
+/**** {{{ onTick: constant snapshots ****/
+Server.prototype.broadcast = function(text) {
+	//Send all the clients a message
+	wss.clients.forEach(function(client) {
+		try {
+			client.send(text);
+		} catch (e) { /* They've disconnected */ }
+	});
+}
+
+Server.prototype.onTick = function(tickNum) {
+	setTimeout(function() {
+		GameServer.onTick(tickNum + 1);
+	}, SolemnSky.tickTimeMs);
+	this.broadcast("SNAP " + SolemnSky.dumpTotalSnapshot);
+
+	/*
+	if (tickNum % 10 === 0) {
+		this.broadcast("PROJECTILES " + this.emitProjectileBlob());
+	}
+	*/ // commented out for simplicity for now, probably will merge
+		// into the snapshot infrastructure
+
+	SolemnSky.update();
+}
+/**** }}} onTick: constant snapshots ****/
+
+/**** {{{ loadmap, openSocket; getting ready to be a server ****/
 function Server() {}
 
 // loads the map into the game engine
@@ -62,10 +88,11 @@ Server.prototype.openSocket = function(port) {
 		console.log("Connection from " + ws._socket.address().address + ":" + ws._socket.address().port);
 
 		ws.send("MAP " + GameServer.emitMapBlob());
+		ws.send("SNAP " + SolemnSky.emitTotalSnapshot());
 	});
 }
 
-// responds to a message on the web socket
+// responds to an incoming message 
 var lastId = 0;
 Server.prototype.parseData = function(ws, data) {
 	var split = data.split(" ");
@@ -75,10 +102,13 @@ Server.prototype.parseData = function(ws, data) {
 	// console.log("Command: " + command + " data: " + data);
 	switch (command) {
 		case "NAME":
-			ws.playerId = SolemnSky.addPlayer(lastId++, 320 / SolemnSky.scale, 240 / SolemnSky.scale, data, "#00ff00", "");
+			ws.playerId = 
+				SolemnSky.addPlayer(
+					lastId++ , 320 / SolemnSky.scale
+					, 240 / SolemnSky.scale, data, "#00ff00", "");
 			ws.send("ID " + ws.playerId);
-
 			this.broadcast("JOIN " + data);
+			this.broadcast
 			break;
 		case "SNAP":
 			var snapshot = readSnapshot(data);
@@ -89,9 +119,7 @@ Server.prototype.parseData = function(ws, data) {
 			this.broadcast("CHAT " + ws.playerId + " " + data);
 	}
 }
-/**** }}} server initWorld and openSocket methods ****/
 
-/**** server communitacation ****/
 // previously emitBoxBlob, now reflects that this will
 // eventually before a form of distributing a more featureful map
 Server.prototype.emitMapBlob = function() {
@@ -106,31 +134,9 @@ Server.prototype.emitMapBlob = function() {
 	var acc = function(acc, x) { return acc + x };
 	return boxes.map(emitBox).reduce(acc, boxes.length);
 }
+/**** }}} server initWorld and openSocket methods ****/
 
-Server.prototype.broadcast = function(text) {
-	//Send all the clients a message
-	wss.clients.forEach(function(client) {
-		try {
-			client.send(text);
-		} catch (e) {
-			//They've disconnected
-		}
-	});
-}
-
-Server.prototype.onTick = function(tickNum) {
-	setTimeout(function() {
-		GameServer.onTick(tickNum + 1);
-	}, SolemnSky.tickTimeMs);
-
-	this.broadcast("PLAYERS " + SolemnSky.emitBlob());
-	if (tickNum % 10 === 0) {
-		this.broadcast("PROJECTILES " + this.emitProjectileBlob());
-	}
-
-	SolemnSky.update();
-}
-
+/**** {{{ initialise and open sockets ****/
 SolemnSky = new Game();
 SolemnSky.setFPS(60);
 SolemnSky.init();
@@ -141,6 +147,8 @@ GameServer.initWorld();
 
 //Start the tick loop
 GameServer.onTick(0);
+/**** }}} initialise and open sockets ****/
+
 /**** {{{ commented code ****/
 /*
 Server.prototype.emitProjectileBlob = function() {

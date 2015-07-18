@@ -80,28 +80,29 @@ function SnapshotPoint(id, movement, pos, vel, angle, angleVel) {
 // applies a snapshot point 
 Game.prototype.applySnapshotPoint = function(snapshot) {
 	var index = this.findIndexById(snapshot.id);
-	var id = snapshot.id;
-	var posProps = 
-		[snapshot.pos, snapshot.vel, snapshot.angle, snapshot.angleVel]
-	if (snapshot.movement != null) {
-		this.players[index].movement = snapshot.movement
-	}
-	if (posProps.every(x => x != null)) {
-		this.players[index].block.SetPosition(
-			new b2Vec.make(snapshot.pos.x, snapshot.pos.y))
-		this.players[index].block.SetLinearVelocity(
-			new b2Vec.make(snapshot.vel.x, snapshot.vel.y))
-		this.players[index].block.SetAngle(
-			new b2Vec.make(snapshot.angle.x, snapshot.angle.y))
-		this.players[index].block.SetAngularVelocity(
-			new b2Vec.make(snapshot.angleVel.x, snapshot.angleVel.y))
+	if index !== (-1) {
+		var posProps = 
+			[snapshot.pos, snapshot.vel, snapshot.angle, snapshot.angleVel]
+		if (snapshot.movement != null) {
+			this.players[index].movement = snapshot.movement
+		}
+		if (posProps.every(x => x != null)) {
+			this.players[index].block.SetPosition(
+				new b2Vec.make(snapshot.pos.x, snapshot.pos.y))
+			this.players[index].block.SetLinearVelocity(
+				new b2Vec.make(snapshot.vel.x, snapshot.vel.y))
+			this.players[index].block.SetAngle(
+				new b2Vec.make(snapshot.angle.x, snapshot.angle.y))
+			this.players[index].block.SetAngularVelocity(
+				new b2Vec.make(snapshot.angleVel.x, snapshot.angleVel.y))
+		}
 	}
 }
 
 // applies a snapshot, an array of snapshot points, possibly
 // effecting multiple players
-Game.prototype.applySnapshot = function(snapshot, id) {
-	snapshot.forEach(function(i) {this.applySnapshotPoint(snapshot)}, this)
+Game.prototype.applySnapshot = function(snapshot) {
+	snapshot.forEach(function(i) {this.applySnapshotPoint(i)}, this)
 }
 
 // makes a snapshot concerning one player
@@ -127,14 +128,54 @@ Game.prototype.makeTotalSnapshot = function() {
 		this.players.map(player => this.makeSnapshotPoint(player.id))
 }
 
+// here 'emit' has the connotation of return something
+// serialised, easily transmittable
+// this functions returns a string
+Game.prototype.emitTotalSnapshot = function() {
+	return serialiseSnapshot(this.makeTotalSnapshot())
+}
+
 function serialiseSnapshot(snapshot) {
 	return JSON.stringify(snapshot);	
+	 // TODO: use glenn's utils to make this more efficent
+	// in terms of space
 }
 
 function readSnapshot(str) {
 	return JSON.parse(str);
 }
 /**** }}} snapshots ****/
+
+/**** {{{ listings ****/
+/*
+	A listing represents a static listing of players.
+	This is the type of thing that doesn't need to be broadcasted ever
+	tick of the server clock.
+*/
+
+Game.prototype.applyListing = function () {
+	// TODO
+}
+
+Game.prototype.makeListing = function() {
+	// TODO	
+}
+
+Game.prototype.emitListing = function() {
+	serialiseListing(this.makeListing)
+}
+
+function serialiseListing(listing) {
+	return JSON.stringify(listing);
+	 // TODO: use glenn's utils to make this more efficent
+	// in terms of space
+}
+
+function readListing(str) {
+	return JSON.parse(str);
+}
+
+/**** }}} listings ****/
 
 /**** {{{ static prototype methods ****/
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
