@@ -1,5 +1,5 @@
 //Import Box2D library
-Box2D = require("./assets/box2d.min.js");
+Box2D = require("../assets/box2d.min.js");
 
 //Socket server
 WebSocketServer = require("ws").Server;
