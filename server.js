@@ -87,8 +87,8 @@ Server.prototype.parseData = function(ws, data) {
 			ws.send("ID " + ws.playerId);
 			break;
 		case "SNAPSHOT":
-			var snapshot = readSnapshot(data)
-			SolemnSky.applySnapshot(snapshot)
+			var snapshot = readSnapshot(data);
+			SolemnSky.applySnapshot(snapshot, ws.playerId);
 			break;
 	}
 }

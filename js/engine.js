@@ -21,17 +21,18 @@ function SnapshotPoint(id, pos, movement, vel) {
 	this.vel = vel;
 }
 
-Game.prototype.applySnapshotPoint = function(snapshot) {
-	if (snapshot.movement	!= null) {
-		this.players[id].movement = snapshot.movement
+Game.prototype.applySnapshotPoint = function(snapshot, id) {
+	var index = this.findPlayerById(id);
+	if (snapshot.movement != null) {
+		this.players[index].movement = snapshot.movement
 	}
-	if (snapshot.pos != null) {
-		this.players[id].block.SetPosition(snapshot.vel)
-	}
+	// if (snapshot.pos != null) {
+	// 	this.players[index].block.SetPosition(snapshot.vel)
+	// }
 }
 
-Game.prototype.applySnapshot = function(snapshot) {
-	snapshot.forEach(function(i) {this.applySnapshotPoint(i)}, this)
+Game.prototype.applySnapshot = function(snapshot, id) {
+	snapshot.forEach(function(i) {this.applySnapshotPoint(i, id)}, this)
 }
 
 // makes a snapshot concerning one player
