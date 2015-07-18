@@ -288,7 +288,7 @@ function tick(data) {
 		SolemnSky.projectiles.splice(numProjectiles);
 		break;
 	case "SNAP":
-
+		var snapshot = readSnapshot(data);
 		break;
 	case "ID":
 		myid = parseInt(data[0]);

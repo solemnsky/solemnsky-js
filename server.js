@@ -121,9 +121,9 @@ Server.prototype.parseData = function(ws, data) {
 
 			this.broadcast("JOIN " + data);
 			break;
-		case "SNAPSHOT":
+		case "SNAP":
 			var snapshot = readSnapshot(data);
-			SolemnSky.applySnapshot(snapshot, ws.playerId);
+			SolemnSky.applySnapshot(snapshot);
 			break;
 		case "CHAT":
 			var message = data;
@@ -133,7 +133,7 @@ Server.prototype.parseData = function(ws, data) {
 
 Server.prototype.broadcast = function(text) {
 	//Send all the clients a message
-	wss.clients.forEach(function each(client) {
+	wss.clients.forEach(function(client) {
 		try {
 			client.send(text);
 		} catch (e) {
