@@ -32,7 +32,7 @@ Game.prototype.applySnapshotPoint = function(snapshot) {
 }
 
 Game.prototype.applySnapshot = function(snapshot) {
-	forEach(snapshot, function(i) {this.applySnapshotPoint(i)})
+	snapshot.forEach(function(i) {this.applySnapshotPoint(i)}, this)
 }
 
 // makes a snapshot concerning one player
@@ -45,8 +45,10 @@ Game.prototype.makeSnapshotPoint = function(id) {
 }
 
 // makes a snapshot concerning an array of players
-Game.prototype.makeSnapsnot = function(ids) { 
-	ids.map(this.makeSnapshotPoint) 
+Game.prototype.makeSnapshot = function(ids) { 
+	return ids.map(function(id) {
+		return this.makeSnapshotPoint(id);
+	}, this) 
 }
 
 function serialiseSnapshot(snapshot) {

@@ -81,15 +81,15 @@ function render() {
 
 		renderBox(player.block, 30, 30);
 
-		var playerX = player.block.GetPosition().x * SolemnSky.scale;
-		var playerY = player.block.GetPosition().y * SolemnSky.scale;
+		var playerX = player.block.GetPosition().x * this.scale;
+		var playerY = player.block.GetPosition().y * this.scale;
 
 		ctx.resetTransform();
 		ctx.fillStyle = "#000000";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillText(player.name, playerX, playerY);
-	});
+	}, SolemnSky);
 	SolemnSky.boxes.forEach(function each(box) {
 		var data = box.GetUserData();
 
@@ -97,7 +97,7 @@ function render() {
 		ctx.strokeStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life)+ ", 50, 100)").toHex();
 
 		renderBox(box, data.w, data.h);
-	});
+	}, snapshot);
 } // render()
 
 now = Date.now();
