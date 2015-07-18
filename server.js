@@ -32,7 +32,7 @@ Game.prototype.emitBlob = function() {
 		return (';' + player.name + ',' + player.id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular)
 	}
 	var acc = function(acc, x) { return acc + x };
-	return this.players.map(showPlayer).reduce(acc);
+	return this.players.map(showPlayer).reduce(acc, "");
 }
 
 function Server() {}
