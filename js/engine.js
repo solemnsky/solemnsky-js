@@ -24,7 +24,7 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 function Game() {
 	this.world = null;
 	this.players = [];
-	this.boxes = [];
+	this.map = [];
 	this.updateCallbacks = [];
 	this.projectiles = [];
 	this.fps = 60.0;
@@ -167,7 +167,7 @@ Game.prototype.applyListing = function () {
 Game.prototype.makeListing = function() {
 	this.player.map(
 		function(player) {
-			{id: player.id, name: player.name
+			return { id: player.id, name: player.name
 			, color: player.color, image: player.image}
 		}
 		, this)
@@ -197,8 +197,9 @@ Game.prototype.readListing = function(str) {
 Game.prototype.loadMap = function (map) {
 	map.forEach(
 		function(box) {
-			this.createBox(
+			var box = this.createBox(
 				box.x, box.y, box.w, box.h, box.static, box.fields)		
+			this.map.push(box);
 		}, this)
 }
 
@@ -213,7 +214,7 @@ var serialiseBlock = function(box) {
 
 Game.prototype.serialiseMap = function(map) {
 	var acc = function(acc, x) { return acc + x };
-  map.map(emitBox).reduce(acc, boxes.length)
+  map.map(emitBox).reduce(acc, map.length)
 }
 
 Game.prototype.readMap = function(str) {
@@ -236,11 +237,15 @@ Game.prototype.readMap = function(str) {
 	return map;
 }
 
+Game.prototype.emitMap = function() {
+	this.serialiseMap(this.readMap)
+}
+
 /**** }}} listings ****/
 
 /**** {{{ static prototype methods ****/
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
-	if this.players.some(player => player.id == id) {
+	if (this.players.some(player => player.id == id)) {
 		return -1
 	} else {
 		var player = new Player(id, x, y, name, color, image);

@@ -92,7 +92,7 @@ function render() {
 		ctx.textBaseline = "middle";
 		ctx.fillText(player.name, playerX, playerY);
 	}, SolemnSky);
-	SolemnSky.boxes.forEach(function each(box) {
+	SolemnSky.map.forEach(function each(box) {
 		var data = box.GetUserData();
 
 		ctx.fillStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life) + ", 30, 100)").toHex();
@@ -218,7 +218,7 @@ function tick(data) {
 	case "CHAT":
 		var id = split[0];
 		var message = split.slice(1).join(" ");
-		var name = SolemnSky.players[SolemnSky.findPlayerById(id)].name;
+		var name = SolemnSky.players[SolemnSky.findIndexById(id)].name;
 		addChat(name + ": " + message);
 		break;
 	}
