@@ -5,16 +5,25 @@
 
 All messages over the web socket are prefixed with a single-word descriptor in capital LETTERS.
 
+Connection protocol:
 		>> CONNECT
 		<< (no response)
 		>> NAME <name>
 		<< add the player to the game engine
-		<< LIST <serialiseListing()>
+		<< LIST <serialiseListing()> (to all clients)
 		>> applyListing()
-		>> SNAP <serialiseSnapshot()>
+
+Snapshot loop (~20Hz):
+		>> SNAP <serialiseSnapshot()> (to all clients)
 		<< applySnapshot()
-		<< SNAP <emitTotalSnapshot()>
-		>> applySnapshot()
-		...
+		<< broadcast SNAP <emitTotalSnapshot()> (from all clients)
+		>> applySnapshot() (in response to all clients)
+
+Chat protocol:
+		>> CHAT <message>
+		<< CHAT <id> <message> (to all players)
+
+Quit protocol:
+		>> (stop responding)
 		<< remove player from listing
-		<< LIST <serialiseListing()>
+		<< LIST <serialiseListing()> (to all clients)
