@@ -7,10 +7,11 @@ All messages over the web socket are prefixed with a single-word descriptor in c
 
 Connection protocol:
 		>> CONNECT
-		<< MAP <emitMapBlob()>
-		>> load map in game engine
+		<< MAP <serialiseMap()>
+		>> loadMap()
 		>> NAME <name>
-		<< add the player to the game engine
+		<< ID <new player id>
+		<< addPlayer()
 		<< LIST <serialiseListing()> (to all clients)
 		>> applyListing()
 
@@ -28,3 +29,19 @@ Quit protocol:
 		>> (stop responding)
 		<< remove player from listing
 		<< LIST <serialiseListing()> (to all clients)
+
+verbs:
+	CONNECT (apparently just a dummy message)
+	MAP
+		serialised map data
+	NAME
+		client requests name
+	ID
+		server confirms name, sends id
+	LIST
+		listing data 
+	SNAP
+		snapshot data
+	CHAT
+		(from client) say something
+		(from server) broadcast a client's message (along with player id)
