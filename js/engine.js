@@ -64,7 +64,11 @@ function Player(id, x, y, name, color, image) {
 	(these sort of decisions are inevitable if we don't want to 
 	go back to the 'mile long keyboard')
 */
-function SnapshotPoint(id, movement, pos, vel, angle, anglVel) {
+// a modification of a single player's state
+// if movement is left null, movement is not influenced
+// if another parameter is left null (pos, vel, angle, or angleVel), 
+// none of those parameters are set
+function SnapshotPoint(id, movement, pos, vel, angle, angleVel) {
 	this.id = id;
 	this.movement =  movement ;
 	this.pos = pos;
@@ -73,6 +77,7 @@ function SnapshotPoint(id, movement, pos, vel, angle, anglVel) {
 	this.angleVel = angleVel;
 }
 
+// applies a snapshot point 
 Game.prototype.applySnapshotPoint = function(snapshot) {
 	var index = this.findIndexById(snapshot.id);
 	var id = snapshot.id;
@@ -91,11 +96,10 @@ Game.prototype.applySnapshotPoint = function(snapshot) {
 		this.players[index].block.SetAngularVelocity(
 			new b2Vec.make(snapshot.angleVel.x, snapshot.angleVel.y))
 	}
-	if (snapshot.vel != null) {
-	}
-	// why was setting position removed?
 }
 
+// applies a snapshot, an array of snapshot points, possibly
+// effecting multiple players
 Game.prototype.applySnapshot = function(snapshot, id) {
 	snapshot.forEach(function(i) {this.applySnapshotPoint(snapshot)}, this)
 }
@@ -125,7 +129,6 @@ function serialiseSnapshot(snapshot) {
 function readSnapshot(str) {
 	return JSON.parse(str);
 }
-
 /**** }}} snapshots ****/
 
 /**** {{{ static prototype methods ****/
@@ -150,10 +153,6 @@ Game.prototype.deletePlayer = function(id) {
 	var block = player.block;
 	this.world.DestroyBody(block);
 	this.players.splice(index, 1);
-}
-
-Game.prototype.updatePlayer = function(id) {
-	//TODO: why?
 }
 
 Game.prototype.addUpdateCallback = function(callback) {
@@ -216,13 +215,11 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 	box.SetUserData({x: x, y: y, w: w, h: h, static: static, fields: fields});
 
 	return box;
-} // createBox()
+} 
 /**** }}} Game.prototype, static methods ****/
 
 /**** {{{ prototype methods for initialising and simulating ****/
-/**
- * Initialize the game world 
- */
+// initialize the game world 
 Game.prototype.init = function() {
 	//Default world gravity
 	this.gravity = new b2Vec2(0, 10);
@@ -249,9 +246,7 @@ Game.prototype.init = function() {
 	this.world.SetContactListener(listener);
 }; // init()
 
-/**
- * Method that is called on every update 
- */
+// method that is called on every update
 var last = Date.now();
 Game.prototype.update = function() {
 	var diff = Date.now() - last;
@@ -268,6 +263,7 @@ Game.prototype.update = function() {
 			player.update(this, diff);
 		}, this);
 
+/* 
 		for (var i = this.projectiles.length - 1; i >= 0; i--) {
 			if (this.projectiles[i].GetPosition().y * this.scale > windowSize.height ||
 				this.projectiles[i].GetPosition().x * this.scale > windowSize.width ||
@@ -277,6 +273,7 @@ Game.prototype.update = function() {
 				this.projectiles.splice(i, 1);
 			}
 		}
+	*/ // commented out for simplicity for now
 	}
 	this.updateCallbacks.forEach(function each(callback) {
 		callback(diff);
@@ -285,7 +282,8 @@ Game.prototype.update = function() {
 
 Player.prototype.update = function(game, delta) {
 	//What position is our player at? Use this for the new projectiles
-	var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
+	var blockPos = new
+		b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
 	blockPos.Multiply(game.scale);
 
 	var speed = 10 * (delta / 1000) * game.scale; //20 u/sec
@@ -295,39 +293,36 @@ Player.prototype.update = function(game, delta) {
 	if (this.movement.forward) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(0, 2 * -speed / game.scale));
-		//Shoot a projectile
+		//Make a projectile
 		var box = game.createBox(blockPos.x, blockPos.y + 30, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, 1000 / game.scale));
-		box.GetUserData().creationDate = Date.now();
-		game.projectiles.push(box);
 	}
 	if (this.movement.backward) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(0, speed / game.scale));
-		//Shoot a projectile
+		//Make a projectile
 		var box = game.createBox(blockPos.x, blockPos.y - 30, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, -1000 / game.scale));
-		box.GetUserData().creationDate = Date.now();
-		game.projectiles.push(box);
 	}
 	if (this.movement.left) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(-speed / game.scale, 0));
-		//Shoot a projectile
+		//Make a projectile
 		var box = game.createBox(blockPos.x + 30, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(1000 / game.scale, 0));
-		box.GetUserData().creationDate = Date.now();
-		game.projectiles.push(box);
 	}
 	if (this.movement.right) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(speed / game.scale, 0));
-		//Shoot a projectile
+		//Make a projectile
 		var box = game.createBox(blockPos.x - 30, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(-1000 / game.scale, 0));
-		box.GetUserData().creationDate = Date.now();
-		game.projectiles.push(box);
 	}
+	//Shoot the projectile we made
+	/*
+	box.GetUserData().creationDate = Date.now();
+	game.projectiles.push(box);
+	*/ // commented out for simplicity for now
 
 	this.block.SetLinearVelocity(linearVelocity);
 }
