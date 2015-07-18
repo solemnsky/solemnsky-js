@@ -188,7 +188,7 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
  */
 Game.prototype.init = function() {
 	//Default world gravity
-	this.gravity = new b2Vec2(0, 0);
+	this.gravity = new b2Vec2(0, 10);
 
 	//Create the world
 	this.world = new b2World(

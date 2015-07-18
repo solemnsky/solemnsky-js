@@ -12,7 +12,7 @@ serialiseSnapshot = Engine.serialiseSnapshot;
 
 //List of boxes with which to initialize the world 
 var boxes = [
-	//{x: windowSize.width / 2, y: windowSize.height, w: 600, h: 10, static: true, fields: {life: 1e300}},
+	{x: 320, y: 480, w: 600, h: 10, static: true, fields: {life: 1e300}},
 	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
 	{x: 130, y: 110, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
 	{x: 470, y: 230, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
