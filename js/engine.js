@@ -15,7 +15,7 @@ function Game() {
 // if any of the parameters is null, that parameter
 // will not influence the target player's state
 function SnapshotPoint(id, movement, vel) {
-  this.id = id; this.movement =  movement 
+	this.id = id; this.movement =  movement 
 	this.pos = null;
 		if (pos != null) 
 			{ this.pos = 
@@ -46,7 +46,7 @@ Game.prototype.makeSnapshotPoint = function(id) {
 
 // makes a snapshot concerning an array of players
 Game.prototype.makeSnapsnot = function(ids) { 
-  ids.map(this.makeSnapshotPoint) 
+	ids.map(this.makeSnapshotPoint) 
 }
 
 function serialiseSnapshot(snapshot) {

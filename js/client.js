@@ -93,8 +93,7 @@ function render() {
 	SolemnSky.boxes.forEach(function each(box) {
 		var data = box.GetUserData();
 
-		ctx.fillStyle = 
-      "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life) + ", 30, 100)").toHex();
+		ctx.fillStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life) + ", 30, 100)").toHex();
 		ctx.strokeStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life)+ ", 50, 100)").toHex();
 
 		renderBox(box, data.w, data.h);
@@ -127,21 +126,21 @@ requestAnimFrame(update);
 
 //Keyboard keys, just set movement variables
 Mousetrap.bind('up', 
-  function() { movement.forward = true; sendSnapshot()}, 'keydown');
+	function() { movement.forward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('up', 
-  function() { movement.forward = false; sendSnapshot()}, 'keyup');
+	function() { movement.forward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('down', 
-  function() { movement.backward = true; sendSnapshot()}, 'keydown');
+	function() { movement.backward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('down', 
-  function() { movement.backward = false; sendSnapshot()}, 'keyup');
+	function() { movement.backward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('left', 
-  function() { movement.left = true; sendSnapshot()}, 'keydown');
+	function() { movement.left = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('left',
-  function() { movement.left = false; sendSnapshot()}, 'keyup');
+	function() { movement.left = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('right', 
-  function() { movement.right = true; sendSnapshot()}, 'keydown');
+	function() { movement.right = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('right', 
-  function() { movement.right = false; sendSnapshot()}, 'keyup');
+	function() { movement.right = false; sendSnapshot()}, 'keyup');
 // ugh what an ugly hack
 
 function sendSnapshot() {
@@ -239,7 +238,7 @@ function tick(data) {
 			box.SetUserData({x: boxX, y: boxY, w: boxW, h: boxH, static: boxStatic, fields: boxFields});
 			SolemnSky.boxes.push(box);
 		}
-  case "SNAP":
+	case "SNAP":
 
 		break;
 	}
