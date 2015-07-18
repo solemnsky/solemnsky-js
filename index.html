@@ -3,6 +3,14 @@
 	<head>
 		<title>Solemn Sky</title>
 		<link href="assets/entireframework.min.css" rel="stylesheet" type="text/css" />
+		<style type="text/css">
+			.container {
+				text-align: center;
+			}
+			#gameframe {
+				margin-top: 40px;
+			}
+		</style>
 	</head>
 	<body>
 		<nav class="nav" tabindex="-1" onclick="this.focus()">
@@ -12,7 +20,10 @@
 		</nav>
 		<button class="btn-close btn btn-sm">×</button>
 		<div class="container">
-			
+			<iframe src="game.html" width="640" height="480" id="gameframe"></iframe>
 		</div>
+		<script type="text/javascript">
+			document.getElementById("gameframe").focus();
+		</script>
 	</body>
 </html>
