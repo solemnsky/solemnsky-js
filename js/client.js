@@ -145,7 +145,7 @@ Mousetrap.bind('right',
 // ugh what an ugly hack
 
 function sendSnapshot() {
-	sendData(serialiseSnapshot(game.makeSnapshot([myid])))
+	sendData(serialiseSnapshot(SolemnSky.makeSnapshot([myid])))
 } // this function needs to run a lot
 
 var socket = null;

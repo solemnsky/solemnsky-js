@@ -24,10 +24,10 @@ function SnapshotPoint(id, movement, vel) {
 
 Game.prototype.applySnapshotPoint = function(snapshot) {
 	if (snapshot.movement	!= null) {
-		Game.players[id].movement = snapshot.movement
+		this.players[id].movement = snapshot.movement
 	}
 	if (snapshot.pos != null) {
-		Game.players[id].block.SetPosition(snapshot.vel)
+		this.players[id].block.SetPosition(snapshot.vel)
 	}
 }
 
