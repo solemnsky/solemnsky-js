@@ -179,6 +179,7 @@ function connect(address, port, path) {
 	socket.onclose = function() {
 		//Disconnected
 		connected = false;
+		addChat("Disconnected");
 	};
 	socket.onerror = function() {
 		alert("Do something here.");
