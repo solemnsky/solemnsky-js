@@ -15,6 +15,10 @@ window.addEventListener('resize', function(event){
 	updateWindowSize()
 });
 
+//Some global variables for the DOM
+var canvas = document.getElementById("c");
+var ctx = canvas.getContext("2d");
+
 //Current window size
 function updateWindowSize() {
 	windowSize = {
@@ -36,10 +40,6 @@ window.requestAnimFrame = (function() {
 			window.setTimeout(callback, SolemnSky.tickTimeMs);
 		};
 })();
-
-//Some global variables for the DOM
-var canvas = document.getElementById("c");
-var ctx = canvas.getContext("2d");
 
 /**** }}} initialisation, constants, helper functions ****/
 
