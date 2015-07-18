@@ -127,21 +127,21 @@ requestAnimFrame(update);
 
 //Keyboard keys, just set movement variables
 Mousetrap.bind('up', 
-	function() { movement.forward = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.forward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('up', 
-	function() { movement.forward = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.forward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('down', 
-	function() { movement.backward = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.backward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('down', 
-	function() { movement.backward = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.backward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('left', 
-	function() { movement.left = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.left = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('left',
-	function() { movement.left = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.left = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('right', 
-	function() { movement.right = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.right = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('right', 
-	function() { movement.right = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.right = false; sendSnapshot()}, 'keyup');
 // ugh what an ugly hack
 
 function sendSnapshot() {
