@@ -127,26 +127,26 @@ requestAnimFrame(update);
 
 //Keyboard keys, just set movement variables
 Mousetrap.bind('up', 
-  function() { movement.forward = true; }, 'keydown');
+  function() { movement.forward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('up', 
-  function() { movement.forward = false; }, 'keyup');
+  function() { movement.forward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('down', 
-  function() { movement.backward = true; }, 'keydown');
+  function() { movement.backward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('down', 
-  function() { movement.backward = false; }, 'keyup');
+  function() { movement.backward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('left', 
-  function() { movement.left = true; }, 'keydown');
+  function() { movement.left = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('left',
-  function() { movement.left = false; }, 'keyup');
+  function() { movement.left = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('right', 
-  function() { movement.right = true; }, 'keydown');
+  function() { movement.right = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('right', 
-  function() { movement.right = false; }, 'keyup');
+  function() { movement.right = false; sendSnapshot()}, 'keyup');
+// ugh what an ugly hack
 
-function sendEvent() {
-	sendData(makeMotionEvent.apply(kbdState).show) //makeMotionEvent(array).show gives you a nice string 
-	// deprecated, now using partial snapshots
-}
+function sendSnapshot() {
+	sendData(serialiseSnapshot(game.makeSnapshot([myid])))
+} // this function needs to run a lot
 
 var socket = null;
 var connected = false;
@@ -239,6 +239,7 @@ function tick(data) {
 			box.SetUserData({x: boxX, y: boxY, w: boxW, h: boxH, static: boxStatic, fields: boxFields});
 			SolemnSky.boxes.push(box);
 		}
+  case "SNAP":
 
 		break;
 	}
