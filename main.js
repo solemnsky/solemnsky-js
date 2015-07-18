@@ -18,8 +18,13 @@ window.addEventListener('resize', function(event){
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
 
-//Current keyboard keys pressed: up down left right
-var kbdState = [false, false, false, false]
+//Movement keys, if they're held down
+var movement = {
+	forward: false,
+	backward: false,
+	up: false,
+	down: false
+};
 
 //Current window size
 function updateWindowSize() {
@@ -43,16 +48,6 @@ window.requestAnimFrame = (function() {
 		};
 })();
 
-//Current high score
-var hiscore = 0;
-
-//Movement keys, if they're held down
-var movement = {
-	forward: false,
-	backward: false,
-	up: false,
-	down: false
-};
 
 function renderBox(body, width, height) {
 	//Reset the transform of the context
@@ -128,17 +123,18 @@ requestAnimFrame(update);
 
 
 //Keyboard keys, just set movement variables
-Mousetrap.bind('up',    function() { kbdState[0] = true;  sendData("MOVEMENT forward 1") }, 'keydown');
-Mousetrap.bind('up',    function() { kbdState[0] = false; sendData("MOVEMENT forward 0") }, 'keyup');
-Mousetrap.bind('down',  function() { kbdState[1] = true;  sendData("MOVEMENT backward 1") }, 'keydown');
-Mousetrap.bind('down',  function() { kbdState[1] = false; sendData("MOVEMENT backward 0") }, 'keyup');
-Mousetrap.bind('left',  function() { kbdState[2] = true;  sendData("MOVEMENT left 1") }, 'keydown');
-Mousetrap.bind('left',  function() { kbdState[2] = false; sendData("MOVEMENT left 0") }, 'keyup');
-Mousetrap.bind('right', function() { kbdState[3] = true;  sendData("MOVEMENT right 1") }, 'keydown');
-Mousetrap.bind('right', function() { kbdState[3] = false; sendData("MOVEMENT right 0") }, 'keyup');
+Mousetrap.bind('up',    function() { movement.forward = true;   }, 'keydown');
+Mousetrap.bind('up',    function() { movement.forward = false;  }, 'keyup');
+Mousetrap.bind('down',  function() { movement.backward = true;   }, 'keydown');
+Mousetrap.bind('down',  function() { movement.backward = false;  }, 'keyup');
+Mousetrap.bind('left',  function() { movement.left = true;   }, 'keydown');
+Mousetrap.bind('left',  function() { movement.left = false;  }, 'keyup');
+Mousetrap.bind('right', function() { movement.right = true;   }, 'keydown');
+Mousetrap.bind('right', function() { movement.right = false;  }, 'keyup');
 
 function sendEvent() {
 	sendData(makeMotionEvent.apply(kbdState).show) //makeMotionEvent(array).show gives you a nice string 
+	// deprecated, now using partial snapshots
 }
 
 var socket = null;
