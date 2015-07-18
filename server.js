@@ -45,12 +45,11 @@ Server.prototype.initWorld = function() {
 }
 
 Server.prototype.emitBoxesBlob = function() {
-	var blob = boxes.length;
-	for (var i = 0; i < boxes.length; i ++) {
-		var box = boxes[i];
-		blob += ';' + box.x + ',' + box.y + ',' + box.w + ',' + box.h + ',' + box.static + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
+	var emitBox = function(box) {
+		return ';' + box.x + ',' + box.y + ',' + box.w + ',' + box.h + ',' + box.static + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
 	}
-	return blob;
+	var acc = function(acc, x) { return acc + x };
+	return boxes.map(emitBox).reduce(acc, boxes.length);
 }
 
 
