@@ -12,14 +12,23 @@ function Game() {
 
 /**** {{{ snapshots ****/
 // a modification of a single player's dynamic state (pos, vel)
+// if any of the parameters is null, that parameter
+// will not influence the target player's state
 function SnapshotPoint(id, movement, vel) {
   this.id = id; this.movement =  movement 
-	this.vel = new b2Vec2.make(vel.x, vel.y)
+	this.pos = null;
+		if (pos != null) 
+			{ this.pos = 
+					new b2Vec2.make(vel.x, vel.y)}
 }
 
 Game.prototype.applySnapshotPoint = function(snapshot) {
-	Game.players[id].movement = snapshot.movement
-	Game.players[id].block.SetPosition(snapshot.vel)
+	if (snapshot.movement	!= null) {
+		Game.players[id].movement = snapshot.movement
+	}
+	if (snapshot.pos != null) {
+		Game.players[id].block.SetPosition(snapshot.vel)
+	}
 }
 
 Game.prototype.applySnapshot = function(snapshot) {

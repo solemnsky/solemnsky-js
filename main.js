@@ -14,18 +14,6 @@ window.addEventListener('resize', function(event){
 	updateWindowSize()
 });
 
-//Some global variables for the DOM
-var canvas = document.getElementById("c");
-var ctx = canvas.getContext("2d");
-
-//Movement keys, if they're held down
-var movement = {
-	forward: false,
-	backward: false,
-	up: false,
-	down: false
-};
-
 //Current window size
 function updateWindowSize() {
 	windowSize = {
@@ -48,6 +36,17 @@ window.requestAnimFrame = (function() {
 		};
 })();
 
+//Some global variables for the DOM
+var canvas = document.getElementById("c");
+var ctx = canvas.getContext("2d");
+
+//Movement keys, if they're held down
+var movement = {
+	forward: false,
+	backward: false,
+	up: false,
+	down: false
+};
 
 function renderBox(body, width, height) {
 	//Reset the transform of the context
@@ -123,14 +122,22 @@ requestAnimFrame(update);
 
 
 //Keyboard keys, just set movement variables
-Mousetrap.bind('up',    function() { movement.forward = true;   }, 'keydown');
-Mousetrap.bind('up',    function() { movement.forward = false;  }, 'keyup');
-Mousetrap.bind('down',  function() { movement.backward = true;   }, 'keydown');
-Mousetrap.bind('down',  function() { movement.backward = false;  }, 'keyup');
-Mousetrap.bind('left',  function() { movement.left = true;   }, 'keydown');
-Mousetrap.bind('left',  function() { movement.left = false;  }, 'keyup');
-Mousetrap.bind('right', function() { movement.right = true;   }, 'keydown');
-Mousetrap.bind('right', function() { movement.right = false;  }, 'keyup');
+Mousetrap.bind('up', 
+  function() { movement.forward = true; }, 'keydown');
+Mousetrap.bind('up', 
+  function() { movement.forward = false; }, 'keyup');
+Mousetrap.bind('down', 
+  function() { movement.backward = true; }, 'keydown');
+Mousetrap.bind('down', 
+  function() { movement.backward = false; }, 'keyup');
+Mousetrap.bind('left', 
+  function() { movement.left = true; }, 'keydown');
+Mousetrap.bind('left',
+  function() { movement.left = false; }, 'keyup');
+Mousetrap.bind('right', 
+  function() { movement.right = true; }, 'keydown');
+Mousetrap.bind('right', 
+  function() { movement.right = false; }, 'keyup');
 
 function sendEvent() {
 	sendData(makeMotionEvent.apply(kbdState).show) //makeMotionEvent(array).show gives you a nice string 
