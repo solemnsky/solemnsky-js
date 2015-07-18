@@ -30,7 +30,7 @@ Game.prototype.applySnapshot = function(snapshot) {
 // makes a snapshot concerning one player
 Game.prototype.makeSnapshotPoint = function(id) {
 	var player = this.findPlayerByID(id)
-	var velocity = player.<velocity> // a b2Vec2
+	var velocity = null // player.<velocity> (a b2Vec2)
 	// TODO: find velocity method
  	return SnapshotPoint (id
 		, movement = player.movement
