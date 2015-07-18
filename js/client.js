@@ -50,6 +50,7 @@ var movement = {
 	up: false,
 	down: false
 };
+var myid = -1;
 
 function renderBox(body, width, height) {
 	//Reset the transform of the context
@@ -240,6 +241,9 @@ function tick(data) {
 		}
 	case "SNAP":
 
+		break;
+	case "ID":
+		myid = parseInt(data[0]);
 		break;
 	}
 }

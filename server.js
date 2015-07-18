@@ -84,6 +84,7 @@ Server.prototype.parseData = function(ws, data) {
 	switch (command) {
 		case "NAME":
 			ws.playerId = SolemnSky.addPlayer(lastId++, 320 / SolemnSky.scale, 240 / SolemnSky.scale, data, "#00ff00", "");
+			ws.send("ID " + ws.playerId);
 			break;
 		case "SNAPSHOT":
 			var snapshot = readSnapshot(data.slice(8))
