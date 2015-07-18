@@ -1,3 +1,4 @@
+/**** {{{ dependencies ****/
 //Import Box2D library
 Box2D = require("./assets/box2d.min.js");
 
@@ -12,7 +13,9 @@ Engine = require("./js/engine.js");
 Game = Engine.Game;
 readSnapshot = Engine.readSnapshot;
 serialiseSnapshot = Engine.serialiseSnapshot;
+/**** }}} dependencies ****/
 
+/**** {{{ arbitrary boxes array ****/
 //List of boxes with which to initialize the world 
 var boxes = [
 	{x: 320, y: 480, w: 600, h: 10, static: true, fields: {life: 1e300}},
@@ -25,6 +28,7 @@ var boxes = [
 	{x: 430, y: 270, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
 	{x: 570, y: 300, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}}
 ];
+/**** }}} arbitrary boxes array ****/
 
 var lastId = 0;
 Game.prototype.emitBlob = function() {

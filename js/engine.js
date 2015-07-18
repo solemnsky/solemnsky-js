@@ -1,4 +1,26 @@
-/**** {{{ initial game state ****/
+/**** {{{ helpful values****/
+if (typeof(windowSize) === "undefined") {
+	//Server, we need to init this stuff
+	windowSize = {
+		width: 1440,
+		height: 778
+	}
+}
+
+//Shorthands so we don't have long names for the box2d types
+var	  b2Vec2         = Box2D.Common.Math.b2Vec2
+	, b2BodyDef      = Box2D.Dynamics.b2BodyDef
+	, b2Body         = Box2D.Dynamics.b2Body
+	, b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
+	, b2Fixture      = Box2D.Dynamics.b2Fixture
+	, b2World        = Box2D.Dynamics.b2World
+	, b2MassData     = Box2D.Collision.Shapes.b2MassData
+	, b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+	, b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
+	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+/**** }}} helpful values ****/
+
+/**** {{{ Game() ****/
 function Game() {
 	this.world = null;
 	this.players = [];
@@ -11,7 +33,25 @@ function Game() {
 	this.scale = 30;
 	this.simulating = true;
 };
-/**** }}} initial game state ****/
+/**** }}} Game() ****/
+
+/**** {{{ Player() ****/
+function Player(id, x, y, name, color, image) {
+	this.name = name;
+	this.color = color;
+	this.image = image;
+	this.id = id;
+	
+	this.movement = {
+		forward: false,
+		backward: false,
+		left: false,
+		right: false
+	};
+
+	this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
+}
+/**** }}} Player() ****/
 
 /**** {{{ snapshots ****/
 /* 
@@ -80,43 +120,7 @@ function readSnapshot(str) {
 
 /**** }}} snapshots ****/
 
-/**** {{{ helper functions and initialising values ****/
-if (typeof(windowSize) === "undefined") {
-	//Server, we need to init this stuff
-	windowSize = {
-		width: 1440,
-		height: 778
-	}
-}
-//Shorthands so we don't have long names for the box2d types
-var	  b2Vec2         = Box2D.Common.Math.b2Vec2
-	, b2BodyDef      = Box2D.Dynamics.b2BodyDef
-	, b2Body         = Box2D.Dynamics.b2Body
-	, b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
-	, b2Fixture      = Box2D.Dynamics.b2Fixture
-	, b2World        = Box2D.Dynamics.b2World
-	, b2MassData     = Box2D.Collision.Shapes.b2MassData
-	, b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-	, b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
-	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
-/**** }}} helper functions and initialising values ****/
-
-function Player(id, x, y, name, color, image) {
-	this.name = name;
-	this.color = color;
-	this.image = image;
-	this.id = id;
-	
-	this.movement = {
-		forward: false,
-		backward: false,
-		left: false,
-		right: false
-	};
-
-	this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
-}
-
+/**** {{{ static prototype methods ****/
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 	var player = new Player(id, x, y, name, color, image);
 	this.players.push(player);
@@ -205,8 +209,9 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 
 	return box;
 } // createBox()
+/**** }}} Game.prototype, static methods ****/
 
-
+/**** {{{ prototype methods for initialising and simulating ****/
 /**
  * Initialize the game world 
  */
@@ -318,6 +323,7 @@ Player.prototype.update = function(game, delta) {
 
 	this.block.SetLinearVelocity(linearVelocity);
 }
+/**** }}} prototype methods for initialising and simulation ****/
 
 if (typeof(module) !== "undefined") {
 	module.exports.Game = Game;

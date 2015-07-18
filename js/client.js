@@ -40,7 +40,7 @@ window.requestAnimFrame = (function() {
 			window.setTimeout(callback, SolemnSky.tickTimeMs);
 		};
 })();
-/**** }}} initialisation, constants, helper functions ****/
+/**** }}} constants, helper functions ****/
 
 /**** {{{ game state ****/
 var myid = -1;
