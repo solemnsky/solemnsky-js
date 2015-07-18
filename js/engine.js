@@ -1,66 +1,4 @@
-function Game() {
-	this.world = null;
-	this.players = [];
-	this.boxes = [];
-	this.updateCallbacks = [];
-	this.projectiles = [];
-	this.fps = 60.0;
-	this.tickTime = 1 / this.fps;
-	this.tickTimeMs = 1000 / this.fps;
-	this.scale = 30;
-	this.simulating = true;
-};
-
-/**** {{{ snapshots ****/
-// a modification of a single player's dynamic state (pos, vel)
-// if any of the parameters is null, that parameter
-// will not influence the target player's state
-function SnapshotPoint(id, pos, movement, vel) {
-	this.id = id;
-	this.movement =  movement ;
-	this.pos = pos;
-	this.vel = vel;
-}
-
-Game.prototype.applySnapshotPoint = function(snapshot, id) {
-	var index = this.findPlayerById(id);
-	if (snapshot.movement != null) {
-		this.players[index].movement = snapshot.movement
-	}
-}
-
-Game.prototype.applySnapshot = function(snapshot, id) {
-	snapshot.forEach(function(i) {this.applySnapshotPoint(i, id)}, this)
-}
-
-// makes a snapshot concerning one player
-Game.prototype.makeSnapshotPoint = function(id) {
-	var player = this.players[this.findPlayerById(id)]
-	var velocity = player.block.GetLinearVelocity()
-	var position = player.block.GetPosition();
- 	return new SnapshotPoint (id
- 		, {x: position.x, y: position.y}
-		, player.movement
-		, {x: velocity.x, y: velocity.y})
-}
-
-// makes a snapshot concerning an array of players
-Game.prototype.makeSnapshot = function(ids) { 
-	return ids.map(function(id) {
-		return this.makeSnapshotPoint(id);
-	}, this) 
-}
-
-function serialiseSnapshot(snapshot) {
-	return JSON.stringify(snapshot);	
-}
-
-function readSnapshot(str) {
-	return JSON.parse(str);
-}
-
-/**** }}} snapshots ****/
-
+/**** {{{ helpful values****/
 if (typeof(windowSize) === "undefined") {
 	//Server, we need to init this stuff
 	windowSize = {
@@ -68,6 +6,7 @@ if (typeof(windowSize) === "undefined") {
 		height: 778
 	}
 }
+
 //Shorthands so we don't have long names for the box2d types
 var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2BodyDef      = Box2D.Dynamics.b2BodyDef
@@ -79,7 +18,24 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
 	, b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+/**** }}} helpful values ****/
 
+/**** {{{ Game() ****/
+function Game() {
+	this.world = null;
+	this.players = [];
+	this.map = [];
+	this.updateCallbacks = [];
+	this.projectiles = [];
+	this.fps = 60.0;
+	this.tickTime = 1 / this.fps;
+	this.tickTimeMs = 1000 / this.fps;
+	this.scale = 30;
+	this.simulating = true;
+};
+/**** }}} Game() ****/
+
+/**** {{{ Player() ****/
 function Player(id, x, y, name, color, image) {
 	this.name = name;
 	this.color = color;
@@ -95,32 +51,224 @@ function Player(id, x, y, name, color, image) {
 
 	this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
 }
+/**** }}} Player() ****/
 
-Game.prototype.addPlayer = function(id, x, y, name, color, image) {
-	var player = new Player(id, x, y, name, color, image);
-	this.players.push(player);
-	player.block.SetSleepingAllowed(false);
-	return player.id;
+/**** {{{ snapshots ****/
+/* 
+	a snapshot represents a sort of delta in the dynamic part
+	of the game state; a player, alone, might send snapshots of
+	itself to the server where they are simply merged, but in an 
+	engagement, where one player kills another player, perhaps the
+	snapshot from the killer that said his shot hit could override
+	the snapshot from the victim who thought the shot had missed
+	(these sort of decisions are inevitable if we don't want to 
+	go back to the 'mile long keyboard')
+*/
+// a modification of a single player's state
+// if movement is left null, movement is not influenced
+// if another parameter is left null (pos, vel, angle, or angleVel), 
+// none of those parameters are set
+function SnapshotPoint(id, movement, pos, vel, angle, angleVel) {
+	this.id = id;
+	this.movement =  movement ;
+	this.pos = pos;
+	this.vel = vel;
+	this.angle = angle;
+	this.angleVel = angleVel;
 }
 
-Game.prototype.findPlayerById = function(id) {
+// applies a snapshot point 
+Game.prototype.applySnapshotPoint = function(snapshot) {
+	var index = this.findIndexById(snapshot.id);
+	if (index !== (-1)) {
+		var posProps = 
+			[snapshot.pos, snapshot.vel, snapshot.angle, snapshot.angleVel]
+		if (snapshot.movement != null) {
+			this.players[index].movement = snapshot.movement
+		}
+		if (posProps.every(x => x != null)) {
+			this.players[index].block.SetPosition(
+				new b2Vec.make(snapshot.pos.x, snapshot.pos.y))
+			this.players[index].block.SetLinearVelocity(
+				new b2Vec.make(snapshot.vel.x, snapshot.vel.y))
+			this.players[index].block.SetAngle(
+				new b2Vec.make(snapshot.angle.x, snapshot.angle.y))
+			this.players[index].block.SetAngularVelocity(
+				new b2Vec.make(snapshot.angleVel.x, snapshot.angleVel.y))
+		}
+	}
+}
+
+// applies a snapshot, an array of snapshot points, possibly
+// effecting multiple players
+Game.prototype.applySnapshot = function(snapshot) {
+	snapshot.forEach(function(i) {this.applySnapshotPoint(i)}, this)
+}
+
+// makes a snapshot concerning one player
+Game.prototype.makeSnapshotPoint = function(id) {
+	var player = this.players[this.findIndexById(id)]
+	var velocity = player.block.GetLinearVelocity()
+	var position = player.block.GetPosition();
+ 	return new SnapshotPoint (id
+		, player.movement
+ 		, {x: position.x, y: position.y}
+		, {x: velocity.x, y: velocity.y})
+}
+
+// makes a snapshot concerning an array of player ids
+Game.prototype.makeSnapshot = function(ids) { 
+	return ids.map(function(id) {
+		return this.makeSnapshotPoint(id);
+	}, this) 
+}
+
+Game.prototype.makeTotalSnapshot = function() {
+	return 
+		this.players.map(player => this.makeSnapshotPoint(player.id))
+}
+
+// here 'emit' has the connotation of return something
+// serialised, easily transmittable
+// this functions returns a string
+Game.prototype.emitTotalSnapshot = function() {
+	return serialiseSnapshot(this.makeTotalSnapshot())
+}
+
+function serialiseSnapshot(snapshot) {
+	return JSON.stringify(snapshot);	
+	 // TODO: use glenn's utils to make this more efficent
+	// in terms of space
+}
+
+function readSnapshot(str) {
+	return JSON.parse(str);
+}
+/**** }}} snapshots ****/
+
+/**** {{{ listings ****/
+/*
+	A listing represents a static listing of players.
+	This is the type of thing that doesn't need to be broadcasted ever
+	tick of the server clock.
+*/
+
+Game.prototype.applyListing = function () {
+	listing.forEach(
+		function(entry) {
+			this.addPlayer(
+				entry.id, null, null, entry.name, entry.color, entry.image)	
+		}
+		, this)
+}
+
+// get the listing of players currently 
+// in the game engine
+Game.prototype.makeListing = function() {
+	this.player.map(
+		function(player) {
+			return { id: player.id, name: player.name
+			, color: player.color, image: player.image}
+		}
+		, this)
+}
+
+Game.prototype.emitListing = function() {
+	serialiseListing(this.makeListing)
+}
+
+Game.prototype.serialiseListing = function(listing) {
+	return JSON.stringify(listing)
+	 // TODO: use glenn's utils to make this more efficent
+	// in terms of space
+}
+
+Game.prototype.readListing = function(str) {
+	return JSON.parse(str);
+}
+/**** }}} listings ****/
+
+/**** {{{ maps ****/
+/*
+	Right now a map is just an array of blocks.
+	Eventually it will be .. more exciting.
+*/
+
+Game.prototype.loadMap = function (map) {
+	map.forEach(
+		function(box) {
+			var box = this.createBox(
+				box.x, box.y, box.w, box.h, box.static, box.fields)		
+			this.map.push(box);
+		}, this)
+}
+
+var serialiseBlock = function(box) {
+	return ';' + Utils.floatToChar(box.x)
+		 + ',' + Utils.floatToChar(box.y)
+		 + ',' + Utils.floatToChar(box.w)
+		 + ',' + Utils.floatToChar(box.h)
+		 + ',' + box.isStatic 
+		 + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
+}
+
+Game.prototype.serialiseMap = function(map) {
+	var acc = function(acc, x) { return acc + x };
+  map.map(emitBox).reduce(acc, map.length)
+}
+
+Game.prototype.readMap = function(str) {
+	var blobParts = data.split(";");
+	var numBoxes = parseInt(blobParts[0]);
+	var map = [];
+
+	for (var i = 0; i < numBoxes; i ++) {
+		var boxDetails = blobParts[i + 1].split(",");
+		var boxX = Utils.charToFloat(boxDetails[0]);
+		var boxY = Utils.charToFloat(boxDetails[1]);
+		var boxW = Utils.charToFloat(boxDetails[2]);
+		var boxH = Utils.charToFloat(boxDetails[3]);
+		var boxStatic = boxDetails[4];
+		var boxFields = JSON.parse(boxDetails[5].replace(/\\:/g, ","));
+
+		var box = {x: boxX, y: boxY, w: boxW, h: boxH, isStatic: boxStatic, fields: boxFields};
+		map.push(box);
+	}
+	return map;
+}
+
+Game.prototype.emitMap = function() {
+	this.serialiseMap(this.readMap)
+}
+
+/**** }}} listings ****/
+
+/**** {{{ static prototype methods ****/
+Game.prototype.addPlayer = function(id, x, y, name, color, image) {
+	if (this.players.some(player => player.id == id)) {
+		return -1
+	} else {
+		var player = new Player(id, x, y, name, color, image);
+		this.players.push(player);
+		player.block.SetSleepingAllowed(false);
+		return player.id;
+	}
+}
+
+Game.prototype.findIndexById = function(id) {
 	for (var i = 0; i < this.players.length; i ++) {
 		if (this.players[i].id == id)
-			return i;
+			return i; // why not just return the player?
 	}
 	return -1; //Blow up here
 }
 
 Game.prototype.deletePlayer = function(id) {
-	var index = this.findPlayerById(id);
+	var index = this.findIndexById(id);
 	var player = this.players[index];
 	var block = player.block;
 	this.world.DestroyBody(block);
 	this.players.splice(index, 1);
-}
-
-Game.prototype.updatePlayer = function(id) {
-	//TODO
 }
 
 Game.prototype.addUpdateCallback = function(callback) {
@@ -183,12 +331,11 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 	box.SetUserData({x: x, y: y, w: w, h: h, static: static, fields: fields});
 
 	return box;
-} // createBox()
+} 
+/**** }}} Game.prototype, static methods ****/
 
-
-/**
- * Initialize the game world 
- */
+/**** {{{ prototype methods for initialising and simulating ****/
+// initialize the game world 
 Game.prototype.init = function() {
 	//Default world gravity
 	this.gravity = new b2Vec2(0, 10);
@@ -215,9 +362,7 @@ Game.prototype.init = function() {
 	this.world.SetContactListener(listener);
 }; // init()
 
-/**
- * Method that is called on every update 
- */
+// method that is called on every update
 var last = Date.now();
 Game.prototype.update = function() {
 	var diff = Date.now() - last;
@@ -234,6 +379,7 @@ Game.prototype.update = function() {
 			player.update(this, diff);
 		}, this);
 
+/* 
 		for (var i = this.projectiles.length - 1; i >= 0; i--) {
 			if (this.projectiles[i].GetPosition().y * this.scale > windowSize.height ||
 				this.projectiles[i].GetPosition().x * this.scale > windowSize.width ||
@@ -243,6 +389,7 @@ Game.prototype.update = function() {
 				this.projectiles.splice(i, 1);
 			}
 		}
+	*/ // commented out for simplicity for now
 	}
 	this.updateCallbacks.forEach(function each(callback) {
 		callback(diff);
@@ -251,7 +398,8 @@ Game.prototype.update = function() {
 
 Player.prototype.update = function(game, delta) {
 	//What position is our player at? Use this for the new projectiles
-	var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
+	var blockPos = new
+		b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
 	blockPos.Multiply(game.scale);
 
 	var speed = 10 * (delta / 1000) * game.scale; //20 u/sec
@@ -261,45 +409,41 @@ Player.prototype.update = function(game, delta) {
 	if (this.movement.forward) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(0, 2 * -speed / game.scale));
-		//Shoot a projectile
+		//Make a projectile
 		var box = game.createBox(blockPos.x, blockPos.y + 30, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, 1000 / game.scale));
-		box.GetUserData().creationDate = Date.now();
-		game.projectiles.push(box);
 	}
 	if (this.movement.backward) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(0, speed / game.scale));
-		//Shoot a projectile
+		//Make a projectile
 		var box = game.createBox(blockPos.x, blockPos.y - 30, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, -1000 / game.scale));
-		box.GetUserData().creationDate = Date.now();
-		game.projectiles.push(box);
 	}
 	if (this.movement.left) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(-speed / game.scale, 0));
-		//Shoot a projectile
+		//Make a projectile
 		var box = game.createBox(blockPos.x + 30, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(1000 / game.scale, 0));
-		box.GetUserData().creationDate = Date.now();
-		game.projectiles.push(box);
 	}
 	if (this.movement.right) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(speed / game.scale, 0));
-		//Shoot a projectile
+		//Make a projectile
 		var box = game.createBox(blockPos.x - 30, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(-1000 / game.scale, 0));
-		box.GetUserData().creationDate = Date.now();
-		game.projectiles.push(box);
 	}
+	//Shoot the projectile we made
+	/*
+	box.GetUserData().creationDate = Date.now();
+	game.projectiles.push(box);
+	*/ // commented out for simplicity for now
 
 	this.block.SetLinearVelocity(linearVelocity);
 }
+/**** }}} prototype methods for initialising and simulation ****/
 
 if (typeof(module) !== "undefined") {
 	module.exports.Game = Game;
-	module.exports.readSnapshot = readSnapshot;
-	module.exports.serialiseSnapshot = serialiseSnapshot;
 }

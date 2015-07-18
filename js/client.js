@@ -1,4 +1,4 @@
-/**** {{{ initialisation, constants, helper functions ****/
+/**** {{{ constants, helper functions ****/
 //Partial application yay
 Function.prototype.partial = function() {
 	var fn = this, args = arguments;
@@ -40,18 +40,19 @@ window.requestAnimFrame = (function() {
 			window.setTimeout(callback, SolemnSky.tickTimeMs);
 		};
 })();
+/**** }}} constants, helper functions ****/
 
-/**** }}} initialisation, constants, helper functions ****/
-
-//Movement keys, if they're held down
-var movement = {
-	forward: false,
-	backward: false,
-	up: false,
-	down: false
-};
+/**** {{{ game state ****/
 var myid = -1;
 
+//Start up the game
+SolemnSky = new Game();
+SolemnSky.setFPS(60);
+SolemnSky.init();
+requestAnimFrame(update);
+/**** }}} game state ****/
+
+/**** {{{ rendering functions ****/
 function renderBox(body, width, height) {
 	//Reset the transform of the context
 	ctx.resetTransform();
@@ -91,7 +92,7 @@ function render() {
 		ctx.textBaseline = "middle";
 		ctx.fillText(player.name, playerX, playerY);
 	}, SolemnSky);
-	SolemnSky.boxes.forEach(function each(box) {
+	SolemnSky.map.forEach(function each(box) {
 		var data = box.GetUserData();
 
 		ctx.fillStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life) + ", 30, 100)").toHex();
@@ -113,10 +114,10 @@ function render() {
 		renderBox(projectile, data.w, data.h);
 	}, SolemnSky);
 } // render()
+/**** }}} rendering functions ****/
 
-now = Date.now();
+/**** {{{ safe update method ****/
 then = Date.now();
-
 function update() {
 	now = Date.now();
 
@@ -130,39 +131,36 @@ function update() {
 		SolemnSky.update();
 		render();
 	}
-} // update()
-//Start up the game
-SolemnSky = new Game();
-SolemnSky.setFPS(60);
-SolemnSky.init();
-requestAnimFrame(update);
+} 
+/**** }}} safe update method ****/
 
-
-//Keyboard keys, just set movement variables
+/**** {{{ key bindings ****/
 Mousetrap.bind('up', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.forward = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.forward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('up', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.forward = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.forward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('down', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.backward = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.backward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('down', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.backward = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.backward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('left', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.left = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.left = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('left',
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.left = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.left = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('right', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.right = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.right = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('right', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.right = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.right = false; sendSnapshot()}, 'keyup');
 // ugh what an ugly hack
+/**** }}} key bindings ****/
 
-function sendSnapshot() {
-	sendData("SNAPSHOT " + serialiseSnapshot(SolemnSky.makeSnapshot([myid])))
-} // this function needs to run a lot
-
+/**** {{{ basic network functions / callbacks ****/
 var socket = null;
 var connected = false;
+
+function sendSnapshot() {
+	sendData("SNAP " + serialiseSnapshot(SolemnSky.makeSnapshot([myid])))
+} // this function needs to run a lot
 
 //Connect to a server (client only)
 function connect(address, port, path) {
@@ -186,7 +184,7 @@ function connect(address, port, path) {
 		connected = false;
 	};
 	socket.onmessage = function(data) {
-		parseData(data.data);
+		tick(data.data);
 	};
 }
 
@@ -196,11 +194,9 @@ function sendData(data) {
 		socket.send(data);
 	}
 }
+/**** }}} basic network functions / callbacks ****/
 
-function parseData(data) {
-	tick(data);
-}
-
+/*** {{{ tick: respond to data from the server ****/
 function tick(data) {
 	var split = data.split(" ");
 	var command = split[0];
@@ -208,51 +204,66 @@ function tick(data) {
 	data = split.join(" ");
 
 	switch (command) {
-	case "PLAYERS":
-		//Example players blob:
-		//numplayers;player;player;...
-		var blobParts = data.split(';');
-		var numPlayers = parseInt(blobParts[0]);
-		
-		for (var i = 0; i < numPlayers; i ++) {
-			//playerid,x,y,vx,vy
-			var playerDetails = blobParts[i+1].split(',');
-			var playerName = playerDetails[0];
-			var playerId = Utils.charToInt(playerDetails[1]);
-			var playerX  = Utils.charToFloat(playerDetails[2]);
-			var playerY  = Utils.charToFloat(playerDetails[3]);
-			var playerVX = Utils.charToFloat(playerDetails[4]);
-			var playerVY = Utils.charToFloat(playerDetails[5]);
-			var playerA  = Utils.charToFloat(playerDetails[6]);
-			var playerAV = Utils.charToFloat(playerDetails[7]);
-			
-			if (SolemnSky.findPlayerById(playerId) === -1) {
-				SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
-			}
-			var player = SolemnSky.players[SolemnSky.findPlayerById(playerId)];
-			player.block.SetPosition(new b2Vec2(playerX, playerY));
-			player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
-			player.block.SetAngle(playerA);
-			player.block.SetAngularVelocity(playerAV);
-		}
+	case "SNAP":
+		SolemnSky.applySnapshot(SolemnSky.readSnapshot(data)); break;
+	case "LIST":
+		SolemnSky.applyListing(SolemnSky.readListing(data)); break;
+	case "MAP":
+		SolemnSky.loadMap(SolemnSky.readMap(data)); break;
+	case "ID":
+		myid = parseInt(data[0])
+		addChat("Joined Server"); break;
+	case "JOIN":
+		addChat(data + " joined server."); break;
+	case "CHAT":
+		var id = split[0];
+		var message = split.slice(1).join(" ");
+		var name = SolemnSky.players[SolemnSky.findIndexById(id)].name;
+		addChat(name + ": " + message);
 		break;
-	case "BOXES":
-		var blobParts = data.split(";");
-		var numBoxes = parseInt(blobParts[0]);
+	}
+}
+/**** }}} tick: recieve data from the server ****/
 
-		for (var i = 0; i < numBoxes; i ++) {
-			var boxDetails = blobParts[i + 1].split(",");
-			var boxX = Utils.charToFloat(boxDetails[0]);
-			var boxY = Utils.charToFloat(boxDetails[1]);
-			var boxW = Utils.charToFloat(boxDetails[2]);
-			var boxH = Utils.charToFloat(boxDetails[3]);
-			var boxStatic = boxDetails[4];
-			var boxFields = JSON.parse(boxDetails[5].replace(/\\:/g, ","));
+/**** {{{ chat feature ****/
+function htmlEscape(str) {
+	return String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/  /g, ' &nbsp;')
+}
 
-			var box = SolemnSky.createBox(boxX, boxY, boxW, boxH, boxStatic, boxFields);
-			SolemnSky.boxes.push(box);
-		}
-	case "PROJECTILES":
+function addChat(text) {
+	document.getElementById("chatcontainer").innerHTML += "<div>" + htmlEscape(text) + "</div>";
+}
+
+function openChat() {
+	document.getElementById("chatentry").style.display = "block";
+	document.getElementById("chatentrybox").focus();
+}
+
+Mousetrap.bind('t', openChat, "keyup");
+Mousetrap.bind('enter', openChat, "keyup");
+
+document.getElementById("chatentrybox").onkeyup = function(e) {
+	if (e.keyCode === 13) {
+		var message = this.value;
+		if (message !== "") sendData("CHAT " + message);
+
+		document.getElementById("chatentry").style.display = "none";
+		this.value = "";
+	}
+}
+/**** }}} chat feature ****/
+
+connect("198.55.237.151", 50042, "/");
+
+/**** {{{ commented code ****/
+	// from tick, used to recieve projectiles from the server
+	/* case "PROJECTILES":
 		var blobParts = data.split(';');
 		var numProjectiles = parseInt(blobParts[0]);
 		
@@ -287,59 +298,6 @@ function tick(data) {
 		}, SolemnSky);
 		SolemnSky.projectiles.splice(numProjectiles);
 		break;
-	case "SNAP":
-
-		break;
-	case "ID":
-		myid = parseInt(data[0]);
-
-		addChat("Joined Server");
-		break;
-	case "JOIN":
-		var name = data;
-		addChat(name + " joined server.");
-		break;
-	case "CHAT":
-		var id = split[0];
-		var message = split.slice(1).join(" ");
-		var name = SolemnSky.players[SolemnSky.findPlayerById(id)].name;
-		addChat(name + ": " + message);
-		break;
-	}
-}
-
-function htmlEscape(str) {
-	return String(str)
-		.replace(/&/g, '&amp;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/  /g, ' &nbsp;')
-}
-
-
-function addChat(text) {
-	document.getElementById("chatcontainer").innerHTML += "<div>" + htmlEscape(text) + "</div>";
-}
-
-function openChat() {
-	document.getElementById("chatentry").style.display = "block";
-	document.getElementById("chatentrybox").focus();
-}
-
-Mousetrap.bind('t', openChat, "keyup");
-Mousetrap.bind('enter', openChat, "keyup");
-
-document.getElementById("chatentrybox").onkeyup = function(e) {
-	if (e.keyCode === 13) {
-		var message = this.value;
-		sendData("CHAT " + message);
-
-		document.getElementById("chatentry").style.display = "none";
-		this.blur();
-		this.value = "";
-	}
-}
-
-connect("198.55.237.151", 50042, "/");
+	*/ // commented out for now, will probably reintegrate
+		// with the snapshot infrastructure
+/**** }}} commented code ****/
