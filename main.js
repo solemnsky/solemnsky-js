@@ -31,19 +31,6 @@ function updateWindowSize() {
 	canvas.height = windowSize.height;
 }; updateWindowSize();
 
-//List of boxes with which to initialize the world 
-var boxes = [
-	{x: canvas.width / 2, y: canvas.height, w: 600, h: 10, static: true, fields: {life: 1e300}},
-	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 130, y: 110, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 470, y: 230, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 210, y: 130, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 350, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 390, y: 140, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 430, y: 270, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 570, y: 300, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}}
-];
-
 //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function() {
 	return window.requestAnimationFrame   || 
@@ -105,6 +92,14 @@ function render() {
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.fillText(player.name, playerX, playerY);
+	});
+	SolemnSky.boxes.forEach(function each(box) {
+		var data = box.GetUserData();
+
+		ctx.fillStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life)+ ", 30, 100)").toHex();
+		ctx.strokeStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life)+ ", 50, 100)").toHex();
+
+		renderBox(box, data.w, data.h);
 	});
 } // render()
 
@@ -219,6 +214,25 @@ function tick(data) {
 			player.block.SetAngle(playerA);
 			player.block.SetAngularVelocity(playerAV);
 		}
+		break;
+	case "BOXES":
+		var blobParts = data.split(";");
+		var numBoxes = parseInt(blobParts[0]);
+
+		for (var i = 0; i < numBoxes; i ++) {
+			var boxDetails = blobParts[i + 1].split(",");
+			var boxX = parseInt(boxDetails[0]);
+			var boxY = parseInt(boxDetails[1]);
+			var boxW = parseInt(boxDetails[2]);
+			var boxH = parseInt(boxDetails[3]);
+			var boxStatic = boxDetails[4];
+			var boxFields = JSON.parse(boxDetails[5].replace(/\\:/g, ","));
+
+			var box = SolemnSky.createBox(boxX, boxY, boxW, boxH, boxStatic, boxFields);
+			box.SetUserData({x: boxX, y: boxY, w: boxW, h: boxH, static: boxStatic, fields: boxFields});
+			SolemnSky.boxes.push(box);
+		}
+
 		break;
 	}
 }

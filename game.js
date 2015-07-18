@@ -1,6 +1,7 @@
 function Game() {
 	this.world = null;
 	this.players = [];
+	this.boxes = [];
 	this.updateCallbacks = [];
 	this.fps = 60.0;
 	this.tickTime = 1 / this.fps;

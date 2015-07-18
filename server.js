@@ -7,8 +7,20 @@ WebSocketServer = require("ws").Server;
 //Import common game engine code
 Game = require("./game.js");
 
-var lastId = 0;
+//List of boxes with which to initialize the world 
+var boxes = [
+	//{x: windowSize.width / 2, y: windowSize.height, w: 600, h: 10, static: true, fields: {life: 1e300}},
+	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 130, y: 110, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 470, y: 230, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 210, y: 130, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 350, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 390, y: 140, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 430, y: 270, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
+	{x: 570, y: 300, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}}
+];
 
+var lastId = 0;
 Game.prototype.emitBlob = function() {
 	var blob = this.players.length;
 	for (var i = 0; i < this.players.length; i ++) {
@@ -26,6 +38,24 @@ Game.prototype.emitBlob = function() {
 
 function Server() {}
 
+Server.prototype.initWorld = function() {
+	//Init the boxes into the world
+	for (var i = 0; i < boxes.length; i ++) {
+		var box = boxes[i];
+		SolemnSky.boxes.push(SolemnSky.createBox(box.x, box.y, box.w, box.h, box.static, box.fields));
+	}
+}
+
+Server.prototype.emitBoxesBlob = function() {
+	var blob = boxes.length;
+	for (var i = 0; i < boxes.length; i ++) {
+		var box = boxes[i];
+		blob += ';' + box.x + ',' + box.y + ',' + box.w + ',' + box.h + ',' + box.static + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
+	}
+	return blob;
+}
+
+
 Server.prototype.openSocket = function(port) {
 	wss = new WebSocketServer({port: port});
 
@@ -38,7 +68,7 @@ Server.prototype.openSocket = function(port) {
 			SolemnSky.deletePlayer(ws.playerId);
 		});
 
-		ws.send(SolemnSky.emitBlob() + "\n");
+		ws.send("BOXES " + GameServer.emitBoxesBlob() + "\n");
 	});
 }
 
@@ -87,6 +117,7 @@ SolemnSky.init();
 
 GameServer = new Server();
 GameServer.openSocket(50042);
+GameServer.initWorld();
 
 //Start the tick loop
 GameServer.onTick();
