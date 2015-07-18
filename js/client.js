@@ -244,7 +244,50 @@ function tick(data) {
 		break;
 	case "ID":
 		myid = parseInt(data[0]);
+
+		addChat("Joined Server");
 		break;
+	case "JOIN":
+		var name = data;
+		addChat(name + " joined server.");
+		break;
+	case "CHAT":
+		var id = split[0];
+		var message = split.slice(1).join(" ");
+		var name = SolemnSky.players[SolemnSky.findPlayerById(id)].name;
+		addChat(name + ": " + message);
+		break;
+	}
+}
+
+function htmlEscape(str) {
+	return String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/  /g, ' &nbsp;')
+}
+
+
+function addChat(text) {
+	document.getElementById("chatcontainer").innerHTML += "<div>" + htmlEscape(text) + "</div>";
+}
+
+Mousetrap.bind('t', function() {
+	document.getElementById("chatentry").style.display = "block";
+	document.getElementById("chatentrybox").focus();
+}, "keyup");
+
+document.getElementById("chatentrybox").onkeydown = function(e) {
+	if (e.keyCode === 13) {
+		var message = this.value;
+		sendData("CHAT " + message);
+
+		document.getElementById("chatentry").style.display = "none";
+		this.blur();
+		this.value = "";
 	}
 }
 

@@ -85,12 +85,28 @@ Server.prototype.parseData = function(ws, data) {
 		case "NAME":
 			ws.playerId = SolemnSky.addPlayer(lastId++, 320 / SolemnSky.scale, 240 / SolemnSky.scale, data, "#00ff00", "");
 			ws.send("ID " + ws.playerId);
+
+			this.broadcast("JOIN " + data);
 			break;
 		case "SNAPSHOT":
 			var snapshot = readSnapshot(data);
 			SolemnSky.applySnapshot(snapshot, ws.playerId);
 			break;
+		case "CHAT":
+			var message = data;
+			this.broadcast("CHAT " + ws.playerId + " " + data);
 	}
+}
+
+Server.prototype.broadcast = function(text) {
+	//Send all the clients a message
+	wss.clients.forEach(function each(client) {
+		try {
+			client.send(text);
+		} catch (e) {
+			//They've disconnected
+		}
+	});
 }
 
 Server.prototype.onTick = function() {
@@ -99,16 +115,7 @@ Server.prototype.onTick = function() {
 	}, SolemnSky.tickTimeMs);
 
 	var blob = SolemnSky.emitBlob();
-
-	//Send all the clients a tick message
-	wss.clients.forEach(function each(client) {
-		try {
-			client.send("PLAYERS " + blob + "\n");
-		} catch (e) {
-			//They've disconnected
-
-		}
-	});
+	this.broadcast("PLAYERS " + blob);
 
 	SolemnSky.update();
 }

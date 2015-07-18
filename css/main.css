@@ -10,3 +10,17 @@ html, body, .game {
 	width: 100%;
 	position: absolute;
 }
+
+.chatbox {
+	/* Bottom of the screen and scroll upwards */
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	width: 30%;
+	padding: 20px;
+}
+
+.chatentry {
+	/* Hidden by default */
+	display: none;
+}
