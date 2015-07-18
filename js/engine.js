@@ -267,5 +267,8 @@ Player.prototype.update = function(game, delta) {
 	this.block.SetLinearVelocity(linearVelocity);
 }
 
-if (typeof(module) !== "undefined")
-	module.exports = Game;
+if (typeof(module) !== "undefined") {
+	module.exports.Game = Game;
+	module.exports.readSnapshot = readSnapshot;
+	module.exports.serialiseSnapshot = serialiseSnapshot;
+}
