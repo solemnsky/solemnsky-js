@@ -201,6 +201,8 @@ function tick(blob) {
 		var playerY  = parseFloat(playerDetails[3]);
 		var playerVX = parseFloat(playerDetails[4]);
 		var playerVY = parseFloat(playerDetails[5]);
+		var playerA  = parseFloat(playerDetails[6]);
+		var playerAV = parseFloat(playerDetails[7]);
 		
 		if (SolemnSky.findPlayerById(playerId) === -1) {
 			SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
@@ -208,6 +210,8 @@ function tick(blob) {
 		var player = SolemnSky.players[SolemnSky.findPlayerById(playerId)];
 		player.block.SetPosition(new b2Vec2(playerX, playerY));
 		player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
+		player.block.SetAngle(playerA);
+		player.block.SetAngularVelocity(playerAV);
 	}
 }
 

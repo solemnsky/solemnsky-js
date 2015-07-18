@@ -12,9 +12,13 @@ var lastId = 0;
 Game.prototype.emitBlob = function() {
 	var blob = this.players.length;
 	for (var i = 0; i < this.players.length; i ++) {
-		var position = this.players[i].block.GetPosition();
-		var velocity = this.players[i].block.GetLinearVelocity();
-		blob += ';' + this.players[i].name + ',' + this.players[i].id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y;
+		var player = this.players[i];
+		var block = player.block;
+		var position = block.GetPosition();
+		var velocity = block.GetLinearVelocity();
+		var angle = block.GetAngle();
+		var angular = block.GetAngularVelocity();
+		blob += ';' + player.name + ',' + player.id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular;
 	}
 	return blob;
 }
