@@ -73,6 +73,7 @@ Connection protocol:
     >> NAME <name>
     << ID <new player id>
     << addPlayer()
+    << JOIN <name>
     << LIST <serialiseListing()> (to all clients)
     >> applyListing()
 
@@ -99,6 +100,7 @@ verbs:
  - MAP: serialised map data
  - NAME: client requests name
  - ID: server confirms name, sends id
+ - JOIN: alert that a player has joined
  - LIST: listing data 
  - SNAP: snapshot data
  - CHAT: 
