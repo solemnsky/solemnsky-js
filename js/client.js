@@ -212,13 +212,13 @@ function tick(data) {
 			//playerid,x,y,vx,vy
 			var playerDetails = blobParts[i+1].split(',');
 			var playerName = playerDetails[0];
-			var playerId = parseInt(playerDetails[1]);
-			var playerX  = parseFloat(playerDetails[2]);
-			var playerY  = parseFloat(playerDetails[3]);
-			var playerVX = parseFloat(playerDetails[4]);
-			var playerVY = parseFloat(playerDetails[5]);
-			var playerA  = parseFloat(playerDetails[6]);
-			var playerAV = parseFloat(playerDetails[7]);
+			var playerId = Utils.charToInt(playerDetails[1]);
+			var playerX  = Utils.charToFloat(playerDetails[2]);
+			var playerY  = Utils.charToFloat(playerDetails[3]);
+			var playerVX = Utils.charToFloat(playerDetails[4]);
+			var playerVY = Utils.charToFloat(playerDetails[5]);
+			var playerA  = Utils.charToFloat(playerDetails[6]);
+			var playerAV = Utils.charToFloat(playerDetails[7]);
 			
 			if (SolemnSky.findPlayerById(playerId) === -1) {
 				SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
@@ -236,10 +236,10 @@ function tick(data) {
 
 		for (var i = 0; i < numBoxes; i ++) {
 			var boxDetails = blobParts[i + 1].split(",");
-			var boxX = parseInt(boxDetails[0]);
-			var boxY = parseInt(boxDetails[1]);
-			var boxW = parseInt(boxDetails[2]);
-			var boxH = parseInt(boxDetails[3]);
+			var boxX = Utils.charToFloat(boxDetails[0]);
+			var boxY = Utils.charToFloat(boxDetails[1]);
+			var boxW = Utils.charToFloat(boxDetails[2]);
+			var boxH = Utils.charToFloat(boxDetails[3]);
 			var boxStatic = boxDetails[4];
 			var boxFields = JSON.parse(boxDetails[5].replace(/\\:/g, ","));
 
@@ -252,12 +252,12 @@ function tick(data) {
 		
 		for (var i = 0; i < numProjectiles; i ++) {
 			var projectileDetails = blobParts[i+1].split(',');
-			var projectileX  = parseFloat(projectileDetails[0]);
-			var projectileY  = parseFloat(projectileDetails[1]);
-			var projectileVX = parseFloat(projectileDetails[2]);
-			var projectileVY = parseFloat(projectileDetails[3]);
-			var projectileA  = parseFloat(projectileDetails[4]);
-			var projectileAV = parseFloat(projectileDetails[5]);
+			var projectileX  = Utils.charToFloat(projectileDetails[0]);
+			var projectileY  = Utils.charToFloat(projectileDetails[1]);
+			var projectileVX = Utils.charToFloat(projectileDetails[2]);
+			var projectileVY = Utils.charToFloat(projectileDetails[3]);
+			var projectileA  = Utils.charToFloat(projectileDetails[4]);
+			var projectileAV = Utils.charToFloat(projectileDetails[5]);
 
 			var projectile = null;
 			if (i < SolemnSky.projectiles.length) {

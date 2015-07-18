@@ -1,6 +1,9 @@
 //Import Box2D library
 Box2D = require("./assets/box2d.min.js");
 
+//Number conversion utilities
+Utils = require("./js/util.js");
+
 //Socket server
 WebSocketServer = require("ws").Server;
 
@@ -31,7 +34,14 @@ Game.prototype.emitBlob = function() {
 		var velocity = block.GetLinearVelocity();
 		var angle = block.GetAngle();
 		var angular = block.GetAngularVelocity();
-		return (';' + player.name + ',' + player.id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular)
+		return (';' + player.name
+			 + ',' + Utils.intToChar(player.id)
+			 + ',' + Utils.floatToChar(position.x)
+			 + ',' + Utils.floatToChar(position.y)
+			 + ',' + Utils.floatToChar(velocity.x)
+			 + ',' + Utils.floatToChar(velocity.y)
+			 + ',' + Utils.floatToChar(angle)
+			 + ',' + Utils.floatToChar(angular))
 	}
 	var acc = function(acc, x) { return acc + x };
 	return this.players.map(showPlayer).reduce(acc, this.players.length);
@@ -49,7 +59,12 @@ Server.prototype.initWorld = function() {
 
 Server.prototype.emitBoxesBlob = function() {
 	var emitBox = function(box) {
-		return ';' + box.x + ',' + box.y + ',' + box.w + ',' + box.h + ',' + box.static + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
+		return ';' + Utils.floatToChar(box.x)
+			 + ',' + Utils.floatToChar(box.y)
+			 + ',' + Utils.floatToChar(box.w)
+			 + ',' + Utils.floatToChar(box.h)
+			 + ',' + box.static 
+			 + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
 	}
 	var acc = function(acc, x) { return acc + x };
 	return boxes.map(emitBox).reduce(acc, boxes.length);
@@ -61,7 +76,12 @@ Server.prototype.emitProjectileBlob = function() {
 		var velocity = projectile.GetLinearVelocity();
 		var angle = projectile.GetAngle();
 		var angular = projectile.GetAngularVelocity();
-		return ';' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular;
+		return ';' + Utils.floatToChar(position.x)
+			 + ',' + Utils.floatToChar(position.y)
+			 + ',' + Utils.floatToChar(velocity.x)
+			 + ',' + Utils.floatToChar(velocity.y)
+			 + ',' + Utils.floatToChar(angle)
+			 + ',' + Utils.floatToChar(angular);
 	}
 	var acc = function(acc, x) { return acc + x };
 	return SolemnSky.projectiles.map(emitProjectile).reduce(acc, SolemnSky.projectiles.length);
