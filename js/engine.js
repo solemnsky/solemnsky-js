@@ -122,6 +122,11 @@ Game.prototype.makeSnapshot = function(ids) {
 	}, this) 
 }
 
+Game.prototype.makeTotalSnapshot = function() {
+	return 
+		this.players.map(player => this.makeSnapshotPoint(player.id))
+}
+
 function serialiseSnapshot(snapshot) {
 	return JSON.stringify(snapshot);	
 }
