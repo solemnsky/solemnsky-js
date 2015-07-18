@@ -204,8 +204,12 @@ function tick(data) {
 	data = split.join(" ");
 
 	switch (command) {
+	case "SNAP":
+		SolemnSky.applySnapshot(readSnapshot(data))
+		break;
 	case "LIST":
 		SolemnSky.applyListing(readListing(data));
+		break;
 	case "MAP":
 		var blobParts = data.split(";");
 		var numBoxes = parseInt(blobParts[0]);
@@ -222,8 +226,7 @@ function tick(data) {
 			var box = SolemnSky.createBox(boxX, boxY, boxW, boxH, boxStatic, boxFields);
 			SolemnSky.boxes.push(box);
 		}
-	case "SNAP":
-		SolemnSky.applySnapshot(readSnapshot data)
+		break;
 	case "ID":
 		myid = parseInt(data[0]);
 

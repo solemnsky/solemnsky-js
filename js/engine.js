@@ -80,7 +80,7 @@ function SnapshotPoint(id, movement, pos, vel, angle, angleVel) {
 // applies a snapshot point 
 Game.prototype.applySnapshotPoint = function(snapshot) {
 	var index = this.findIndexById(snapshot.id);
-	if index !== (-1) {
+	if (index !== (-1)) {
 		var posProps = 
 			[snapshot.pos, snapshot.vel, snapshot.angle, snapshot.angleVel]
 		if (snapshot.movement != null) {
@@ -154,7 +154,11 @@ function readSnapshot(str) {
 */
 
 Game.prototype.applyListing = function () {
-	// TODO
+	listing.forEach(
+		function(player) {
+			// TODO
+		}
+	}
 }
 
 Game.prototype.makeListing = function() {
