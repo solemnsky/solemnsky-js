@@ -71,7 +71,7 @@ Server.prototype.openSocket = function(port) {
 
 		console.log("Connection from " + ws._socket.address().address + ":" + ws._socket.address().port);
 
-		ws.send("BOXES " + GameServer.emitBoxesBlob() + "\n");
+		ws.send("BOXES " + GameServer.emitBoxesBlob());
 	});
 }
 

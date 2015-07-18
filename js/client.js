@@ -179,7 +179,7 @@ function connect(address, port, path) {
 //Send data to the socket server
 function sendData(data) {
 	if (connected) {
-		socket.send(data + "\n");
+		socket.send(data);
 	}
 }
 
