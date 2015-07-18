@@ -7,7 +7,8 @@ All messages over the web socket are prefixed with a single-word descriptor in c
 
 Connection protocol:
 		>> CONNECT
-		<< (no response)
+		<< MAP <emitMapBlob()>
+		>> load map in game engine
 		>> NAME <name>
 		<< add the player to the game engine
 		<< LIST <serialiseListing()> (to all clients)
