@@ -5,7 +5,7 @@ Box2D = require("./assets/box2d.min.js");
 WebSocketServer = require("ws").Server;
 
 //Import common game engine code
-Game = require("./game.js");
+Game = require("./js/engine.js");
 
 //List of boxes with which to initialize the world 
 var boxes = [
