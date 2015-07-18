@@ -230,14 +230,13 @@ Game.prototype.update = function() {
 		);
 		this.world.ClearForces();
 
-		var game = this;
 		this.players.forEach(function each(player) {
-			player.update(game, diff);
-		});
+			player.update(this, diff);
+		}, this);
 	}
 	this.updateCallbacks.forEach(function each(callback) {
 		callback(diff);
-	});
+	}, this);
 }; // update()
 
 Player.prototype.update = function(game, delta) {

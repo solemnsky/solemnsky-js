@@ -98,7 +98,7 @@ function render() {
 		ctx.strokeStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life)+ ", 50, 100)").toHex();
 
 		renderBox(box, data.w, data.h);
-	}, snapshot);
+	}, SolemnSky);
 } // render()
 
 now = Date.now();
