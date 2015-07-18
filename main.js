@@ -96,6 +96,15 @@ function render() {
 	//Render player
 	SolemnSky.players.forEach(function each(player) {
 		renderBox(player.block, 30, 30);
+
+		var playerX = player.block.GetPosition().x * SolemnSky.scale;
+		var playerY = player.block.GetPosition().y * SolemnSky.scale;
+
+		ctx.resetTransform();
+		ctx.fillStyle = "#000000";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillText(player.name, playerX, playerY);
 	});
 } // render()
 
