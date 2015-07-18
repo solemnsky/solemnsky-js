@@ -23,6 +23,7 @@
 
 ### snapshots
   A snapshot represents a sort of delta in the dynamic part of the game state; a player, alone, might send snapshots of itself to the server, where they are simply merged, but in an engagement, where one player kills another player, perhaps the snapshot from the killer that said his shot hit could override the snapshot from the victim who thought the shot had missed (these sort of decisions are inevitable if we don't want to go back to the 'mile long keyboard')
+
   Snapshots are simple arrays of JSON objects and can be modified after being created with makeSnapshot. Assigning a null value to a parameter makes that parameter have no effect when applied to an engine.
 
  - Game.makeSnapshot([id])
@@ -59,8 +60,8 @@
 
 ## outline of protocol
 
->> represents a client action
-<< represents a server action
+    >> represents a client action
+    << represents a server action
 
 All messages over the web socket are prefixed with a single-word descriptor in capital LETTERS.
 
