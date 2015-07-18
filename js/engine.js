@@ -185,7 +185,7 @@ Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 Game.prototype.findPlayerById = function(id) {
 	for (var i = 0; i < this.players.length; i ++) {
 		if (this.players[i].id == id)
-			return players[i]; 
+			return this.players[i]; 
 	}
 	return -1; 
 }
