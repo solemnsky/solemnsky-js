@@ -71,12 +71,14 @@ Server.prototype.emitBoxesBlob = function() {
 }
 
 Server.prototype.emitProjectileBlob = function() {
+	var now = Date.now();
 	var emitProjectile = function(projectile) {
 		var position = projectile.GetPosition();
 		var velocity = projectile.GetLinearVelocity();
 		var angle = projectile.GetAngle();
 		var angular = projectile.GetAngularVelocity();
-		return ';' + Utils.floatToChar(position.x)
+		return ';' + Utils.intToChar(now - projectile.GetUserData().creationDate)
+			 + ',' + Utils.floatToChar(position.x)
 			 + ',' + Utils.floatToChar(position.y)
 			 + ',' + Utils.floatToChar(velocity.x)
 			 + ',' + Utils.floatToChar(velocity.y)
@@ -154,7 +156,7 @@ Server.prototype.onTick = function(tickNum) {
 }
 
 SolemnSky = new Game();
-SolemnSky.setFPS(30);
+SolemnSky.setFPS(60);
 SolemnSky.init();
 
 GameServer = new Server();

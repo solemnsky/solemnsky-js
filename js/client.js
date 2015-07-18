@@ -100,10 +100,15 @@ function render() {
 		renderBox(box, data.w, data.h);
 	}, SolemnSky);
 
-	ctx.fillStyle = "#ffcccc";
-	ctx.strokeStyle = "#ff99cc";
 	SolemnSky.projectiles.forEach(function each(projectile) {
 		var data = projectile.GetUserData();
+		var life = 1000 - (Date.now() - data.creationDate);
+		if (life <= 0 || life > 1000)
+			return;
+
+		//If the S is in [0, 1] then tinycolor thinks it's a float from [0, 1]
+		ctx.fillStyle = "#" + tinycolor("hsv(0, " + (Math.ceil(30 * (life / 1000)) + 1) + ", 100)").toHex();
+		ctx.strokeStyle = "#" + tinycolor("hsv(0, " + (Math.ceil(50 * (life / 1000)) + 1) + ", 100)").toHex();
 
 		renderBox(projectile, data.w, data.h);
 	}, SolemnSky);
@@ -252,12 +257,13 @@ function tick(data) {
 		
 		for (var i = 0; i < numProjectiles; i ++) {
 			var projectileDetails = blobParts[i+1].split(',');
-			var projectileX  = Utils.charToFloat(projectileDetails[0]);
-			var projectileY  = Utils.charToFloat(projectileDetails[1]);
-			var projectileVX = Utils.charToFloat(projectileDetails[2]);
-			var projectileVY = Utils.charToFloat(projectileDetails[3]);
-			var projectileA  = Utils.charToFloat(projectileDetails[4]);
-			var projectileAV = Utils.charToFloat(projectileDetails[5]);
+			var projectileLife = Utils.charToInt(projectileDetails[0]);
+			var projectileX  = Utils.charToFloat(projectileDetails[1]);
+			var projectileY  = Utils.charToFloat(projectileDetails[2]);
+			var projectileVX = Utils.charToFloat(projectileDetails[3]);
+			var projectileVY = Utils.charToFloat(projectileDetails[4]);
+			var projectileA  = Utils.charToFloat(projectileDetails[5]);
+			var projectileAV = Utils.charToFloat(projectileDetails[6]);
 
 			var projectile = null;
 			if (i < SolemnSky.projectiles.length) {
@@ -267,6 +273,7 @@ function tick(data) {
 				projectile.SetSleepingAllowed(false);
 				SolemnSky.projectiles.push(projectile);
 			}
+			projectile.GetUserData().creationDate = Date.now() - projectileLife;
 			projectile.SetPosition(new b2Vec2(projectileX, projectileY));
 			projectile.SetLinearVelocity(new b2Vec2(projectileVX, projectileVY));
 			projectile.SetAngle(projectileA);

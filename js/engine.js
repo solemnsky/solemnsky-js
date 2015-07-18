@@ -235,7 +235,10 @@ Game.prototype.update = function() {
 		}, this);
 
 		for (var i = this.projectiles.length - 1; i >= 0; i--) {
-			if (this.projectiles[i].GetPosition().y * this.scale > windowSize.height) {
+			if (this.projectiles[i].GetPosition().y * this.scale > windowSize.height ||
+				this.projectiles[i].GetPosition().x * this.scale > windowSize.width ||
+				this.projectiles[i].GetPosition().x < 0 ||
+				(Date.now() - this.projectiles[i].GetUserData().creationDate) > 1000) {
 				this.world.DestroyBody(this.projectiles[i]);
 				this.projectiles.splice(i, 1);
 			}
@@ -261,6 +264,7 @@ Player.prototype.update = function(game, delta) {
 		//Shoot a projectile
 		var box = game.createBox(blockPos.x, blockPos.y + 30, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, 1000 / game.scale));
+		box.GetUserData().creationDate = Date.now();
 		game.projectiles.push(box);
 	}
 	if (this.movement.backward) {
@@ -269,6 +273,7 @@ Player.prototype.update = function(game, delta) {
 		//Shoot a projectile
 		var box = game.createBox(blockPos.x, blockPos.y - 30, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, -1000 / game.scale));
+		box.GetUserData().creationDate = Date.now();
 		game.projectiles.push(box);
 	}
 	if (this.movement.left) {
@@ -277,6 +282,7 @@ Player.prototype.update = function(game, delta) {
 		//Shoot a projectile
 		var box = game.createBox(blockPos.x + 30, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(1000 / game.scale, 0));
+		box.GetUserData().creationDate = Date.now();
 		game.projectiles.push(box);
 	}
 	if (this.movement.right) {
@@ -285,6 +291,7 @@ Player.prototype.update = function(game, delta) {
 		//Shoot a projectile
 		var box = game.createBox(blockPos.x - 30, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(-1000 / game.scale, 0));
+		box.GetUserData().creationDate = Date.now();
 		game.projectiles.push(box);
 	}
 
