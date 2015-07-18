@@ -58,12 +58,15 @@ Server.prototype.openSocket = function(port) {
 
 	wss.on("connection", function connection(ws) {
 		ws.on("message", function incoming(message) {
+			console.log("Data from " + ws._socket.address().address + ":" + ws._socket.address().port + ": " + message);
 			GameServer.parseData(ws, message);
 		});
 		ws.on("close", function close() {
-			console.log("Client left");
+			console.log("Disconnect: " + ws._socket.address().address + ":" + ws._socket.address().port);
 			SolemnSky.deletePlayer(ws.playerId);
 		});
+
+		console.log("Connection from " + ws._socket.address().address + ":" + ws._socket.address().port);
 
 		ws.send("BOXES " + GameServer.emitBoxesBlob() + "\n");
 	});
