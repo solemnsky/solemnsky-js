@@ -90,11 +90,11 @@ function render() {
 	ctx.fillStyle = "#ffffff";
 	ctx.fillRect(0, 0, windowSize.width, windowSize.height);
 
-	ctx.fillStyle = "#bbffbb";
-	ctx.strokeStyle = "#77ff77";
-
 	//Render player
 	SolemnSky.players.forEach(function each(player) {
+		ctx.fillStyle = "#bbffbb";
+		ctx.strokeStyle = "#77ff77";
+
 		renderBox(player.block, 30, 30);
 
 		var playerX = player.block.GetPosition().x * SolemnSky.scale;
