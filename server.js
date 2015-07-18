@@ -31,16 +31,8 @@ Game.prototype.emitBlob = function() {
 		var angular = block.GetAngularVelocity();
 		return (';' + player.name + ',' + player.id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular)
 	}
-	this.players.map(showPlayer).
-		var player = this.players[i];
-		var block = player.block;
-		var position = block.GetPosition();
-		var velocity = block.GetLinearVelocity();
-		var angle = block.GetAngle();
-		var angular = block.GetAngularVelocity();
-		blob += ';' + player.name + ',' + player.id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular;
-	}
-	return blob;
+	var acc = function(acc, x) {acc + x };
+	return this.players.map(showPlayer).reduce(acc);
 }
 
 function Server() {}
