@@ -1,3 +1,4 @@
+/**** {{{ initial game state ****/
 function Game() {
 	this.world = null;
 	this.players = [];
@@ -10,41 +11,59 @@ function Game() {
 	this.scale = 30;
 	this.simulating = true;
 };
+/**** }}} initial game state ****/
 
 /**** {{{ snapshots ****/
-// a modification of a single player's dynamic state (pos, vel)
-// if any of the parameters is null, that parameter
-// will not influence the target player's state
-function SnapshotPoint(id, pos, movement, vel) {
+/* 
+	a snapshot represents a sort of delta in the dynamic part
+	of the game state; a player, alone, might send snapshots of
+	itself to the server where they are simply merged, but in an 
+	engagement, where one player kills another player, perhaps the
+	snapshot from the killer that said his shot hit could override
+	the snapshot from the victim who thought the shot had missed
+	(these sort of decisions are inevitable if we don't want to 
+	go back to the 'mile long keyboard')
+*/
+function SnapshotPoint(id, movement, pos, vel) {
 	this.id = id;
 	this.movement =  movement ;
 	this.pos = pos;
 	this.vel = vel;
 }
 
-Game.prototype.applySnapshotPoint = function(snapshot, id) {
-	var index = this.findPlayerById(id);
+Game.prototype.applySnapshotPoint = function(snapshot) {
+	var index = this.findIndexById(snapshot.id);
+	var id = snapshot.id;
 	if (snapshot.movement != null) {
 		this.players[index].movement = snapshot.movement
 	}
+	if (snapshot.pos != null) {
+		this.players[index].block.SetPosition(
+			new b2Vec.make(snapshot.pos.x, snapshot.pos.y))
+	}
+	if (snapshot.vel != null) {
+		this.players[index].block.SetPosition(
+			new b2Vec.make(snapshot.vel.x, snapshot.vel.y))
+	}
+	// why was setting position removed?
 }
 
 Game.prototype.applySnapshot = function(snapshot, id) {
-	snapshot.forEach(function(i) {this.applySnapshotPoint(i, id)}, this)
+	snapshot.forEach(function(i) {this.applySnapshotPoint(snapshot)}, this)
 }
 
 // makes a snapshot concerning one player
 Game.prototype.makeSnapshotPoint = function(id) {
-	var player = this.players[this.findPlayerById(id)]
+	var player = this.players[this.findIndexById(id)]
 	var velocity = player.block.GetLinearVelocity()
 	var position = player.block.GetPosition();
  	return new SnapshotPoint (id
- 		, {x: position.x, y: position.y}
 		, player.movement
+ 		, {x: position.x, y: position.y}
 		, {x: velocity.x, y: velocity.y})
 }
 
-// makes a snapshot concerning an array of players
+// makes a snapshot concerning an array of player ids
 Game.prototype.makeSnapshot = function(ids) { 
 	return ids.map(function(id) {
 		return this.makeSnapshotPoint(id);
@@ -61,6 +80,7 @@ function readSnapshot(str) {
 
 /**** }}} snapshots ****/
 
+/**** {{{ helper functions and initialising values ****/
 if (typeof(windowSize) === "undefined") {
 	//Server, we need to init this stuff
 	windowSize = {
@@ -79,6 +99,7 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
 	, b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
 	, b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+/**** }}} helper functions and initialising values ****/
 
 function Player(id, x, y, name, color, image) {
 	this.name = name;
@@ -103,16 +124,16 @@ Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 	return player.id;
 }
 
-Game.prototype.findPlayerById = function(id) {
+Game.prototype.findIndexById = function(id) {
 	for (var i = 0; i < this.players.length; i ++) {
 		if (this.players[i].id == id)
-			return i;
+			return i; // why not just return the player?
 	}
 	return -1; //Blow up here
 }
 
 Game.prototype.deletePlayer = function(id) {
-	var index = this.findPlayerById(id);
+	var index = this.findIndexById(id);
 	var player = this.players[index];
 	var block = player.block;
 	this.world.DestroyBody(block);
@@ -120,7 +141,7 @@ Game.prototype.deletePlayer = function(id) {
 }
 
 Game.prototype.updatePlayer = function(id) {
-	//TODO
+	//TODO: why?
 }
 
 Game.prototype.addUpdateCallback = function(callback) {

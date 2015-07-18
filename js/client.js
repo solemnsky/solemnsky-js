@@ -1,4 +1,4 @@
-/**** {{{ initialisation, constants, helper functions ****/
+/**** {{{ constants, helper functions ****/
 //Partial application yay
 Function.prototype.partial = function() {
 	var fn = this, args = arguments;
@@ -40,18 +40,19 @@ window.requestAnimFrame = (function() {
 			window.setTimeout(callback, SolemnSky.tickTimeMs);
 		};
 })();
-
 /**** }}} initialisation, constants, helper functions ****/
 
-//Movement keys, if they're held down
-var movement = {
-	forward: false,
-	backward: false,
-	up: false,
-	down: false
-};
+/**** {{{ game state ****/
 var myid = -1;
 
+//Start up the game
+SolemnSky = new Game();
+SolemnSky.setFPS(60);
+SolemnSky.init();
+requestAnimFrame(update);
+/**** }}} game state ****/
+
+/**** {{{ rendering functions ****/
 function renderBox(body, width, height) {
 	//Reset the transform of the context
 	ctx.resetTransform();
@@ -113,10 +114,10 @@ function render() {
 		renderBox(projectile, data.w, data.h);
 	}, SolemnSky);
 } // render()
+/**** }}} rendering functions ****/
 
-now = Date.now();
+/**** {{{ safe update method ****/
 then = Date.now();
-
 function update() {
 	now = Date.now();
 
@@ -130,39 +131,36 @@ function update() {
 		SolemnSky.update();
 		render();
 	}
-} // update()
-//Start up the game
-SolemnSky = new Game();
-SolemnSky.setFPS(60);
-SolemnSky.init();
-requestAnimFrame(update);
+} 
+/**** }}} safe update method ****/
 
-
-//Keyboard keys, just set movement variables
+/**** {{{ key bindings ****/
 Mousetrap.bind('up', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.forward = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.forward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('up', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.forward = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.forward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('down', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.backward = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.backward = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('down', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.backward = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.backward = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('left', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.left = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.left = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('left',
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.left = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.left = false; sendSnapshot()}, 'keyup');
 Mousetrap.bind('right', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.right = true; sendSnapshot()}, 'keydown');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.right = true; sendSnapshot()}, 'keydown');
 Mousetrap.bind('right', 
-	function() { SolemnSky.players[SolemnSky.findPlayerById(myid)].movement.right = false; sendSnapshot()}, 'keyup');
+	function() { SolemnSky.players[SolemnSky.findIndexById(myid)].movement.right = false; sendSnapshot()}, 'keyup');
 // ugh what an ugly hack
+/**** }}} key bindings ****/
 
-function sendSnapshot() {
-	sendData("SNAPSHOT " + serialiseSnapshot(SolemnSky.makeSnapshot([myid])))
-} // this function needs to run a lot
-
+/**** {{{ basic network functions / callbacks ****/
 var socket = null;
 var connected = false;
+
+function sendSnapshot() {
+	sendData("SNAP " + serialiseSnapshot(SolemnSky.makeSnapshot([myid])))
+} // this function needs to run a lot
 
 //Connect to a server (client only)
 function connect(address, port, path) {
@@ -200,7 +198,9 @@ function sendData(data) {
 function parseData(data) {
 	tick(data);
 }
+/**** }}} basic network functions / callbacks ****/
 
+/*** {{{ tick: recieve data from the server ****/
 function tick(data) {
 	var split = data.split(" ");
 	var command = split[0];
@@ -226,10 +226,10 @@ function tick(data) {
 			var playerA  = Utils.charToFloat(playerDetails[6]);
 			var playerAV = Utils.charToFloat(playerDetails[7]);
 			
-			if (SolemnSky.findPlayerById(playerId) === -1) {
+			if (SolemnSky.findIndexById(playerId) === -1) {
 				SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
 			}
-			var player = SolemnSky.players[SolemnSky.findPlayerById(playerId)];
+			var player = SolemnSky.players[SolemnSky.findIndexById(playerId)];
 			player.block.SetPosition(new b2Vec2(playerX, playerY));
 			player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
 			player.block.SetAngle(playerA);
@@ -307,7 +307,9 @@ function tick(data) {
 		break;
 	}
 }
+/**** }}} tick: recieve data from the server ****/
 
+/**** {{{ chat feature ****/
 function htmlEscape(str) {
 	return String(str)
 		.replace(/&/g, '&amp;')
@@ -317,7 +319,6 @@ function htmlEscape(str) {
 		.replace(/>/g, '&gt;')
 		.replace(/  /g, ' &nbsp;')
 }
-
 
 function addChat(text) {
 	document.getElementById("chatcontainer").innerHTML += "<div>" + htmlEscape(text) + "</div>";
@@ -334,12 +335,12 @@ Mousetrap.bind('enter', openChat, "keyup");
 document.getElementById("chatentrybox").onkeyup = function(e) {
 	if (e.keyCode === 13) {
 		var message = this.value;
-		sendData("CHAT " + message);
+		if (message !== "") sendData("CHAT " + message);
 
 		document.getElementById("chatentry").style.display = "none";
-		this.blur();
 		this.value = "";
 	}
 }
+/**** }}} chat feature ****/
 
 connect("198.55.237.151", 50042, "/");
