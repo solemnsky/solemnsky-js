@@ -71,7 +71,7 @@ Server.prototype.onTick = function() {
 	//Send all the clients a tick message
 	wss.clients.forEach(function each(client) {
 		try {
-			client.send(blob + "\n");
+			client.send("PLAYERS " + blob + "\n");
 		} catch (e) {
 			//They've disconnected
 

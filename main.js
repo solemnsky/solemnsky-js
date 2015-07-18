@@ -185,33 +185,41 @@ function parseData(data) {
 	tick(data);
 }
 
-function tick(blob) {
-	//Example tick blob:
-	//numplayers;player;player;...
+function tick(data) {
+	var split = data.split(" ");
+	var command = split[0];
+	split.splice(0, 1);
+	data = split.join(" ");
 
-	var blobParts = blob.split(';');
-	var numPlayers = parseInt(blobParts[0]);
-	
-	for (var i = 0; i < numPlayers; i ++) {
-		//playerid,x,y,vx,vy
-		var playerDetails = blobParts[i+1].split(',');
-		var playerName = playerDetails[0];
-		var playerId = parseInt(playerDetails[1]);
-		var playerX  = parseFloat(playerDetails[2]);
-		var playerY  = parseFloat(playerDetails[3]);
-		var playerVX = parseFloat(playerDetails[4]);
-		var playerVY = parseFloat(playerDetails[5]);
-		var playerA  = parseFloat(playerDetails[6]);
-		var playerAV = parseFloat(playerDetails[7]);
+	switch (command) {
+	case "PLAYERS":
+		//Example players blob:
+		//numplayers;player;player;...
+		var blobParts = data.split(';');
+		var numPlayers = parseInt(blobParts[0]);
 		
-		if (SolemnSky.findPlayerById(playerId) === -1) {
-			SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
+		for (var i = 0; i < numPlayers; i ++) {
+			//playerid,x,y,vx,vy
+			var playerDetails = blobParts[i+1].split(',');
+			var playerName = playerDetails[0];
+			var playerId = parseInt(playerDetails[1]);
+			var playerX  = parseFloat(playerDetails[2]);
+			var playerY  = parseFloat(playerDetails[3]);
+			var playerVX = parseFloat(playerDetails[4]);
+			var playerVY = parseFloat(playerDetails[5]);
+			var playerA  = parseFloat(playerDetails[6]);
+			var playerAV = parseFloat(playerDetails[7]);
+			
+			if (SolemnSky.findPlayerById(playerId) === -1) {
+				SolemnSky.addPlayer(playerId, playerX, playerY, playerName, "", "");
+			}
+			var player = SolemnSky.players[SolemnSky.findPlayerById(playerId)];
+			player.block.SetPosition(new b2Vec2(playerX, playerY));
+			player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
+			player.block.SetAngle(playerA);
+			player.block.SetAngularVelocity(playerAV);
 		}
-		var player = SolemnSky.players[SolemnSky.findPlayerById(playerId)];
-		player.block.SetPosition(new b2Vec2(playerX, playerY));
-		player.block.SetLinearVelocity(new b2Vec2(playerVX, playerVY));
-		player.block.SetAngle(playerA);
-		player.block.SetAngularVelocity(playerAV);
+		break;
 	}
 }
 
