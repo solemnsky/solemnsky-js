@@ -146,7 +146,7 @@ SolemnSky.init();
 
 GameServer = new Server();
 GameServer.openSocket(50042);
-GameServer.initWorld();
+GameServer.loadMap();
 
 //Start the broadcastloop
 GameServer.broadcastSnap(0);
