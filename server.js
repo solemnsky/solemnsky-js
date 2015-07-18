@@ -64,7 +64,7 @@ Server.prototype.loadMap = function() {
 	//Init the boxes into the world
 	for (var i = 0; i < boxes.length; i ++) {
 		var box = boxes[i];
-		SolemnSky.boxes.push(
+		SolemnSky.map.push(
 			SolemnSky.createBox(
 				box.x , box.y, box.w , box.h, box.static, box.fields)
 		);
