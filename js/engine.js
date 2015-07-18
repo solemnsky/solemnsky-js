@@ -64,26 +64,34 @@ function Player(id, x, y, name, color, image) {
 	(these sort of decisions are inevitable if we don't want to 
 	go back to the 'mile long keyboard')
 */
-function SnapshotPoint(id, movement, pos, vel) {
+function SnapshotPoint(id, movement, pos, vel, angle, anglVel) {
 	this.id = id;
 	this.movement =  movement ;
 	this.pos = pos;
 	this.vel = vel;
+	this.angle = angle;
+	this.angleVel = angleVel;
 }
 
 Game.prototype.applySnapshotPoint = function(snapshot) {
 	var index = this.findIndexById(snapshot.id);
 	var id = snapshot.id;
+	var posProps = 
+		[snapshot.pos, snapshot.vel, snapshot.angle, snapshot.angleVel]
 	if (snapshot.movement != null) {
 		this.players[index].movement = snapshot.movement
 	}
-	if (snapshot.pos != null) {
+	if (posProps.every(x => x != null)) {
 		this.players[index].block.SetPosition(
 			new b2Vec.make(snapshot.pos.x, snapshot.pos.y))
+		this.players[index].block.SetLinearVelocity(
+			new b2Vec.make(snapshot.vel.x, snapshot.vel.y))
+		this.players[index].block.SetAngle(
+			new b2Vec.make(snapshot.angle.x, snapshot.angle.y))
+		this.players[index].block.SetAngularVelocity(
+			new b2Vec.make(snapshot.angleVel.x, snapshot.angleVel.y))
 	}
 	if (snapshot.vel != null) {
-		this.players[index].block.SetPosition(
-			new b2Vec.make(snapshot.vel.x, snapshot.vel.y))
 	}
 	// why was setting position removed?
 }
