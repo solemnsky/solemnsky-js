@@ -13,14 +13,13 @@ function Game() {
 /**** {{{ snapshots ****/
 // a modification of a single player's dynamic state (pos, vel)
 function SnapshotPoint(id, movement, vel) {
-  this.id = id; this.movement =  movement; 
-	this.vel = new b2Vec2.make(vel.x, vel.y);
+  this.id = id; this.movement =  movement 
+	this.vel = new b2Vec2.make(vel.x, vel.y)
 }
 
 Game.prototype.applySnapshotPoint = function(snapshot) {
 	Game.players[id].movement = snapshot.movement
 	Game.players[id].block.SetPosition(snapshot.vel)
-	// TODO: find set position method
 }
 
 Game.prototype.applySnapshot = function(snapshot) {
@@ -30,8 +29,7 @@ Game.prototype.applySnapshot = function(snapshot) {
 // makes a snapshot concerning one player
 Game.prototype.makeSnapshotPoint = function(id) {
 	var player = this.findPlayerByID(id)
-	var velocity = null // player.<velocity> (a b2Vec2)
-	// TODO: find velocity method
+	var velocity = player.block.GetLinearVelocity
  	return SnapshotPoint (id
 		, movement = player.movement
 		, vel = {x: velocity.x, y: velocity.y})
