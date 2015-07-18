@@ -17,18 +17,18 @@ function SnapshotPoint(id, movement, vel) {
 	this.vel = new b2Vec2.make(vel.x, vel.y);
 }
 
-Game.prototype.applySnapshotPoint(snapshot) = {
+Game.prototype.applySnapshotPoint = function(snapshot) {
 	Game.players[id].movement = snapshot.movement
 	Game.players[id].block.SetPosition(snapshot.vel)
 	// TODO: find set position method
 }
 
-Game.prototype.applySnapshot(snapshot) = {
+Game.prototype.applySnapshot = function(snapshot) {
 	forEach(snapshot, function(i) {this.applySnapshotPoint(i)})
 }
 
 // makes a snapshot concerning one player
-Game.prototype.makeSnapshotPoint(id) = {
+Game.prototype.makeSnapshotPoint = function(id) {
 	var player = this.findPlayerByID(id)
 	var velocity = player.<velocity> // a b2Vec2
 	// TODO: find velocity method
@@ -38,7 +38,7 @@ Game.prototype.makeSnapshotPoint(id) = {
 }
 
 // makes a snapshot concerning an array of players
-Game.prototype.makeSnapsnot(ids) = { 
+Game.prototype.makeSnapsnot = function(ids) { 
   ids.map(this.makeSnapshotPoint) 
 }
 
