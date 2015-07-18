@@ -3,6 +3,7 @@ function Game() {
 	this.players = [];
 	this.boxes = [];
 	this.updateCallbacks = [];
+	this.projectiles = [];
 	this.fps = 60.0;
 	this.tickTime = 1 / this.fps;
 	this.tickTimeMs = 1000 / this.fps;
@@ -62,9 +63,9 @@ function readSnapshot(str) {
 
 if (typeof(windowSize) === "undefined") {
 	//Server, we need to init this stuff
-	windowSize = function() {
-		width = 640;
-		height = 480;
+	windowSize = {
+		width: 1440,
+		height: 778
 	}
 }
 //Shorthands so we don't have long names for the box2d types
@@ -179,6 +180,8 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 	box.life = 1;
 	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
 
+	box.SetUserData({x: x, y: y, w: w, h: h, static: static, fields: fields});
+
 	return box;
 } // createBox()
 
@@ -230,6 +233,13 @@ Game.prototype.update = function() {
 		this.players.forEach(function each(player) {
 			player.update(this, diff);
 		}, this);
+
+		for (var i = this.projectiles.length - 1; i >= 0; i--) {
+			if (this.projectiles[i].GetPosition().y * this.scale > windowSize.height) {
+				this.world.DestroyBody(this.projectiles[i]);
+				this.projectiles.splice(i, 1);
+			}
+		}
 	}
 	this.updateCallbacks.forEach(function each(callback) {
 		callback(diff);
@@ -238,8 +248,8 @@ Game.prototype.update = function() {
 
 Player.prototype.update = function(game, delta) {
 	//What position is our player at? Use this for the new projectiles
-	// var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
-	// blockPos.Multiply(this.scale);
+	var blockPos = new b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
+	blockPos.Multiply(game.scale);
 
 	var speed = 10 * (delta / 1000) * game.scale; //20 u/sec
 
@@ -247,20 +257,37 @@ Player.prototype.update = function(game, delta) {
 	var linearVelocity = this.block.GetLinearVelocity();
 	if (this.movement.forward) {
 		//Move our player
-		linearVelocity.Add(b2Vec2.Make(0, -speed / game.scale));
+		linearVelocity.Add(b2Vec2.Make(0, 2 * -speed / game.scale));
+		//Shoot a projectile
+		var box = game.createBox(blockPos.x, blockPos.y + 30, 10, 10, false, {});
+		box.SetLinearVelocity(new b2Vec2(0, 1000 / game.scale));
+		game.projectiles.push(box);
 	}
 	if (this.movement.backward) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(0, speed / game.scale));
+		//Shoot a projectile
+		var box = game.createBox(blockPos.x, blockPos.y - 30, 10, 10, false, {});
+		box.SetLinearVelocity(new b2Vec2(0, -1000 / game.scale));
+		game.projectiles.push(box);
 	}
 	if (this.movement.left) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(-speed / game.scale, 0));
+		//Shoot a projectile
+		var box = game.createBox(blockPos.x + 30, blockPos.y, 10, 10, false, {});
+		box.SetLinearVelocity(new b2Vec2(1000 / game.scale, 0));
+		game.projectiles.push(box);
 	}
 	if (this.movement.right) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(speed / game.scale, 0));
+		//Shoot a projectile
+		var box = game.createBox(blockPos.x - 30, blockPos.y, 10, 10, false, {});
+		box.SetLinearVelocity(new b2Vec2(-1000 / game.scale, 0));
+		game.projectiles.push(box);
 	}
+
 	this.block.SetLinearVelocity(linearVelocity);
 }
 

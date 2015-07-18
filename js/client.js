@@ -99,6 +99,14 @@ function render() {
 
 		renderBox(box, data.w, data.h);
 	}, SolemnSky);
+
+	ctx.fillStyle = "#ffcccc";
+	ctx.strokeStyle = "#ff99cc";
+	SolemnSky.projectiles.forEach(function each(projectile) {
+		var data = projectile.GetUserData();
+
+		renderBox(projectile, data.w, data.h);
+	}, SolemnSky);
 } // render()
 
 now = Date.now();
@@ -236,9 +244,41 @@ function tick(data) {
 			var boxFields = JSON.parse(boxDetails[5].replace(/\\:/g, ","));
 
 			var box = SolemnSky.createBox(boxX, boxY, boxW, boxH, boxStatic, boxFields);
-			box.SetUserData({x: boxX, y: boxY, w: boxW, h: boxH, static: boxStatic, fields: boxFields});
 			SolemnSky.boxes.push(box);
 		}
+	case "PROJECTILES":
+		var blobParts = data.split(';');
+		var numProjectiles = parseInt(blobParts[0]);
+		
+		for (var i = 0; i < numProjectiles; i ++) {
+			var projectileDetails = blobParts[i+1].split(',');
+			var projectileX  = parseFloat(projectileDetails[0]);
+			var projectileY  = parseFloat(projectileDetails[1]);
+			var projectileVX = parseFloat(projectileDetails[2]);
+			var projectileVY = parseFloat(projectileDetails[3]);
+			var projectileA  = parseFloat(projectileDetails[4]);
+			var projectileAV = parseFloat(projectileDetails[5]);
+
+			var projectile = null;
+			if (i < SolemnSky.projectiles.length) {
+				projectile = SolemnSky.projectiles[i];
+			} else {
+				var projectile = SolemnSky.createBox(projectileX * SolemnSky.scale, projectileY * SolemnSky.scale, 10, 10, false, {});
+				projectile.SetSleepingAllowed(false);
+				SolemnSky.projectiles.push(projectile);
+			}
+			projectile.SetPosition(new b2Vec2(projectileX, projectileY));
+			projectile.SetLinearVelocity(new b2Vec2(projectileVX, projectileVY));
+			projectile.SetAngle(projectileA);
+			projectile.SetAngularVelocity(projectileAV);
+		}
+
+		//Delete any extras
+		SolemnSky.projectiles.slice(numProjectiles).map(function(projectile) {
+			this.world.DestroyBody(projectile);
+		}, SolemnSky);
+		SolemnSky.projectiles.splice(numProjectiles);
+		break;
 	case "SNAP":
 
 		break;

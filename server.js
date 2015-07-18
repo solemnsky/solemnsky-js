@@ -55,6 +55,17 @@ Server.prototype.emitBoxesBlob = function() {
 	return boxes.map(emitBox).reduce(acc, boxes.length);
 }
 
+Server.prototype.emitProjectileBlob = function() {
+	var emitProjectile = function(projectile) {
+		var position = projectile.GetPosition();
+		var velocity = projectile.GetLinearVelocity();
+		var angle = projectile.GetAngle();
+		var angular = projectile.GetAngularVelocity();
+		return ';' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular;
+	}
+	var acc = function(acc, x) { return acc + x };
+	return SolemnSky.projectiles.map(emitProjectile).reduce(acc, SolemnSky.projectiles.length);
+}
 
 Server.prototype.openSocket = function(port) {
 	wss = new WebSocketServer({port: port});
@@ -109,13 +120,15 @@ Server.prototype.broadcast = function(text) {
 	});
 }
 
-Server.prototype.onTick = function() {
+Server.prototype.onTick = function(tickNum) {
 	setTimeout(function() {
-		GameServer.onTick();
+		GameServer.onTick(tickNum + 1);
 	}, SolemnSky.tickTimeMs);
 
-	var blob = SolemnSky.emitBlob();
-	this.broadcast("PLAYERS " + blob);
+	this.broadcast("PLAYERS " + SolemnSky.emitBlob());
+	if (tickNum % 10 === 0) {
+		this.broadcast("PROJECTILES " + this.emitProjectileBlob());
+	}
 
 	SolemnSky.update();
 }
@@ -129,4 +142,4 @@ GameServer.openSocket(50042);
 GameServer.initWorld();
 
 //Start the tick loop
-GameServer.onTick();
+GameServer.onTick(0);
