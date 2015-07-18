@@ -1,5 +1,5 @@
 //Import Box2D library
-Box2D = require("../assets/box2d.min.js");
+Box2D = require("./assets/box2d.min.js");
 
 //Socket server
 WebSocketServer = require("ws").Server;
@@ -23,7 +23,15 @@ var boxes = [
 var lastId = 0;
 Game.prototype.emitBlob = function() {
 	var blob = this.players.length;
-	for (var i = 0; i < this.players.length; i ++) {
+	var showPlayer = function(player) {
+		var block = player.block;
+		var position = block.GetPosition();
+		var velocity = block.GetLinearVelocity();
+		var angle = block.GetAngle();
+		var angular = block.GetAngularVelocity();
+		return (';' + player.name + ',' + player.id + ',' + position.x + ',' + position.y + ',' + velocity.x + ',' + velocity.y + ',' + angle + ',' + angular)
+	}
+	this.players.map(showPlayer).
 		var player = this.players[i];
 		var block = player.block;
 		var position = block.GetPosition();
@@ -34,7 +42,6 @@ Game.prototype.emitBlob = function() {
 	}
 	return blob;
 }
-
 
 function Server() {}
 
