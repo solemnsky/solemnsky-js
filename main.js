@@ -1,3 +1,4 @@
+/**** {{{ initialisation, constants, helper functions ****/
 //Partial application yay
 Function.prototype.partial = function() {
 	var fn = this, args = arguments;
@@ -39,6 +40,8 @@ window.requestAnimFrame = (function() {
 //Some global variables for the DOM
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
+
+/**** }}} initialisation, constants, helper functions ****/
 
 //Movement keys, if they're held down
 var movement = {
@@ -90,7 +93,8 @@ function render() {
 	SolemnSky.boxes.forEach(function each(box) {
 		var data = box.GetUserData();
 
-		ctx.fillStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life)+ ", 30, 100)").toHex();
+		ctx.fillStyle = 
+      "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life) + ", 30, 100)").toHex();
 		ctx.strokeStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life)+ ", 50, 100)").toHex();
 
 		renderBox(box, data.w, data.h);
