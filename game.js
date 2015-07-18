@@ -9,6 +9,51 @@ function Game() {
 	this.simulating = true;
 };
 
+/**** {{{ snapshots ****/
+// a single element of action in a snapshot
+// represents a modification of a single 
+// player's dynamic data (position and velocity)
+
+// easily displable object (no b2Vec2)
+function SnapshotPoint(id, movement, vel) {
+  this.id = id; this.movement =  movement; 
+	this.vel = new b2Vec2.make(vel.x, vel.y);
+}
+
+function Game.prototype.applySnapshotPoint(snapshot) {
+	Game.players[id].movement = snapshot.movement
+	Game.players[id].block.SetPosition(snapshot.vel)
+	// TODO: find set position method
+}
+
+function Game.prototype.applySnapshot(snapshot) {
+	forEach(snapshot, this.applySnapshotPoint)
+}
+
+// makes a snapshot concerning one player
+function Game.prototype.makeSnapshotPoint(id) {
+	var player = this.findPlayerByID(id)
+	var velocity = player.<velocity> // a b2Vec2
+	// TODO: find velocity method
+ 	return SnapshotPoint (id
+		, movement = player.movement
+		, vel = {x: velocity.x, y: velocity.y})
+}
+
+// makes a snapshot concerning an array of players
+function Game.prototype.makeSnapsnot(ids) { 
+  ids.map(this.makeSnapshotPoint) 
+}
+
+function serialiseSnapshot(snapshot) {
+	JSON.stringify(snapshot);	
+}
+
+function readSnapshot(str) {
+	JSON.parse(str);
+}
+/**** }}} snapshots ****/
+
 if (typeof(windowSize) === "undefined") {
 	//Server, we need to init this stuff
 	windowSize = function() {
