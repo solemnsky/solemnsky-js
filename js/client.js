@@ -196,7 +196,7 @@ function sendData(data) {
 }
 /**** }}} basic network functions / callbacks ****/
 
-/*** {{{ tick: recieve data from the server ****/
+/*** {{{ tick: respond to data from the server ****/
 function tick(data) {
 	var split = data.split(" ");
 	var command = split[0];
