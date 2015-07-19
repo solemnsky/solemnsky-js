@@ -234,28 +234,28 @@ Player.prototype.update = function(game, delta) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(0, 2 * -speed / game.scale));
 		//Make a projectile
-		var box = game.createBox(blockPos.x, blockPos.y + 30, 10, 10, false, {});
+		// var box = game.createBox(blockPos.x, blockPos.y + 30, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, 1000 / game.scale));
 	}
 	if (this.movement.backward) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(0, speed / game.scale));
 		//Make a projectile
-		var box = game.createBox(blockPos.x, blockPos.y - 30, 10, 10, false, {});
+		// var box = game.createBox(blockPos.x, blockPos.y - 30, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(0, -1000 / game.scale));
 	}
 	if (this.movement.left) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(-speed / game.scale, 0));
 		//Make a projectile
-		var box = game.createBox(blockPos.x + 30, blockPos.y, 10, 10, false, {});
+		// var box = game.createBox(blockPos.x + 30, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(1000 / game.scale, 0));
 	}
 	if (this.movement.right) {
 		//Move our player
 		linearVelocity.Add(b2Vec2.Make(speed / game.scale, 0));
 		//Make a projectile
-		var box = game.createBox(blockPos.x - 30, blockPos.y, 10, 10, false, {});
+		// var box = game.createBox(blockPos.x - 30, blockPos.y, 10, 10, false, {});
 		box.SetLinearVelocity(new b2Vec2(-1000 / game.scale, 0));
 	}
 	//Shoot the projectile we made
