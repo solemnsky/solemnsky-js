@@ -322,11 +322,14 @@ Game.prototype.makeSnapshot = function(ids) {
 }
 
 Game.prototype.makeTotalSnapshot = function() {
+	console.log("Players: " + this.players);
 	return 
 		this.players.map(player => this.makeSnapshotPoint(player.id), this)
 }
 
 Game.prototype.serialiseSnapshot = function(snapshot) {
+	console.log("Serialize: " + snapshot);
+
 	return JSON.stringify(snapshot);	
 	 // TODO: use glenn's utils to make this more efficent
 	// in terms of space
