@@ -186,26 +186,23 @@ Game.prototype.init = function() {
 var last = Date.now();
 Game.prototype.update = function() {
 	var diff = Date.now() - last;
-	while (diff > this.tickTimeMs) {
-		last += this.tickTimeMs;
-		diff -= this.tickTimeMs;
+	last = Date.now();
 
-		if (this.simulating) {
-			this.world.Step(
-				this.tickTime   //frame-rate
-			,   10       //velocity iterations
-			,   10       //position iterations
-			);
-			this.world.ClearForces();
+	if (this.simulating) {
+		this.world.Step(
+			diff / 1000   //frame-rate
+		,   10       //velocity iterations
+		,   10       //position iterations
+		);
+		this.world.ClearForces();
 
-			this.players.forEach(function each(player) {
-				player.update(this, this.tickTimeMs);
-			}, this);
+		this.players.forEach(function each(player) {
+			player.update(this, diff);
+		}, this);
 
-			this.updateCallbacks.forEach(function each(callback) {
-				callback(this.tickTimeMs);
-			}, this);
-		}
+		this.updateCallbacks.forEach(function each(callback) {
+			callback(diff);
+		}, this);
 	}
 
 /* 
