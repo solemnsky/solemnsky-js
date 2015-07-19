@@ -186,8 +186,8 @@ Game.prototype.init = function() {
 var last = Date.now();
 Game.prototype.update = function() {
 	var diff = Date.now() - last;
-	last = Date.now();
 	if (diff > SolemnSky.tickTimeMs) {
+		last += SolemnSky.tickTimeMs;
 		if (this.simulating) {
 			this.world.Step(
 				this.tickTime   //frame-rate
