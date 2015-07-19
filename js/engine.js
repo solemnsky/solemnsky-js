@@ -340,7 +340,7 @@ Game.prototype.readSnapshot = function(str) {
 // serialised, easily transmittable
 // this functions returns a string
 Game.prototype.emitTotalSnapshot = function() {
-	return serialiseSnapshot(this.makeTotalSnapshot())
+	return this.serialiseSnapshot(this.makeTotalSnapshot())
 }
 /**** }}} snapshots ****/
 
