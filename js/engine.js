@@ -343,7 +343,8 @@ Game.prototype.readSnapshot = function(str) {
 // serialised, easily transmittable
 // this functions returns a string
 Game.prototype.emitTotalSnapshot = function() {
-	return this.serialiseSnapshot(this.makeTotalSnapshot())
+	var snap = this.makeTotalSnapshot();
+	return this.serialiseSnapshot(typeof snap === "undefined" ? "{}", snap);
 }
 /**** }}} snapshots ****/
 
