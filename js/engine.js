@@ -186,8 +186,10 @@ Game.prototype.init = function() {
 var last = Date.now();
 Game.prototype.update = function() {
 	var diff = Date.now() - last;
-	last = Date.now();
-	if (diff > SolemnSky.tickTimeMs) {
+	while (diff > this.tickTimeMs) {
+		last += this.tickTimeMs;
+		diff -= this.tickTimeMs;
+
 		if (this.simulating) {
 			this.world.Step(
 				this.tickTime   //frame-rate
@@ -197,11 +199,11 @@ Game.prototype.update = function() {
 			this.world.ClearForces();
 
 			this.players.forEach(function each(player) {
-				player.update(this, diff);
+				player.update(this, this.tickTimeMs);
 			}, this);
 
 			this.updateCallbacks.forEach(function each(callback) {
-				callback(diff);
+				callback(this.tickTimeMs);
 			}, this);
 		}
 	}
