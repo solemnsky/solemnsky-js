@@ -1,3 +1,9 @@
+/*                  ******** offline.js ********                   //
+\\ This file defines a simple offline client. It aims to be as     \\
+// simple as possible, delegating all logic to the game engine.    // 
+\\ It exists for testing and demonstration purposes.               \\ 
+//                  ******** offline.js ********                   */
+
 /**** {{{ constants, helper functions ****/
 // global DOM values
 var canvas = document.getElementById("c");
