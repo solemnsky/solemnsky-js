@@ -27,7 +27,12 @@ SolemnSky = new Game();
 SolemnSky.setFPS(60);
 SolemnSky.init();
 SolemnSky.addUpdateCallback(render);
-requestAnimFrame(SolemnSky.update);
+requestAnimFrame(update);
+
+function update() {
+	SolemnSky.update()
+	requestAnimFrame(update)
+}
 /**** }}} game state ****/
 
 /**** {{{ rendering functions ****/
