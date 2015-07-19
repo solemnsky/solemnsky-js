@@ -11,14 +11,14 @@ SolemnSky = new Game();
 SolemnSky.setFPS(60);
 SolemnSky.init();
 
-// smart request animation frame
-requestAnimFrame = (function() {
+//http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+window.requestAnimFrame = (function() {
 	return window.requestAnimationFrame   || 
 		window.webkitRequestAnimationFrame || 
 		window.mozRequestAnimationFrame    || 
 		window.oRequestAnimationFrame      || 
 		window.msRequestAnimationFrame     || 
-		function(callback, element){
+		function(callback, /* DOMElement */ element){
 			window.setTimeout(callback, SolemnSky.tickTimeMs);
 		};
 })();
@@ -26,9 +26,9 @@ requestAnimFrame = (function() {
 requestAnimFrame(update);
 
 function update() {
+	requestAnimFrame(update)
 	SolemnSky.update()
 	render(canvas, ctx)
-	requestAnimFrame(update)
 }
 
 // key bindings
