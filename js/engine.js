@@ -103,7 +103,7 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 
 /**** {{{ user-facing methods ****/
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
-	if (this.players.some(player => player.id == id)) {
+	if (this.players.some(function(player) {return player.id == id})) {
 		return -1
 	} else {
 		var player = new Player(id, x, y, name, color, image);
@@ -285,7 +285,7 @@ Game.prototype.applySnapshotPoint = function(snapshot) {
 		if (snapshot.movement != null) {
 			this.players[index].movement = snapshot.movement
 		}
-		if (posProps.every(x => x != null)) {
+		if (posProps.every(function(x) {return x != null}) {
 			this.players[index].block.SetPosition(
 				new b2Vec.make(snapshot.pos.x, snapshot.pos.y))
 			this.players[index].block.SetLinearVelocity(
@@ -323,7 +323,7 @@ Game.prototype.makeSnapshot = function(ids) {
 Game.prototype.makeTotalSnapshot = function() {
 	console.log("Players: " + this.players);
 	return 
-		this.players.map(player => this.makeSnapshotPoint(player.id), this)
+		this.players.map(function(player) {return this.makeSnapshotPoint(player.id)}), this)
 }
 
 Game.prototype.serialiseSnapshot = function(snapshot) {

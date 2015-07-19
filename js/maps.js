@@ -1,3 +1,6 @@
+/*                  ******** maps.js ********                      //
+\\ This file defines a set of maps.                                \\
+//                  ******** maps.js ********                      */
 maps = {
 	bloxMap:  [
 		{x: 320, y: 480, w: 600, h: 10, static: true, fields: {life: 1e300}},

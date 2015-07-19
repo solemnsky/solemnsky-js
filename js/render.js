@@ -21,8 +21,8 @@ function renderBox(body, width, height) {
 }
 
 function render(canvas, ctx) {
-	canvas.height = windowSize.height;
-	canvas.width = windowSize.width;
+	canvas.height = 900;
+	canvas.width = 1600;
 
 	//Clear the display before rendering
 	ctx.resetTransform();
