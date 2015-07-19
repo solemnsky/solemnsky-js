@@ -375,7 +375,7 @@ Game.prototype.readListing = function(str) {
 }
 
 Game.prototype.emitListing = function() {
-	serialiseListing(this.makeListing)
+	this.serialiseListing(this.makeListing)
 }
 /**** }}} listings ****/
 
