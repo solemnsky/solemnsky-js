@@ -323,7 +323,7 @@ Game.prototype.makeSnapshot = function(ids) {
 
 Game.prototype.makeTotalSnapshot = function() {
 	return 
-		this.players.map(player => this.makeSnapshotPoint(player.id))
+		this.players.map(player => this.makeSnapshotPoint(player.id), this)
 }
 
 Game.prototype.serialiseSnapshot = function(snapshot) {
