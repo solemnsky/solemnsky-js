@@ -344,7 +344,7 @@ Game.prototype.readSnapshot = function(str) {
 // this functions returns a string
 Game.prototype.emitTotalSnapshot = function() {
 	var snap = this.makeTotalSnapshot();
-	return this.serialiseSnapshot(typeof snap === "undefined" ? "{}", snap);
+	return this.serialiseSnapshot(typeof snap === "undefined" ? "{}" : snap);
 }
 /**** }}} snapshots ****/
 
