@@ -33,21 +33,16 @@ function smartResize() {
 /**** }}} smartResize() ****/
 
 /**** {{{ renderGame() ****/
-function drawPlayer(player) {
-	var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/_assets/basics/bunny.png');
-	var bunny = new PIXI.Sprite(texture);
-	bunny.anchor.x = 0.5;
-	bunny.anchor.y = 0.5;
-	var position = player.block.GetPosition()
-	bunny.position.x = position.x
-	bunny.position.y = position.y
-	bunny.scale = new PIXI.Point(4, 4)
-
-	stage.addChild(bunny);
-}
+player = new PIXI.Graphics()
+player.beginFill(0xFFFFFF, 1)
+player.drawRect(0, 0, 30, 30)
+player.position = new PIXI.Point(0, 0)
+stage.addChild(player)
 
 function renderGame() {
-	SolemnSky.players.forEach(drawPlayer)
+	var pos = SolemnSky.players[0].block.GetPosition()
+	player.position.x = pos.x 
+	player.position.y = pos.y 
 }
 /**** }}} renderGame() ****/
 
@@ -65,12 +60,14 @@ window.requestAnimFrame = (function() {
 })();
 
 function animate() {
+	SolemnSky.update()
 	smartResize()
+
 	renderGame()
 
 	renderer.render(stage);
 
-	requestAnimFrame(animate);
+	requestAnimationFrame(animate);
 }
 /**** }}}{ animate() ****/
 
