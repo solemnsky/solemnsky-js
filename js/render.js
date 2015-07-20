@@ -1,56 +1,48 @@
 /*                  ******** render.js ********                    //
-\\ This file defines a gameLoop() method for clients.              \\
+\\ This file defines a render() method for clients.                \\
 //                  ******** render.js ********                    */
 
+var renderer = 
+	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x1099bb});
+document.body.appendChild(renderer.view);
 
-function renderBox(body, width, height) {
-	//Reset the transform of the context
-	ctx.resetTransform();
-
-	//Box position
-	var playerX = body.GetPosition().x * SolemnSky.scale;
-	var playerY = body.GetPosition().y * SolemnSky.scale;
-
-	//Transform the context to render this in position
-	ctx.translate(playerX, playerY);
-	ctx.rotate(body.GetAngle());
-	
-	//TODO: Use the shape's path
-	ctx.fillRect(-width / 2, -height / 2, width, height);
-	ctx.strokeRect(-width / 2, -height / 2, width, height);
+function setMargins(mleft, mtop) {
+	document.body.style.setProperty("margin-left", mleft + "px")
+	document.body.style.setProperty("margin-top", mtop + "px")
 }
 
-function render(canvas, ctx) {
-	canvas.height = 900;
-	canvas.width = 1600;
+function smartResize() {
+	w = window.innerWidth; h = window.innerHeight;
+	if ((w / h) > (16 / 9)) {
+		renderer.resize(h * (16 / 9), h)
+		setMargins((w - (h * (16 / 9))) / 2, 0)
+	} else {
+		renderer.resize(w, w * (9 / 16))
+		setMargins(0, (h - (w * (9 / 16))) / 2)
+	}
+}
 
-	//Clear the display before rendering
-	ctx.resetTransform();
-	ctx.fillStyle = "#ffffff";
-	ctx.fillRect(0, 0, windowSize.width, windowSize.height);
+var stage = new PIXI.Container();
 
-	//Render player
-	SolemnSky.players.forEach(function each(player) {
-		ctx.fillStyle = "#bbffbb";
-		ctx.strokeStyle = "#77ff77";
+var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/_assets/basics/bunny.png');
+var bunny = new PIXI.Sprite(texture);
 
-		renderBox(player.block, 30, 30);
+bunny.anchor.x = 0.5;
+bunny.anchor.y = 0.5;
+bunny.position.x = 200;
+bunny.position.y = 150;
 
-		var playerX = player.block.GetPosition().x * this.scale;
-		var playerY = player.block.GetPosition().y * this.scale;
+stage.addChild(bunny);
 
-		ctx.resetTransform();
-		ctx.fillStyle = "#000000";
-		ctx.textAlign = "center";
-		ctx.textBaseline = "middle";
-		ctx.fillText(player.name, playerX, playerY);
-	}, SolemnSky);
-	SolemnSky.map.forEach(function each(box) {
-		var data = box.GetUserData();
+animate();
 
-		ctx.fillStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life) + ", 30, 100)").toHex();
-		ctx.strokeStyle = "#" + tinycolor("hsv(" + (100 * box.life / data.fields.life)+ ", 50, 100)").toHex();
+function animate() {
+	requestAnimationFrame(animate);
 
-		renderBox(box, data.w, data.h);
-	}, SolemnSky);
-} 
+	// just for fun, let's rotate mr rabbit a little
+	bunny.rotation += 0.1;
+	smartResize()
+
+	// render the container
+	renderer.render(stage);
+}

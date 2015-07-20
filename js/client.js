@@ -19,15 +19,6 @@ window.addEventListener('resize', function(event){
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
 
-//Current window size
-function updateWindowSize() {
-	windowSize = {
-		width: window.innerWidth || document.body.clientWidth,
-		height: window.innerHeight || document.body.clientHeight
-	}
-	canvas.width = windowSize.width;
-	canvas.height = windowSize.height;
-}; updateWindowSize();
 
 //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function() {
