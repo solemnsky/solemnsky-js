@@ -330,7 +330,7 @@ Game.prototype.serialiseSnapshot = function(snapshot) {
 	console.log("Serialize: " + snapshot);
 
 	return JSON.stringify(snapshot);	
-	 // TODO: use glenn's utils to make this more efficent
+	// TODO: use glenn's utils to make this more efficent
 	// in terms of space
 }
 
@@ -349,7 +349,7 @@ Game.prototype.emitTotalSnapshot = function() {
 
 /**** {{{ listings ****/
 Game.prototype.makeListing = function() {
-	this.player.map(
+	return this.player.map(
 		function(player) {
 			return { id: player.id, name: player.name
 			, color: player.color, image: player.image}
@@ -369,7 +369,7 @@ Game.prototype.applyListing = function () {
 
 Game.prototype.serialiseListing = function(listing) {
 	return JSON.stringify(listing)
-	 // TODO: use glenn's utils to make this more efficent
+	// TODO: use glenn's utils to make this more efficent
 	// in terms of space
 }
 
@@ -378,7 +378,7 @@ Game.prototype.readListing = function(str) {
 }
 
 Game.prototype.emitListing = function() {
-	this.serialiseListing(this.makeListing)
+	return this.serialiseListing(this.makeListing())
 }
 /**** }}} listings ****/
 
@@ -403,7 +403,7 @@ var serialiseBlock = function(box) {
 
 Game.prototype.serialiseMap = function(map) {
 	var acc = function(acc, x) { return acc + x };
-  map.map(emitBox).reduce(acc, map.length)
+	return map.map(emitBox).reduce(acc, map.length)
 }
 
 Game.prototype.readMap = function(str) {
@@ -427,7 +427,7 @@ Game.prototype.readMap = function(str) {
 }
 
 Game.prototype.emitMap = function() {
-	this.serialiseMap(this.map)
+	return this.serialiseMap(this.map)
 }
 
 /**** }}} listings ****/
