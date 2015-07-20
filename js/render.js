@@ -35,8 +35,9 @@ var bunny = new PIXI.Sprite(texture);
 
 bunny.anchor.x = 0.5;
 bunny.anchor.y = 0.5;
-bunny.position.x = 200;
-bunny.position.y = 150;
+bunny.position.x = 800;
+bunny.position.y = 450;
+bunny.scale = new PIXI.Point(4, 4)
 
 stage.addChild(bunny);
 
