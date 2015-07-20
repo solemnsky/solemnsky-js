@@ -1,5 +1,7 @@
 /*                  ******** render.js ********                    //
-\\ This file uses pixi to display the game world, used by clients. \\
+\\ This file uses pixi to display the game world. Expected global  \\
+// values in include:                                              //
+\\   SolemnSky (game engine), potential chat feature.              \\
 //                  ******** render.js ********                    */
 
 var renderer = 
@@ -31,27 +33,44 @@ function smartResize() {
 /**** }}} smartResize() ****/
 
 /**** {{{ renderGame() ****/
-function renderGame() {
+function drawPlayer(player) {
 	var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/_assets/basics/bunny.png');
 	var bunny = new PIXI.Sprite(texture);
 	bunny.anchor.x = 0.5;
 	bunny.anchor.y = 0.5;
-	bunny.position.x = 800;
-	bunny.position.y = 450;
+	var position = player.block.GetPosition()
+	bunny.position.x = position.x
+	bunny.position.y = position.y
 	bunny.scale = new PIXI.Point(4, 4)
 
 	stage.addChild(bunny);
 }
+
+function renderGame() {
+	SolemnSky.players.forEach(drawPlayer)
+}
 /**** }}} renderGame() ****/
 
 /**** {{{ animate() ****/
+//http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+window.requestAnimFrame = (function() {
+	return window.requestAnimationFrame   || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame    || 
+		window.oRequestAnimationFrame      || 
+		window.msRequestAnimationFrame     || 
+		function(callback, /* DOMElement */ element){
+			window.setTimeout(callback, SolemnSky.tickTimeMs);
+		};
+})();
+
 function animate() {
 	smartResize()
 	renderGame()
 
 	renderer.render(stage);
 
-	requestAnimationFrame(animate);
+	requestAnimFrame(animate);
 }
 /**** }}}{ animate() ****/
 

@@ -4,34 +4,11 @@
 \\ It exists for testing and demonstration purposes.               \\ 
 //                  ******** offline.js ********                   */
 
-canvas = document.getElementById("c")
-ctx = canvas.getContext("2d")
-
 SolemnSky = new Game();
 SolemnSky.setFPS(60);
 SolemnSky.init();
 
-//http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame = (function() {
-	return window.requestAnimationFrame   || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
-		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, SolemnSky.tickTimeMs);
-		};
-})();
-
-requestAnimFrame(update);
-
-function update() {
-	requestAnimFrame(update)
-	SolemnSky.update()
-	render(canvas, ctx)
-}
-
-// key bindings
+/**** {{{ key bindings ****/
 Mousetrap.bind('up', function() { 
 		SolemnSky.findPlayerById(myid).movement.forward = true;
 	}, 'keydown');
