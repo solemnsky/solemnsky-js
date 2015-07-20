@@ -6,6 +6,9 @@ var renderer =
 	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x1099bb});
 document.body.appendChild(renderer.view);
 
+var stage = new PIXI.Container();
+
+/**** {{{ smartResize() ****/
 function setMargins(mleft, mtop) {
 	document.body.style.setProperty("margin-left", mleft + "px")
 	document.body.style.setProperty("margin-top", mtop + "px")
@@ -14,15 +17,18 @@ function setMargins(mleft, mtop) {
 function smartResize() {
 	w = window.innerWidth; h = window.innerHeight;
 	if ((w / h) > (16 / 9)) {
-		renderer.resize(h * (16 / 9), h)
-		setMargins((w - (h * (16 / 9))) / 2, 0)
+		nw = h * (16 / 9); nh = h
+		renderer.resize(nw, nh)
+		setMargins((w - nw) / 2, 0)
 	} else {
-		renderer.resize(w, w * (9 / 16))
-		setMargins(0, (h - (w * (9 / 16))) / 2)
+		nh = w * (9 / 16); nw = w
+		renderer.resize(nw, nh)
+		setMargins(0, (h - nh) / 2)
 	}
-}
 
-var stage = new PIXI.Container();
+	stage.scale = new PIXI.Point(nw / 1600, nh / 900)
+}
+/**** }}} smartResize() ****/
 
 var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/_assets/basics/bunny.png');
 var bunny = new PIXI.Sprite(texture);
@@ -37,12 +43,10 @@ stage.addChild(bunny);
 animate();
 
 function animate() {
-	requestAnimationFrame(animate);
-
-	// just for fun, let's rotate mr rabbit a little
 	bunny.rotation += 0.1;
 	smartResize()
 
-	// render the container
 	renderer.render(stage);
+
+	requestAnimationFrame(animate);
 }
