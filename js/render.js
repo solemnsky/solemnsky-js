@@ -1,5 +1,5 @@
 /*                  ******** render.js ********                    //
-\\ This file defines a render() method for clients.                \\
+\\ This file uses pixi to display the game world, used by clients. \\
 //                  ******** render.js ********                    */
 
 var renderer = 
@@ -30,24 +30,29 @@ function smartResize() {
 }
 /**** }}} smartResize() ****/
 
-var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/_assets/basics/bunny.png');
-var bunny = new PIXI.Sprite(texture);
+/**** {{{ renderGame() ****/
+function renderGame() {
+	var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/_assets/basics/bunny.png');
+	var bunny = new PIXI.Sprite(texture);
+	bunny.anchor.x = 0.5;
+	bunny.anchor.y = 0.5;
+	bunny.position.x = 800;
+	bunny.position.y = 450;
+	bunny.scale = new PIXI.Point(4, 4)
 
-bunny.anchor.x = 0.5;
-bunny.anchor.y = 0.5;
-bunny.position.x = 800;
-bunny.position.y = 450;
-bunny.scale = new PIXI.Point(4, 4)
+	stage.addChild(bunny);
+}
+/**** }}} renderGame() ****/
 
-stage.addChild(bunny);
-
-animate();
-
+/**** {{{ animate() ****/
 function animate() {
-	bunny.rotation += 0.1;
 	smartResize()
+	renderGame()
 
 	renderer.render(stage);
 
 	requestAnimationFrame(animate);
 }
+/**** }}}{ animate() ****/
+
+animate();
