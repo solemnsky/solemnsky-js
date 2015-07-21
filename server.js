@@ -14,7 +14,7 @@ Game = Engine.Game;
 readSnapshot = Engine.readSnapshot;
 serialiseSnapshot = Engine.serialiseSnapshot;
 
-SolemnSky = require("./js/loop.js");
+SolemnSky = require("./js/gamebase.js");
 
 /**** }}} dependencies ****/
 
