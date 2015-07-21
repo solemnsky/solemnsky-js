@@ -54,6 +54,7 @@ function drawPlayer(player) {
 	var position = player.block.GetPosition()
 	player.sprite.position.x = position.x * SolemnSky.scale
 	player.sprite.position.y = position.y * SolemnSky.scale
+	player.sprite.rotation = player.block.GetAngle()
 }
 
 function drawBox(box) {
@@ -75,6 +76,7 @@ function drawBox(box) {
 	var position = box.GetPosition()
 	box.sprite.position.x = position.x * SolemnSky.scale
 	box.sprite.position.y = position.y * SolemnSky.scale
+	box.sprite.rotation = box.GetAngle()
 }
 /**** }}} drawing various types of entities ****/
 
