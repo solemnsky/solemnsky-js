@@ -13,20 +13,13 @@ Engine = require("./js/engine.js");
 Game = Engine.Game;
 readSnapshot = Engine.readSnapshot;
 serialiseSnapshot = Engine.serialiseSnapshot;
+
+SolemnSky = require("./js/gamebase.js");
+
 /**** }}} dependencies ****/
 
 /**** {{{ arbitrary box array (static game environment) ****/
-var boxes = [
-	{x: 320, y: 480, w: 600, h: 10, static: true, fields: {life: 1e300}},
-	{x:  90, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 130, y: 110, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 470, y: 230, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 210, y: 130, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 350, y:  30, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 390, y: 140, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 430, y: 270, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}},
-	{x: 570, y: 300, w: 40, h: 40, static: true, fields: {restitution: 0.7, life: 10000}}
-];
+boxes = require("./js/maps.js").bloxMap;
 /**** }}} arbitrary boxes array ****/
 
 /**** {{{ broadcastSnap: constant snapshots ****/
@@ -140,10 +133,6 @@ Server.prototype.tick = function(ws, data) {
 /**** }}} tick: respond to data from the clients ****/
 
 /**** {{{ initialise and open sockets ****/
-SolemnSky = new Game();
-SolemnSky.setFPS(60);
-SolemnSky.init();
-
 GameServer = new Server();
 GameServer.openSocket(50042);
 GameServer.loadMap();

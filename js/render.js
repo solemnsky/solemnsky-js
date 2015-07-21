@@ -4,8 +4,9 @@
 \\   SolemnSky (game engine), potential chat feature.              \\
 //                  ******** render.js ********                    */
 
-var renderer = 
-	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x000020});
+var renderer =
+	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x1099bb});
+
 document.body.appendChild(renderer.view);
 var stage = new PIXI.Container();
 
@@ -53,39 +54,23 @@ function renderMap () {
 	)
 }
 
-function renderGame () {
+function renderGame() {
 	var pos = SolemnSky.players[0].position
 	var rot = SolemnSky.players[0].rotation
-
 	player.position = new PIXI.Point(pos.x, pos.y)
 	player.rotation = rot;
 }
 /**** }}} renderGame() ****/
 
 /**** {{{ animate() ****/
-//http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame = (function() {
-	return window.requestAnimationFrame   || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
-		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, SolemnSky.tickTimeMs);
-		};
-})();
 
 function animate() {
 	requestAnimationFrame(animate);
+
+	smartResize()
 	renderGame()
-
-	SolemnSky.update()
-
 	renderer.render(stage);
 }
-/**** }}}{ animate() ****/
-
-smartResize()
 
 renderMap()
 animate();

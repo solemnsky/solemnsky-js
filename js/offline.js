@@ -4,10 +4,6 @@
 \\ It exists for testing and demonstration purposes.               \\ 
 //                  ******** offline.js ********                   */
 
-SolemnSky = new Game();
-SolemnSky.setFPS(60);
-SolemnSky.init();
-
 /**** {{{ key bindings ****/
 Mousetrap.bind('up', function() { 
 		SolemnSky.findPlayerById(myid).movement.forward = true;
