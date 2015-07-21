@@ -3,10 +3,11 @@
 //                  ******** maps.js ********                      */
 maps = {
 	bloxMap:  [
-		{x: 0, y: 0, w: 1600, h: 10, static: true},
-		{x: 0, y: 0, w: 10, h: 1600, static: true},
-		{x: 1600, y: 0, w: 10, h: 900, static: true},
-		{x: 0, y: 900, w: 1600, h: 10, static: true},
+		{x: 800, y: 5, w: 1600, h: 10, static: true},
+		{x: 800, y: 895, w: 1600, h: 10, static: true},
+		{x: 5, y: 450, w: 10, h: 900, static: true},
+		{x: 1595, y: 450, w: 10, h: 900, static: true},
+
 		{x:  90, y:  30, w: 40, h: 40, static: true},
 		{x: 130, y: 110, w: 40, h: 40, static: true},
 		{x: 470, y: 230, w: 40, h: 40, static: true},

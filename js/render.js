@@ -35,8 +35,7 @@ function smartResize() {
 /**** {{{ renderGame() ****/
 player = new PIXI.Graphics()
 player.beginFill(0xFFFFFF, 0.5)
-player.drawRect(0, 0, 30, 30)
-player.pivot = new PIXI.Point(15, 15) 
+player.drawRect(-15, -15, 30, 30)
 
 map = new PIXI.Graphics()
 
