@@ -13,6 +13,9 @@ Engine = require("./js/engine.js");
 Game = Engine.Game;
 readSnapshot = Engine.readSnapshot;
 serialiseSnapshot = Engine.serialiseSnapshot;
+
+SolemnSky = require("./js/loop.js");
+
 /**** }}} dependencies ****/
 
 /**** {{{ arbitrary box array (static game environment) ****/
@@ -140,10 +143,6 @@ Server.prototype.tick = function(ws, data) {
 /**** }}} tick: respond to data from the clients ****/
 
 /**** {{{ initialise and open sockets ****/
-SolemnSky = new Game();
-SolemnSky.setFPS(60);
-SolemnSky.init();
-
 GameServer = new Server();
 GameServer.openSocket(50042);
 GameServer.loadMap();

@@ -54,3 +54,7 @@ window.addEventListener('resize', function(event){
 	updateWindowSize()
 });
 /**** }}} constants, helper functions ****/
+
+if (typeof(module) !== "undefined") {
+	module.exports = SolemnSky;
+}
