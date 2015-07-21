@@ -52,26 +52,11 @@ function renderGame() {
 /**** }}} renderGame() ****/
 
 /**** {{{ animate() ****/
-//http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame = (function() {
-	return window.requestAnimationFrame   || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
-		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, SolemnSky.tickTimeMs);
-		};
-})();
 
 function animate() {
 	smartResize()
 	renderGame()
 
 	renderer.render(stage);
-
-	requestAnimFrame(animate);
 }
-/**** }}}{ animate() ****/
 
-animate();

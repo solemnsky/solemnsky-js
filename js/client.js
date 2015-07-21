@@ -1,47 +1,7 @@
-/**** {{{ constants, helper functions ****/
-//Partial application yay
-Function.prototype.partial = function() {
-	var fn = this, args = arguments;
-	return function() { 
-		var filledArgs = Array.prototype.slice.call(args);
-		for (var i=0, arg=0; arg < arguments.length; i++)
-			if (filledArgs[i] === undefined)
-				filledArgs[i] = arguments[arg++];
-		return fn.apply(this, filledArgs);
-	};
-};
-
-window.addEventListener('resize', function(event){
-	updateWindowSize()
-});
-
 //Some global variables for the DOM
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
 
-
-//http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame = (function() {
-	return window.requestAnimationFrame   || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
-		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, SolemnSky.tickTimeMs);
-		};
-})();
-/**** }}} constants, helper functions ****/
-
-/**** {{{ game state ****/
-var myid = -1;
-
-//Start up the game
-SolemnSky = new Game();
-SolemnSky.setFPS(60);
-SolemnSky.init();
-requestAnimFrame(update);
-/**** }}} game state ****/
 
 /**** {{{ rendering functions ****/
 function renderBox(body, width, height) {
@@ -106,24 +66,6 @@ function render() {
 	}, SolemnSky);
 } // render()
 /**** }}} rendering functions ****/
-
-/**** {{{ safe update method ****/
-then = Date.now();
-function update() {
-	now = Date.now();
-
-	elapsed = now - then;
-	// console.log(elapsed);
-	requestAnimFrame(update);
-
-	if (elapsed > SolemnSky.tickTimeMs) {
-		then = now - (elapsed % SolemnSky.tickTimeMs);
-
-		SolemnSky.update();
-		render();
-	}
-} 
-/**** }}} safe update method ****/
 
 /**** {{{ key bindings ****/
 Mousetrap.bind('up', 
