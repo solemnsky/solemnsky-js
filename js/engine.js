@@ -30,22 +30,31 @@ var	  b2Vec2         = Box2D.Common.Math.b2Vec2
 
 /**** {{{ Game() ****/
 function Game() {
+		// the total game state 
+	this.players = []
+	this.map = []
+
+		// the box2d world
 	this.world = null;
-	this.players = [];
-	this.map = [];
+
+		// update callbacks on Game.update()
 	this.updateCallbacks = [];
-	this.projectiles = [];
+
+		// fps and ticktimes, not used internally	
 	this.fps = 60.0;
 	this.tickTime = 1 / this.fps;
 	this.tickTimeMs = 1000 / this.fps;
-	this.scale = 30;
+
+		// whether the simulation is running
 	this.simulating = true;
+
+		// constant scale factor for converting box2d to pixel distances 
+		// (box2d likes distances in the order of 0.1 to 10)
+	this.scale = 1000; 
 };
 
-function Player(id, x, y, name, color, image) {
+function Player(id, x, y, name) {
 	this.name = name;
-	this.color = color;
-	this.image = image;
 	this.id = id;
 	
 	this.movement = {
@@ -54,16 +63,29 @@ function Player(id, x, y, name, color, image) {
 		left: false,
 		right: false
 	};
+	this.position = {x: x, y: y}
+	this.velocity = {x: 0, y: 0}
+	this.rotation = 0;
 
 	this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
 }
 
+/**
+ * Create a box in the world with the specified properties
+ * @param x The box's x center position (in pixels)
+ * @param y The box's y center position (in pixels)
+ * @param w The box's width (in pixels)
+ * @param h The box's height (in pixels)
+ * @param static If the box should be static (true for dynamic)
+ * @param fields An object containing fields for the box
+ */
+/**** {{{ createBox() ****/
 Game.prototype.createBox = function(x, y, w, h, static, fields) {
 	//Create a fixture definition for the box
 	var fixDef = new b2FixtureDef;
-	fixDef.density = 1.0;
-	fixDef.friction = 0.5;
-	fixDef.restitution = 0.6;
+	fixDef.density = 10;
+	fixDef.friction = 1;
+	fixDef.restitution = 0;
 
 	//Read from the fields, if they exist
 	if (typeof fields !== "undefined") {
@@ -95,10 +117,12 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 	box.life = 1;
 	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
 
-	box.SetUserData({x: x, y: y, w: w, h: h, static: static, fields: fields});
+	box.SetUserData(
+		{x: x, y: y, w: w, h: h, static: static, fields: fields});
 
 	return box;
 } 
+/**** }}} createBox() ****/
 /**** }}} Game() ****/
 
 /**** {{{ user-facing methods ****/
@@ -143,22 +167,13 @@ Game.prototype.setFPS = function(fps) {
 	this.tickTimeMs = 1000 / this.fps;
 }
 
-/**
- * Create a box in the world with the specified properties
- * @param x The box's x center position (in pixels)
- * @param y The box's y center position (in pixels)
- * @param w The box's width (in pixels)
- * @param h The box's height (in pixels)
- * @param static If the box should be static (true for dynamic)
- * @param fields An object containing fields for the box
- */
 /**** }}} user-facing methods ****/
 
 /**** {{{ initialise and update ****/
 // initialize the game world 
 Game.prototype.init = function() {
 	//Default world gravity
-	this.gravity = new b2Vec2(0, 10);
+	this.gravity = new b2Vec2(0, 1);
 
 	//Create the world
 	this.world = new b2World(
@@ -189,8 +204,16 @@ Game.prototype.update = function() {
 	last = Date.now();
 
 	if (this.simulating) {
+		this.players.forEach(
+			function(player) {
+				player.block.SetPosition(new b2Vec2(player.position.x / this.scale, player.position.y / this.scale))	
+				player.block.SetLinearVelocity(new b2Vec2(player.velocity.x / this.scale, player.velocity.y / this.scale))
+				player.block.SetAngle(player.rotation)
+			} 
+		, this)
+
 		this.world.Step(
-			diff / 1000   //frame-rate
+			diff / 1000   //time delta
 		,   10       //velocity iterations
 		,   10       //position iterations
 		);
@@ -199,6 +222,18 @@ Game.prototype.update = function() {
 		this.players.forEach(function each(player) {
 			player.update(this, diff);
 		}, this);
+
+		this.players.forEach(
+			function(player) {
+				var vel = player.block.GetLinearVelocity()
+				player.velocity.x = vel.x * this.scale; 
+				player.velocity.y = vel.y * this.scale;
+				var pos = player.block.GetPosition()
+				player.position.x = pos.x * this.scale; 
+				player.position.y = pos.y * this.scale;
+				player.rotation = player.block.GetAngle()
+			}
+			, this)
 
 		this.updateCallbacks.forEach(function each(callback) {
 			callback(diff);
@@ -220,54 +255,31 @@ Game.prototype.update = function() {
 }; // update()
 
 Player.prototype.update = function(game, delta) {
-	//What position is our player at? Use this for the new projectiles
-	var blockPos = new
-		b2Vec2(this.block.GetPosition().x, this.block.GetPosition().y);
-	blockPos.Multiply(game.scale);
+	var blockPos = this.block.GetPosition()
 
-	var speed = 10 * (delta / 1000) * game.scale; //20 u/sec
+	var baseImpulse = 0.001 * delta; //20 u/sec
 
-	//Modify your velocity to fly around in midair
-	var linearVelocity = this.block.GetLinearVelocity();
+	var impulse = new b2Vec2.Make(0, 0)
+
+	//Make the velocity
 	if (this.movement.forward) {
-		//Move our player
-		linearVelocity.Add(b2Vec2.Make(0, 2 * -speed / game.scale));
-		//Make a projectile
-		// var box = game.createBox(blockPos.x, blockPos.y + 30, 10, 10, false, {});
-		box.SetLinearVelocity(new b2Vec2(0, 1000 / game.scale));
+		impulse.Add(new b2Vec2.Make(0, -baseImpulse));
 	}
 	if (this.movement.backward) {
-		//Move our player
-		linearVelocity.Add(b2Vec2.Make(0, speed / game.scale));
-		//Make a projectile
-		// var box = game.createBox(blockPos.x, blockPos.y - 30, 10, 10, false, {});
-		box.SetLinearVelocity(new b2Vec2(0, -1000 / game.scale));
+		impulse.Add(new b2Vec2.Make(0, baseImpulse));
 	}
 	if (this.movement.left) {
-		//Move our player
-		linearVelocity.Add(b2Vec2.Make(-speed / game.scale, 0));
-		//Make a projectile
-		// var box = game.createBox(blockPos.x + 30, blockPos.y, 10, 10, false, {});
-		box.SetLinearVelocity(new b2Vec2(1000 / game.scale, 0));
+		impulse.Add(new b2Vec2.Make(-baseImpulse, 0));
 	}
 	if (this.movement.right) {
-		//Move our player
-		linearVelocity.Add(b2Vec2.Make(speed / game.scale, 0));
-		//Make a projectile
-		// var box = game.createBox(blockPos.x - 30, blockPos.y, 10, 10, false, {});
-		box.SetLinearVelocity(new b2Vec2(-1000 / game.scale, 0));
+		impulse.Add(new b2Vec2.Make(baseImpulse, 0));
 	}
-	//Shoot the projectile we made
-	/*
-	box.GetUserData().creationDate = Date.now();
-	game.projectiles.push(box);
-	*/ // commented out for simplicity for now
 
-	this.block.SetLinearVelocity(linearVelocity);
+	this.block.ApplyForce(impulse, this.block.GetPosition())
 }
 /**** }}} initialise and update ****/
 
-/**** {{{ snapshots ****/
+/**** {{{ snapshot ****/
 function SnapshotPoint(id, movement, pos, vel, angle, angleVel) {
 	this.id = id;
 	this.movement =  movement ;
@@ -347,7 +359,7 @@ Game.prototype.emitTotalSnapshot = function() {
 }
 /**** }}} snapshots ****/
 
-/**** {{{ listings ****/
+/**** {{{ status ****/
 Game.prototype.makeListing = function() {
 	return this.player.map(
 		function(player) {
@@ -382,7 +394,7 @@ Game.prototype.emitListing = function() {
 }
 /**** }}} listings ****/
 
-/**** {{{ maps ****/
+/**** {{{ map ****/
 Game.prototype.loadMap = function (map) {
 	map.forEach(
 		function(box) {

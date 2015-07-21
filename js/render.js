@@ -5,9 +5,8 @@
 //                  ******** render.js ********                    */
 
 var renderer = 
-	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x1099bb});
+	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x000020});
 document.body.appendChild(renderer.view);
-
 var stage = new PIXI.Container();
 
 /**** {{{ smartResize() ****/
@@ -34,15 +33,32 @@ function smartResize() {
 
 /**** {{{ renderGame() ****/
 player = new PIXI.Graphics()
-player.beginFill(0xFFFFFF, 1)
+player.beginFill(0xFFFFFF, 0.5)
 player.drawRect(0, 0, 30, 30)
-player.position = new PIXI.Point(0, 0)
+
+map = new PIXI.Graphics()
+
+stage.addChild(map)
 stage.addChild(player)
 
-function renderGame() {
-	var pos = SolemnSky.players[0].block.GetPosition()
-	player.position.x = pos.x 
-	player.position.y = pos.y 
+function renderMap () {
+	map.clear
+	map.beginFill(0xFFFFFF, 1)
+	
+	SolemnSky.map.forEach(
+		function(block) {
+			var data = block.GetUserData()
+			map.drawRect(data.x, data.y, data.w, data.h)
+		}
+	)
+}
+
+function renderGame () {
+	var pos = SolemnSky.players[0].position
+	var rot = SolemnSky.players[0].rotation
+
+	player.position = new PIXI.Point(pos.x, pos.y)
+	player.rotation = rot;
 }
 /**** }}} renderGame() ****/
 
@@ -60,15 +76,16 @@ window.requestAnimFrame = (function() {
 })();
 
 function animate() {
-	SolemnSky.update()
-	smartResize()
-
+	requestAnimationFrame(animate);
 	renderGame()
 
-	renderer.render(stage);
+	SolemnSky.update()
 
-	requestAnimationFrame(animate);
+	renderer.render(stage);
 }
 /**** }}}{ animate() ****/
 
+smartResize()
+
+renderMap()
 animate();
