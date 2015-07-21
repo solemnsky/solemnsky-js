@@ -4,7 +4,7 @@
 \\   SolemnSky (game engine), potential chat feature.              \\
 //                  ******** render.js ********                    */
 
-var renderer = 
+var renderer =
 	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x1099bb});
 document.body.appendChild(renderer.view);
 
@@ -34,20 +34,24 @@ function smartResize() {
 
 /**** {{{ renderGame() ****/
 function drawPlayer(player) {
-	var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/_assets/basics/bunny.png');
-	var bunny = new PIXI.Sprite(texture);
-	bunny.anchor.x = 0.5;
-	bunny.anchor.y = 0.5;
+	if (typeof(player.sprite) === "undefined") {
+		var texture = PIXI.Texture.fromImage('http://pixijs.github.io/examples/_assets/basics/bunny.png');
+		var bunny = new PIXI.Sprite(texture);
+		bunny.anchor.x = 0.5;
+		bunny.anchor.y = 0.5;
+		player.sprite = bunny;
+		player.sprite.scale = new PIXI.Point(4, 4)
+		stage.addChild(bunny);
+	}
 	var position = player.block.GetPosition()
-	bunny.position.x = position.x
-	bunny.position.y = position.y
-	bunny.scale = new PIXI.Point(4, 4)
-
-	stage.addChild(bunny);
+	player.sprite.position.x = position.x * SolemnSky.scale
+	player.sprite.position.y = position.y * SolemnSky.scale
 }
 
 function renderGame() {
-	SolemnSky.players.forEach(drawPlayer)
+	SolemnSky.players.forEach(function(player) {
+		drawPlayer(player);
+	});
 }
 /**** }}} renderGame() ****/
 
@@ -60,3 +64,6 @@ function animate() {
 	renderer.render(stage);
 }
 
+SolemnSky.addUpdateCallback(animate);
+
+/**** }}}{ animate() ****/
