@@ -50,7 +50,7 @@ function Game() {
 
 		// constant scale factor for converting box2d to pixel distances 
 		// (box2d likes distances in the order of 0.1 to 10)
-	this.scale = 1000; 
+	this.scale = 50; 
 };
 
 function Player(id, x, y, name) {
@@ -258,7 +258,7 @@ Game.prototype.update = function() {
 Player.prototype.update = function(game, delta) {
 	var blockPos = this.block.GetPosition()
 
-	var baseImpulse = 0.001 * delta; //20 u/sec
+	var baseImpulse = 1 * delta; //20 u/sec
 
 	var impulse = new b2Vec2.Make(0, 0)
 

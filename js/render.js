@@ -35,7 +35,7 @@ function smartResize() {
 /**** {{{ renderGame() ****/
 player = new PIXI.Graphics()
 player.beginFill(0xFFFFFF, 0.5)
-player.drawRect(-21, -21, 42, 42)
+player.drawRect(-15, -15, 30, 30)
 
 map = new PIXI.Graphics()
 
