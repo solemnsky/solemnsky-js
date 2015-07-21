@@ -49,7 +49,6 @@ function Game() {
 	this.simulating = true;
 
 		// constant scale factor for converting box2d to pixel distances 
-		// (box2d likes distances in the order of 0.1 to 10)
 	this.scale = 50; 
 };
 
@@ -174,7 +173,7 @@ Game.prototype.setFPS = function(fps) {
 // initialize the game world 
 Game.prototype.init = function() {
 	//Default world gravity
-	this.gravity = new b2Vec2(0, 1);
+	this.gravity = new b2Vec2(0, 10);
 
 	//Create the world
 	this.world = new b2World(
@@ -258,7 +257,7 @@ Game.prototype.update = function() {
 Player.prototype.update = function(game, delta) {
 	var blockPos = this.block.GetPosition()
 
-	var baseImpulse = 1 * delta; //20 u/sec
+	var baseImpulse = 5 * delta; // twice gravity
 
 	var impulse = new b2Vec2.Make(0, 0)
 
