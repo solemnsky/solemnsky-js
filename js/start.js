@@ -1,3 +1,7 @@
+/*                  ******** start.js ********                      //
+\\ This file starts the engine and keeps it running.                \\
+//                  ******** start.js ********                      */
+
 //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 requestAnimFrame = (function() {
 	return window.requestAnimationFrame   || 
@@ -9,7 +13,6 @@ requestAnimFrame = (function() {
 			window.setTimeout(callback, SolemnSky.tickTimeMs);
 		};
 })();
-/**** }}} constants, helper functions ****/
 
 /**** {{{ game state ****/
 var myid = -1;
@@ -49,10 +52,6 @@ Function.prototype.partial = function() {
 		return fn.apply(this, filledArgs);
 	};
 };
-
-window.addEventListener('resize', function(event){
-	updateWindowSize()
-});
 /**** }}} constants, helper functions ****/
 
 if (typeof(module) !== "undefined") {

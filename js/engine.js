@@ -10,8 +10,8 @@
 if (typeof(windowSize) === "undefined") {
 	//Server, we need to init this stuff
 	windowSize = {
-		width: 1440,
-		height: 778
+		width: 1600,
+		height: 900 
 	}
 }
 
@@ -133,6 +133,7 @@ Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 		var player = new Player(id, x, y, name, color, image);
 		this.players.push(player);
 		player.block.SetSleepingAllowed(false);
+		player.block.SetBullet(true);
 		return player.id;
 	}
 }

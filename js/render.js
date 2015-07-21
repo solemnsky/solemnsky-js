@@ -36,6 +36,7 @@ function smartResize() {
 player = new PIXI.Graphics()
 player.beginFill(0xFFFFFF, 0.5)
 player.drawRect(0, 0, 30, 30)
+player.pivot = new PIXI.Point(15, 15) 
 
 map = new PIXI.Graphics()
 
@@ -49,7 +50,7 @@ function renderMap () {
 	SolemnSky.map.forEach(
 		function(block) {
 			var data = block.GetUserData()
-			map.drawRect(data.x, data.y, data.w, data.h)
+			map.drawRect(data.x - (data.w / 2), data.y - (data.h / 2), data.w, data.h)
 		}
 	)
 }
@@ -66,11 +67,13 @@ function renderGame() {
 
 function animate() {
 	requestAnimationFrame(animate);
-
-	smartResize()
 	renderGame()
 	renderer.render(stage);
 }
+
+window.addEventListener('resize', function(event){
+	smartResize()
+});
 
 renderMap()
 animate();

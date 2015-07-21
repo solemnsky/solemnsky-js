@@ -1,4 +1,8 @@
+/*                  ******** util.js ********                      //
+\\ This file has a bunch of misc utility functions.                \\
+//                  ******** util.js ********                      */
 
+/**** {{{ utils ****/
 function Util() {}
 
 if (typeof module !== "undefined") {
@@ -63,3 +67,4 @@ Util.prototype.charToFloat = function(char_) {
 }
 
 Util.prototype.range = function(start, edge, step) { if (arguments.length == 1) { edge = start; start = 0; } edge = edge || 0; step = step || 1; for (var ret = []; (edge - start) * step > 0; start += step) { ret.push(start); } return ret; }
+/**** }}} utils ****/
