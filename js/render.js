@@ -89,6 +89,12 @@ function renderPlayers() {
 				playerGraphics.beginFill(0xFFFFFF, 1)
 				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
 			}
+
+			if (!player.stalled && player.afterburner) {
+				playerGraphics.beginFill(0x800000, 0.5)
+				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
+				
+			}
 			
 			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
 			playerGraphics.rotation = rot;
