@@ -80,6 +80,6 @@ Util.prototype.range = function(start, edge, step) {
 }
 
 Util.prototype.getAngle = function(vec) {
-	return Math.atan2(vec.y, vex.x);
+	return Math.atan2(vec.y, vec.x);
 }
 /**** }}} utils ****/
