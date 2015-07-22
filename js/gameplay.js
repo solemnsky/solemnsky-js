@@ -22,7 +22,7 @@ gameplay = {
 	, playerMaxRotationStalled: Math.PI * 1.5
 
 	// the maximum linear velocity also does
-	, playerMaxVelocity: 5
+	, playerMaxVelocity: 6
 	, playerMaxVelocityStalled: 5 
 
 	// the acceleration that a player can use when in a stall
@@ -40,7 +40,6 @@ gameplay = {
 
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 1
-	, playerExitStallThreshold: 3
-
+	, playerExitStallThreshold: 4.5 
 	
 }
