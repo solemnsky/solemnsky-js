@@ -24,7 +24,7 @@ gameplay = {
 	// the maximum linear velocity also does
 	, playerMaxVelocity: 6
 	, playerMaxVelocityStalled: 5 
-	, playerAfterburner: 7 // speed with afterburner
+	, playerAfterburner: 6.5 // speed with afterburner
 	, playerAfterburnerStalled: 8 // acceleration of afterburner in a stall
 
 	// the acceleration that a player can use when in a stall
