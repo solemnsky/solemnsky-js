@@ -5,28 +5,28 @@
 //                  ******** offline.js ********                   */
 
 /**** {{{ key bindings ****/
-Mousetrap.bind('up', function() { 
+Mousetrap.bind('i', function() { 
 		SolemnSky.findPlayerById(myid).movement.forward = true;
 	}, 'keydown');
-Mousetrap.bind('up', function() { 
+Mousetrap.bind('i', function() { 
 		SolemnSky.findPlayerById(myid).movement.forward = false; 
 	}, 'keyup');
-Mousetrap.bind('down', function() { 
+Mousetrap.bind('k', function() { 
 		SolemnSky.findPlayerById(myid).movement.backward = true; 
 	}, 'keydown');
-Mousetrap.bind('down', function() { 
+Mousetrap.bind('k', function() { 
 		SolemnSky.findPlayerById(myid).movement.backward = false; 
 	}, 'keyup');
-Mousetrap.bind('left', function() { 
+Mousetrap.bind('j', function() { 
 		SolemnSky.findPlayerById(myid).movement.left = true; 
 	}, 'keydown');
-Mousetrap.bind('left', function() { 
+Mousetrap.bind('j', function() { 
 		SolemnSky.findPlayerById(myid).movement.left = false; 
 	}, 'keyup');
-Mousetrap.bind('right', function() { 
+Mousetrap.bind('l', function() { 
 		SolemnSky.findPlayerById(myid).movement.right = true; 
 	}, 'keydown');
-Mousetrap.bind('right', function() { 
+Mousetrap.bind('l', function() { 
 		SolemnSky.findPlayerById(myid).movement.right = false; 
 	}, 'keyup');
 /**** }}} key bindings ****/

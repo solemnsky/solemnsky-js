@@ -10,7 +10,7 @@ gameplay = {
 	, playerHeight:  5
 
 	// force of gravity 
-	, gravity: 10 
+	, gravity: 5 
 
 	// the force of the engine (I don't understand why this is so low)
 	, playerEngine:  2 
@@ -24,6 +24,5 @@ gameplay = {
 
 	// the control that the player has over these values (higher is worse)
 	, playerAngularControl:  2
-	, playerLinearControl:  7
-
+	, playerLinearControl: 10 
 }
