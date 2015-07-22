@@ -35,7 +35,9 @@ function smartResize() {
 /**** {{{ renderGame() ****/
 player = new PIXI.Graphics()
 player.beginFill(0xFFFFFF, 0.5)
-player.drawRect(-15, -15, 30, 30)
+player.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+player.beginFill(0x000FFF, 1)
+player.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
 
 map = new PIXI.Graphics()
 
@@ -74,5 +76,6 @@ window.addEventListener('resize', function(event){
 	smartResize()
 });
 
+smartResize()
 renderMap()
 animate();

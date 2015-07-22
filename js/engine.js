@@ -49,7 +49,7 @@ function Game() {
 	this.simulating = true;
 
 		// constant scale factor for converting box2d to pixel distances 
-	this.scale = 50; 
+	this.scale = gameplay.physicsScale; 
 };
 
 function Player(id, x, y, name) {
@@ -62,11 +62,15 @@ function Player(id, x, y, name) {
 		left: false,
 		right: false
 	};
+
+	this.stalled = false;
+	this.throttle = 1;
+
 	this.position = {x: x, y: y}
 	this.velocity = {x: 0, y: 0}
 	this.rotation = 0;
 
-	this.block = SolemnSky.createBox(x, y, 30, 30, false, {});
+	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {});
 }
 
 /**
@@ -86,6 +90,13 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 	fixDef.friction = 1;
 	fixDef.restitution = 0;
 
+
+	//Create the body definition
+	var bodyDef = new b2BodyDef;
+
+	//Box type defined by the caller
+	bodyDef.type = (static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
+
 	//Read from the fields, if they exist
 	if (typeof fields !== "undefined") {
 		if (typeof fields.density !== "undefined") 
@@ -95,12 +106,6 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 		if (typeof fields.restitution !== "undefined") 
 			fixDef.restitution = fields.restitution;
 	}
-
-	//Create the body definition
-	var bodyDef = new b2BodyDef;
-
-	//Box type defined by the caller
-	bodyDef.type = (static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
 	
 	//Positions the center of the object (not upper left!)
 	bodyDef.position.x = x / this.scale;
@@ -173,7 +178,7 @@ Game.prototype.setFPS = function(fps) {
 // initialize the game world 
 Game.prototype.init = function() {
 	//Default world gravity
-	this.gravity = new b2Vec2(0, 10);
+	this.gravity = new b2Vec2(0, gameplay.gravity);
 
 	//Create the world
 	this.world = new b2World(
@@ -239,43 +244,51 @@ Game.prototype.update = function() {
 			callback(diff);
 		}, this);
 	}
-
-/* 
-		for (var i = this.projectiles.length - 1; i >= 0; i--) {
-			if (this.projectiles[i].GetPosition().y * this.scale > windowSize.height ||
-				this.projectiles[i].GetPosition().x * this.scale > windowSize.width ||
-				this.projectiles[i].GetPosition().x < 0 ||
-				(Date.now() - this.projectiles[i].GetUserData().creationDate) > 1000) {
-				this.world.DestroyBody(this.projectiles[i]);
-				this.projectiles.splice(i, 1);
-			}
-		}
-	*/ // commented out for simplicity for now
-
-}; // update()
+} // update()
 
 Player.prototype.update = function(game, delta) {
 	var blockPos = this.block.GetPosition()
+	var angle = this.block.GetAngle()
 
-	var baseImpulse = 5 * delta; // twice gravity
+	var angleVel = this.block.GetAngularVelocity()
+	var vel = this.block.GetLinearVelocity()
 
-	var impulse = new b2Vec2.Make(0, 0)
+	// set targetAngleVel
+	var targetAngleVel = 0
+	if (this.movement.left)
+		targetAngleVel = -gameplay.playerMaxRotation	
+	if (this.movement.right)
+		targetAngleVel += gameplay.playerMaxRotation	
 
-	//Make the velocity
+	// approach targetAngleVel	
+	this.block.SetAngularVelocity(
+		angleVel + ((targetAngleVel - angleVel) / gameplay.playerAngularControl)
+	)
+
+	// set targetVel
+	this.stalled = true;
+	var targetVel = {x: 0, y: 0}
 	if (this.movement.forward) {
-		impulse.Add(new b2Vec2.Make(0, -baseImpulse));
+		targetVel.x = Math.cos(angle) * gameplay.playerMaxVelocity	
+		targetVel.y = Math.sin(angle) * gameplay.playerMaxVelocity	
+		this.stalled = false;
 	}
 	if (this.movement.backward) {
-		impulse.Add(new b2Vec2.Make(0, baseImpulse));
-	}
-	if (this.movement.left) {
-		impulse.Add(new b2Vec2.Make(-baseImpulse, 0));
-	}
-	if (this.movement.right) {
-		impulse.Add(new b2Vec2.Make(baseImpulse, 0));
+		targetVel.x += Math.cos(angle) * -gameplay.playerMaxVelocity	
+		targetVel.y += Math.sin(angle) * -gameplay.playerMaxVelocity	
+		this.stalled = false;
+	}	
+
+	// approach targetVel
+	if (! this.stalled) {
+		this.block.SetLinearVelocity(
+			new b2Vec2.Make(
+				vel.x + ((targetVel.x - vel.x) / gameplay.playerAngularControl)
+				, vel.y + ((targetVel.y - vel.y) / gameplay.playerLinearControl)
+			)
+		)
 	}
 
-	this.block.ApplyForce(impulse, this.block.GetPosition())
 }
 /**** }}} initialise and update ****/
 

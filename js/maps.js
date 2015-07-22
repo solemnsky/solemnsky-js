@@ -3,6 +3,7 @@
 //                  ******** maps.js ********                      */
 maps = {
 	bloxMap:  [
+		// bounding blocks
 		{x: 800, y: 5, w: 1600, h: 10, static: true},
 		{x: 800, y: 895, w: 1600, h: 10, static: true},
 		{x: 5, y: 450, w: 10, h: 900, static: true},
