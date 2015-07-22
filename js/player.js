@@ -40,7 +40,7 @@ Player.prototype.update = function(game, delta) {
 	if (this.stalled) {
 		if (forwardVel > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.throttle = forwardVel / gameplay.playerMaxVelocity
+			this.throttle = vel.Length() / gameplay.playerMaxVelocity
 		}
 	} else {
 		if (forwardVel < gameplay.playerEnterStallThreshold)
