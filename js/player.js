@@ -59,12 +59,11 @@ Player.prototype.update = function(game, delta) {
 	)
 
 	this.afterburner = false;
-
 	if (this.stalled) {
 		// add basic thrust
 		// afterburner
-		this.afterburner = true;
 		if (this.movement.forward) {
+			this.afterburner = true;
 			this.block.SetLinearVelocity(
 				new b2Vec2.Make(
 					vel.x + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.cos(angle)
