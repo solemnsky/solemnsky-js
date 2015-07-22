@@ -47,3 +47,7 @@ gameplay = {
 	, contactDamangeMultiplier: 0.01
 	
 }
+
+if (typeof(module) !== "undefined") {
+	module.exports = gameplay;
+}
