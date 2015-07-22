@@ -253,11 +253,18 @@ Player.prototype.update = function(game, delta) {
 	var angleVel = this.block.GetAngularVelocity()
 	var vel = this.block.GetLinearVelocity()
 
+	var forwardVel = vel
+
 	// change stalled state in function of other values
-	this.stalled = true;
-	if (this.movement.forward || this.movement.backward)	
-		this.stalled = false;
-		// this is a hack, will fix soon
+	if (this.stalled) {
+		if (forwardVel.Length() > gameplay.playerExitStallThreshold) {
+			this.stalled = false
+			this.throttle = forwardVel.Length() / gameplay.playerMaxVelocity
+		}
+	} else {
+		if (forwardVel.Length() < gameplay.playerEnterStallThreshold)
+			this.stalled = true
+	}
 
 	// set angular velocity
 	var maxRotation = (this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
@@ -271,6 +278,15 @@ Player.prototype.update = function(game, delta) {
 	)
 
 	if (this.stalled) {
+		// add basic thrust
+		if (this.movement.forward)
+			this.block.SetLinearVelocity(
+				new b2Vec2.Make(
+					vel.x + gameplay.playerAccelerationStalled * Math.cos(angle)
+					, vel.y + gameplay.playerAccelerationStalled * Math.sin(angle)
+				)
+			)
+
 		// apply damping when over playerMaxVelocityStalled
 		var excessVel = vel.Length() - gameplay.playerMaxVelocityStalled 
 		if (excessVel > 0)
@@ -281,11 +297,20 @@ Player.prototype.update = function(game, delta) {
 				)
 			)
 	} else {
+		// modify throttle
+		if (this.movement.forward && this.throttle < 1)
+			this.throttle += gameplay.playerThrottleSpeed * (delta / 1000)
+		if (this.movement.backward && this.throttle > 0)
+			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
+
+		if (this.throttle > 1) this.throttle = 1
+		if (this.throttle < 0) this.throttle = 0
+
 		// move in the direction of angle, taking in affect gravity
 		this.block.SetLinearVelocity(
 			new b2Vec2.Make(
-				gameplay.playerMaxVelocity * Math.cos(angle)
-				, gameplay.playerMaxVelocity * Math.sin(angle)
+				this.throttle * gameplay.playerMaxVelocity * Math.cos(angle)
+				, this.throttle * gameplay.playerMaxVelocity * Math.sin(angle)
 			)
 		)
 	}
