@@ -67,4 +67,12 @@ Util.prototype.charToFloat = function(char_) {
 }
 
 Util.prototype.range = function(start, edge, step) { if (arguments.length == 1) { edge = start; start = 0; } edge = edge || 0; step = step || 1; for (var ret = []; (edge - start) * step > 0; start += step) { ret.push(start); } return ret; }
+
+Util.prototype.getAngle = function(vec) {
+	if (vec.y <= vec.x && vec.y >= -vec.x) {
+		return Math.tan(vec.y / vec.x)
+	} else {
+		return (Math.PI / 2) + this.getAngle({x: vec.y, y: -vec.x})
+	}
+}
 /**** }}} utils ****/

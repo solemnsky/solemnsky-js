@@ -34,10 +34,6 @@ function smartResize() {
 
 /**** {{{ renderGame() ****/
 player = new PIXI.Graphics()
-player.beginFill(0xFFFFFF, 1)
-player.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-player.beginFill(0x800000, 1)
-player.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
 
 map = new PIXI.Graphics()
 
@@ -63,6 +59,14 @@ function renderMap () {
 function renderGame() {
 	var pos = SolemnSky.players[0].position
 	var rot = SolemnSky.players[0].rotation
+	var stalled = SolemnSky.players[0].stalled
+
+	player.clear()
+	player.beginFill(0xFFFFFF , stalled ? 0.5 : 1)
+	player.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+	player.beginFill(0x800000, 1)
+	player.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
+
 	player.position = new PIXI.Point(pos.x, pos.y)
 	player.rotation = rot;
 }

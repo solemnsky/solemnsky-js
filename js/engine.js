@@ -253,16 +253,20 @@ Player.prototype.update = function(game, delta) {
 	var angleVel = this.block.GetAngularVelocity()
 	var vel = this.block.GetLinearVelocity()
 
-	var forwardVel = vel
+	// do not confuse with angleVel =P
+	var velAngle = Utils.getAngle(vel)
+	var velEffect = Math.cos(angle - velAngle)
+
+	var forwardVel = vel.Length() * velEffect
 
 	// change stalled state in function of other values
 	if (this.stalled) {
-		if (forwardVel.Length() > gameplay.playerExitStallThreshold) {
+		if (forwardVel > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.throttle = forwardVel.Length() / gameplay.playerMaxVelocity
+			this.throttle = forwardVel / gameplay.playerMaxVelocity
 		}
 	} else {
-		if (forwardVel.Length() < gameplay.playerEnterStallThreshold)
+		if (forwardVel < gameplay.playerEnterStallThreshold)
 			this.stalled = true
 	}
 
