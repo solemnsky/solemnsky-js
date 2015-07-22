@@ -87,8 +87,9 @@ Player.prototype.update = function(game, delta) {
 	)
 	/**** }}} set angular velocity ****/
 
-	/**** {{{ afterburner and velocity damping ****/
 	this.afterburner = false;
+
+	/**** {{{ motion when stalled ****/
 	if (this.stalled) {
 		// add basic thrust
 		// afterburner
@@ -101,8 +102,7 @@ Player.prototype.update = function(game, delta) {
 				)
 			)
 		}
-	}
-	if (this.stalled) {
+
 		// apply damping when over playerMaxVelocityStalled
 		var excessVel = vel.Length() - gameplay.playerMaxVelocityStalled 
 		if (excessVel > 0)
@@ -113,7 +113,7 @@ Player.prototype.update = function(game, delta) {
 				)
 			)
 	}
-	/**** }}} afterburner and velocity damping ****/
+	/**** }}} motion when stalled ****/
 
 	/**** {{{ motion when not stalled ****/
 	else {
@@ -146,7 +146,6 @@ Player.prototype.update = function(game, delta) {
 		this.leftoverVel.y = this.leftoverVel.y * leftoverVelSign.y
 		
 		// make some gravity
-		
 		var gravityEffect = 
 			{y: Math.abs(gameplay.playerGravityEffect * Math.sin(angle))
 			,x: gameplay.playerGravityEffect * 0}
