@@ -20,7 +20,7 @@ function Player(id, x, y, name) {
 	this.velocity = {x: 0, y: 0}
 	this.rotation = 0;
 
-	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {});
+	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {restitution: 0.1, friction: 0.1});
 }
 
 Player.prototype.update = function(game, delta) {
