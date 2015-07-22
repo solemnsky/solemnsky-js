@@ -14,7 +14,7 @@ gameplay = {
 	, playerHeight: 7
 
 	// acceleration of gravity 
-	, gravity: 5 
+	, gravity: 3 
 
 	// the maximum rotation velocity depends on 
 	// whether the player is stalled
@@ -40,6 +40,6 @@ gameplay = {
 
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 2
-	, playerExitStallThreshold: 4
+	, playerExitStallThreshold: 3
 	
 }
