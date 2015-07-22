@@ -45,6 +45,9 @@ gameplay = {
 	, playerLeftoverVelDeacceleration: 2.5
 			// the acceleration with which the leftover velocity
 			// a stall ends with is deaccelerated
+	, playerGravityEffect: 1
+			// the acceleration that gravity has on our player
+			// when not stalled
 
 	, minimumContactDamage: 0.02
 	, contactDamangeMultiplier: 0.01

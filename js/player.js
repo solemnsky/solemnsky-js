@@ -139,24 +139,27 @@ Player.prototype.update = function(game, delta) {
 
 		this.leftoverVel.x = this.leftoverVel.x * leftoverVelSign.x
 		this.leftoverVel.y = this.leftoverVel.y * leftoverVelSign.y
+		
+		// make some gravity
+		
+		var gravityEffect = 
+			{y: Math.abs(gameplay.playerGravityEffect * Math.sin(angle))
+			,x: gameplay.playerGravityEffect * 0}
 
 		// move in the direction of angle, taking in affect gravity and
 		// leftover velocity from the last stall recovery 
-		if (!this.afterburner) {
-			this.block.SetLinearVelocity(
-				new b2Vec2.Make(
-					this.leftoverVel.x + this.throttle * gameplay.playerMaxVelocity * Math.cos(angle)
-					, this.leftoverVel.y + this.throttle * gameplay.playerMaxVelocity * Math.sin(angle)
-				)
-			)
+		if (this.afterburner) {
+			var targetSpeed = gameplay.playerAfterburner
 		} else {
-			this.block.SetLinearVelocity(
-				new b2Vec2.Make(
-					this.leftoverVel.x + gameplay.playerAfterburner * Math.cos(angle)
-					, this.leftoverVel.y + gameplay.playerAfterburner * Math.sin(angle)
-				)
-			)
+			var targetSpeed = this.throttle * gameplay.playerMaxVelocity
 		}
+
+		this.block.SetLinearVelocity(
+			new b2Vec2.Make(
+				this.leftoverVel.x + gravityEffect.x + targetSpeed * Math.cos(angle)
+				, this.leftoverVel.y + gravityEffect.y + targetSpeed * Math.sin(angle)
+			)
+		)
 	}
 	/**** }}} motion when not stalled ****/
 }
