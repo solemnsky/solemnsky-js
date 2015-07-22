@@ -64,7 +64,6 @@ function Player(id, x, y, name) {
 	};
 
 	this.stalled = false;
-	this.throttle = 1;
 
 	this.position = {x: x, y: y}
 	this.velocity = {x: 0, y: 0}

@@ -5,7 +5,7 @@
 //                  ******** render.js ********                    */
 
 var renderer =
-	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x1099bb});
+	PIXI.autoDetectRenderer(1600, 900, {backgroundColor : 0x000010, antialias : true});
 
 document.body.appendChild(renderer.view);
 var stage = new PIXI.Container();
@@ -34,15 +34,19 @@ function smartResize() {
 
 /**** {{{ renderGame() ****/
 player = new PIXI.Graphics()
-player.beginFill(0xFFFFFF, 0.5)
+player.beginFill(0xFFFFFF, 1)
 player.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-player.beginFill(0x000FFF, 1)
+player.beginFill(0x800000, 1)
 player.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
 
 map = new PIXI.Graphics()
 
+fps = new PIXI.Text("", {fill: 0xFFFFFF})
+fps.position = new PIXI.Point(1400, 10)
+
 stage.addChild(map)
 stage.addChild(player)
+stage.addChild(fps)
 
 function renderMap () {
 	map.clear
@@ -66,11 +70,28 @@ function renderGame() {
 
 /**** {{{ animate() ****/
 
+var renderCounter = 0
+var engineCounter = 0
+var last = Date.now()
+
+function logCounters() { 
+	window.setTimeout(logCounters, 1000)
+
+	fps.text = "render: " + renderCounter + "\n" + "engine: " + engineCounter
+	renderCounter = 0 
+	engineCounter = 0 
+}
+
+
 function animate() {
+	renderCounter += 1
+
 	requestAnimationFrame(animate);
 	renderGame()
 	renderer.render(stage);
 }
+
+SolemnSky.addUpdateCallback( function() { engineCounter += 1 } )
 
 window.addEventListener('resize', function(event){
 	smartResize()
@@ -79,3 +100,4 @@ window.addEventListener('resize', function(event){
 smartResize()
 renderMap()
 animate();
+logCounters();

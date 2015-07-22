@@ -15,6 +15,8 @@ maps = {
 		{x: 210, y: 130, w: 40, h: 40, static: true},
 		{x: 350, y:  30, w: 40, h: 40, static: true},
 		{x: 390, y: 140, w: 40, h: 40, static: true},
+		{x: 390, y: 100, w: 20, h: 10, static: true},
+		{x: 390, y: 180, w: 20, h: 10, static: true},
 		{x: 430, y: 270, w: 40, h: 40, static: true},
 		{x: 570, y: 300, w: 40, h: 40, static: true}
 	]

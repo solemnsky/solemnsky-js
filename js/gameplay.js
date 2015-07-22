@@ -4,10 +4,9 @@ gameplay = {
 	// low numbers = bad performance (?)
 	physicsScale:  50
 
-
 	// dimensions of the simple player rectangle
 	, playerWidth:  60
-	, playerHeight:  5
+	, playerHeight: 7
 
 	// force of gravity 
 	, gravity: 5 
