@@ -33,42 +33,65 @@ function smartResize() {
 /**** }}} smartResize() ****/
 
 /**** {{{ renderGame() ****/
-player = new PIXI.Graphics()
-
-map = new PIXI.Graphics()
+players = new PIXI.Container()
+map = new PIXI.Container()
 
 fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
 
 stage.addChild(map)
-stage.addChild(player)
+stage.addChild(players)
 stage.addChild(fps)
 
-function renderMap () {
-	map.clear
-	map.beginFill(0xFFFFFF, 1)
+function renderMap() {
+	map.removeChildren()
+
+	var mapGraphics = new PIXI.Graphics()
+
+	mapGraphics.clear
+	mapGraphics.beginFill(0xFFFFFF, 1)
 	
 	SolemnSky.map.forEach(
 		function(block) {
 			var data = block.GetUserData()
-			map.drawRect(data.x - (data.w / 2), data.y - (data.h / 2), data.w, data.h)
+			mapGraphics.drawRect(
+				data.x - (data.w / 2)
+				, data.y - (data.h / 2)
+				, data.w, data.h
+			)
+		}
+	)
+	
+	map.addChild(mapGraphics)
+}
+
+function renderPlayers() {
+	players.removeChildren()
+
+	SolemnSky.players.forEach(
+		function(player) {
+			var pos = SolemnSky.players[0].position
+			var rot = SolemnSky.players[0].rotation
+			var stalled = SolemnSky.players[0].stalled
+
+			var playerGraphics = new PIXI.Graphics()
+
+			playerGraphics.clear()
+			playerGraphics.beginFill(0xFFFFFF , stalled ? 0.5 : 1)
+			playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+			playerGraphics.beginFill(0x800000, 1)
+			playerGraphics.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
+
+			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
+			playerGraphics.rotation = rot;
+			
+			players.addChild(playerGraphics)
 		}
 	)
 }
 
 function renderGame() {
-	var pos = SolemnSky.players[0].position
-	var rot = SolemnSky.players[0].rotation
-	var stalled = SolemnSky.players[0].stalled
-
-	player.clear()
-	player.beginFill(0xFFFFFF , stalled ? 0.5 : 1)
-	player.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-	player.beginFill(0x800000, 1)
-	player.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
-
-	player.position = new PIXI.Point(pos.x, pos.y)
-	player.rotation = rot;
+	renderPlayers()
 }
 /**** }}} renderGame() ****/
 
@@ -84,7 +107,6 @@ function logCounters() {
 	renderCounter = 0 
 	engineCounter = 0 
 }
-
 
 function animate() {
 	renderCounter += 1

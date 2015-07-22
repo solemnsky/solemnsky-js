@@ -286,8 +286,8 @@ Player.prototype.update = function(game, delta) {
 		if (this.movement.forward)
 			this.block.SetLinearVelocity(
 				new b2Vec2.Make(
-					vel.x + gameplay.playerAccelerationStalled * Math.cos(angle)
-					, vel.y + gameplay.playerAccelerationStalled * Math.sin(angle)
+					vel.x + (delta / 1000) * gameplay.playerAccelerationStalled * Math.cos(angle)
+					, vel.y + (delta / 1000) * gameplay.playerAccelerationStalled * Math.sin(angle)
 				)
 			)
 

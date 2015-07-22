@@ -26,11 +26,11 @@ gameplay = {
 	, playerMaxVelocityStalled: 5 
 
 	// the acceleration that a player can use when in a stall
-	, playerAccelerationStalled: 0.5 
+	, playerAccelerationStalled: 6
 
 	// the proportion with which target angular velocity is approached
 	// (1 is instantaneous)
-	, playerAngularDamping : 3
+	, playerAngularDamping: 3
 
 	// the proportion with which excess velocity is dissapted in a stall
 	, playerLinearDampingStall: 2
@@ -39,7 +39,7 @@ gameplay = {
 	, playerThrottleSpeed: 1.5 
 
 	// velocity thresholds to enter and exit stalls
-	, playerEnterStallThreshold: 1
-	, playerExitStallThreshold: 4.5 
+	, playerEnterStallThreshold: 2
+	, playerExitStallThreshold: 4
 	
 }
