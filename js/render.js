@@ -62,7 +62,6 @@ function renderMap() {
 	map.addChild(mapGraphics)
 }
 
-// update the player container
 function renderPlayers() {
 	players.removeChildren()
 
@@ -76,11 +75,21 @@ function renderPlayers() {
 			var playerGraphics = new PIXI.Graphics()
 
 			playerGraphics.clear()
-			playerGraphics.beginFill(0xFFFFFF , stalled ? 0.5 : 1)
+			playerGraphics.beginFill(0xFFFFFF , 0.5)
 			playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
 			playerGraphics.beginFill(0x800000, 1)
 			playerGraphics.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
 
+			if (player.afterburner && player.stalled) {
+				playerGraphics.beginFill(0xFFFFFF, 1)
+				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), 10, gameplay.playerHeight)
+			}
+			
+			if (!player.stalled) {
+				playerGraphics.beginFill(0xFFFFFF, 1)
+				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
+			}
+			
 			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
 			playerGraphics.rotation = rot;
 			

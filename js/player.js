@@ -2,6 +2,7 @@ function Player(id, x, y, name) {
 	this.name = name;
 	this.id = id;
 	
+	// client accessible
 	this.movement = {
 		forward: false,
 		backward: false,
@@ -9,9 +10,12 @@ function Player(id, x, y, name) {
 		right: false
 	};
 
+	// read-only for clients
 	this.stalled = false;
 	this.throttle = 1;
-
+	this.health = 1;
+	this.energy = 1;
+	this.afterburner = false;
 	this.position = {x: x, y: y}
 	this.velocity = {x: 0, y: 0}
 	this.rotation = 0;
@@ -54,15 +58,18 @@ Player.prototype.update = function(game, delta) {
 		angleVel + ((targetAngleVel - angleVel) / gameplay.playerAngularDamping)
 	)
 
+	this.afterburner = false;
 	if (this.stalled) {
 		// add basic thrust
-		if (this.movement.forward)
+		if (this.movement.forward) {
+			this.afterburner = true;
 			this.block.SetLinearVelocity(
 				new b2Vec2.Make(
 					vel.x + (delta / 1000) * gameplay.playerAccelerationStalled * Math.cos(angle)
 					, vel.y + (delta / 1000) * gameplay.playerAccelerationStalled * Math.sin(angle)
 				)
 			)
+		}
 
 		// apply damping when over playerMaxVelocityStalled
 		var excessVel = vel.Length() - gameplay.playerMaxVelocityStalled 

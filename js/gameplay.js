@@ -11,7 +11,7 @@ gameplay = {
 
 	// dimensions of the simple player rectangle
 	, playerWidth:  60
-	, playerHeight: 7
+	, playerHeight: 10
 
 	// acceleration of gravity 
 	, gravity: 3 
