@@ -115,6 +115,7 @@ Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 	} else {
 		var player = new Player(id, x, y, name, color, image);
 		this.players.push(player);
+		player.block.SetUserData(player);
 		player.block.SetSleepingAllowed(false);
 		player.block.SetBullet(true);
 		return player.id;
@@ -168,15 +169,7 @@ Game.prototype.init = function() {
 
 	var listener = new Box2D.Dynamics.b2ContactListener;
 	listener.BeginContact = function(contact) {
-		var bodyA = contact.GetFixtureA().GetBody();
-		var bodyB = contact.GetFixtureB().GetBody();
-
-		if (typeof bodyA.life !== "undefined") {
-			bodyA.life --;
-		}
-		if (typeof bodyB.life !== "undefined") {
-			bodyB.life --;
-		}
+		SolemnSky.evaluateContact(contact);
 	};
 	this.world.SetContactListener(listener);
 }; // init()
@@ -203,6 +196,10 @@ Game.prototype.update = function() {
 		);
 		this.world.ClearForces();
 
+		for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
+			this.evaluateContact(contact);
+		}
+
 		this.players.forEach(function each(player) {
 			player.update(this, diff);
 		}, this);
@@ -226,6 +223,17 @@ Game.prototype.update = function() {
 } // update()
 
 /**** }}} initialise and update ****/
+
+/**** {{{ contacts ****/ 
+
+Game.prototype.evaluateContact = function(contact) {
+	if (!contact.IsTouching()) {
+		//Not touching
+		return;
+	}
+}
+
+/**** }}} contacts ****/
 
 /**** {{{ snapshot ****/
 function SnapshotPoint(id, movement, pos, vel, angle, angleVel) {
