@@ -82,12 +82,13 @@ function renderPlayers() {
 			// if it's not stalled, draw the throttle on a pale white body
 			if (!player.stalled) {
 				// pale white body
-				playerGraphics.beginFill(0xFFFFFF , 0.5)
+				playerGraphics.beginFill(0xFFFFFF , 0.2)
 				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
 
 				// throttle view
-				playerGraphics.beginFill(0xFFFFFF, 1)
+				playerGraphics.beginFill(0xFFFFFF, player.afterburner? 1 : 0.5)
 				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
+				
 			}
 
 			// if it is, draw a pale blue body
