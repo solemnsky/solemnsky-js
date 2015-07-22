@@ -13,8 +13,9 @@ Engine = require("./js/engine.js");
 Game = Engine.Game;
 readSnapshot = Engine.readSnapshot;
 serialiseSnapshot = Engine.serialiseSnapshot;
+Player = require("./js/player.js");
 
-SolemnSky = require("./js/gamebase.js");
+SolemnSky = require("./js/start.js");
 
 /**** }}} dependencies ****/
 
