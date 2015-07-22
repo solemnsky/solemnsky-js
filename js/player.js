@@ -22,7 +22,7 @@ function Player(id, x, y, name) {
 	this.rotation = 0;
 	this.respawning = false;
 
-	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {});
+	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {restitution: 0.1, friction: 0.1});
 }
 
 Player.prototype.update = function(game, delta) {
@@ -57,7 +57,7 @@ Player.prototype.update = function(game, delta) {
 	if (this.stalled) {
 		if (forwardVel > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.throttle = forwardVel / gameplay.playerMaxVelocity
+			this.throttle = vel.Length() / gameplay.playerMaxVelocity
 		}
 	} else {
 		if (forwardVel < gameplay.playerEnterStallThreshold)
@@ -78,12 +78,13 @@ Player.prototype.update = function(game, delta) {
 	this.afterburner = false;
 	if (this.stalled) {
 		// add basic thrust
+		// afterburner
 		if (this.movement.forward) {
 			this.afterburner = true;
 			this.block.SetLinearVelocity(
 				new b2Vec2.Make(
-					vel.x + (delta / 1000) * gameplay.playerAccelerationStalled * Math.cos(angle)
-					, vel.y + (delta / 1000) * gameplay.playerAccelerationStalled * Math.sin(angle)
+					vel.x + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.cos(angle)
+					, vel.y + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.sin(angle)
 				)
 			)
 		}
@@ -103,17 +104,28 @@ Player.prototype.update = function(game, delta) {
 			this.throttle += gameplay.playerThrottleSpeed * (delta / 1000)
 		if (this.movement.backward && this.throttle > 0)
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
+		if (this.movement.forward && this.throttle === 1)
+			this.afterburner = true;
 
 		if (this.throttle > 1) this.throttle = 1
 		if (this.throttle < 0) this.throttle = 0
 
 		// move in the direction of angle, taking in affect gravity
-		this.block.SetLinearVelocity(
-			new b2Vec2.Make(
-				this.throttle * gameplay.playerMaxVelocity * Math.cos(angle)
-				, this.throttle * gameplay.playerMaxVelocity * Math.sin(angle)
+		if (!this.afterburner) {
+			this.block.SetLinearVelocity(
+				new b2Vec2.Make(
+					this.throttle * gameplay.playerMaxVelocity * Math.cos(angle)
+					, this.throttle * gameplay.playerMaxVelocity * Math.sin(angle)
+				)
 			)
-		)
+		} else {
+			this.block.SetLinearVelocity(
+				new b2Vec2.Make(
+					gameplay.playerAfterburner * Math.cos(angle)
+					, gameplay.playerAfterburner * Math.sin(angle)
+				)
+			)
+		}
 	}
 }
 

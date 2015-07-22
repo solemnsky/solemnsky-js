@@ -76,20 +76,38 @@ function renderPlayers() {
 			var playerGraphics = new PIXI.Graphics()
 
 			playerGraphics.clear()
-			playerGraphics.beginFill(0xFFFFFF , 0.5)
-			playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+
+
+			// at this point we have a pale matchstick with a red head
+
+			// if it's not stalled, draw the throttle on a pale white body
+			if (!player.stalled) {
+				// pale white body
+				playerGraphics.beginFill(0xFFFFFF , 0.2)
+				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+
+				// throttle view
+				playerGraphics.beginFill(0xFFFFFF, player.afterburner? 1 : 0.5)
+				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
+				
+			}
+
+			// if it is, draw a pale blue body
+			if (player.stalled) {
+				if (!player.afterburner) {
+					// pale blue body
+					playerGraphics.beginFill(0x000030 , 1)
+					playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+				} else {
+					// pale blue body
+					playerGraphics.beginFill(0x000050 , 1)
+					playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+				}
+			}
+
+			// draw a red head on top
 			playerGraphics.beginFill(0xFF0000, health)
 			playerGraphics.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
-
-			if (player.afterburner && player.stalled) {
-				playerGraphics.beginFill(0xFFFFFF, 1)
-				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), 10, gameplay.playerHeight)
-			}
-			
-			if (!player.stalled) {
-				playerGraphics.beginFill(0xFFFFFF, 1)
-				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
-			}
 			
 			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
 			playerGraphics.rotation = rot;
@@ -142,7 +160,5 @@ window.addEventListener('resize', function(event){
 
 smartResize() // start loop to manage resizing
 logCounters() // start loop to display FPS
-
 renderMap() // put the map in the map container
-
 animate() // loop to display players and render stage to screen
