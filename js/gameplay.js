@@ -41,5 +41,8 @@ gameplay = {
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 2
 	, playerExitStallThreshold: 3
+
+	, minimumContactDamage: 0.005
+	, contactDamangeMultiplier: 0.08
 	
 }
