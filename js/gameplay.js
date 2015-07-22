@@ -1,3 +1,8 @@
+/*                  ******** gameplay.js ********                  //
+\\ This file defines various magic values used in the engine,      \\ 
+// relating to the general feel of the game. A description is      //
+\\ given in each case.                                             \\
+//                  ******** gameplay.js ********                  */
 gameplay = {
 	// the number of pixels that box2d thinks is one meter
 	// high numbers = bad accuracy
@@ -8,20 +13,24 @@ gameplay = {
 	, playerWidth:  60
 	, playerHeight: 7
 
-	// force of gravity 
+	// acceleration of gravity 
 	, gravity: 5 
 
-	// the force of the engine (I don't understand why this is so low)
-	, playerEngine:  2 
-	// the force of the player's torque
-	, playerTorque:  30
-
-	// the maximum rotation velocity
+	// the maximum rotation velocity depends on 
+	// whether the player is stalled
 	, playerMaxRotation:  Math.PI * 1.2
-	// maximum player speed out of a stall
-	, playerMaxVelocity: 5
+	, playerMaxRotationStalled: Math.PI * 1.5
 
-	// the control that the player has over these values (higher is worse)
-	, playerAngularControl:  2
-	, playerLinearControl: 10 
+	// the maximum linear velocity also does
+	, playerMaxVelocity: 5
+	, playerMaxVelocityStalled: 5 
+
+	// the proportion with which target angular velocity is approached
+	// (1 is instantaneous)
+	, playerAngularDamping : 3
+
+	// the proportion with which excess velocity is dissapted in a stall
+	, playerLinearDampingStall: 2
+
+	
 }

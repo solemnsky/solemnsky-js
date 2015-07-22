@@ -1,7 +1,7 @@
 /*                  ******** render.js ********                    //
 \\ This file uses pixi to display the game world. Expected global  \\
-// values in include:                                              //
-\\   SolemnSky (game engine), potential chat feature.              \\
+// values in are:                                                  //
+\\   SolemnSky (game engine)                                       \\
 //                  ******** render.js ********                    */
 
 var renderer =
@@ -69,7 +69,6 @@ function renderGame() {
 /**** }}} renderGame() ****/
 
 /**** {{{ animate() ****/
-
 var renderCounter = 0
 var engineCounter = 0
 var last = Date.now()
@@ -96,6 +95,7 @@ SolemnSky.addUpdateCallback( function() { engineCounter += 1 } )
 window.addEventListener('resize', function(event){
 	smartResize()
 });
+/**** }}} animate() ****/
 
 smartResize()
 renderMap()

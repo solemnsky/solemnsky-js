@@ -64,6 +64,7 @@ function Player(id, x, y, name) {
 	};
 
 	this.stalled = false;
+	this.throttle = 1;
 
 	this.position = {x: x, y: y}
 	this.velocity = {x: 0, y: 0}
@@ -252,38 +253,39 @@ Player.prototype.update = function(game, delta) {
 	var angleVel = this.block.GetAngularVelocity()
 	var vel = this.block.GetLinearVelocity()
 
-	// set targetAngleVel
+	// change stalled state in function of other values
+	this.stalled = true;
+	if (this.movement.forward || this.movement.backward)	
+		this.stalled = false;
+		// this is a hack, will fix soon
+
+	// set angular velocity
+	var maxRotation = (this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
 	var targetAngleVel = 0
 	if (this.movement.left)
-		targetAngleVel = -gameplay.playerMaxRotation	
+		targetAngleVel = -maxRotation
 	if (this.movement.right)
-		targetAngleVel += gameplay.playerMaxRotation	
-
-	// approach targetAngleVel	
+		targetAngleVel += maxRotation
 	this.block.SetAngularVelocity(
-		angleVel + ((targetAngleVel - angleVel) / gameplay.playerAngularControl)
+		angleVel + ((targetAngleVel - angleVel) / gameplay.playerAngularDamping)
 	)
 
-	// set targetVel
-	this.stalled = true;
-	var targetVel = {x: 0, y: 0}
-	if (this.movement.forward) {
-		targetVel.x = Math.cos(angle) * gameplay.playerMaxVelocity	
-		targetVel.y = Math.sin(angle) * gameplay.playerMaxVelocity	
-		this.stalled = false;
-	}
-	if (this.movement.backward) {
-		targetVel.x += Math.cos(angle) * -gameplay.playerMaxVelocity	
-		targetVel.y += Math.sin(angle) * -gameplay.playerMaxVelocity	
-		this.stalled = false;
-	}	
-
-	// approach targetVel
-	if (! this.stalled) {
+	if (this.stalled) {
+		// apply damping when over playerMaxVelocityStalled
+		var excessVel = vel.Length() - gameplay.playerMaxVelocityStalled 
+		if (excessVel > 0)
+			this.block.SetLinearVelocity(
+				new b2Vec2.Make(
+					vel.x * ((vel.Length() - excessVel) / vel.Length())
+					, vel.y * ((vel.Length() - excessVel) / vel.Length())
+				)
+			)
+	} else {
+		// move in the direction of angle, taking in affect gravity
 		this.block.SetLinearVelocity(
 			new b2Vec2.Make(
-				vel.x + ((targetVel.x - vel.x) / gameplay.playerAngularControl)
-				, vel.y + ((targetVel.y - vel.y) / gameplay.playerLinearControl)
+				gameplay.playerMaxVelocity * Math.cos(angle)
+				, gameplay.playerMaxVelocity * Math.sin(angle)
 			)
 		)
 	}
