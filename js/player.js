@@ -1,3 +1,8 @@
+/*                  ******** player.js ********                    //
+\\ This file is an extension of engine.js, in which methods        \\
+// (update methods and a base constructor) are defines for         // 
+\\ players. The flight mechanics are defined here.                 \\
+//                  ******** player.js ********                    */
 function Player(id, x, y, name) {
 	this.name = name;
 	this.id = id;
