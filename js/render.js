@@ -71,13 +71,14 @@ function renderPlayers() {
 			var rot = player.rotation
 			var stalled = player.stalled
 			var throttle = player.throttle
+			var health = player.health
 
 			var playerGraphics = new PIXI.Graphics()
 
 			playerGraphics.clear()
 			playerGraphics.beginFill(0xFFFFFF , 0.5)
 			playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-			playerGraphics.beginFill(0x800000, 1)
+			playerGraphics.beginFill(0xFF0000, health)
 			playerGraphics.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
 
 			if (player.afterburner && player.stalled) {
