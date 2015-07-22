@@ -77,7 +77,6 @@ function renderPlayers() {
 
 			playerGraphics.clear()
 
-
 			// at this point we have a pale matchstick with a red head
 
 			// if it's not stalled, draw the throttle on a pale white body

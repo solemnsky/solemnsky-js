@@ -12,6 +12,7 @@ function Player(id, x, y, name) {
 
 	// read-only for clients
 	this.stalled = false;
+	this.leftoverVel = {x: 0, y: 0}
 	this.throttle = 1;
 	this.health = 1;
 	this.energy = 1;
@@ -26,6 +27,7 @@ function Player(id, x, y, name) {
 }
 
 Player.prototype.update = function(game, delta) {
+	/**** {{{ respawning ****/
 	if (this.respawning) {
 		this.block.SetPosition(new b2Vec2(this.spawnpoint.x / gameplay.physicsScale, this.spawnpoint.y / gameplay.physicsScale));
 		this.block.SetLinearVelocity(new b2Vec2(0, 0));
@@ -40,19 +42,20 @@ Player.prototype.update = function(game, delta) {
 		this.respawning = false;
 		return;
 	}
+	/**** }}} respawning ****/
 
+	/**** {{{ useful values ****/
 	var blockPos = this.block.GetPosition()
 	var angle = this.block.GetAngle()
-
 	var angleVel = this.block.GetAngularVelocity()
 	var vel = this.block.GetLinearVelocity()
-
-	// do not confuse with angleVel =P
 	var velAngle = Utils.getAngle(vel)
+		// angle of the velocity
 	var velEffect = Math.cos(angle - velAngle)
-
 	var forwardVel = vel.Length() * velEffect
+	/**** }}} useful values ****/
 
+	/**** {{{ stall singularities ****/
 	// change stalled state in function of other values
 	if (this.stalled) {
 		if (forwardVel > gameplay.playerExitStallThreshold) {
@@ -63,7 +66,9 @@ Player.prototype.update = function(game, delta) {
 		if (forwardVel < gameplay.playerEnterStallThreshold)
 			this.stalled = true
 	}
+	/**** }}} stall singularities ****/
 
+	/**** {{{ set angular velocity ****/
 	// set angular velocity
 	var maxRotation = (this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
 	var targetAngleVel = 0
@@ -74,7 +79,9 @@ Player.prototype.update = function(game, delta) {
 	this.block.SetAngularVelocity(
 		angleVel + ((targetAngleVel - angleVel) / gameplay.playerAngularDamping)
 	)
+	/**** }}} set angular velocity ****/
 
+	/**** {{{ afterburner and velocity damping ****/
 	this.afterburner = false;
 	if (this.stalled) {
 		// add basic thrust
@@ -88,7 +95,8 @@ Player.prototype.update = function(game, delta) {
 				)
 			)
 		}
-
+	}
+	if (this.stalled) {
 		// apply damping when over playerMaxVelocityStalled
 		var excessVel = vel.Length() - gameplay.playerMaxVelocityStalled 
 		if (excessVel > 0)
@@ -98,7 +106,11 @@ Player.prototype.update = function(game, delta) {
 					, vel.y * ((vel.Length() - excessVel) / vel.Length())
 				)
 			)
-	} else {
+	}
+	/**** }}} afterburner and velocity damping ****/
+
+	/**** {{{ motion when not stalled ****/
+	else {
 		// modify throttle
 		if (this.movement.forward && this.throttle < 1)
 			this.throttle += gameplay.playerThrottleSpeed * (delta / 1000)
@@ -127,6 +139,7 @@ Player.prototype.update = function(game, delta) {
 			)
 		}
 	}
+	/**** }}} motion when not stalled ****/
 }
 
 Player.prototype.onLoseHealth = function(amount) {
@@ -136,7 +149,6 @@ Player.prototype.onLoseHealth = function(amount) {
 		this.respawning = true;
 	}
 }
-
 
 if (typeof(module) !== "undefined") {
 	module.exports = Player;
