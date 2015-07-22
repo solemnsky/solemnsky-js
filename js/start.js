@@ -3,16 +3,24 @@
 //                  ******** start.js ********                      */
 
 //http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-requestAnimFrame = (function() {
-	return window.requestAnimationFrame   || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
-		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, SolemnSky.tickTimeMs);
-		};
-})();
+if (typeof window !== "undefined") {
+	//Client-side
+	requestAnimFrame = (function() {
+		return window.requestAnimationFrame   || 
+			window.webkitRequestAnimationFrame || 
+			window.mozRequestAnimationFrame    || 
+			window.oRequestAnimationFrame      || 
+			window.msRequestAnimationFrame     || 
+			function(callback, /* DOMElement */ element){
+				window.setTimeout(callback, SolemnSky.tickTimeMs);
+			};
+	})();
+} else {
+	//Server-side
+	requestAnimFrame = function(callback, /* DOMElement */ element){
+		setTimeout(callback, SolemnSky.tickTimeMs);
+	};
+}
 
 /**** {{{ game state ****/
 var myid = -1;
