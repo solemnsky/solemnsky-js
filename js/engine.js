@@ -250,6 +250,7 @@ Game.prototype.evaluateContact = function(contact) {
 	var loss = Math.max(gameplay.minimumContactDamage, impact * gameplay.contactDamangeMultiplier);
 
 	player.GetUserData().health -= loss;
+	player.GetUserData().onLoseHealth(loss);
 }
 
 /**** }}} contacts ****/

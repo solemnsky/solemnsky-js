@@ -16,14 +16,31 @@ function Player(id, x, y, name) {
 	this.health = 1;
 	this.energy = 1;
 	this.afterburner = false;
-	this.position = {x: x, y: y}
+	this.position = {x: x, y: y};
+	this.spawnpoint = {x: x, y: y};
 	this.velocity = {x: 0, y: 0}
 	this.rotation = 0;
+	this.respawning = false;
 
 	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {});
 }
 
 Player.prototype.update = function(game, delta) {
+	if (this.respawning) {
+		this.block.SetPosition(new b2Vec2(this.spawnpoint.x / gameplay.physicsScale, this.spawnpoint.y / gameplay.physicsScale));
+		this.block.SetLinearVelocity(new b2Vec2(0, 0));
+		this.block.SetAngularVelocity(0);
+		this.block.SetAngle(0)
+
+		this.stalled = false;
+		this.throttle = 1;
+		this.health = 1;
+		this.energy = 1;
+
+		this.respawning = false;
+		return;
+	}
+
 	var blockPos = this.block.GetPosition()
 	var angle = this.block.GetAngle()
 
@@ -97,6 +114,14 @@ Player.prototype.update = function(game, delta) {
 				, this.throttle * gameplay.playerMaxVelocity * Math.sin(angle)
 			)
 		)
+	}
+}
+
+Player.prototype.onLoseHealth = function(amount) {
+	//We lost health.
+	if (this.health <= 0) {
+		//Crashed and destroyed
+		this.respawning = true;
 	}
 }
 
