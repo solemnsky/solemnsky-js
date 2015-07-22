@@ -42,10 +42,10 @@ gameplay = {
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 2
 	, playerExitStallThreshold: 3
+	, playerLeftoverVelDeacceleration: 2.5
 
 	, minimumContactDamage: 0.02
 	, contactDamangeMultiplier: 0.01
-	
 }
 
 if (typeof(module) !== "undefined") {

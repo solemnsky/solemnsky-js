@@ -60,7 +60,8 @@ Player.prototype.update = function(game, delta) {
 	if (this.stalled) {
 		if (forwardVel > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.throttle = vel.Length() / gameplay.playerMaxVelocity
+			this.leftoverVel = {x: vel.x, y: vel.y}
+			this.throttle = forwardVel / gameplay.playerMaxVelocity
 		}
 	} else {
 		if (forwardVel < gameplay.playerEnterStallThreshold)
@@ -122,19 +123,37 @@ Player.prototype.update = function(game, delta) {
 		if (this.throttle > 1) this.throttle = 1
 		if (this.throttle < 0) this.throttle = 0
 
-		// move in the direction of angle, taking in affect gravity
+		// pick away at leftover velocity
+		var leftoverVelSign = 
+			{x: Math.sign(this.leftoverVel.x)
+			,y: Math.sign(this.leftoverVel.y)}
+		this.leftoverVel.x = Math.abs(this.leftoverVel.x)
+		this.leftoverVel.y = Math.abs(this.leftoverVel.y)
+
+		if (this.leftoverVel.x > 0)
+			this.leftoverVel.x = this.leftoverVel.x - (gameplay.playerLeftoverVelDeacceleration * (delta / 1000))
+		if (this.leftoverVel.y > 0)
+			this.leftoverVel.y = this.leftoverVel.y - (gameplay.playerLeftoverVelDeacceleration * (delta / 1000))
+		if (this.leftoverVel.x < 0) this.leftoverVel.x = 0
+		if (this.leftoverVel.y < 0) this.leftoverVel.y = 0
+
+		this.leftoverVel.x = this.leftoverVel.x * leftoverVelSign.x
+		this.leftoverVel.y = this.leftoverVel.y * leftoverVelSign.y
+
+		// move in the direction of angle, taking in affect gravity and
+		// leftover velocity from the last stall recovery 
 		if (!this.afterburner) {
 			this.block.SetLinearVelocity(
 				new b2Vec2.Make(
-					this.throttle * gameplay.playerMaxVelocity * Math.cos(angle)
-					, this.throttle * gameplay.playerMaxVelocity * Math.sin(angle)
+					this.leftoverVel.x + this.throttle * gameplay.playerMaxVelocity * Math.cos(angle)
+					, this.leftoverVel.y + this.throttle * gameplay.playerMaxVelocity * Math.sin(angle)
 				)
 			)
 		} else {
 			this.block.SetLinearVelocity(
 				new b2Vec2.Make(
-					gameplay.playerAfterburner * Math.cos(angle)
-					, gameplay.playerAfterburner * Math.sin(angle)
+					this.leftoverVel.x + gameplay.playerAfterburner * Math.cos(angle)
+					, this.leftoverVel.y + gameplay.playerAfterburner * Math.sin(angle)
 				)
 			)
 		}
