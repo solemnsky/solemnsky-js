@@ -24,9 +24,10 @@ gameplay = {
 	// the maximum linear velocity also does
 	, playerMaxVelocity: 6
 	, playerMaxVelocityStalled: 5 
+	, playerAfterburner: 7 // speed with afterburner
+	, playerAfterburnerStalled: 8 // acceleration of afterburner in a stall
 
 	// the acceleration that a player can use when in a stall
-	, playerAccelerationStalled: 6
 
 	// the proportion with which target angular velocity is approached
 	// (1 is instantaneous)
@@ -41,5 +42,4 @@ gameplay = {
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 2
 	, playerExitStallThreshold: 3
-	
 }

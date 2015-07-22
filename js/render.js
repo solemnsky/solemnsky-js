@@ -141,7 +141,5 @@ window.addEventListener('resize', function(event){
 
 smartResize() // start loop to manage resizing
 logCounters() // start loop to display FPS
-
 renderMap() // put the map in the map container
-
 animate() // loop to display players and render stage to screen
