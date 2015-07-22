@@ -43,6 +43,8 @@ gameplay = {
 	, playerEnterStallThreshold: 2
 	, playerExitStallThreshold: 3
 	, playerLeftoverVelDeacceleration: 2.5
+			// the acceleration with which the leftover velocity
+			// a stall ends with is deaccelerated
 
 	, minimumContactDamage: 0.02
 	, contactDamangeMultiplier: 0.01

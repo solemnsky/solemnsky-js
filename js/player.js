@@ -61,7 +61,7 @@ Player.prototype.update = function(game, delta) {
 		if (forwardVel > gameplay.playerExitStallThreshold) {
 			this.stalled = false
 			this.leftoverVel = {x: vel.x, y: vel.y}
-			this.throttle = forwardVel / gameplay.playerMaxVelocity
+			this.throttle = 0
 		}
 	} else {
 		if (forwardVel < gameplay.playerEnterStallThreshold)
@@ -132,7 +132,7 @@ Player.prototype.update = function(game, delta) {
 
 		if (this.leftoverVel.x > 0)
 			this.leftoverVel.x = this.leftoverVel.x - (gameplay.playerLeftoverVelDeacceleration * (delta / 1000))
-		if (this.leftoverVel.y > 0)
+		if (this.leftoverVel.y > 0) 
 			this.leftoverVel.y = this.leftoverVel.y - (gameplay.playerLeftoverVelDeacceleration * (delta / 1000))
 		if (this.leftoverVel.x < 0) this.leftoverVel.x = 0
 		if (this.leftoverVel.y < 0) this.leftoverVel.y = 0
