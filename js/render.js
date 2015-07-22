@@ -33,16 +33,13 @@ function smartResize() {
 /**** }}} smartResize() ****/
 
 /**** {{{ renderGame() ****/
+// add containers for players and map to stage
 players = new PIXI.Container()
 map = new PIXI.Container()
-
-fps = new PIXI.Text("", {fill: 0xFFFFFF})
-fps.position = new PIXI.Point(1400, 10)
-
 stage.addChild(map)
 stage.addChild(players)
-stage.addChild(fps)
 
+// update the map container
 function renderMap() {
 	map.removeChildren()
 
@@ -65,14 +62,16 @@ function renderMap() {
 	map.addChild(mapGraphics)
 }
 
+// update the player container
 function renderPlayers() {
 	players.removeChildren()
 
 	SolemnSky.players.forEach(
 		function(player) {
-			var pos = SolemnSky.players[0].position
-			var rot = SolemnSky.players[0].rotation
-			var stalled = SolemnSky.players[0].stalled
+			var pos = player.position
+			var rot = player.rotation
+			var stalled = player.stalled
+			var throttle = player.throttle
 
 			var playerGraphics = new PIXI.Graphics()
 
@@ -90,12 +89,19 @@ function renderPlayers() {
 	)
 }
 
+// update all containers
 function renderGame() {
+	// renderMap() // not necessary, pixi is stateful!
 	renderPlayers()
 }
 /**** }}} renderGame() ****/
 
-/**** {{{ animate() ****/
+/**** {{{ fps display ****/
+fps = new PIXI.Text("", {fill: 0xFFFFFF})
+fps.position = new PIXI.Point(1400, 10)
+
+stage.addChild(fps)
+
 var renderCounter = 0
 var engineCounter = 0
 var last = Date.now()
@@ -107,6 +113,7 @@ function logCounters() {
 	renderCounter = 0 
 	engineCounter = 0 
 }
+/**** }}} fps display ****/
 
 function animate() {
 	renderCounter += 1
@@ -123,7 +130,9 @@ window.addEventListener('resize', function(event){
 });
 /**** }}} animate() ****/
 
-smartResize()
-renderMap()
-animate();
-logCounters();
+smartResize() // start loop to manage resizing
+logCounters() // start loop to display FPS
+
+renderMap() // put the map in the map container
+
+animate() // loop to display players and render stage to screen
