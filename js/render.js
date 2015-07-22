@@ -77,7 +77,7 @@ var last = Date.now()
 function logCounters() { 
 	window.setTimeout(logCounters, 1000)
 
-	fps.text = "render: " + renderCounter + "\n" + "engine: " + engineCounter
+	fps.text = "render: " + renderCounter + "Hz\n" + "engine: " + engineCounter + "Hz"
 	renderCounter = 0 
 	engineCounter = 0 
 }
