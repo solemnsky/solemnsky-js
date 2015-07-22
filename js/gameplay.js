@@ -43,7 +43,11 @@ gameplay = {
 	, playerEnterStallThreshold: 2
 	, playerExitStallThreshold: 3
 
-	, minimumContactDamage: 0.005
-	, contactDamangeMultiplier: 0.08
+	, minimumContactDamage: 0.02
+	, contactDamangeMultiplier: 0.01
 	
+}
+
+if (typeof(module) !== "undefined") {
+	module.exports = gameplay;
 }
