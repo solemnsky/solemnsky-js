@@ -35,7 +35,7 @@ Player.prototype.update = function(game, delta) {
 	/**** {{{ respawning ****/
 	if (this.respawning) {
 		this.block.SetPosition(new b2Vec2(this.spawnpoint.x / gameplay.physicsScale, this.spawnpoint.y / gameplay.physicsScale));
-		this.block.SetLinearVelocity(new b2Vec2(0, 0));
+		this.block.SetLinearVelocity(new b2Vec2(5, 0));
 		this.block.SetAngularVelocity(0);
 		this.block.SetAngle(0)
 

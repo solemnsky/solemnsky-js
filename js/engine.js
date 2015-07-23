@@ -118,6 +118,7 @@ Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 		player.block.SetUserData(player);
 		player.block.SetSleepingAllowed(false);
 		player.block.SetBullet(true);
+		player.respawning = true;
 		return player.id;
 	}
 }
