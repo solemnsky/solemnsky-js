@@ -113,7 +113,7 @@ Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 	if (this.players.some(function(player) {return player.id == id})) {
 		return -1
 	} else {
-		var player = new Player(id, x, y, name, color, image);
+		var player = new Player(this, id, x, y, name, color, image);
 		this.players.push(player);
 		player.block.SetUserData(player);
 		player.block.SetSleepingAllowed(false);
@@ -182,40 +182,31 @@ Game.prototype.update = function() {
 	last = Date.now();
 
 	if (this.simulating) {
-		this.players.forEach(
-			function(player) {
-				player.block.SetPosition(new b2Vec2(player.position.x / this.scale, player.position.y / this.scale))	
-				player.block.SetLinearVelocity(new b2Vec2(player.velocity.x / this.scale, player.velocity.y / this.scale))
-				player.block.SetAngle(player.rotation)
-			} 
-		, this)
+		// load player values into the box2d engine
+		this.players.forEach( function(player) { player.writeToBlock() } )
 
+		// step the engine forward
 		this.world.Step(
 			diff / 1000   //time delta
 		,   10       //velocity iterations
 		,   10       //position iterations
 		);
-		this.world.ClearForces();
 
+		// this.world.ClearForces();
+			// This doesn't appear to be necessary. -Chris
+
+		// glenn's magic contact listening
 		for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
 			this.evaluateContact(contact);
 		}
 
+		// step each player forward
 		this.players.forEach(function each(player) {
 			player.update(this, diff);
 		}, this);
 
-		this.players.forEach(
-			function(player) {
-				var vel = player.block.GetLinearVelocity()
-				player.velocity.x = vel.x * this.scale; 
-				player.velocity.y = vel.y * this.scale;
-				var pos = player.block.GetPosition()
-				player.position.x = pos.x * this.scale; 
-				player.position.y = pos.y * this.scale;
-				player.rotation = player.block.GetAngle()
-			}
-			, this)
+		// load players values from the box2d engine
+		this.players.forEach( function(player) { player.readFromBlock() } )
 
 		this.updateCallbacks.forEach(function each(callback) {
 			callback(diff);
@@ -350,7 +341,7 @@ Game.prototype.applyListing = function () {
 	listing.forEach(
 		function(entry) {
 			this.addPlayer(
-				entry.id, null, null, entry.name, entry.color, entry.image)	
+				entry.id, null, null, entry.name) 
 		}
 		, this)
 }
