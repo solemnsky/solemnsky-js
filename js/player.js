@@ -82,7 +82,7 @@ Player.prototype.update = function(game, delta) {
 	if (this.movement.right)
 		targetAngleVel += maxRotation
 	this.block.SetAngularVelocity(
-		angleVel + ((targetAngleVel - angleVel) / Math.pow(gameplay.playerAngularDamping, (delta)))
+		angleVel + ((targetAngleVel - angleVel) / Math.pow(gameplay.playerAngularDamping, delta))
 	)
 	/**** }}} set angular velocity ****/
 
