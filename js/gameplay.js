@@ -31,7 +31,7 @@ gameplay = {
 
 	// the proportion with which target angular velocity is approached
 	// (1 is instantaneous)
-	, playerAngularDamping: 5
+	, playerAngularDamping: 2
 
 	// the proportion with which excess velocity is dissapted in a stall
 	, playerLinearDampingStall: 2
