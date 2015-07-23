@@ -75,7 +75,6 @@ Player.prototype.update = function(game, delta) {
 	/**** }}} stall singularities ****/
 
 	/**** {{{ set angular velocity ****/
-	// set angular velocity
 	var maxRotation = (this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
 	var targetAngleVel = 0
 	if (this.movement.left)
@@ -83,7 +82,7 @@ Player.prototype.update = function(game, delta) {
 	if (this.movement.right)
 		targetAngleVel += maxRotation
 	this.block.SetAngularVelocity(
-		angleVel + ((targetAngleVel - angleVel) / gameplay.playerAngularDamping)
+		angleVel + ((targetAngleVel - angleVel) / (gameplay.playerAngularDamping ^ (delta / 1000)))
 	)
 	/**** }}} set angular velocity ****/
 
