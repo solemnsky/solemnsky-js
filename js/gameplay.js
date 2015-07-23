@@ -42,7 +42,7 @@ gameplay = {
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 2
 	, playerExitStallThreshold: 3
-	, playerLeftoverVelDeacceleration: 2.5
+	, playerLeftoverVelDeacceleration: 5
 			// the acceleration with which the leftover velocity
 			// a stall ends with is deaccelerated
 	, playerGravityEffect: 1
