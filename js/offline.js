@@ -33,5 +33,5 @@ Mousetrap.bind('l', function() {
 
 // start things up
 var myid = 0;
-SolemnSky.addPlayer(0, 800, 450, "player", "", "")
+SolemnSky.addPlayer(0, 800, 450, "player")
 SolemnSky.loadMap(maps.bloxMap)
