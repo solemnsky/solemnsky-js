@@ -264,7 +264,7 @@ function SnapshotPoint(player, defaultState, states) {
 		(states.rotationVel || defaultState) ? null : player.rotationVel
 
 	this.stalled =
-		(states.stalled  || stalled) ? null : player.stalled
+		(states.stalled  || defaultState) ? null : player.stalled
 	this.leftoverVel = 
 		(states.leftoverVel || defaultState) ? null : player.leftoverVel
 	this.throttle = 
@@ -314,10 +314,10 @@ Game.prototype.applySnapshot = function(snapshot) {
 	snapshot.forEach(function(i) {this.applySnapshotPoint(i)}, this)
 }
 
-Game.prototype.makeSnapshotPoint = function(id) {
+Game.prototype.makeSnapshotPoint = function(id, defaultState, states) {
 	var player = this.findPlayerById(id)
 	if (player !== null) {
-		SnapshotPoint(player)
+		SnapshotPoint(player, defaultState, states)
 	} else { return null }
 }
 
