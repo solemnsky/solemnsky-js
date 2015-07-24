@@ -253,7 +253,7 @@ var Snapshot = function(player, priority, defaultState, states) {
 		function(key) {
 			if (["world", "block", "name"].indexOf(key) === -1)
 				if (states[key] || defaultState)
-					this[key] = player[key].valueOf()
+					this[key] = Utils.clone(player[key])
 		}
 	, this)
 }
@@ -276,7 +276,7 @@ Game.prototype.applySnapshot = function(snapshot) {
 			if (player !== null) {
 				Object.keys(snapshot).forEach(
 					function(key) {
-						player[key] = snapshot[key].valueOf()
+						player[key] = Utils.clone(snapshot[key])
 					}	
 				, this)
 			} 

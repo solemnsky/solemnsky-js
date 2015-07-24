@@ -66,6 +66,22 @@ Util.prototype.charToFloat = function(char_) {
 	return this.intToFloat(this.charToInt(char_));
 }
 
+
+Util.prototype.getAngle = function(vec) {
+	return Math.atan2(vec.y, vec.x);
+}
+
+Util.prototype.getLength = function(vec) {
+	return Math.sqrt(vec.x * vec.x + vec.y * vec.y)
+}
+
+Util.prototype.jsonClone = function(o) {
+	return JSON.parse(JSON.stringify(o))
+}
+
+// https://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
+Util.prototype.clone = function(obj) { var copy; if (null == obj || "object" != typeof obj) return obj; if (obj instanceof Date) { copy = new Date(); copy.setTime(obj.getTime()); return copy; } if (obj instanceof Array) { copy = []; for (var i = 0, len = obj.length; i < len; i++) { copy[i] = this.clone(obj[i]); } return copy; } if (obj instanceof Object) { copy = {}; for (var attr in obj) { if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]); } return copy; } throw new Error("Unable to copy object."); }
+
 Util.prototype.range = function(start, edge, step) {
 	if (arguments.length == 1) {
 		edge = start;
@@ -77,13 +93,5 @@ Util.prototype.range = function(start, edge, step) {
 		ret.push(start);
 	}
 	return ret;
-}
-
-Util.prototype.getAngle = function(vec) {
-	return Math.atan2(vec.y, vec.x);
-}
-
-Util.prototype.getLength = function(vec) {
-	return Math.sqrt(vec.x * vec.x + vec.y * vec.y)
 }
 /**** }}} utils ****/
