@@ -248,92 +248,55 @@ Game.prototype.evaluateContact = function(contact) {
 /**** }}} contacts ****/
 
 /**** {{{ snapshots ****/
-function SnapshotPoint(player, defaultState, states) {
+function Snapshot(priority, player, defaultState, states) {
+	if (typeof defaultState == "undefined")
+		defaultState = true
+	if (typeof states == "undefined")
+		states = {}
+
+	this.priority = priority;
 	this.id = player.id;
 
-	this.movement = 
-		(states.movement || defaultState) ? null : player.movement
-
-	this.position = 
-		(states.pos || defaultState) ? null : player.pos
-	this.velocity = 
-		(states.velocity || defaultState) ? null : player.velocity
-	this.rotation = 
-		(states.rotation || defaultState) ? null : player.rotation
-	this.rotationVel = 
-		(states.rotationVel || defaultState) ? null : player.rotationVel
-
-	this.stalled =
-		(states.stalled  || defaultState) ? null : player.stalled
-	this.leftoverVel = 
-		(states.leftoverVel || defaultState) ? null : player.leftoverVel
-	this.throttle = 
-		(states.throttle || defaultState) ? null : player.throttle
-	this.afterburner = 
-		(states.afterburner || defaultState) ? null : player.afterburner
-
-	this.health = 
-		(states.health || defaultState) ? null : player.health
-	this.energy = 
-		(states.energy || defaultState) ? null : player.energy
-
-	this.spawnpoint = 
-		(states.spawnpoint || defaultState) ? null : player.spawnpoint
-	this.respawning = 
-		(states.respawning || defaultState) ? null : player.respawning
-
-	// TODO: more elegant / less repetitive way of doing this?
+	Object.keys(player).forEach(
+		function(key) {
+			if (["world", "block", "name"].indexOf(key) === -1)
+				if (states[key] || defaultState)
+					this[key] = player[key]
+		}
+	, this)
 }
 
-Game.prototype.applySnapshotPoint = function(snapshot) {
+Game.prototype.applySnapshot = function(snapshot) {
 	var player = this.findPlayerById(snapshot.id);
 	if (player !== null) {
-		player.movement = snapshot.movement || player.movement	
-
-		player.position = snapshot.position || player.position
-		player.velocity = snapshot.velocity || player.velocity
-		player.rotation = snapshot.velocity || player.rotation
-		player.rotationVel = snapshot.velocity || player.rotationVel
-
-		player.stalled = snapshot.stalled || player.stalled
-		player.leftoverVel = snapshot.leftoverVel || player.leftoverVel
-		player.throttle = snapshot.throttle || player.throttle
-		player.afterburner = snapshot.afterburner || player.afterburner
-
-		player.health = snapshot.health || player.health
-		player.energy = snapshot.energy || player.energy
-
-		player.spawnpoint = snapshot.spawnpoint || player.spawnpoint
-		player.respawning = snapshot.respawning || player.respawning
+		Object.keys(snapshot).forEach(
+			function(key) {
+				player[key] = snapshot[key]
+			}	
+		, this)
 	} else {
 		return null
 	}
 }
 
-Game.prototype.applySnapshot = function(snapshot) {
-	snapshot.forEach(function(i) {this.applySnapshotPoint(i)}, this)
+Game.prototype.applySnapshots = function(snapshots) {
+	var compare = function(snapshot1, snapshot2) {
+		snapshot1.priority - snapshot2.priority
+	}
+	snapshot.sort(compare).forEach(
+		function(i) {
+			this.applySnapshotPoint(i)
+		}, this)
 }
 
-Game.prototype.makeSnapshotPoint = function(id, defaultState, states) {
-	var player = this.findPlayerById(id)
+Game.prototype.makeSnapshot = function(id, defaultState, states) {
+	var player = this.findPlayerById(id);
 	if (player !== null) {
-		SnapshotPoint(player, defaultState, states)
+		return (new SnapshotPoint(player, defaultState, states))
 	} else { return null }
 }
 
-Game.prototype.makeSnapshot = function(ids) { 
-	return ids.map(function(id) {
-		return this.makeSnapshotPoint(id);
-	}, this) 
-}
-
-Game.prototype.makeTotalSnapshot = function() {
-	console.log("Players: " + this.players);
-	return 
-		this.players.map(function(player) {return this.makeSnapshotPoint(player.id)}, this)
-}
-
-Game.prototype.serialiseSnapshot = function(snapshot) {
+Game.prototype.serialiseSnapshots = function(snapshot) {
 	console.log("Serialize: " + snapshot);
 
 	return JSON.stringify(snapshot);	
@@ -341,7 +304,7 @@ Game.prototype.serialiseSnapshot = function(snapshot) {
 	// in terms of space
 }
 
-Game.prototype.readSnapshot = function(str) {
+Game.prototype.readSnapshots = function(str) {
 	return JSON.parse(str);
 }
 
