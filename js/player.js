@@ -55,6 +55,7 @@ Player.prototype.writeToBlock = function() {
 		, this.velocity.y / this.world.scale))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
+	this.block.GetUserData().health = this.health
 }
 
 Player.prototype.readFromBlock = function() {
@@ -67,28 +68,12 @@ Player.prototype.readFromBlock = function() {
 	this.position.y = pos.y * this.world.scale;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
+
+	this.health = this.block.GetUserData().health 
 }
 /**** }}} reading and writing between wrappers and box2d ****/
 
 Player.prototype.update = function(game, delta) {
-
-	/**** {{{ respawning ****/
-	if (this.respawning) {
-		this.block.SetPosition(new b2Vec2(this.spawnpoint.x / gameplay.physicsScale, this.spawnpoint.y / gameplay.physicsScale));
-		this.block.SetLinearVelocity(new b2Vec2(5, 0));
-		this.block.SetAngularVelocity(0);
-		this.block.SetAngle(0)
-
-		this.stalled = false;
-		this.throttle = 1;
-		this.health = 1;
-		this.energy = 1;
-
-		this.respawning = false;
-		return;
-	}
-	/**** }}} respawning ****/
-
 	/**** {{{ synonyms ****/
 	var forwardVelocity = 
 		Utils.getLength(this.velocity) * Math.cos(this.rotation - (Utils.getAngle(this.velocity)))
@@ -182,14 +167,26 @@ Player.prototype.update = function(game, delta) {
 		}
 	}
 	/**** }}} stall singularities ****/
-}
 
-Player.prototype.onLoseHealth = function(amount) {
-	//We lost health.
-	if (this.health <= 0) {
-		//Crashed and destroyed
+	/**** {{{ respawning ****/
+	if (this.health <= 0)
 		this.respawning = true;
+
+	if (this.respawning) {
+		this.position = this.spawnpoint
+		this.velocity = {x: 50, y: 0}
+		this.rotation = 0;	
+		this.rotationVel = 0;
+
+		this.stalled = true;
+		this.throttle = 1;
+		this.health = 1;
+		this.energy = 1;
+
+		this.respawning = false;
+		return;
 	}
+	/**** }}} respawning ****/
 }
 
 if (typeof(module) !== "undefined") {

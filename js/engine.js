@@ -183,7 +183,6 @@ Game.prototype.update = function() {
 	last = Date.now();
 
 	if (this.simulating) {
-
 		this.players.forEach( function(player) { player.writeToBlock() } )
 
 		// use box2d to mutate the player's states
@@ -193,12 +192,12 @@ Game.prototype.update = function() {
 		,   10       //velocity iterations
 		,   10       //position iterations
 		);
-		this.players.forEach( function(player) { player.readFromBlock() } )
-
-		// glenn's magic contact listening
+		// glenn's magic contact listening, affects 'health' values of players
 		for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
 			this.evaluateContact(contact);
 		}
+
+		this.players.forEach( function(player) { player.readFromBlock() } )
 
 		// tick each player forward
 		this.players.forEach(function each(player) {
@@ -238,7 +237,6 @@ Game.prototype.evaluateContact = function(contact) {
 	var loss = Math.max(gameplay.minimumContactDamage, impact * gameplay.contactDamangeMultiplier);
 
 	player.GetUserData().health -= loss;
-	player.GetUserData().onLoseHealth(loss);
 }
 /**** }}} contacts ****/
 

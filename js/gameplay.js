@@ -27,13 +27,10 @@ gameplay = {
 	, playerAfterburner: 330 // speed with afterburner
 	, playerAfterburnerStalled: 500 // acceleration of afterburner in a stall
 
-	// a lot of values in the game engine are 'damped out'; these are the
-	// scalars of their excesses over one second
-	, playerAngularDamping: 1.05 // angular velocity
-	, playerStallDamping: 1 
-		// linear velocity, in a stall, when over the playerMaxVelocityStalled
+	// a lot of values in the game engine are 'damped out'
+	, playerAngularDamping: 1.05 
+	, playerStallDamping: 1.5 
 	, playerLeftoverVelDamping: 0.10
-	
 
 	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 
