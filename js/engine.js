@@ -109,9 +109,26 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 /**** }}} Game() ****/
 
 /**** {{{ user-facing methods ****/
+// changing settings
+Game.prototype.addUpdateCallback = function(callback) {
+	this.updateCallbacks.push(callback);
+}
+
+Game.prototype.setSimulating = function(simulating) {
+	this.simulating = simulating;
+}
+
+Game.prototype.setFPS = function(fps) {
+	this.fps = fps;
+	this.tickTime = 1 / this.fps;
+	this.tickTimeMs = 1000 / this.fps;
+}
+
+// dealing with the player list: this will eventually
+// be merged with 'status updates'
 Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 	if (this.players.some(function(player) {return player.id == id})) {
-		return -1
+		return null
 	} else {
 		var player = new Player(this, id, x, y, name, color, image);
 		this.players.push(player);
@@ -128,7 +145,7 @@ Game.prototype.findPlayerById = function(id) {
 		if (this.players[i].id == id)
 			return this.players[i]; 
 	}
-	return -1; 
+	return null; 
 }
 
 Game.prototype.deletePlayer = function(id) {
@@ -138,21 +155,6 @@ Game.prototype.deletePlayer = function(id) {
 	this.world.DestroyBody(block);
 	this.players.splice(index, 1);
 }
-
-Game.prototype.addUpdateCallback = function(callback) {
-	this.updateCallbacks.push(callback);
-}
-
-Game.prototype.setSimulating = function(simulating) {
-	this.simulating = simulating;
-}
-
-Game.prototype.setFPS = function(fps) {
-	this.fps = fps;
-	this.tickTime = 1 / this.fps;
-	this.tickTimeMs = 1000 / this.fps;
-}
-
 /**** }}} user-facing methods ****/
 
 /**** {{{ initialise and update ****/
@@ -217,7 +219,6 @@ Game.prototype.update = function() {
 /**** }}} initialise and update ****/
 
 /**** {{{ contacts ****/ 
-
 Game.prototype.evaluateContact = function(contact) {
 	if (!contact.IsTouching()) {
 		//Not touching
@@ -244,37 +245,68 @@ Game.prototype.evaluateContact = function(contact) {
 	player.GetUserData().health -= loss;
 	player.GetUserData().onLoseHealth(loss);
 }
-
 /**** }}} contacts ****/
 
-/**** {{{ snapshot ****/
-function SnapshotPoint(id, movement, pos, vel, angle, angleVel) {
-	this.id = id;
-	this.movement =  movement ;
-	this.pos = pos;
-	this.vel = vel;
-	this.angle = angle;
-	this.angleVel = angleVel;
+/**** {{{ snapshots ****/
+function SnapshotPoint(player, defaultState, states) {
+	this.id = player.id;
+
+	this.movement = 
+		(states.movement || defaultState) ? null : player.movement
+
+	this.position = 
+		(states.pos || defaultState) ? null : player.pos
+	this.velocity = 
+		(states.velocity || defaultState) ? null : player.velocity
+	this.rotation = 
+		(states.rotation || defaultState) ? null : player.rotation
+	this.rotationVel = 
+		(states.rotationVel || defaultState) ? null : player.rotationVel
+
+	this.stalled =
+		(states.stalled  || stalled) ? null : player.stalled
+	this.leftoverVel = 
+		(states.leftoverVel || defaultState) ? null : player.leftoverVel
+	this.throttle = 
+		(states.throttle || defaultState) ? null : player.throttle
+	this.afterburner = 
+		(states.afterburner || defaultState) ? null : player.afterburner
+
+	this.health = 
+		(states.health || defaultState) ? null : player.health
+	this.energy = 
+		(states.energy || defaultState) ? null : player.energy
+
+	this.spawnpoint = 
+		(states.spawnpoint || defaultState) ? null : player.spawnpoint
+	this.respawning = 
+		(states.respawning || defaultState) ? null : player.respawning
+
+	// TODO: more elegant / less repetitive way of doing this?
 }
 
 Game.prototype.applySnapshotPoint = function(snapshot) {
-	var index = this.findIndexById(snapshot.id);
-	if (index !== (-1)) {
-		var posProps = 
-			[snapshot.pos, snapshot.vel, snapshot.angle, snapshot.angleVel]
-		if (snapshot.movement != null) {
-			this.players[index].movement = snapshot.movement
-		}
-		if (posProps.every(function(x) {return x != null})) {
-			this.players[index].block.SetPosition(
-				new b2Vec.make(snapshot.pos.x, snapshot.pos.y))
-			this.players[index].block.SetLinearVelocity(
-				new b2Vec.make(snapshot.vel.x, snapshot.vel.y))
-			this.players[index].block.SetAngle(
-				new b2Vec.make(snapshot.angle.x, snapshot.angle.y))
-			this.players[index].block.SetAngularVelocity(
-				new b2Vec.make(snapshot.angleVel.x, snapshot.angleVel.y))
-		}
+	var player = this.findPlayerById(snapshot.id);
+	if (player !== null) {
+		player.movement = snapshot.movement || player.movement	
+
+		player.position = snapshot.position || player.position
+		player.velocity = snapshot.velocity || player.velocity
+		player.rotation = snapshot.velocity || player.rotation
+		player.rotationVel = snapshot.velocity || player.rotationVel
+
+		player.stalled = snapshot.stalled || player.stalled
+		player.leftoverVel = snapshot.leftoverVel || player.leftoverVel
+		player.throttle = snapshot.throttle || player.throttle
+		player.afterburner = snapshot.afterburner || player.afterburner
+
+		player.health = snapshot.health || player.health
+		player.energy = snapshot.energy || player.energy
+
+		player.spawnpoint = snapshot.spawnpoint || player.spawnpoint
+		player.respawning = snapshot.respawning || player.respawning
+	} else {
+		return null
 	}
 }
 
@@ -283,14 +315,9 @@ Game.prototype.applySnapshot = function(snapshot) {
 }
 
 Game.prototype.makeSnapshotPoint = function(id) {
-	var player = this.players[this.findIndexById(id)]
-	if (typeof player !== "undefined") {
-		var velocity = player.block.GetLinearVelocity()
-		var position = player.block.GetPosition();
-		return new SnapshotPoint (id
-			, player.movement
-			, {x: position.x, y: position.y}
-			, {x: velocity.x, y: velocity.y})
+	var player = this.findPlayerById(id)
+	if (player !== null) {
+		SnapshotPoint(player)
 	} else { return null }
 }
 
@@ -327,7 +354,9 @@ Game.prototype.emitTotalSnapshot = function() {
 }
 /**** }}} snapshots ****/
 
-/**** {{{ status ****/
+/**** {{{ status updates ****/
+// TODO: rewrite
+/*
 Game.prototype.makeListing = function() {
 	return this.player.map(
 		function(player) {
@@ -360,9 +389,10 @@ Game.prototype.readListing = function(str) {
 Game.prototype.emitListing = function() {
 	return this.serialiseListing(this.makeListing())
 }
+*/
 /**** }}} listings ****/
 
-/**** {{{ map ****/
+/**** {{{ maps ****/
 Game.prototype.loadMap = function (map) {
 	map.forEach(
 		function(box) {

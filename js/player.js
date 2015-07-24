@@ -3,6 +3,7 @@
 // (update methods and a base constructor) are defines for         // 
 \\ players. The flight mechanics are defined here.                 \\
 //                  ******** player.js ********                    */
+/**** {{{ constructor ****/
 function Player(world, id, x, y, name) {
 	this.world = world;
 
@@ -18,23 +19,31 @@ function Player(world, id, x, y, name) {
 	};
 
 	// read-only for clients
-	this.stalled = false;
-	this.leftoverVel = {x: 0, y: 0}
-	this.throttle = 1;
-	this.health = 1;
-	this.energy = 1;
-	this.afterburner = false;
+	// basic physical values
 	this.position = {x: x, y: y};
-	this.spawnpoint = {x: x, y: y};
 	this.velocity = {x: 0, y: 0}
 	this.rotation = 0;
 	this.rotationVel = 0;
+
+	// flight mechanics
+	this.stalled = false;
+	this.leftoverVel = {x: 0, y: 0}
+	this.throttle = 1;
+	this.afterburner = false;
+
+	// game mechanics
+	this.health = 1;
+	this.energy = 1;
+	
+	// spawn mechanics
+	this.spawnpoint = {x: x, y: y};
 	this.respawning = false;
 
 	// this value should *never* be accessed; instead, access
-	// the wrapper values above
+	// the position, velocity, rotation, and rotationVel values above
 	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {restitution: 0.1, friction: 0.1});
 }
+/**** }}} constructor ****/
 
 /**** {{{ reading and writing between wrappers and box2d ****/
 Player.prototype.writeToBlock = function() {
@@ -45,7 +54,7 @@ Player.prototype.writeToBlock = function() {
 		this.velocity.x / this.world.scale
 		, this.velocity.y / this.world.scale))
 	this.block.SetAngle(this.rotation)
-	// this.block.SetAngularVelocity(this.rotationVel)
+	this.block.SetAngularVelocity(this.rotationVel)
 }
 
 Player.prototype.readFromBlock = function() {
@@ -57,6 +66,7 @@ Player.prototype.readFromBlock = function() {
 	this.position.x = pos.x * this.world.scale; 
 	this.position.y = pos.y * this.world.scale;
 	this.rotation = this.block.GetAngle()
+	this.rotationVel = this.block.GetAngularVelocity()
 }
 /**** }}} reading and writing between wrappers and box2d ****/
 
