@@ -241,11 +241,10 @@ Game.prototype.evaluateContact = function(contact) {
 /**** }}} contacts ****/
 
 /**** {{{ snapshots ****/
-function Snapshot(priority, player, defaultState, states) {
-	if (typeof defaultState == "undefined")
-		defaultState = true
-	if (typeof states == "undefined")
-		states = {}
+var Snapshot = function(player, priority, defaultState, states) {
+	if (typeof priority == "undefined") priority = 0
+	if (typeof defaultState == "undefined") defaultState = true
+	if (typeof states == "undefined") states = {}
 
 	this.priority = priority;
 	this.id = player.id;
@@ -259,37 +258,32 @@ function Snapshot(priority, player, defaultState, states) {
 	, this)
 }
 
-Game.prototype.applySnapshot = function(snapshot) {
-	var player = this.findPlayerById(snapshot.id);
+Game.prototype.makePlayerSnapshot = 
+	function(id, priority, defaultState, states) {
+	var player = this.findPlayerById(id);
 	if (player !== null) {
-		Object.keys(snapshot).forEach(
-			function(key) {
-				player[key] = snapshot[key]
-			}	
-		, this)
-	} else {
-		return null
-	}
+		return [new Snapshot(player, priority, defaultState, states)]
+	} else { return null }
 }
 
-Game.prototype.applySnapshots = function(snapshots) {
+Game.prototype.applySnapshot = function(snapshot) {
 	var compare = function(snapshot1, snapshot2) {
 		snapshot1.priority - snapshot2.priority
 	}
 	snapshot.sort(compare).forEach(
-		function(i) {
-			this.applySnapshotPoint(i)
+		function(snapshot) {
+			var player = this.findPlayerById(snapshot.id);
+			if (player !== null) {
+				Object.keys(snapshot).forEach(
+					function(key) {
+						player[key] = snapshot[key]
+					}	
+				, this)
+			} 
 		}, this)
 }
 
-Game.prototype.makeSnapshot = function(id, defaultState, states) {
-	var player = this.findPlayerById(id);
-	if (player !== null) {
-		return (new SnapshotPoint(player, defaultState, states))
-	} else { return null }
-}
-
-Game.prototype.serialiseSnapshots = function(snapshot) {
+Game.prototype.serialiseSnapshot = function(snapshot) {
 	console.log("Serialize: " + snapshot);
 
 	return JSON.stringify(snapshot);	
@@ -297,7 +291,7 @@ Game.prototype.serialiseSnapshots = function(snapshot) {
 	// in terms of space
 }
 
-Game.prototype.readSnapshots = function(str) {
+Game.prototype.readSnapshot = function(str) {
 	return JSON.parse(str);
 }
 
