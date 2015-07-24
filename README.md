@@ -3,20 +3,21 @@
 ## game engine reference card
 
 ### user-facing methods
- - Game.addPlayer(id, x, y, name, color, image)
- - Game.deletePlayer(id)
- - Game.findPlayerById(id)
  - Game.addUpdateCallback(callback())
    - adds a callback to be executed at every Game.update() call 
  - (abandoned for some reason)
  - Game.setSimulating(simulating)
  - Game.setFPS(fps)
 
+ - Game.addPlayer(id, x, y, name, color, image)
+ - Game.deletePlayer(id)
+ - Game.findPlayerById(id)
+
 ### initialisation and update methods
  - Game.init()
    - initialises the game, call this exactly once
  - Game.update()
-   - updates the game, call this as often as you render
+   - updates the game, call this at 60Hz
 
 ### snapshots, listings, and maps: justification of design pattern
   Snapshots, listings, and maps, collectively, can affect any part of the game state, but they are seperated by the rates at which they are sent over the network. Flexible snapshots may represent anything from changes in a player's movement to complete images of every player's positions, and are sent over the network at around 20Hz. Listings are meant to make sure all clients are synced up in terms of who has joined the game and what their stats are. Maps are potentially very large pieces of data with information on the environment.

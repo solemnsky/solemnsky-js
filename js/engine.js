@@ -16,7 +16,7 @@ if (typeof(windowSize) === "undefined") {
 }
 
 //Shorthands so we don't have long names for the box2d types
-var	  b2Vec2         = Box2D.Common.Math.b2Vec2
+var b2Vec2         = Box2D.Common.Math.b2Vec2
 	, b2BodyDef      = Box2D.Dynamics.b2BodyDef
 	, b2Body         = Box2D.Dynamics.b2Body
 	, b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
@@ -68,7 +68,6 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 	fixDef.density = 10;
 	fixDef.friction = 1;
 	fixDef.restitution = 0;
-
 
 	//Create the body definition
 	var bodyDef = new b2BodyDef;
@@ -177,38 +176,34 @@ Game.prototype.init = function() {
 	this.world.SetContactListener(listener);
 }; // init()
 
-// method that is called on every update
+// tick the game world forward
 var last = Date.now();
 Game.prototype.update = function() {
 	var diff = Date.now() - last;
 	last = Date.now();
 
 	if (this.simulating) {
-		// load player values into the box2d engine
+
 		this.players.forEach( function(player) { player.writeToBlock() } )
 
-		// step the engine forward
+		// use box2d to mutate the player's states
+		this.players.forEach( function(player) { player.writeToBlock() } )
 		this.world.Step(
 			diff / 1000   //time delta
 		,   10       //velocity iterations
 		,   10       //position iterations
 		);
-
-		// this.world.ClearForces();
-			// This doesn't appear to be necessary. -Chris
+		this.players.forEach( function(player) { player.readFromBlock() } )
 
 		// glenn's magic contact listening
 		for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
 			this.evaluateContact(contact);
 		}
 
-		// step each player forward
+		// tick each player forward
 		this.players.forEach(function each(player) {
 			player.update(this, diff);
 		}, this);
-
-		// load players values from the box2d engine
-		this.players.forEach( function(player) { player.readFromBlock() } )
 
 		this.updateCallbacks.forEach(function each(callback) {
 			callback(diff);

@@ -71,6 +71,7 @@ Player.prototype.readFromBlock = function() {
 /**** }}} reading and writing between wrappers and box2d ****/
 
 Player.prototype.update = function(game, delta) {
+
 	/**** {{{ respawning ****/
 	if (this.respawning) {
 		this.block.SetPosition(new b2Vec2(this.spawnpoint.x / gameplay.physicsScale, this.spawnpoint.y / gameplay.physicsScale));
@@ -88,68 +89,45 @@ Player.prototype.update = function(game, delta) {
 	}
 	/**** }}} respawning ****/
 
-	/**** {{{ useful values ****/
-	var blockPos = this.block.GetPosition()
-	var angle = this.block.GetAngle()
-	var angleVel = this.block.GetAngularVelocity()
-	var vel = this.block.GetLinearVelocity()
-	var velAngle = Utils.getAngle(vel)
-		// angle of the velocity
-	var velEffect = Math.cos(angle - velAngle)
-	var forwardVel = vel.Length() * velEffect
-	/**** }}} useful values ****/
+	/**** {{{ synonyms ****/
+	var forwardVelocity = 
+		Utils.getLength(this.velocity) * Math.cos(this.rotation - (Utils.getAngle(this.velocity)))
+	var vel = this.velocity
+	var speed = Utils.getLength(vel)
+	/**** }}} synonyms ****/
 
-	/**** {{{ stall singularities ****/
-	// change stalled state in function of other values
-	if (this.stalled) {
-		if (forwardVel > gameplay.playerExitStallThreshold) {
-			this.stalled = false
-			this.leftoverVel = {x: vel.x, y: vel.y}
-			this.throttle = 0
-		}
-	} else {
-		if (forwardVel < gameplay.playerEnterStallThreshold)
-			this.stalled = true
-	}
-	/**** }}} stall singularities ****/
-
-	/**** {{{ set angular velocity ****/
-	var maxRotation = (this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
-	var targetAngleVel = 0
-	if (this.movement.left)
-		targetAngleVel = -maxRotation
-	if (this.movement.right)
-		targetAngleVel += maxRotation
-	this.block.SetAngularVelocity(
-		angleVel + ((targetAngleVel - angleVel) / Math.pow(gameplay.playerAngularDamping, delta))
-	)
-	/**** }}} set angular velocity ****/
+	/**** {{{ rotation ****/
+	var maxRotation = 
+		(this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
+	var targetRotVel = 0
+	if (this.movement.left) targetRotVel = -maxRotation
+	if (this.movement.right) targetRotVel += maxRotation
+	
+	this.rotationVel += 
+		(targetRotVel - this.rotationVel) / Math.pow(gameplay.playerAngularDamping, delta)
+	/**** }}} rotation ****/
 
 	this.afterburner = false;
 
 	/**** {{{ motion when stalled ****/
 	if (this.stalled) {
 		// add basic thrust
-		// afterburner
+
 		if (this.movement.forward) {
 			this.afterburner = true;
-			this.block.SetLinearVelocity(
-				new b2Vec2.Make(
-					vel.x + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.cos(angle)
-					, vel.y + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.sin(angle)
-				)
-			)
+			this.velocity = 
+				{x: vel.x + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.cos(this.rotation)
+				,y: vel.y + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.sin(this.rotation)}
 		}
 
 		// apply damping when over playerMaxVelocityStalled
-		var excessVel = vel.Length() - gameplay.playerMaxVelocityStalled 
+		var excessVel = speed - gameplay.playerMaxVelocityStalled 
+		var dampingFactor = (gameplay.playerMaxVelocityStalled / speed)
 		if (excessVel > 0)
-			this.block.SetLinearVelocity(
-				new b2Vec2.Make(
-					vel.x * ((vel.Length() - excessVel) / vel.Length())
-					, vel.y * ((vel.Length() - excessVel) / vel.Length())
-				)
-			)
+			this.velocity = 
+				{ x: vel.x * dampingFactor * Math.pow(gameplay.playerStallDamping, (delta / 1000))
+				, y: vel.y * dampingFactor * Math.pow(gameplay.playerStallDamping, (delta / 1000)) }
+		
 	}
 	/**** }}} motion when stalled ****/
 
@@ -167,26 +145,13 @@ Player.prototype.update = function(game, delta) {
 		if (this.throttle < 0) this.throttle = 0
 
 		// pick away at leftover velocity
-		var leftoverVelSign = 
-			{x: Math.sign(this.leftoverVel.x)
-			,y: Math.sign(this.leftoverVel.y)}
-		this.leftoverVel.x = Math.abs(this.leftoverVel.x)
-		this.leftoverVel.y = Math.abs(this.leftoverVel.y)
-
-		if (this.leftoverVel.x > 0)
-			this.leftoverVel.x = this.leftoverVel.x - (gameplay.playerLeftoverVelDeacceleration * (delta / 1000))
-		if (this.leftoverVel.y > 0) 
-			this.leftoverVel.y = this.leftoverVel.y - (gameplay.playerLeftoverVelDeacceleration * (delta / 1000))
-		if (this.leftoverVel.x < 0) this.leftoverVel.x = 0
-		if (this.leftoverVel.y < 0) this.leftoverVel.y = 0
-
-		this.leftoverVel.x = this.leftoverVel.x * leftoverVelSign.x
-		this.leftoverVel.y = this.leftoverVel.y * leftoverVelSign.y
+		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
+		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 		
 		// make some gravity
 		var gravityEffect = 
-			{y: Math.abs(gameplay.playerGravityEffect * Math.sin(angle))
-			,x: gameplay.playerGravityEffect * 0}
+			{x: Math.abs(gameplay.playerGravityEffect * Math.sin(this.rotation))
+			,y: Math.abs(gameplay.playerGravityEffect * Math.cos(this.rotation))}
 
 		// move in the direction of angle, taking in affect gravity and
 		// leftover velocity from the last stall recovery 
@@ -196,14 +161,27 @@ Player.prototype.update = function(game, delta) {
 			var targetSpeed = this.throttle * gameplay.playerMaxVelocity
 		}
 
-		this.block.SetLinearVelocity(
-			new b2Vec2.Make(
-				this.leftoverVel.x + gravityEffect.x + targetSpeed * Math.cos(angle)
-				, this.leftoverVel.y + gravityEffect.y + targetSpeed * Math.sin(angle)
-			)
-		)
+		this.velocity = 
+			{x: this.leftoverVel.x + gravityEffect.x + Math.cos(this.rotation) * targetSpeed
+			,y: this.leftoverVel.y + gravityEffect.y + Math.sin(this.rotation) * targetSpeed}
 	}
 	/**** }}} motion when not stalled ****/
+
+	/**** {{{ stall singularities ****/
+	// change stalled state in function of other values
+	if (this.stalled) {
+		if (forwardVelocity > gameplay.playerExitStallThreshold) {
+			this.stalled = false
+			this.leftoverVel = {x: this.velocity.x, y: this.velocity.y}
+			this.throttle = 0
+		}
+	} else {
+		if (forwardVelocity < gameplay.playerEnterStallThreshold) {
+			this.stalled = true
+			this.throttle = 1;
+		}
+	}
+	/**** }}} stall singularities ****/
 }
 
 Player.prototype.onLoseHealth = function(amount) {

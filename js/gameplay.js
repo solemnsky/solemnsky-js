@@ -22,24 +22,25 @@ gameplay = {
 	, playerMaxRotationStalled: Math.PI * 1.5
 
 	// the maximum linear velocity also does
-	, playerMaxVelocity: 6
-	, playerMaxVelocityStalled: 5 
-	, playerAfterburner: 6.5 // speed with afterburner
-	, playerAfterburnerStalled: 8 // acceleration of afterburner in a stall
+	, playerMaxVelocity: 300
+	, playerMaxVelocityStalled: 250
+	, playerAfterburner: 330 // speed with afterburner
+	, playerAfterburnerStalled: 500 // acceleration of afterburner in a stall
 
-	// the proportion with which target angular velocity is approached
-	// (1 is instantaneous)
-	, playerAngularDamping: 1.05
-
-	// the proportion with which excess velocity is dissapted in a stall
-	, playerLinearDampingStall: 2
+	// a lot of values in the game engine are 'damped out'; these are the
+	// scalars of their excesses over one second
+	, playerAngularDamping: 1.05 // angular velocity
+	, playerStallDamping: 1 
+		// linear velocity, in a stall, when over the playerMaxVelocityStalled
+	, playerLeftoverVelDamping: 0.10
+	
 
 	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 
 
 	// velocity thresholds to enter and exit stalls
-	, playerEnterStallThreshold: 2
-	, playerExitStallThreshold: 3
+	, playerEnterStallThreshold: 100
+	, playerExitStallThreshold: 150
 	, playerLeftoverVelDeacceleration: 5
 			// the acceleration with which the leftover velocity
 			// a stall ends with is deaccelerated
