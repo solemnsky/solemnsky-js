@@ -173,7 +173,9 @@ Player.prototype.update = function(game, delta) {
 		this.respawning = true;
 
 	if (this.respawning) {
-		this.position = this.spawnpoint
+		this.position = {x: this.spawnpoint.x, y: this.spawnpoint.y}
+			// wtf why is this necessary.. oh well, spent too long with this
+			// part of the code for today
 		this.velocity = {x: 50, y: 0}
 		this.rotation = 0;	
 		this.rotationVel = 0;
