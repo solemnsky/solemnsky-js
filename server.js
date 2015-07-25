@@ -18,9 +18,6 @@ boxes = require("./js/maps.js").bloxMap;
 SolemnSky = require("./js/start.js");
 /**** }}} dependencies ****/
 
-/**** {{{ 
-/**** }}} arbitrary boxes array ****/
-
 /**** {{{ broadcastSnap: constant snapshots ****/
 Server.prototype.broadcast = function(text) {
 	//Send all the clients a message
