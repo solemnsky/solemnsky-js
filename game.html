@@ -10,6 +10,13 @@
 		<link href="css/main.css" rel="stylesheet" type="text/css" /> 
 	</head>
 	<body>
+		<div class="chatbox" id="chatbox">
+			<div id="chatcontainer"></div>
+			<div class="chatentry" id="chatentry">
+				<input type="text" id="chatentrybox">
+			</div>
+		</div>
+
 		<!-- load data and utilities -->
 		<script type="text/javascript" src="js/util.js"></script>
 		<script type="text/javascript" src="js/maps.js"></script>
@@ -20,8 +27,9 @@
 		<script type="text/javascript" src="js/engine.js"></script>
 		<script type="text/javascript" src="js/start.js"></script>
 
-		<!-- run the offline client, render to screen -->
+		<!-- run the client, render to screen -->
 		<script type="text/javascript" src="js/offline.js"></script>
+		<script type="text/javascript" src="js/client.js"></script>
 		<script type="text/javascript" src="js/render.js"></script>
 	</body>
 </html>
