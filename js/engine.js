@@ -309,14 +309,13 @@ Game.prototype.emitTotalSnapshot = function() {
 
 /**** {{{ status updates ****/
 // TODO: rewrite
-/*
+
 Game.prototype.makeListing = function() {
-	return this.player.map(
+	return this.players.map(
 		function(player) {
 			return { id: player.id, name: player.name
 			, color: player.color, image: player.image}
-		}
-		, this)
+		}, this)
 }
 
 Game.prototype.applyListing = function () {
@@ -342,7 +341,7 @@ Game.prototype.readListing = function(str) {
 Game.prototype.emitListing = function() {
 	return this.serialiseListing(this.makeListing())
 }
-*/
+
 /**** }}} listings ****/
 
 /**** {{{ maps ****/
