@@ -266,6 +266,13 @@ Game.prototype.makePlayerSnapshot =
 	} else { return null }
 }
 
+Game.prototype.makeTotalSnapshot = function(priority) {
+	return this.players.reduce(function(list, player) {
+		list.push(this.makePlayerSnapshot(player, priority, true, {}));
+		return list;
+	}, [], this);
+}
+
 Game.prototype.applySnapshot = function(snapshot) {
 	var compare = function(snapshot1, snapshot2) {
 		snapshot1.priority - snapshot2.priority
@@ -299,10 +306,7 @@ Game.prototype.readSnapshot = function(str) {
 // serialised, easily transmittable
 // this functions returns a string
 Game.prototype.emitTotalSnapshot = function() {
-	var snap = this.players.reduce(function(list, player) {
-		list.push(this.makePlayerSnapshot(player, 1, {}, {}));
-		return list;
-	}, [], this);
+	var snap = this.makeTotalSnapshot(0)
 	return this.serialiseSnapshot(typeof snap === "undefined" ? "{}" : snap);
 }
 /**** }}} snapshots ****/
