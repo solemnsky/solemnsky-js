@@ -3,7 +3,7 @@
 // (update methods and a base constructor) are defines for         // 
 \\ players. The flight mechanics are defined here.                 \\
 //                  ******** player.js ********                    */
-/**** {{{ constructor ****/
+/**** {{{ Player() ****/
 function Player(world, id, x, y, name) {
 	this.world = world;
 
@@ -43,7 +43,7 @@ function Player(world, id, x, y, name) {
 	// the position, velocity, rotation, and rotationVel values above
 	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {restitution: 0.1, friction: 0.1});
 }
-/**** }}} constructor ****/
+/**** }}} Player() ****/
 
 /**** {{{ reading and writing between wrappers and box2d ****/
 Player.prototype.writeToBlock = function() {

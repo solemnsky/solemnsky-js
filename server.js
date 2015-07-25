@@ -11,17 +11,14 @@ WebSocketServer = require("ws").Server;
 //Import common game engine code
 Engine = require("./js/engine.js");
 Game = Engine.Game;
-readSnapshot = Engine.readSnapshot;
-serialiseSnapshot = Engine.serialiseSnapshot;
-Player = require("./js/player.js");
-gameplay = require("./js/gameplay.js");
+Player = require("./js/player.js").Player;
+gameplay = require("./js/gameplay.js").gameplay;
+boxes = require("./js/maps.js").bloxMap;
 
 SolemnSky = require("./js/start.js");
-
 /**** }}} dependencies ****/
 
-/**** {{{ arbitrary box array (static game environment) ****/
-boxes = require("./js/maps.js").bloxMap;
+/**** {{{ 
 /**** }}} arbitrary boxes array ****/
 
 /**** {{{ broadcastSnap: constant snapshots ****/

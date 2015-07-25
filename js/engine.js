@@ -372,7 +372,7 @@ Game.prototype.serialiseMap = function(map) {
 	return map.map(emitBox).reduce(acc, map.length)
 }
 
-Game.prototype.readMap = function(str) {
+Game.prototype.readMap = function(data) {
 	var blobParts = data.split(";");
 	var numBoxes = parseInt(blobParts[0]);
 	var map = [];
