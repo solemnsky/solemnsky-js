@@ -2,3 +2,5 @@ node_modules
 *.swp
 *.swo
 *.hs
+*.sublime-project
+*.sublime-workspace
