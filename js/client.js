@@ -112,6 +112,10 @@ document.getElementById("chatentrybox").onkeyup = function(e) {
 
 connect("198.55.237.151", 50042, "/");
 
+SolemnSky.addUpdateCallback(function() {
+	sendSnapshot();
+})
+
 /**** {{{ commented code ****/
 	// from tick, used to recieve projectiles from the server
 	/* case "PROJECTILES":
