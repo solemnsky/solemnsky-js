@@ -66,12 +66,16 @@ Server.prototype.openSocket = function(port) {
 
 	wss.on("connection", function connection(ws) {
 		ws.on("message", function incoming(message) {
-			console.log("Data from " + ws._socket.address().address + ":" + ws._socket.address().port + ": " + message);
+			// console.log("Data from " + ws._socket.address().address + ":" + ws._socket.address().port + ": " + message);
 			GameServer.tick(ws, message);
 		});
 		ws.on("close", function close() {
 			console.log("Disconnect: " + ws._socket.address().address + ":" + ws._socket.address().port);
 			SolemnSky.deletePlayer(ws.playerId);
+			GameServer.broadcast("LEAVE " + ws.playerId);
+
+			GameServer.broadcast("SNAP " + SolemnSky.emitTotalSnapshot());
+			GameServer.broadcast("LIST " + SolemnSky.emitListing());
 		});
 
 		console.log("Connection from " + ws._socket.address().address + ":" + ws._socket.address().port);

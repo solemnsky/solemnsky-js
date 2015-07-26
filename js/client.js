@@ -66,6 +66,8 @@ function tick(data) {
 		addChat("Joined Server"); break;
 	case "JOIN":
 		addChat(data + " joined server."); break;
+	case "LEAVE":
+		addChat(data + " left server."); break;
 	case "CHAT":
 		var id = split[0];
 		var message = split.slice(1).join(" ");
