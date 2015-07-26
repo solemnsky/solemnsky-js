@@ -338,10 +338,28 @@ Game.prototype.makeListing = function() {
 Game.prototype.applyListing = function (listing) {
 	listing.forEach(
 		function(entry) {
-			this.addPlayer(
-				entry.id, entry.spawnpoint.x, entry.spawnpoint.y, entry.name) 
+			//If the player already exists, don't recreate them
+			if (this.players.some(function(player) {return player.id == entry.id})) {
+				//Update their information
+				var player = this.findPlayerById(entry.id);
+				player.spawnpoint = entry.spawnpoint;
+				player.name = entry.name;
+			} else {
+				//New player: create them
+				this.addPlayer(
+					entry.id, entry.spawnpoint.x, entry.spawnpoint.y, entry.name) 
+			}
 		}
 		, this)
+
+	//Remove any players who aren't in the listing
+	this.players.filter(function(player) {
+		return !listing.some(function(entry) {
+			return entry.id == player.id;
+		});
+	}).map(function(player) {
+		this.deletePlayer(player.id);
+	}, this);
 }
 
 
