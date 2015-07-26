@@ -257,7 +257,7 @@ var Snapshot = function(player, priority, defaultState, states) {
 
 	Object.keys(player).forEach(
 		function(key) {
-			if (["world", "block", "name"].indexOf(key) === -1)
+			if (["world", "block", "name", "id"].indexOf(key) === -1)
 				if (states[key] || defaultState)
 					this[key] = Utils.clone(player[key])
 		}
