@@ -152,3 +152,36 @@ connect("198.55.237.151", 50042, "/");
 	*/ // commented out for now, will probably reintegrate
 		// with the snapshot infrastructure
 /**** }}} commented code ****/
+
+
+/**** {{{ key bindings ****/
+Mousetrap.bind('up', function() { 
+		SolemnSky.findPlayerById(myid).movement.forward = true; sendSnapshot();
+	}, 'keydown');
+Mousetrap.bind('up', function() { 
+		SolemnSky.findPlayerById(myid).movement.forward = false; sendSnapshot();
+	}, 'keyup');
+Mousetrap.bind('down', function() { 
+		SolemnSky.findPlayerById(myid).movement.backward = true; sendSnapshot();
+	}, 'keydown');
+Mousetrap.bind('down', function() { 
+		SolemnSky.findPlayerById(myid).movement.backward = false; sendSnapshot();
+	}, 'keyup');
+Mousetrap.bind('left', function() { 
+		SolemnSky.findPlayerById(myid).movement.left = true; sendSnapshot();
+	}, 'keydown');
+Mousetrap.bind('left', function() { 
+		SolemnSky.findPlayerById(myid).movement.left = false; sendSnapshot();
+	}, 'keyup');
+Mousetrap.bind('right', function() { 
+		SolemnSky.findPlayerById(myid).movement.right = true; sendSnapshot();
+	}, 'keydown');
+Mousetrap.bind('right', function() { 
+		SolemnSky.findPlayerById(myid).movement.right = false; sendSnapshot();
+	}, 'keyup');
+/**** }}} key bindings ****/
+
+// start things up
+var myid = 0;
+// SolemnSky.addPlayer(0, 800, 450, "player")
+SolemnSky.loadMap(maps.bloxMap)
