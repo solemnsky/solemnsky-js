@@ -174,6 +174,7 @@ Player.prototype.update = function(game, delta) {
 		this.respawning = true;
 
 	if (this.respawning) {
+		console.log("Respawning at (" + this.spawnpoint.x + ", " + this.spawnpoint.y + ")");
 		this.position = Utils.jsonClone(this.spawnpoint)
 			// wtf why is this necessary.. oh well, spent too long with this
 			// part of the code for today
