@@ -71,8 +71,10 @@ Server.prototype.openSocket = function(port) {
 		});
 		ws.on("close", function close() {
 			console.log("Disconnect: " + ws._socket.address().address + ":" + ws._socket.address().port);
+			
+			GameServer.broadcast("LEAVE " + SolemnSky.findPlayerById(ws.playerId).name);
+			
 			SolemnSky.deletePlayer(ws.playerId);
-			GameServer.broadcast("LEAVE " + ws.playerId);
 
 			GameServer.broadcast("SNAP " + SolemnSky.emitTotalSnapshot());
 			GameServer.broadcast("LIST " + SolemnSky.emitListing());
