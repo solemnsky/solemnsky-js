@@ -117,7 +117,7 @@ Server.prototype.tick = function(ws, data) {
 			this.broadcast("JOIN " + data);
 			break;
 		case "SNAP":
-			var snapshot = readSnapshot(data);
+			var snapshot = SolemnSky.readSnapshot(data);
 			SolemnSky.applySnapshot(snapshot);
 			break;
 		case "CHAT":
