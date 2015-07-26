@@ -139,6 +139,14 @@ Game.prototype.addPlayer = function(id, x, y, name, color, image) {
 	}
 }
 
+Game.prototype.findIndexById = function(id) {
+	for (var i = 0; i < this.players.length; i ++) {
+		if (this.players[i].id == id)
+			return i;
+	}
+	return -1; //Not found
+}
+
 Game.prototype.findPlayerById = function(id) {
 	for (var i = 0; i < this.players.length; i ++) {
 		if (this.players[i].id == id)
