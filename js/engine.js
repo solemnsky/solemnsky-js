@@ -330,7 +330,8 @@ Game.prototype.makeListing = function() {
 	return this.players.map(
 		function(player) {
 			return { id: player.id, name: player.name
-			, color: player.color, image: player.image}
+			, color: player.color, image: player.image
+			, spawnpoint: player.spawnpoint }
 		}, this)
 }
 
@@ -338,7 +339,7 @@ Game.prototype.applyListing = function (listing) {
 	listing.forEach(
 		function(entry) {
 			this.addPlayer(
-				entry.id, null, null, entry.name) 
+				entry.id, entry.spawnpoint.x, entry.spawnpoint.y, entry.name) 
 		}
 		, this)
 }
