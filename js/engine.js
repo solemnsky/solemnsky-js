@@ -100,7 +100,7 @@ Game.prototype.createBox = function(x, y, w, h, static, fields) {
 	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
 
 	box.SetUserData(
-		{x: x, y: y, w: w, h: h, static: static, fields: fields});
+		{x: x, y: y, w: w, h: h, isStatic: static, fields: fields});
 
 	return box;
 } 
@@ -233,7 +233,7 @@ Game.prototype.evaluateContact = function(contact) {
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
 	var player = bodyA;
-	if (bodyA.GetUserData().static)
+	if (bodyA.GetUserData().isStatic)
 		player = bodyB;
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
@@ -384,7 +384,7 @@ Game.prototype.loadMap = function (map) {
 	map.forEach(
 		function(box) {
 			var box = this.createBox(
-				box.x, box.y, box.w, box.h, box.static, box.fields)		
+				box.x, box.y, box.w, box.h, box.isStatic, box.fields)		
 			this.map.push(box);
 		}, this)
 }
