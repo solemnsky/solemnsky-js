@@ -3,7 +3,7 @@ var socket = null;
 var connected = false;
 
 function sendSnapshot() {
-	sendData("SNAP " + serialiseSnapshot([SolemnSky.makePlayerSnapshot(myid, 0))])
+	sendData("SNAP " + serialiseSnapshot([SolemnSky.makePlayerSnapshot(myid, 0)]))
 } // this function needs to run a lot
 
 //Connect to a server (client only)
