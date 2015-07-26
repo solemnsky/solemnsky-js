@@ -77,8 +77,6 @@ Server.prototype.openSocket = function(port) {
 		console.log("Connection from " + ws._socket.address().address + ":" + ws._socket.address().port);
 
 		ws.send("MAP " + GameServer.emitMapBlob());
-		ws.send("SNAP " + SolemnSky.emitTotalSnapshot());
-		ws.send("LIST " + SolemnSky.emitListing());
 	});
 }
 
@@ -114,8 +112,10 @@ Server.prototype.tick = function(ws, data) {
 					lastId++ , 320 / SolemnSky.scale
 					, 240 / SolemnSky.scale, data, "#00ff00", "");
 			ws.send("ID " + ws.playerId);
+			this.broadcast("SNAP " + SolemnSky.emitTotalSnapshot());
+			this.broadcast("LIST " + SolemnSky.emitListing());
+			
 			this.broadcast("JOIN " + data);
-			this.broadcast
 			break;
 		case "SNAP":
 			var snapshot = readSnapshot(data);
