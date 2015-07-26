@@ -278,7 +278,6 @@ Game.prototype.makeTotalSnapshot = function(priority) {
 	return (function(game) {
 		return game.players.reduce(function(list, player) {
 			list.push(game.makePlayerSnapshot(player.id, priority, true, {}));
-			console.log(list);
 			return list;
 		}, []);
 	})(this);
@@ -302,8 +301,6 @@ Game.prototype.applySnapshot = function(snapshot) {
 }
 
 Game.prototype.serialiseSnapshot = function(snapshot) {
-	console.log("Serialize: " + snapshot);
-
 	return JSON.stringify(snapshot);	
 	// TODO: use glenn's utils to make this more efficent
 	// in terms of space
