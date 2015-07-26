@@ -395,18 +395,13 @@ var serialiseBlock = function(box) {
 		 + ',' + Utils.floatToChar(box.w)
 		 + ',' + Utils.floatToChar(box.h)
 		 + ',' + box.isStatic 
-		 + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
+		 + ',' + (box.fields ? JSON.stringify(box.fields).replace(/,/g, "\\:") : "");
 }
 
 Game.prototype.serialiseMap = function(map) {
 	var acc = function(acc, x) { return acc + x };
 	emitBox = function(box) {
-		return ';' + Utils.floatToChar(box.x)
-			 + ',' + Utils.floatToChar(box.y)
-			 + ',' + Utils.floatToChar(box.w)
-			 + ',' + Utils.floatToChar(box.h)
-			 + ',' + box.static 
-			 + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
+		return serialiseBlock(box.GetUserData());
 	}
 	return map.map(emitBox).reduce(acc, map.length)
 }
