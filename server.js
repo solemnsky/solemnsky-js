@@ -48,18 +48,6 @@ Server.prototype.broadcastSnap = function(tickNum) {
 /**** {{{ loadmap, openSocket; getting ready to be a server ****/
 function Server() {}
 
-// loads the map into the game engine
-Server.prototype.loadMap = function() {
-	//Init the boxes into the world
-	for (var i = 0; i < boxes.length; i ++) {
-		var box = boxes[i];
-		SolemnSky.map.push(
-			SolemnSky.createBox(
-				box.x , box.y, box.w , box.h, box.static, box.fields)
-		);
-	}
-}
-
 // opens the socket and sets response callbacks
 Server.prototype.openSocket = function(port) {
 	wss = new WebSocketServer({port: port});
@@ -122,7 +110,7 @@ Server.prototype.tick = function(ws, data) {
 /**** {{{ initialise and open sockets ****/
 GameServer = new Server();
 GameServer.openSocket(50042);
-GameServer.loadMap(bloxMap);
+SolemnSky.loadMap(boxes);
 
 //Start the broadcastloop
 GameServer.broadcastSnap(0);
