@@ -60,7 +60,9 @@ function tick(data) {
 	case "LIST":
 		SolemnSky.applyListing(SolemnSky.readListing(data)); break;
 	case "MAP":
-		SolemnSky.loadMap(SolemnSky.readMap(data)); break;
+		SolemnSky.loadMap(SolemnSky.readMap(data));
+		renderMap();
+		break;
 	case "ID":
 		myid = parseInt(data[0])
 		addChat("Joined Server"); break;
@@ -189,5 +191,3 @@ Mousetrap.bind('right', function() {
 
 // start things up
 var myid = 0;
-// SolemnSky.addPlayer(0, 800, 450, "player")
-SolemnSky.loadMap(maps.bloxMap)
