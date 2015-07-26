@@ -32,7 +32,7 @@ Server.prototype.broadcastSnap = function(tickNum) {
 	setTimeout(function() {
 		GameServer.broadcastSnap(tickNum + 1);
 	}, SolemnSky.tickTimeMs);
-	this.broadcast("SNAP " + SolemnSky.dumpTotalSnapshot);
+	this.broadcast("SNAP " + SolemnSky.emitTotalSnapshot());
 
 	/*
 	if (tickNum % 10 === 0) {
