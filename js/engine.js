@@ -157,9 +157,14 @@ Game.prototype.findPlayerById = function(id) {
 
 Game.prototype.deletePlayer = function(id) {
 	var index = this.findIndexById(id);
+	if (index < 0) //-1 for not found
+		return;
+
 	var player = this.players[index];
-	var block = player.block;
-	this.world.DestroyBody(block);
+	if (typeof(player) !== "undefined") { //No player, no block
+		var block = player.block;
+		this.world.DestroyBody(block);
+	}
 	this.players.splice(index, 1);
 }
 /**** }}} user-facing methods ****/
