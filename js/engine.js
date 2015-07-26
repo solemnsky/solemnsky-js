@@ -191,8 +191,6 @@ Game.prototype.update = function() {
 	last = Date.now();
 
 	if (this.simulating) {
-		this.players.forEach( function(player) { player.writeToBlock() } )
-
 		// use box2d to mutate the player's states
 		this.players.forEach( function(player) { player.writeToBlock() } )
 		this.world.Step(
@@ -296,6 +294,7 @@ Game.prototype.applySnapshot = function(snapshot) {
 						player[key] = Utils.clone(snapshot[key])
 					}	
 				, this)
+				player.writeToBlock();
 			} 
 		}, this)
 }
