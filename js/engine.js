@@ -400,6 +400,14 @@ var serialiseBlock = function(box) {
 
 Game.prototype.serialiseMap = function(map) {
 	var acc = function(acc, x) { return acc + x };
+	emitBox = function(box) {
+		return ';' + Utils.floatToChar(box.x)
+			 + ',' + Utils.floatToChar(box.y)
+			 + ',' + Utils.floatToChar(box.w)
+			 + ',' + Utils.floatToChar(box.h)
+			 + ',' + box.static 
+			 + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
+	}
 	return map.map(emitBox).reduce(acc, map.length)
 }
 

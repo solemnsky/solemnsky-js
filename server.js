@@ -71,7 +71,7 @@ Server.prototype.openSocket = function(port) {
 		});
 		ws.on("close", function close() {
 			console.log("Disconnect: " + ws._socket.address().address + ":" + ws._socket.address().port);
-			
+
 			GameServer.broadcast("LEAVE " + SolemnSky.findPlayerById(ws.playerId).name);
 			
 			SolemnSky.deletePlayer(ws.playerId);
@@ -82,24 +82,10 @@ Server.prototype.openSocket = function(port) {
 
 		console.log("Connection from " + ws._socket.address().address + ":" + ws._socket.address().port);
 
-		ws.send("MAP " + GameServer.emitMapBlob());
+		ws.send("MAP " + SolemnSky.emitMap());
 	});
 }
 
-// previously emitBoxBlob, now reflects that this will
-// eventually before a form of distributing a more featureful map
-Server.prototype.emitMapBlob = function() {
-	var emitBox = function(box) {
-		return ';' + Utils.floatToChar(box.x)
-			 + ',' + Utils.floatToChar(box.y)
-			 + ',' + Utils.floatToChar(box.w)
-			 + ',' + Utils.floatToChar(box.h)
-			 + ',' + box.static 
-			 + ',' + JSON.stringify(box.fields).replace(/,/g, "\\:");
-	}
-	var acc = function(acc, x) { return acc + x };
-	return boxes.map(emitBox).reduce(acc, boxes.length);
-}
 /**** }}} server initWorld and openSocket methods ****/
 
 /**** {{{ tick: respond to data from the clients ****/
