@@ -270,7 +270,7 @@ Game.prototype.makePlayerSnapshot =
 	function(id, priority, defaultState, states) {
 	var player = this.findPlayerById(id);
 	if (player !== null) {
-		return [new Snapshot(player, priority, defaultState, states)]
+		return new Snapshot(player, priority, defaultState, states);
 	} else { return null }
 }
 
