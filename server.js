@@ -109,8 +109,7 @@ Server.prototype.tick = function(ws, data) {
 		case "NAME":
 			ws.playerId = 
 				SolemnSky.addPlayer(
-					lastId++ , 320 / SolemnSky.scale
-					, 240 / SolemnSky.scale, data, "#00ff00", "");
+					lastId++, 320, 240, data, "#00ff00", "");
 			ws.send("ID " + ws.playerId);
 			this.broadcast("SNAP " + SolemnSky.emitTotalSnapshot());
 			this.broadcast("LIST " + SolemnSky.emitListing());
