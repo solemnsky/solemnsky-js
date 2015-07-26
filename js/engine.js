@@ -354,10 +354,12 @@ Game.prototype.applyListing = function (listing) {
 
 	//Remove any players who aren't in the listing
 	this.players.filter(function(player) {
+		//Only pass players who aren't in the listing
 		return !listing.some(function(entry) {
 			return entry.id == player.id;
 		});
 	}).map(function(player) {
+		//Remove all players who matched not being in the list
 		this.deletePlayer(player.id);
 	}, this);
 }
