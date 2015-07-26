@@ -2,8 +2,12 @@
 var socket = null;
 var connected = false;
 
+var lastSnap = null;
+
 function sendSnapshot() {
-	sendData("SNAP " + SolemnSky.serialiseSnapshot([SolemnSky.makePlayerSnapshot(myid, 0)]))
+	lastSnap = SolemnSky.makePlayerSnapshot(myid, 1);
+	if (lastSnap !== null)
+		sendData("SNAP " + SolemnSky.serialiseSnapshot([lastSnap]));
 } // this function needs to run a lot
 
 //Connect to a server (client only)
@@ -49,7 +53,10 @@ function tick(data) {
 
 	switch (command) {
 	case "SNAP":
-		SolemnSky.applySnapshot(SolemnSky.readSnapshot(data)); break;
+		var snaps = SolemnSky.readSnapshot(data);
+		if (lastSnap !== null)
+			snaps.push(lastSnap);
+		SolemnSky.applySnapshot(snaps); break;
 	case "LIST":
 		SolemnSky.applyListing(SolemnSky.readListing(data)); break;
 	case "MAP":
