@@ -188,6 +188,7 @@ Player.prototype.update = function(game, delta) {
 		this.energy = 1;
 
 		this.respawning = false;
+		this.writeToBlock();
 		return;
 	}
 	/**** }}} respawning ****/
