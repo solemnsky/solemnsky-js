@@ -11,8 +11,8 @@ WebSocketServer = require("ws").Server;
 //Import common game engine code
 Engine = require("./js/engine.js");
 Game = Engine.Game;
-Player = require("./js/player.js").Player;
-gameplay = require("./js/gameplay.js").gameplay;
+Player = require("./js/player.js");
+gameplay = require("./js/gameplay.js");
 boxes = require("./js/maps.js").bloxMap;
 
 SolemnSky = require("./js/start.js");
