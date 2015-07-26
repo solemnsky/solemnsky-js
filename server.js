@@ -122,7 +122,7 @@ Server.prototype.tick = function(ws, data) {
 /**** {{{ initialise and open sockets ****/
 GameServer = new Server();
 GameServer.openSocket(50042);
-GameServer.loadMap();
+GameServer.loadMap(bloxMap);
 
 //Start the broadcastloop
 GameServer.broadcastSnap(0);
