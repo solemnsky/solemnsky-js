@@ -275,10 +275,14 @@ Game.prototype.makePlayerSnapshot =
 }
 
 Game.prototype.makeTotalSnapshot = function(priority) {
-	return this.players.reduce(function(list, player) {
-		list.push(this.makePlayerSnapshot(player, priority, true, {}));
-		return list;
-	}, []);
+	return (function(game) {
+		console.log(game.players);
+		return game.players.reduce(function(list, player) {
+			console.log(list);
+			list.push(game.makePlayerSnapshot(player, priority, true, {}));
+			return list;
+		}, []);
+	})(this);
 }
 
 Game.prototype.applySnapshot = function(snapshot) {
