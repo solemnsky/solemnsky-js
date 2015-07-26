@@ -3,6 +3,7 @@
 // (update methods and a base constructor) are defines for         // 
 \\ players. The flight mechanics are defined here.                 \\
 //                  ******** player.js ********                    */
+
 /**** {{{ Player() ****/
 function Player(world, id, x, y, name) {
 	this.world = world;
@@ -48,11 +49,11 @@ function Player(world, id, x, y, name) {
 /**** {{{ reading and writing between wrappers and box2d ****/
 Player.prototype.writeToBlock = function() {
 	this.block.SetPosition(new b2Vec2(
-		this.position.x / this.world.scale
-		, this.position.y / this.world.scale))	
+		  this.position.x
+		, this.position.y))	
 	this.block.SetLinearVelocity(new b2Vec2(
-		this.velocity.x / this.world.scale
-		, this.velocity.y / this.world.scale))
+		  this.velocity.x
+		, this.velocity.y))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
 	this.block.GetUserData().health = this.health
@@ -62,10 +63,10 @@ Player.prototype.readFromBlock = function() {
 	var vel = this.block.GetLinearVelocity()
 	var pos = this.block.GetPosition()
 
-	this.velocity.x = vel.x * this.world.scale; 
-	this.velocity.y = vel.y * this.world.scale;
-	this.position.x = pos.x * this.world.scale; 
-	this.position.y = pos.y * this.world.scale;
+	this.velocity.x = vel.x; 
+	this.velocity.y = vel.y;
+	this.position.x = pos.x; 
+	this.position.y = pos.y;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
 
