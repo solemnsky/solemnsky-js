@@ -1,0 +1,20 @@
+body {
+	margin: 0px;
+	padding: 0px;
+	overflow: hidden;
+	position: fixed;
+	background-color: black;
+}
+
+html, body, .game {
+	height: 100%;
+}
+
+.game {
+	width: 100%;
+	position: absolute;
+}
+
+#contents {
+	padding-top: 20px;
+}

@@ -1,0 +1,9 @@
+#contents {
+	padding-top: 20px;
+}
+
+p.emphasis{
+	font-size: 130% !important;
+	text-align: center;
+	padding-left: 10px;
+}
