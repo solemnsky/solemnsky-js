@@ -1,6 +1,6 @@
-/*                  ******** null/main.js ********                    //
+/*                  ******** null/index.js ********                    //
 \\ This is a trivial wrapper mode; it wraps a mode without doing shit.\\
-//                  ******** null/main.js ********                    */
+//                  ******** null/index.js ********                    */
 
 module.exports = NullWrapper
 

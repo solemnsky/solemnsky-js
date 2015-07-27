@@ -684,9 +684,9 @@ Null.prototype.acceptKey = function(id, key, state) {
 /**** }}} acceptInput ****/
 
 },{}],6:[function(require,module,exports){
-/*                  ******** gameplay.js ********                  //
+/*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
-//                  ******** gameplay.js ********                  */
+//                  ******** vanilla/gameplay.js ********          */
 
 module.exports = {
 	// the number of pixels that box2d thinks is one meter
@@ -1306,7 +1306,6 @@ module.exports = maps;
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
 
-/**** {{{ utils ****/
 function Util() {}
 
 module.exports = new Util();
@@ -1394,6 +1393,5 @@ Util.prototype.range = function(start, edge, step) {
 	}
 	return ret;
 }
-/**** }}} utils ****/
 
 },{}]},{},[4]);

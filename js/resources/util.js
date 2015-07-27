@@ -2,7 +2,6 @@
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
 
-/**** {{{ utils ****/
 function Util() {}
 
 module.exports = new Util();
@@ -90,4 +89,3 @@ Util.prototype.range = function(start, edge, step) {
 	}
 	return ret;
 }
-/**** }}} utils ****/

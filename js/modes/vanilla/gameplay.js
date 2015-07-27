@@ -1,6 +1,6 @@
-/*                  ******** gameplay.js ********                  //
+/*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
-//                  ******** gameplay.js ********                  */
+//                  ******** vanilla/gameplay.js ********          */
 
 module.exports = {
 	// the number of pixels that box2d thinks is one meter
