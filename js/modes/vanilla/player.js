@@ -5,8 +5,8 @@
 //                  ******** player.js ********                    */
 
 /**** {{{ Player() ****/
-function Player(world, id, x, y, name) {
-	this.world = world;
+function Player(game, id, x, y, name) {
+	this.game = game;
 
 	this.name = name;
 	this.id = id;
@@ -42,18 +42,18 @@ function Player(world, id, x, y, name) {
 
 	// this value should *never* be accessed; instead, access
 	// the position, velocity, rotation, and rotationVel values above
-	this.block = SolemnSky.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {restitution: 0.1, friction: 0.1});
+	this.block = this.game.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {restitution: 0.1, friction: 0.1});
 }
 /**** }}} Player() ****/
 
 /**** {{{ reading and writing between wrappers and box2d ****/
 Player.prototype.writeToBlock = function() {
 	this.block.SetPosition(new b2Vec2(
-		  this.position.x / this.world.scale
-		, this.position.y / this.world.scale))	
+		  this.position.x / this.game.scale
+		, this.position.y / this.game.scale))	
 	this.block.SetLinearVelocity(new b2Vec2(
-		  this.velocity.x / this.world.scale
-		, this.velocity.y / this.world.scale))
+		  this.velocity.x / this.game.scale
+		, this.velocity.y / this.game.scale))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
 	this.block.GetUserData().health = this.health
@@ -63,10 +63,10 @@ Player.prototype.readFromBlock = function() {
 	var vel = this.block.GetLinearVelocity()
 	var pos = this.block.GetPosition()
 
-	this.velocity.x = vel.x * this.world.scale; 
-	this.velocity.y = vel.y * this.world.scale;
-	this.position.x = pos.x * this.world.scale; 
-	this.position.y = pos.y * this.world.scale;
+	this.velocity.x = vel.x * this.game.scale; 
+	this.velocity.y = vel.y * this.game.scale;
+	this.position.x = pos.x * this.game.scale; 
+	this.position.y = pos.y * this.game.scale;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
 
@@ -74,7 +74,7 @@ Player.prototype.readFromBlock = function() {
 }
 /**** }}} reading and writing between wrappers and box2d ****/
 
-Player.prototype.step = function(game, delta) {
+Player.prototype.step = function(delta) {
 	/**** {{{ synonyms ****/
 	var forwardVelocity = 
 		Utils.getLength(this.velocity) * Math.cos(this.rotation - (Utils.getAngle(this.velocity)))

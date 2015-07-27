@@ -48,6 +48,49 @@ Vanilla.prototype.findPlayerById = function(id) {
 	}
 	return null; 
 }
+
+Vanilla.prototype.createBox = function(x, y, w, h, static, fields) {
+	//Create a fixture definition for the box
+	var fixDef = new b2FixtureDef;
+	fixDef.density = 10;
+	fixDef.friction = 1;
+	fixDef.restitution = 0;
+
+	//Create the body definition
+	var bodyDef = new b2BodyDef;
+
+	//Box type defined by the caller
+	bodyDef.type = (static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
+
+	//Read from the fields, if they exist
+	if (typeof fields !== "undefined") {
+		if (typeof fields.density !== "undefined") 
+			fixDef.density = fields.density;
+		if (typeof fields.friction !== "undefined") 
+			fixDef.friction = fields.friction;
+		if (typeof fields.restitution !== "undefined") 
+			fixDef.restitution = fields.restitution;
+	}
+	
+	//Positions the center of the object (not upper left!)
+	bodyDef.position.x = x / this.scale;
+	bodyDef.position.y = y / this.scale;
+	
+	fixDef.shape = new b2PolygonShape;
+	
+	// half width, half height. eg actual height here is 1 unit
+	fixDef.shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale);
+	box = this.world.CreateBody(bodyDef);
+	box.CreateFixture(fixDef);
+
+	box.life = 1;
+	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
+
+	box.SetUserData(
+		{x: x, y: y, w: w, h: h, isStatic: static, fields: fields});
+
+	return box;
+} 
 /**** }}} methods ***/
 
 /**** {{{ join() and quit() ****/
@@ -64,7 +107,7 @@ Vanilla.prototype.join = function(name) {
 	, 0)
 	var id = ids.length
 	if (fillGap !== null) id = fillGap		
-	return id
+	this.addPlayer(id, name)
 }
 
 Vanilla.prototype.quit = function(id) {
@@ -105,7 +148,7 @@ Vanilla.prototype.step = function(delta) {
 
 	// tick each player forward
 	this.players.forEach(function each(player) {
-		player.update(this, diff);
+		player.step(this, delta);
 	}, this);
 }
 
