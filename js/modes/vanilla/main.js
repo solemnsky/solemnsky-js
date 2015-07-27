@@ -13,7 +13,7 @@ function Vanilla() {
 }
 /**** }}} constructor ****/
 
-/**** {{{ useful functions ****/
+/**** {{{ interface ****/
 Vanilla.prototype.addPlayer = function(id, name) {
 	if (this.players.some(function(player) {return player.id == id})) {
 		return null
@@ -37,8 +37,18 @@ Vanilla.prototype.findPlayerById = function(id) {
 }
 /**** }}} useful functions ***/
 
+/**** {{{ join() and quit() ****/
+Vanilla.prototype.join = function(name) {
+		
+}
+
+Vanilla.prototype.quit = function(id) {
+
+}
+/**** }}}} join() and quit() ****/
+
 /**** {{{ init() and step() ****/
-Vanilla.prototype.init = function(players) {
+Vanilla.prototype.init = function() {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity

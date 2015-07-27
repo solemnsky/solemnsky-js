@@ -10,8 +10,21 @@ function Null() {
 }
 /**** }}} constructor ****/
 
+/**** {{{ join() and quit() ****/
+Null.prototype.join = function(name) {
+	// a player joins and suggests a name for theirself
+	// return a 'player id' 
+	return 0
+}
+
+Null.prototype.quit = function(id) {
+	// a player with the specified id quits
+}
+/**** }}} join() and quit() ****/
+
 /**** {{{ init() and step() ****/
-Null.prototype.init = function(players) {
+Null.prototype.init = function() {
+	// initialise the game
 }
 
 Null.prototype.step = function(delta) {
@@ -20,10 +33,7 @@ Null.prototype.step = function(delta) {
 }
 
 Null.prototype.hasEnded = function() {
-	// has the game ended?
-
-	// WARNING: only return true when you're absolutely sure the game
-	// has ended; if you're a client, wait for a confirmation from the server
+	// do you think the game has ended?
 }
 /**** }}} init() and step() ****/
 
@@ -41,12 +51,12 @@ Null.prototype.stepRender = function(stage, delta) {
 
 /**** {{{ clientAssert() and serverAssert() ****/
 Null.prototype.clientAssert = function(id) {
-	// snapshot that is broadcasted from a client to the server
-	return "je pens donc je suis"
+	// a client speaks it mind to the server
+	return "je pense donc je suis"
 }
 
 Null.prototype.serverAssert = function() {
-	// snapshot that is broadcasted from the server to all clients
+	// a server speaks it mind to the clients
 	return "yeah well that's kind of a tautology isn't it"
 }
 /**** }}} clientAssert() and serverAssert() ****/

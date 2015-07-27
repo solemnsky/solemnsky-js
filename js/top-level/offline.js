@@ -77,6 +77,7 @@ function updateRender() {
 	now = Date.now()
 	delta = now - then
 
+	smartResize()
 	mode.stepRender(stage, delta)
 }
 /**** }}} update loops ****/
