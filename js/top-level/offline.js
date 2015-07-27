@@ -88,9 +88,14 @@ function updateRender() {
 update()
 updateRender()
 
-keyHandler = function(e) {
-	mode.acceptKey(0, nameFromKeyCode(e.keyCode), true)
+keyHandler = function(state) {
+	return (
+		function(e) {
+			mode.acceptKey(0, nameFromKeyCode(e.keyCode), state)
+		}
+	)
 }
 
-window.addEventListener("keydown", keyHandler, true)
+window.addEventListener("keydown", keyHandler(true), true)
+window.addEventListener("keyup", keyHandler(false), true)
 
