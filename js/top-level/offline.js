@@ -28,9 +28,16 @@ var renderer =
 		{backgroundColor : 0x000010, antialias : true})
 document.body.appendChild(renderer.view)
 
-var stage = new PIXI.Container()
+var fps = new PIXI.Text("", {fill: 0xFFFFFF})
+fps.position = new PIXI.Point(1400, 10)
 
-mode.initRender(stage)
+var stage = new PIXI.Container()
+stage.addChild(fps)
+
+var modeStage = new PIXI.Container()
+stage.addChild(modeStage)
+
+mode.initRender(modeStage)
 /**** }}} init ****/
 
 /**** {{{ smartResize() ****/
@@ -56,11 +63,23 @@ function smartResize() {
 /**** }}} smartResize() ****/
 
 /**** {{{ update loops ****/
+var renderCounter = 0
+var engineCounter = 0
+
+function logCounters() { 
+	window.setTimeout(logCounters, 1000)
+
+	fps.text = "render: " + renderCounter + "Hz\n" + "engine: " + engineCounter + "Hz"
+	renderCounter = 0 
+	engineCounter = 0 
+}
+
 simulating = true;
 
 // step()
 then = Date.now()
 function update() {
+	engineCounter++
 	requestAnimFrame(update)
 
 	now = Date.now()
@@ -73,6 +92,7 @@ function update() {
 // stepRender()
 thenRender = Date.now()
 function updateRender() {
+	renderCounter++
 	requestAnimFrame(updateRender)
 
 	nowRender = Date.now()
@@ -80,13 +100,14 @@ function updateRender() {
 	thenRender = now
 
 	smartResize()
-	mode.stepRender(stage, delta)
+	mode.stepRender(modeStage, delta)
 	renderer.render(stage)
 }
 /**** }}} update loops ****/
 
 update()
 updateRender()
+logCounters()
 
 keyHandler = function(state) {
 	return (
