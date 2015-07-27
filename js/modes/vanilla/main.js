@@ -148,7 +148,7 @@ Vanilla.prototype.step = function(delta) {
 
 	// tick each player forward
 	this.players.forEach(function each(player) {
-		player.step(this, delta);
+		player.step(delta);
 	}, this);
 }
 
@@ -168,8 +168,8 @@ Vanilla.prototype.initRender = function(stage) {
 
 Vanilla.prototype.stepRender = function(stage, delta) {
 	stage.removeChildren()
-	var text = new PIXI.Text("hey", {fill: 0xFFFFFFF})
-	text.position = new PIXI.Point(1400, 10)
+	var text = new PIXI.Text("hey", {fill: 0xFFFFFF})
+	text.position = new PIXI.Point(800, 450)
 	stage.addChild(text)
 }
 /**** }}} initRender() and stepRender()  ****/

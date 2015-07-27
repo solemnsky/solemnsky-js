@@ -6,7 +6,7 @@
 
 /**** {{{ constructor ****/
 function Null() {
-  // state goes here
+	this.players = []
 }
 /**** }}} constructor ****/
 
