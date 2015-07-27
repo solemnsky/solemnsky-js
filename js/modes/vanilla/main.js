@@ -49,7 +49,7 @@ Vanilla.prototype.findPlayerById = function(id) {
 	return null; 
 }
 
-Vanilla.prototype.createBox = function(x, y, w, h, static, fields) {
+Vanilla.prototype.createBox = function(x, y, w, h, isStatic, fields) {
 	//Create a fixture definition for the box
 	var fixDef = new b2FixtureDef;
 	fixDef.density = 10;
@@ -60,7 +60,7 @@ Vanilla.prototype.createBox = function(x, y, w, h, static, fields) {
 	var bodyDef = new b2BodyDef;
 
 	//Box type defined by the caller
-	bodyDef.type = (static ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
+	bodyDef.type = (isStatic ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
 
 	//Read from the fields, if they exist
 	if (typeof fields !== "undefined") {
@@ -87,7 +87,7 @@ Vanilla.prototype.createBox = function(x, y, w, h, static, fields) {
 	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
 
 	box.SetUserData(
-		{x: x, y: y, w: w, h: h, isStatic: static, fields: fields});
+		{x: x, y: y, w: w, h: h, isStatic: isStatic, fields: fields});
 
 	return box;
 } 

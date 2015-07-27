@@ -72,7 +72,7 @@ Null.prototype.serverMerge = function(id, snap) {
 /**** }}} clientMerge() and serverMerge() ****/
 
 /**** {{{ acceptKey ****/
-Null.prototype.acceptKey(id, key, modifiers, state) {
+Null.prototype.acceptKey = function(id, key, state) {
 	// player 'id' pressed 'key'
 	// wtf are we going to do now
 	// shitshitshitshit
