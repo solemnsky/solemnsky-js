@@ -133,11 +133,11 @@ Vanilla.prototype.init = function() {
 	);
 	this.world.gravity = this.gravity;
 
-	var listener = new Box2D.Dynamics.b2ContactListener;
+	// var listener = new Box2D.Dynamics.b2ContactListener;
 	// listener.BeginContact = function(contact) {
 		// this.evaluateContact(contact);
 	// };
-	this.world.SetContactListener(listener);
+	// this.world.SetContactListener(listener);
 
 	this.loadMap(maps.bloxMap)
 }
@@ -145,6 +145,8 @@ Vanilla.prototype.init = function() {
 Vanilla.prototype.step = function(delta) {
 	// use box2d to mutate the player's states
 	this.players.forEach( function(player) { player.writeToBlock() } )
+	
+	console.log(delta)
 
 	this.world.Step(
 		delta / 1000 //time delta
@@ -160,7 +162,7 @@ Vanilla.prototype.step = function(delta) {
 
 	// tick each player forward
 	this.players.forEach(function each(player) {
-		// player.step(delta);
+		 player.step(delta);
 	}, this);
 }
 

@@ -65,6 +65,7 @@ function update() {
 
 	now = Date.now()
 	delta = now - then
+	then = now
 
 	if (simulating) mode.step(delta)
 } 
@@ -74,8 +75,9 @@ thenRender = Date.now()
 function updateRender() {
 	requestAnimFrame(updateRender)
 
-	now = Date.now()
-	delta = now - then
+	nowRender = Date.now()
+	delta = nowRender - thenRender
+	thenRender = now
 
 	smartResize()
 	mode.stepRender(stage, delta)
