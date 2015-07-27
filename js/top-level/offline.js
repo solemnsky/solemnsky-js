@@ -81,8 +81,10 @@ function updateRender() {
 }
 /**** }}} update loops ****/
 
-Mousetrap.handleKey(
+update()
+updateRender()
+
+Mousetrap.handleKey = 
 	function(key, modifiers, state) {
 		mode.acceptKey(0, key, modifiers, state)
 	}
-)

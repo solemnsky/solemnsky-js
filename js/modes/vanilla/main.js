@@ -92,7 +92,7 @@ Vanilla.prototype.step = function(delta) {
 	// use box2d to mutate the player's states
 	this.players.forEach( function(player) { player.writeToBlock() } )
 	this.world.Step(
-		diff / 1000   //time delta
+		delta / 1000   //time delta
 	,   10       //velocity iterations
 	,   10       //position iterations
 	);
@@ -106,10 +106,6 @@ Vanilla.prototype.step = function(delta) {
 	// tick each player forward
 	this.players.forEach(function each(player) {
 		player.update(this, diff);
-	}, this);
-
-	this.updateCallbacks.forEach(function each(callback) {
-		callback(diff);
 	}, this);
 }
 
@@ -128,7 +124,10 @@ Vanilla.prototype.initRender = function(stage) {
 }
 
 Vanilla.prototype.stepRender = function(stage, delta) {
-	// TODO: import archived/render.js
+	stage.removeChildren()
+	var text = new PIXI.Text("hey", {fill: 0xFFFFFFF})
+	text.position = new PIXI.Point(1400, 10)
+	stage.addChild(text)
 }
 /**** }}} initRender() and stepRender()  ****/
 
