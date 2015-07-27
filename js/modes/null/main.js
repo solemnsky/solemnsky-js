@@ -1,7 +1,7 @@
 /*                  ******** null/main.js ********                    //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
-\\ Start from this file when you make a new mode.                     \\
+\\ You can start from this file when you make a new mode.             \\
 //                  ******** null/main.js ********                    */
 
 /**** {{{ constructor ****/
@@ -28,12 +28,12 @@ Null.prototype.hasEnded = function() {
 /**** }}} init() and step() ****/
 
 /**** {{{ initRender() and stepRender() ****/
-Null.prototype.initRender = function(renderer) {
+Null.prototype.initRender = function(stage) {
 	// this method is called exactly once at the beginning of a match,
-	// supplied with a fresh PIXI renderer (PIXI methods are in scope)
+	// supplied with a fresh PIXI container (PIXI methods are in scope)
 }
 
-Null.prototype.stepRenderer = function(delta) {
+Null.prototype.stepRender = function(stage, delta) {
 	// step the PIXI renderer state forward
 	// called at ~60Hz, exact delta time supplied in milliseconds
 }
@@ -60,3 +60,11 @@ Null.prototype.serverMerge = function(id, snap) {
 	// when the server recieves a snapshot from a client
 }
 /**** }}} clientMerge() and serverMerge() ****/
+
+/**** {{{ acceptKey ****/
+Null.prototype.acceptKey(id, key) {
+	// player 'id' pressed 'key'
+	// wtf are we going to do now
+	// shitshitshitshit
+}
+/**** }}} acceptInput ****/
