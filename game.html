@@ -7,8 +7,6 @@
 		<script type="text/javascript" src="assets/mousetrap.min.js"></script>
 		<script type="text/javascript" src="assets/pixi.min.js"></script>
 
-		<script type="text/javascript" src="js/closure/util.js"></script>
-
 		<link href="css/main.css" rel="stylesheet" type="text/css" /> 
 	</head>
 	<body>
@@ -25,16 +23,19 @@
 		<script type="text/javascript" src="js/gameplay.js"></script>
 		-->
 
-		<!-- bring the engine into scope, run it -->
-		<script type="text/javascript" src="js/player.js"></script>
-		<script type="text/javascript" src="js/engine.js"></script>
-		<script type="text/javascript" src="js/start.js"></script>
+		<!-- resources -->
+		<script type="text/javascript" src="js/resources/util.js"></script>
+		
 
-		<!-- run the client, render to screen -->
-		<script type="text/javascript" src="js/client.js"></script>
-		<!-- We're online, don't need this
-		<script type="text/javascript" src="js/offline.js"></script>
-		-->
-		<script type="text/javascript" src="js/render.js"></script>
+		<!-- vanilla mode -->
+		<script type="text/javascript" src="js/modes/vanilla/gameplay.js"></script>
+		<script type="text/javascript" src="js/modes/vanilla/main.js"></script>
+		<script type="text/javascript" src="js/modes/vanilla/player.js"></script>
+		<script type="text/javascript">
+			mode = new Vanilla()
+		</script>
+
+		<!-- run the offline client -->
+		<script type="text/javascript" src="js/top-level/offline.js"></script>
 	</body>
 </html>

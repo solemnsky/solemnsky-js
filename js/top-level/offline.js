@@ -1,9 +1,7 @@
 /*                  ******** offline.js ********                   //
 \\ This file makes an offline client to test out a mode with a     \\
-// single player.                                                  //
+// single player. Requites a 'mode' in scope.                      //
 //                  ******** offline.js ********                   */
-
-mode = new Null()
 
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -21,7 +19,8 @@ requestAnimFrame = (function() {
 
 /**** {{{ init ****/
 // init()
-mode.init([{name: "offline player", id: 0}])
+mode.init()
+mode.join("offline player")
 
 // initRender()
 var renderer =
@@ -30,7 +29,6 @@ var renderer =
 document.body.appendChild(renderer.view)
 
 var stage = new PIXI.Container()
-renderer.addChild(stage)
 
 mode.initRender(stage)
 /**** }}} init ****/
@@ -79,10 +77,12 @@ function updateRender() {
 
 	smartResize()
 	mode.stepRender(stage, delta)
+	renderer.render(stage)
 }
 /**** }}} update loops ****/
 
-mousetrap.handleKey(
+Mousetrap.handleKey(
 	function(key, modifiers, state) {
 		mode.acceptKey(0, key, modifiers, state)
 	}
+)

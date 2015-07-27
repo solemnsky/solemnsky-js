@@ -13,7 +13,20 @@ function Vanilla() {
 }
 /**** }}} constructor ****/
 
-/**** {{{ interface ****/
+/**** {{{ box2d synonyms ****/
+b2Vec2         = Box2D.Common.Math.b2Vec2
+b2BodyDef      = Box2D.Dynamics.b2BodyDef
+b2Body         = Box2D.Dynamics.b2Body
+b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
+b2Fixture      = Box2D.Dynamics.b2Fixture
+b2World        = Box2D.Dynamics.b2World
+b2MassData     = Box2D.Collision.Shapes.b2MassData
+b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
+b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+/**** }}} box2d synonyms ****/
+
+/**** {{{ methods ****/
 Vanilla.prototype.addPlayer = function(id, name) {
 	if (this.players.some(function(player) {return player.id == id})) {
 		return null
@@ -35,11 +48,23 @@ Vanilla.prototype.findPlayerById = function(id) {
 	}
 	return null; 
 }
-/**** }}} useful functions ***/
+/**** }}} methods ***/
 
 /**** {{{ join() and quit() ****/
 Vanilla.prototype.join = function(name) {
-		
+	var ids = this.players.map(function(player) {return player.id})
+	var fillGap = Utils.range(0, (ids.length - 1)).reduce(
+		function(acc, x) { 
+			if (acc === null) {
+				if (ids[x] == x) {
+					return x
+				} else { return null }
+			} else { return acc }
+		}
+	, 0)
+	var id = ids.length
+	if (fillGap !== null) id = fillGap		
+	return id
 }
 
 Vanilla.prototype.quit = function(id) {
@@ -61,12 +86,6 @@ Vanilla.prototype.init = function() {
 		this.evaluateContact(contact);
 	};
 	this.world.SetContactListener(listener);
-
-	players.forEach(
-		function(playerData) {
-			this.addPlayer(playerData.id, playerData.name)
-		}
-	)
 }
 
 Vanilla.prototype.step = function(delta) {
@@ -136,7 +155,7 @@ Vanilla.prototype.serverMerge = function(id, snap) {
 /**** }}} clientMerge() and serverMerge() ****/
 
 /**** {{{ acceptKey ****/
-Vanilla.prototype.acceptKey(id, key, modifiers, state) {
+Vanilla.prototype.acceptKey = function(id, key, modifiers, state) {
 	var applyToMovement = function(movement) {
 		if (state == "keyup") {
 			movement = false
