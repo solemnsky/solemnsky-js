@@ -5,11 +5,7 @@
 /**** {{{ utils ****/
 function Util() {}
 
-if (typeof module !== "undefined") {
-	module.exports = new Util();
-} else {
-	Utils = new Util();
-}
+module.exports = new Util();
 
 Util.prototype.intToFloat = function(int_) {
 	var buffer = new ArrayBuffer(4);

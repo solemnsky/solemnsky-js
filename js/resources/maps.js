@@ -22,6 +22,4 @@ maps = {
 	]
 }
 
-if (typeof(module) !== "undefined") {
-	module.exports = maps;
-}
+module.exports = maps;
