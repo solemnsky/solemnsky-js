@@ -1,8 +1,6 @@
-/*                  ******** player.js ********                    //
-\\ This file is an extension of main.js, in which methods          \\
-// (update methods and a base constructor) are defines for         // 
-\\ players. The flight mechanics are defined here.                 \\
-//                  ******** player.js ********                    */
+/*                  ******** vanilla/player.js ********            //
+\\ A lot of by-player game mechanics here.                         \\
+//                  ******** vanilla/player.js ********            */
 
 /**** {{{ Player() ****/
 function Player(game, id, x, y, name) {

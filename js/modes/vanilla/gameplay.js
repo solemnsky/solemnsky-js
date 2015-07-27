@@ -1,7 +1,5 @@
 /*                  ******** gameplay.js ********                  //
-\\ This file defines various magic values used in the engine,      \\ 
-// relating to the general feel of the game. A description is      //
-\\ given in each case.                                             \\
+\\ Magic gameplay values.                                          \\
 //                  ******** gameplay.js ********                  */
 gameplay = {
 	// the number of pixels that box2d thinks is one meter

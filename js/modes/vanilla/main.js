@@ -1,5 +1,5 @@
 /*                  ******** vanilla/main.js ********                 //
-\\ Matchsticks and basic flight mechanics, with box2d                 \\
+\\ General purpose base mode with mechanics, exposing useful bindings.\\
 //                  ******** vanilla/main.js ********                 */
 
 /**** {{{ constructor ****/
@@ -91,6 +91,15 @@ Vanilla.prototype.createBox = function(x, y, w, h, static, fields) {
 
 	return box;
 } 
+
+Vanilla.prototype.loadMap = function (map) {
+	map.forEach(
+		function(box) {
+			var box = this.createBox(
+				box.x, box.y, box.w, box.h, box.isStatic, box.fields)		
+			this.map.push(box);
+		}, this)
+}
 /**** }}} methods ***/
 
 /**** {{{ join() and quit() ****/
@@ -125,10 +134,12 @@ Vanilla.prototype.init = function() {
 	this.world.gravity = this.gravity;
 
 	var listener = new Box2D.Dynamics.b2ContactListener;
-	listener.BeginContact = function(contact) {
-		this.evaluateContact(contact);
-	};
+	// listener.BeginContact = function(contact) {
+		// this.evaluateContact(contact);
+	// };
 	this.world.SetContactListener(listener);
+
+	this.loadMap(maps.bloxMap)
 }
 
 Vanilla.prototype.step = function(delta) {
@@ -140,9 +151,9 @@ Vanilla.prototype.step = function(delta) {
 	,   10       //position iterations
 	);
 	// glenn's magic contact listening, affects 'health' values of players
-	for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
-		this.evaluateContact(contact);
-	}
+	// for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
+		// this.evaluateContact(contact);
+	// }
 
 	this.players.forEach( function(player) { player.readFromBlock() } )
 
@@ -160,19 +171,6 @@ Vanilla.prototype.hasEnded = function() {
 	// has ended; if you're a client, wait for a confirmation from the server
 }
 /**** }}} init() and step() ****/
-
-/**** {{{ initRender() and stepRender() ****/
-Vanilla.prototype.initRender = function(stage) {
-	// TODO: import archived/render.js
-}
-
-Vanilla.prototype.stepRender = function(stage, delta) {
-	stage.removeChildren()
-	var text = new PIXI.Text("hey", {fill: 0xFFFFFF})
-	text.position = new PIXI.Point(800, 450)
-	stage.addChild(text)
-}
-/**** }}} initRender() and stepRender()  ****/
 
 /**** {{{ clientAssert() and serverAssert() ****/
 Vanilla.prototype.clientAssert = function(id) {
