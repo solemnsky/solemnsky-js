@@ -56,6 +56,8 @@ function smartResize() {
 /**** }}} smartResize() ****/
 
 /**** {{{ update loops ****/
+simulating = true;
+
 // step()
 then = Date.now()
 function update() {
@@ -64,7 +66,7 @@ function update() {
 	now = Date.now()
 	delta = now - then
 
-  mode.step(delta)
+	if (simulating) mode.step(delta)
 } 
 
 // stepRender()
@@ -84,7 +86,9 @@ function updateRender() {
 update()
 updateRender()
 
-Mousetrap.handleKey = 
-	function(key, modifiers, state) {
-		mode.acceptKey(0, key, modifiers, state)
-	}
+keyHandler = function(e) {
+	mode.acceptKey(0, nameFromKeyCode(e.keyCode), true)
+}
+
+window.addEventListener("keydown", keyHandler, true)
+

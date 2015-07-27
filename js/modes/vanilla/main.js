@@ -195,24 +195,7 @@ Vanilla.prototype.serverMerge = function(id, snap) {
 /**** }}} clientMerge() and serverMerge() ****/
 
 /**** {{{ acceptKey ****/
-Vanilla.prototype.acceptKey = function(id, key, modifiers, state) {
-	var applyToMovement = function(movement) {
-		if (state == "keyup") {
-			movement = false
-		} else { movement = true }
-	}
-	var player = this.findPlayerById(id)
-	if (player !== null) {
-		switch (key) {
-			case ("up"):
-				applyToMovement(player.movement.forward); break;
-			case ("down"):
-				applyToMovement(player.movement.backward); break;
-			case ("left"):
-				applyToMovement(player.movement.left); break;
-			case ("right"):
-				applyToMovement(player.movement.right); break;
-		}
-	}
+Vanilla.prototype.acceptKey = function(id, key, state) {
+	console.log(key)
 }
-/**** }}} acceptInput ****/
+/**** }}} acceptKey ****/
