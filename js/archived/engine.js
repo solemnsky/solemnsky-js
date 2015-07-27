@@ -30,7 +30,7 @@ if (typeof(windowSize) === "undefined") {
 
 /**** {{{ Game() ****/
 function Game() {
-		// the total game state 
+		// 
 	this.players = []
 	this.map = []
 
