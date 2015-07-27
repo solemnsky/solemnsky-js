@@ -3,3 +3,5 @@ var keyboardMap = ["","","","cancel","","","help","","back_space","tab","","","c
 nameFromKeyCode = function(keycode) {
 	return keyboardMap[keycode]
 }
+
+module.exports = nameFromKeyCode
