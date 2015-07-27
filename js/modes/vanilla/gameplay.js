@@ -1,7 +1,8 @@
 /*                  ******** gameplay.js ********                  //
 \\ Magic gameplay values.                                          \\
 //                  ******** gameplay.js ********                  */
-gameplay = {
+
+module.exports = {
 	// the number of pixels that box2d thinks is one meter
 	// high numbers = bad accuracy
 	// low numbers = bad performance (?)
@@ -45,8 +46,4 @@ gameplay = {
 
 	, minimumContactDamage: 0.02
 	, contactDamangeMultiplier: 0.01
-}
-
-if (typeof(module) !== "undefined") {
-	module.exports = gameplay;
 }

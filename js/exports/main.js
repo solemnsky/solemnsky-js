@@ -1,5 +1,7 @@
 Null = require("../modes/null/")
+Vanilla = require("../modes/vanilla/")
 runModeOffline = require("../control/offline.js")
 
-runModeOffline(new Null())
+mode = new Vanilla()
 
+runModeOffline(mode)

@@ -2,6 +2,8 @@
 \\ This is a trivial wrapper mode; it wraps a mode without doing shit.\\
 //                  ******** null/main.js ********                    */
 
+module.exports = NullWrapper
+
 /**** {{{ constructor ****/
 function NullWrapper(mode) {
 	this.mode = mode

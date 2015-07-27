@@ -2,6 +2,8 @@
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
 
+module.exports = Player
+
 /**** {{{ Player() ****/
 function Player(game, id, x, y, name) {
 	this.game = game;
@@ -191,6 +193,3 @@ Player.prototype.step = function(delta) {
 	/**** }}} respawning ****/
 }
 
-if (typeof(module) !== "undefined") {
-	module.exports = Player;
-}

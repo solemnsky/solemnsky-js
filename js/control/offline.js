@@ -6,6 +6,7 @@
 module.exports = runModeOffline
 
 PIXI = require("../../assets/pixi.min.js")
+nameFromkeyCode = require("../resources/keys.js")
 
 function runModeOffline(mode) {
 /**** {{{ requestAnimFrame ****/
