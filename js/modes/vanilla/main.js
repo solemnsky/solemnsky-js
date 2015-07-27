@@ -146,8 +146,6 @@ Vanilla.prototype.step = function(delta) {
 	// use box2d to mutate the player's states
 	this.players.forEach( function(player) { player.writeToBlock() } )
 	
-	console.log(delta)
-
 	this.world.Step(
 		delta / 1000 //time delta
 	,   10       //velocity iterations
