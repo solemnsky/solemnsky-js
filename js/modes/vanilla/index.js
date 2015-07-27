@@ -1,6 +1,6 @@
-/*                  ******** vanilla/main.js ********                 //
+/*                  ******** vanilla/index.js ********                //
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
-//                  ******** vanilla/main.js ********                 */
+//                  ******** vanilla/index.js ********                */
 
 /**** {{{ constructor ****/
 function Vanilla() {

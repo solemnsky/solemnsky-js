@@ -3,6 +3,11 @@
 // single player. Requites a 'mode' in scope.                      //
 //                  ******** offline.js ********                   */
 
+module.exports = runModeOffline
+
+PIXI = require("../../assets/pixi.min.js")
+
+function runModeOffline(mode) {
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 requestAnimFrame = (function() {
@@ -119,4 +124,4 @@ keyHandler = function(state) {
 
 window.addEventListener("keydown", keyHandler(true), true)
 window.addEventListener("keyup", keyHandler(false), true)
-
+}

@@ -1,8 +1,10 @@
-/*                  ******** null/main.js ********                    //
+/*                  ******** null/index.js ********                   //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
 \\ You can start from this file when you make a new mode.             \\
-//                  ******** null/main.js ********                    */
+//                  ******** null/index.js ********                   */
+
+module.exports = Null
 
 /**** {{{ constructor ****/
 function Null() {

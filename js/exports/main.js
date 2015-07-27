@@ -1,5 +1,5 @@
-nameFromKeyCode = require('../resources/keys.js')
-Util = require('../resources/util.js')
+Null = require("../modes/null/")
+runModeOffline = require("../control/offline.js")
 
-console.log(nameFromKeyCode(171))
-console.log(Util.getAngle({x: 1, y: 0}))
+runModeOffline(new Null())
+
