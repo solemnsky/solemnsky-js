@@ -106,7 +106,7 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 /**** {{{ clientAssert() and serverAssert() ****/
 Vanilla.prototype.clientAssert = function(id) {
 	// snapshot that is broadcasted from a client to the server
-	return "je pens donc je suis"
+	return "je pense donc je suis"
 }
 
 Vanilla.prototype.serverAssert = function() {
