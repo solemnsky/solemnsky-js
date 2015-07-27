@@ -145,8 +145,9 @@ Vanilla.prototype.init = function() {
 Vanilla.prototype.step = function(delta) {
 	// use box2d to mutate the player's states
 	this.players.forEach( function(player) { player.writeToBlock() } )
+
 	this.world.Step(
-		delta / 1000   //time delta
+		delta / 1000 //time delta
 	,   10       //velocity iterations
 	,   10       //position iterations
 	);
@@ -159,7 +160,7 @@ Vanilla.prototype.step = function(delta) {
 
 	// tick each player forward
 	this.players.forEach(function each(player) {
-		player.step(delta);
+		// player.step(delta);
 	}, this);
 }
 
@@ -196,6 +197,8 @@ Vanilla.prototype.serverMerge = function(id, snap) {
 
 /**** {{{ acceptKey ****/
 Vanilla.prototype.acceptKey = function(id, key, state) {
-	console.log(key)
+	var player = this.findPlayerById(id)
+	if (player !== null)
+		player.movement.forward = state
 }
 /**** }}} acceptKey ****/
