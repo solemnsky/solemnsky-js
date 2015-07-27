@@ -26,4 +26,6 @@ To define a mode, a constructor must be exported along with the following protot
 	- clientMerge(id, snap): merge a snapshot sent from the server into a client
 	- serverMerge(id, snap): merge a snapshot sent from a client into the server
 
+## top-level control structures
 
+The game starts in a 'lobby' system, where players setup teams and chat with each other. Then, the game starts and a mode comes into play. The mode is used to deal with all the non-boilerplate of the game's progress, until it ends, when the clients and server go back into lobby mode.
