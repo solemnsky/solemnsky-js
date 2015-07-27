@@ -100,6 +100,32 @@ Vanilla.prototype.loadMap = function (map) {
 			this.map.push(box);
 		}, this)
 }
+
+Vanilla.prototype.evaluateContact = function(contact) {
+	if (!contact.IsTouching()) {
+		//Not touching
+		return;
+	}
+	var bodyA = contact.GetFixtureA().GetBody();
+	var bodyB = contact.GetFixtureB().GetBody();
+	//Determine which is the player
+	var player = bodyA;
+	if (bodyA.GetUserData().isStatic)
+		player = bodyB;
+
+	var worldManifold = new Box2D.Collision.b2WorldManifold;
+	contact.GetWorldManifold(worldManifold);
+
+	//http://www.iforce2d.net/b2dtut/collision-anatomy
+	var vel1 = bodyA.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
+	var vel2 = bodyB.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
+	var impactVelocity = {x: vel1.x - vel2.x, y: vel1.y - vel2.y};
+	var impact = Math.sqrt(impactVelocity.x * impactVelocity.x + impactVelocity.y * impactVelocity.y);
+
+	var loss = Math.max(gameplay.minimumContactDamage, impact * gameplay.contactDamangeMultiplier);
+
+	player.GetUserData().health -= loss;
+}
 /**** }}} methods ***/
 
 /**** {{{ join() and quit() ****/
@@ -133,12 +159,6 @@ Vanilla.prototype.init = function() {
 	);
 	this.world.gravity = this.gravity;
 
-	// var listener = new Box2D.Dynamics.b2ContactListener;
-	// listener.BeginContact = function(contact) {
-		// this.evaluateContact(contact);
-	// };
-	// this.world.SetContactListener(listener);
-
 	this.loadMap(maps.bloxMap)
 }
 
@@ -152,9 +172,9 @@ Vanilla.prototype.step = function(delta) {
 	,   10       //position iterations
 	);
 	// glenn's magic contact listening, affects 'health' values of players
-	// for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
-		// this.evaluateContact(contact);
-	// }
+	for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
+	  this.evaluateContact(contact);
+	}
 
 	this.players.forEach( function(player) { player.readFromBlock() } )
 
