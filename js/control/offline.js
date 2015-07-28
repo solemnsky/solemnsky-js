@@ -103,12 +103,12 @@ function updateRender() {
 	delta = nowRender - thenRender
 	thenRender = now
 
-	smartResize()
 	mode.stepRender(modeStage, delta)
 	renderer.render(stage)
 }
 /**** }}} update loops ****/
 
+smartResize()
 update()
 updateRender()
 logCounters()
@@ -121,6 +121,7 @@ keyHandler = function(state) {
 	)
 }
 
+window.onresize = smartResize
 window.addEventListener("keydown", keyHandler(true), true)
 window.addEventListener("keyup", keyHandler(false), true)
 }

@@ -462,16 +462,14 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],3:[function(require,module,exports){
 /*                  ******** offline.js ********                   //
-\\ This file makes an offline client to test out a mode with a     \\
-// single player. Requites a 'mode' in scope.                      //
+\\ This file makes a offline client to test out a mode with a      \\
+// single player. Good for debugging.                              //
 //                  ******** offline.js ********                   */
-
-module.exports = runModeOffline
 
 PIXI = require("../../assets/pixi.min.js")
 nameFromkeyCode = require("../resources/keys.js")
 
-function runModeOffline(mode) {
+module.exports = function(initkey, mode) {
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 requestAnimFrame = (function() {
@@ -488,7 +486,7 @@ requestAnimFrame = (function() {
 
 /**** {{{ init ****/
 // init()
-mode.init()
+mode.init(initkey)
 mode.join("offline player")
 
 // initRender()
@@ -568,12 +566,12 @@ function updateRender() {
 	delta = nowRender - thenRender
 	thenRender = now
 
-	smartResize()
 	mode.stepRender(modeStage, delta)
 	renderer.render(stage)
 }
 /**** }}} update loops ****/
 
+smartResize()
 update()
 updateRender()
 logCounters()
@@ -586,6 +584,7 @@ keyHandler = function(state) {
 	)
 }
 
+window.onresize = smartResize
 window.addEventListener("keydown", keyHandler(true), true)
 window.addEventListener("keyup", keyHandler(false), true)
 }
@@ -597,7 +596,7 @@ runModeOffline = require("../control/offline.js")
 
 mode = new Vanilla()
 
-runModeOffline(mode)
+runModeOffline("", mode)
 
 },{"../control/offline.js":3,"../modes/null/":5,"../modes/vanilla/":7}],5:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
@@ -615,9 +614,9 @@ function Null() {
 /**** }}} constructor ****/
 
 /**** {{{ init() and step() ****/
-Null.prototype.init = function(initData) {
-	// initialise the game with a possibly large amount of
-	// initData
+Null.prototype.init = function(initkey, players) {
+	// initialise game with a key describing some key factors about
+	// this particular game, aside from the mode (for instance, a map name)
 }
 
 Null.prototype.step = function(delta) {
@@ -683,6 +682,13 @@ Null.prototype.acceptKey = function(id, key, state) {
 	// shitshitshitshit
 }
 /**** }}} acceptInput ****/
+
+/**** {{{ describeState() ****/
+Null.describeState = function() {
+	// describes the state of the game to a new player, telling them
+	// everything that they need to know (passed to an init())
+}
+/**** }}} returnState() ****/
 
 },{}],6:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
@@ -879,7 +885,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 /**** }}} methods ***/
 
 /**** {{{ init() and step() ****/
-Vanilla.prototype.init = function(initData) {
+Vanilla.prototype.init = function(initkey, state) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
@@ -887,7 +893,10 @@ Vanilla.prototype.init = function(initData) {
 	);
 	this.world.gravity = this.gravity;
 
+	// there is only one map, no need for initkey
 	this.loadMap(maps.bloxMap)
+
+	// somehow integrate 'state'	
 }
 
 Vanilla.prototype.step = function(delta) {
@@ -1046,15 +1055,18 @@ Vanilla.prototype.serverAssert = function() {
 
 /**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, snap) {
-	// TODO	
+	snapshots.applySnapshot(this, this.clientAssert + snap)
 }
 
 Vanilla.prototype.serverMerge = function(id, snap) {
-	// TODO				
+	snapshots.applySnapshot(this, snap)
 }
+
+// this is currently very simplistic and does not do anything special
+// for interactions
 /**** }}} clientMerge() and serverMerge() ****/
 
-/**** {{{ acceptKey ****/
+/**** {{{ acceptKey() ****/
 Vanilla.prototype.acceptKey = function(id, key, state) {
 	var player = this.findPlayerById(id)
 	if (player !== null) {
@@ -1067,6 +1079,13 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 	}
 }
 /**** }}} acceptKey ****/
+
+/**** {{{ describeState() ****/
+Vanilla.describeState = function() {
+	// describes the state of the game to a new player, telling them
+	// everything that they need to know (passed to an init())
+}
+/**** }}} returnState() ****/
 
 },{"../../../assets/box2d.min.js":1,"../../../assets/pixi.min.js":2,"../../resources/maps.js":11,"../../resources/util.js":12,"./gameplay.js":6,"./player.js":8,"./snapshots.js":9}],8:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //

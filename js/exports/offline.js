@@ -4,4 +4,4 @@ runModeOffline = require("../control/offline.js")
 
 mode = new Vanilla()
 
-runModeOffline(mode)
+runModeOffline("", mode)

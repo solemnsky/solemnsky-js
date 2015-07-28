@@ -83,7 +83,7 @@ Null.prototype.acceptKey = function(id, key, state) {
 /**** }}} acceptInput ****/
 
 /**** {{{ describeState() ****/
-Vanilla.describeState = function() {
+Null.describeState = function() {
 	// describes the state of the game to a new player, telling them
 	// everything that they need to know (passed to an init())
 }
