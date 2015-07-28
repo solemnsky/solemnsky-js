@@ -141,7 +141,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 /**** }}} methods ***/
 
 /**** {{{ init() and step() ****/
-Vanilla.prototype.init = function(initkey) {
+Vanilla.prototype.init = function(initkey, state) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
@@ -151,6 +151,8 @@ Vanilla.prototype.init = function(initkey) {
 
 	// there is only one map, no need for initkey
 	this.loadMap(maps.bloxMap)
+
+	// somehow integrate 'state'	
 }
 
 Vanilla.prototype.step = function(delta) {
@@ -320,7 +322,7 @@ Vanilla.prototype.serverMerge = function(id, snap) {
 // for interactions
 /**** }}} clientMerge() and serverMerge() ****/
 
-/**** {{{ acceptKey ****/
+/**** {{{ acceptKey() ****/
 Vanilla.prototype.acceptKey = function(id, key, state) {
 	var player = this.findPlayerById(id)
 	if (player !== null) {
@@ -333,3 +335,10 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 	}
 }
 /**** }}} acceptKey ****/
+
+/**** {{{ describeState() ****/
+Vanilla.describeState = function() {
+	// describes the state of the game to a new player, telling them
+	// everything that they need to know (passed to an init())
+}
+/**** }}} returnState() ****/

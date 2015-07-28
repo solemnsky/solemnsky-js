@@ -13,7 +13,7 @@ function Null() {
 /**** }}} constructor ****/
 
 /**** {{{ init() and step() ****/
-Null.prototype.init = function(initkey) {
+Null.prototype.init = function(initkey, players) {
 	// initialise game with a key describing some key factors about
 	// this particular game, aside from the mode (for instance, a map name)
 }
@@ -81,3 +81,10 @@ Null.prototype.acceptKey = function(id, key, state) {
 	// shitshitshitshit
 }
 /**** }}} acceptInput ****/
+
+/**** {{{ describeState() ****/
+Vanilla.describeState = function() {
+	// describes the state of the game to a new player, telling them
+	// everything that they need to know (passed to an init())
+}
+/**** }}} returnState() ****/

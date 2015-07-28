@@ -10,7 +10,7 @@ To define a mode, a constructor must be exported along with the following protot
 
 ### initialisation and simulation
 
-	- init(initData): this is called exactly once at the beginning of the game, with a piece of initData. This data is expected to be large, and can contain things such as runtime resources and world maps. 
+	- init(initkey, state): this is called exactly once at the beginning of the game, with an initkey and a state describing what we should know about the game.
 
 	- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics.
 
@@ -33,6 +33,10 @@ To define a mode, a constructor must be exported along with the following protot
 
 	- clientMerge(id, snap): merge an assertion sent from the server to a client
 	- serverMerge(id, snap): merge an assertion sent from a client to the server
+
+### describing the state
+
+	- describeState(): describes the state of the game to a new player 
 
 ## top-level control structures
 

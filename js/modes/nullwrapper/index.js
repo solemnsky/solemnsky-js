@@ -11,7 +11,7 @@ function NullWrapper(mode) {
 /**** }}} constructor ****/
 
 /**** {{{ init() and step() ****/
-NullWrapper.prototype.init = function(initkey) {
+NullWrapper.prototype.init = function(initkey, players) {
 	return this.mode.init(initData)
 }
 
@@ -69,3 +69,9 @@ NullWrapper.prototype.acceptKey = function(id, key, state) {
 	return this.mode.acceptKey(id, key, state)
 }
 /**** }}} acceptInput ****/
+
+/**** {{{ describeState() ****/
+Vanilla.describeState = function() {
+	return this.mode.describeState()
+}
+/**** }}} returnState() ****/
