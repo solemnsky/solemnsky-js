@@ -11,7 +11,7 @@ function NullWrapper(mode) {
 /**** }}} constructor ****/
 
 /**** {{{ init() and step() ****/
-NullWrapper.prototype.init = function(initData) {
+NullWrapper.prototype.init = function(initkey) {
 	return this.mode.init(initData)
 }
 

@@ -13,9 +13,9 @@ function Null() {
 /**** }}} constructor ****/
 
 /**** {{{ init() and step() ****/
-Null.prototype.init = function(initData) {
-	// initialise the game with a possibly large amount of
-	// initData
+Null.prototype.init = function(initkey) {
+	// initialise game with a key describing some key factors about
+	// this particular game, aside from the mode (for instance, a map name)
 }
 
 Null.prototype.step = function(delta) {

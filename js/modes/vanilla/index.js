@@ -141,7 +141,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 /**** }}} methods ***/
 
 /**** {{{ init() and step() ****/
-Vanilla.prototype.init = function(initData) {
+Vanilla.prototype.init = function(initkey) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
@@ -149,6 +149,7 @@ Vanilla.prototype.init = function(initData) {
 	);
 	this.world.gravity = this.gravity;
 
+	// there is only one map, no need for initkey
 	this.loadMap(maps.bloxMap)
 }
 
@@ -308,12 +309,15 @@ Vanilla.prototype.serverAssert = function() {
 
 /**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, snap) {
-	// TODO	
+	snapshots.applySnapshot(this, this.clientAssert + snap)
 }
 
 Vanilla.prototype.serverMerge = function(id, snap) {
-	// TODO				
+	snapshots.applySnapshot(this, snap)
 }
+
+// this is currently very simplistic and does not do anything special
+// for interactions
 /**** }}} clientMerge() and serverMerge() ****/
 
 /**** {{{ acceptKey ****/

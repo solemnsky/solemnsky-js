@@ -1,14 +1,12 @@
 /*                  ******** offline.js ********                   //
-\\ This file makes an offline client to test out a mode with a     \\
-// single player. Requites a 'mode' in scope.                      //
+\\ This file makes a offline client to test out a mode with a      \\
+// single player. Good for debugging.                              //
 //                  ******** offline.js ********                   */
-
-module.exports = runModeOffline
 
 PIXI = require("../../assets/pixi.min.js")
 nameFromkeyCode = require("../resources/keys.js")
 
-function runModeOffline(mode) {
+module.exports = function(initkey, mode) {
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 requestAnimFrame = (function() {
@@ -25,7 +23,7 @@ requestAnimFrame = (function() {
 
 /**** {{{ init ****/
 // init()
-mode.init()
+mode.init(initkey)
 mode.join("offline player")
 
 // initRender()
