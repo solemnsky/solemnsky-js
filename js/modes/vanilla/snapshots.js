@@ -1,11 +1,3 @@
-module.exports =
-	{ Snapshot: Snapshot
-	, makePlayerSnapshot: makePlayerSnapshot
-	, makeTotalSnapshot: makeTotalSnapshot
-	, applySnapshot: applySnapshot
-	, serialiseSnapshot: serialiseSnapshot
-	, readSnapshot: readSnapshot }
-
 Utils = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -18,14 +10,14 @@ function Snapshot(player, priority, defaultState, states) {
 
 	Object.keys(player).forEach(
 		function(key) {
-			if (["world", "block", "name"].indexOf(key) === -1)
+			if (["game", "block", "name"].indexOf(key) === -1)
 				if (states[key] || defaultState)
 					this[key] = Utils.clone(player[key])
 		}
 	, this)
 }
 
-makePlayerSnapshot = 
+exports.makePlayerSnapshot = 
 	function(world, id, priority, defaultState, states) {
 	var player = world.findPlayerById(id);
 	if (player !== null) {
@@ -33,16 +25,16 @@ makePlayerSnapshot =
 	} else { return null }
 }
 
-makeTotalSnapshot = function(world, priority) {
+exports.makeTotalSnapshot = function(world, priority) {
 	return (function(game) {
-		return game.players.reduce(function(list, player) {
-			list.push(game.makePlayerSnapshot(player.id, priority, true, {}));
+		return world.players.reduce(function(list, player) {
+			list.push(exports.makePlayerSnapshot(world, player.id, priority, true, {}));
 			return list;
 		}, []);
 	})(this);
 }
 
-applySnapshot = function(world, snapshot)
+exports.applySnapshot = function(world, snapshot) {
 	var compare = function(snapshot1, snapshot2) {
 		snapshot1.priority - snapshot2.priority
 	}
@@ -60,11 +52,13 @@ applySnapshot = function(world, snapshot)
 		}, this)
 }
 
-serialiseSnapshot = function(snapshot) {
+exports.serialiseSnapshot = function(snapshot) {
 	return JSON.stringify(snapshot)
 	// TODO make more space efficent 
 }
 
-readSnapshot = function(string) {
+exports.readSnapshot = function(string) {
 	return JSON.parse(string)
 }
+
+exports.Snapshot = Snapshot

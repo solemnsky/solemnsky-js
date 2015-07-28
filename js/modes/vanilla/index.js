@@ -12,7 +12,7 @@ maps = require('../../resources/maps.js')
 
 Player = require('./player.js')
 gameplay = require('./gameplay.js')
-snapshots = requilre('./snapshots.js')
+snapshots = require('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
@@ -294,13 +294,13 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 
 /**** {{{ clientAssert() and serverAssert() ****/
 Vanilla.prototype.clientAssert = function(id) {
-	return serialiseSnapshot(
+	return snapshots.serialiseSnapshot(
 		snapshots.makePlayerSnapshot(this, id, 1, true, {})
 	)
 }
 
 Vanilla.prototype.serverAssert = function() {
-	return serialiseSnapshot(
+	return snapshots.serialiseSnapshot(
 		snapshots.makeTotalSnapshot(this, 0)
 	)
 }
@@ -308,7 +308,7 @@ Vanilla.prototype.serverAssert = function() {
 
 /**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, snap) {
-	// TODO				
+	// TODO	
 }
 
 Vanilla.prototype.serverMerge = function(id, snap) {

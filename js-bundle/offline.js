@@ -590,7 +590,7 @@ window.addEventListener("keydown", keyHandler(true), true)
 window.addEventListener("keyup", keyHandler(false), true)
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/keys.js":9}],4:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../resources/keys.js":10}],4:[function(require,module,exports){
 Null = require("../modes/null/")
 Vanilla = require("../modes/vanilla/")
 runModeOffline = require("../control/offline.js")
@@ -614,21 +614,10 @@ function Null() {
 }
 /**** }}} constructor ****/
 
-/**** {{{ join() and quit() ****/
-Null.prototype.join = function(name) {
-	// a player joins and suggests a name for theirself
-	// return a 'player id' 
-	return 0
-}
-
-Null.prototype.quit = function(id) {
-	// a player with the specified id quits
-}
-/**** }}} join() and quit() ****/
-
 /**** {{{ init() and step() ****/
-Null.prototype.init = function() {
-	// initialise the game
+Null.prototype.init = function(initData) {
+	// initialise the game with a possibly large amount of
+	// initData
 }
 
 Null.prototype.step = function(delta) {
@@ -640,6 +629,18 @@ Null.prototype.hasEnded = function() {
 	// do you think the game has ended?
 }
 /**** }}} init() and step() ****/
+
+/**** {{{ join() and quit() ****/
+Null.prototype.join = function(name) {
+	// a player joins and suggests a name for theirself
+	// return a 'player id' 
+	return 0
+}
+
+Null.prototype.quit = function(id) {
+	// a player with the specified id quits
+}
+/**** }}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
 Null.prototype.initRender = function(stage) {
@@ -749,6 +750,7 @@ maps = require('../../resources/maps.js')
 
 Player = require('./player.js')
 gameplay = require('./gameplay.js')
+snapshots = require('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
@@ -876,30 +878,8 @@ Vanilla.prototype.evaluateContact = function(contact) {
 }
 /**** }}} methods ***/
 
-/**** {{{ join() and quit() ****/
-Vanilla.prototype.join = function(name) {
-	var ids = this.players.map(function(player) {return player.id})
-	var fillGap = Utils.range(0, (ids.length - 1)).reduce(
-		function(acc, x) { 
-			if (acc === null) {
-				if (ids[x] == x) {
-					return x
-				} else { return null }
-			} else { return acc }
-		}
-	, 0)
-	var id = ids.length
-	if (fillGap !== null) id = fillGap		
-	this.addPlayer(id, name)
-}
-
-Vanilla.prototype.quit = function(id) {
-
-}
-/**** }}}} join() and quit() ****/
-
 /**** {{{ init() and step() ****/
-Vanilla.prototype.init = function() {
+Vanilla.prototype.init = function(initData) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
@@ -940,6 +920,28 @@ Vanilla.prototype.hasEnded = function() {
 	// has ended; if you're a client, wait for a confirmation from the server
 }
 /**** }}} init() and step() ****/
+
+/**** {{{ join() and quit() ****/
+Vanilla.prototype.join = function(name) {
+	var ids = this.players.map(function(player) {return player.id})
+	var fillGap = Utils.range(0, (ids.length - 1)).reduce(
+		function(acc, x) { 
+			if (acc === null) {
+				if (ids[x] == x) {
+					return x
+				} else { return null }
+			} else { return acc }
+		}
+	, 0)
+	var id = ids.length
+	if (fillGap !== null) id = fillGap		
+	this.addPlayer(id, name)
+}
+
+Vanilla.prototype.quit = function(id) {
+
+}
+/**** }}}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
 Vanilla.prototype.renderMap = function(map) {
@@ -1030,23 +1032,25 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 
 /**** {{{ clientAssert() and serverAssert() ****/
 Vanilla.prototype.clientAssert = function(id) {
-	// snapshot that is broadcasted from a client to the server
-	return "je pense donc je suis"
+	return snapshots.serialiseSnapshot(
+		snapshots.makePlayerSnapshot(this, id, 1, true, {})
+	)
 }
 
 Vanilla.prototype.serverAssert = function() {
-	// snapshot that is broadcasted from the server to all clients
-	return "yeah well that's kind of a tautology isn't it"
+	return snapshots.serialiseSnapshot(
+		snapshots.makeTotalSnapshot(this, 0)
+	)
 }
 /**** }}} clientAssert() and serverAssert() ****/
 
 /**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, snap) {
-	// when a client recieves a snapshot from the server
+	// TODO	
 }
 
 Vanilla.prototype.serverMerge = function(id, snap) {
-	// when the server recieves a snapshot from a client
+	// TODO				
 }
 /**** }}} clientMerge() and serverMerge() ****/
 
@@ -1055,20 +1059,16 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 	var player = this.findPlayerById(id)
 	if (player !== null) {
 		switch (key) {
-			case ("up"): 
-				player.movement.forward = state; break
-			case ("down"): 
-				player.movement.backward = state; break
-			case ("left"): 
-				player.movement.left = state; break
-			case ("right"): 
-				player.movement.right = state; break
+			case ("up"): player.movement.forward = state; break
+			case ("down"): player.movement.backward = state; break
+			case ("left"): player.movement.left = state; break
+			case ("right"): player.movement.right = state; break
 		}
 	}
 }
 /**** }}} acceptKey ****/
 
-},{"../../../assets/box2d.min.js":1,"../../../assets/pixi.min.js":2,"../../resources/maps.js":10,"../../resources/util.js":11,"./gameplay.js":6,"./player.js":8}],8:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../../assets/pixi.min.js":2,"../../resources/maps.js":11,"../../resources/util.js":12,"./gameplay.js":6,"./player.js":8,"./snapshots.js":9}],8:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1266,6 +1266,72 @@ Player.prototype.step = function(delta) {
 
 
 },{}],9:[function(require,module,exports){
+Utils = require('../../resources/util.js')
+
+function Snapshot(player, priority, defaultState, states) {
+	if (typeof priority == "undefined") priority = 0
+	if (typeof defaultState == "undefined") defaultState = true
+	if (typeof states == "undefined") states = {}
+
+	this.priority = priority;
+	this.id = player.id;
+
+	Object.keys(player).forEach(
+		function(key) {
+			if (["game", "block", "name"].indexOf(key) === -1)
+				if (states[key] || defaultState)
+					this[key] = Utils.clone(player[key])
+		}
+	, this)
+}
+
+exports.makePlayerSnapshot = 
+	function(world, id, priority, defaultState, states) {
+	var player = world.findPlayerById(id);
+	if (player !== null) {
+		return new Snapshot(player, priority, defaultState, states);
+	} else { return null }
+}
+
+exports.makeTotalSnapshot = function(world, priority) {
+	return (function(game) {
+		return world.players.reduce(function(list, player) {
+			list.push(exports.makePlayerSnapshot(world, player.id, priority, true, {}));
+			return list;
+		}, []);
+	})(this);
+}
+
+exports.applySnapshot = function(world, snapshot) {
+	var compare = function(snapshot1, snapshot2) {
+		snapshot1.priority - snapshot2.priority
+	}
+	snapshot.sort(compare).forEach(
+		function(snapshot) {
+			var player = this.findPlayerById(snapshot.id);
+			if (player !== null) {
+				Object.keys(snapshot).forEach(
+					function(key) {
+						player[key] = Utils.clone(snapshot[key])
+					}	
+				, this)
+				player.writeToBlock();
+			} 
+		}, this)
+}
+
+exports.serialiseSnapshot = function(snapshot) {
+	return JSON.stringify(snapshot)
+	// TODO make more space efficent 
+}
+
+exports.readSnapshot = function(string) {
+	return JSON.parse(string)
+}
+
+exports.Snapshot = Snapshot
+
+},{"../../resources/util.js":12}],10:[function(require,module,exports){
 var keyboardMap = ["","","","cancel","","","help","","back_space","tab","","","clear","enter","return","","shift","control","alt","pause","caps_lock","kana","eisu","junja","final","hanja","","escape","convert","nonconvert","accept","modechange","space","page_up","page_down","end","home","left","up","right","down","select","print","execute","printscreen","insert","delete","","0","1","2","3","4","5","6","7","8","9","colon","semicolon","less_than","equals","greater_than","question_mark","at","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","win","","context_menu","","sleep","numpad0","numpad1","numpad2","numpad3","numpad4","numpad5","numpad6","numpad7","numpad8","numpad9","multiply","add","separator","subtract","decimal","divide","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12","f13","f14","f15","f16","f17","f18","f19","f20","f21","f22","f23","f24","","","","","","","","","num_lock","scroll_lock","win_oem_fj_jisho","win_oem_fj_masshou","win_oem_fj_touroku","win_oem_fj_loya","win_oem_fj_roya","","","","","","","","","","circumflex","exclamation","double_quote","hash","dollar","percent","ampersand","underscore","open_paren","close_paren","asterisk","plus","pipe","hyphen_minus","open_curly_bracket","close_curly_bracket","tilde","","","","","volume_mute","volume_down","volume_up","","","semicolon","equals","comma","minus","period","slash","back_quote","","","","","","","","","","","","","","","","","","","","","","","","","","","open_bracket","back_slash","close_bracket","quote","","meta","altgr","","win_ico_help","win_ico_00","","win_ico_clear","","","win_oem_reset","win_oem_jump","win_oem_pa1","win_oem_pa2","win_oem_pa3","win_oem_wsctrl","win_oem_cusel","win_oem_attn","win_oem_finish","win_oem_copy","win_oem_auto","win_oem_enlw","win_oem_backtab","attn","crsel","exsel","ereof","play","zoom","","pa1","win_oem_clear",""];
 
 nameFromKeyCode = function(keycode) {
@@ -1274,7 +1340,7 @@ nameFromKeyCode = function(keycode) {
 
 module.exports = nameFromKeyCode
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1301,7 +1367,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
