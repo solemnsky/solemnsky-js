@@ -193,7 +193,7 @@ Vanilla.prototype.join = function(name) {
 }
 
 Vanilla.prototype.quit = function(id) {
-
+	Utils.removeElemById(this.players, id)
 }
 /**** }}}} join() and quit() ****/
 

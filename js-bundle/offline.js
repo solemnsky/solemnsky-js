@@ -645,6 +645,12 @@ function Null() {
 }
 /**** }}} constructor ****/
 
+/**** {{{ methods ****/
+Null.prototype.findPlayerById = function(id) {
+	Utils.findElemById(this.player, id)
+}
+/**** }}} methods ****/
+
 /**** {{{ init() and step() ****/
 Null.prototype.makeInitData = function(key) {
 	if (key == 'red') {
@@ -661,7 +667,7 @@ Null.prototype.init = function(initdata) {
 Null.prototype.step = function(delta) {
 	this.players.forEach(
 		function(player) {
-			player.counter++
+			player.timespent += delta
 		}
 	)
 }
@@ -674,17 +680,19 @@ Null.prototype.hasEnded = function() {
 /**** {{{ join() and quit() ****/
 Null.prototype.join = function(name) {
 	ids = this.players.map(function(player) { return player.id })
-	this.players.push({name: name, id: Utils.findAvailableId(ids)})
+	newId = Utils.findAvailableId(ids)	
+	this.players.push({name: name, id: newId})
+	return newId
 }
 
 Null.prototype.quit = function(id) {
+	Utils.removeElemById(this.players, id)
 }
 /**** }}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
 Null.prototype.initRender = function(stage) {
-	// this method is called exactly once at the beginning of a match,
-	// supplied with a fresh PIXI container (PIXI methods are in scope)
+	stage.removeChildren
 }
 
 Null.prototype.stepRender = function(stage, delta) {
@@ -977,7 +985,7 @@ Vanilla.prototype.join = function(name) {
 }
 
 Vanilla.prototype.quit = function(id) {
-
+	Utils.removeElemById(this.players, id)
 }
 /**** }}}} join() and quit() ****/
 
@@ -1518,12 +1526,26 @@ Util.prototype.findAvailableId = function(xs) {
 	return y
 }
 
-Util.prototype.findElemById = function(elems, id) {
+Util.prototype.findIndexById = function(elems, id) {
 	for (i = 0; i <= elems.length; i++) {
 		if (elems[i].id == id) 
-			return elems[i]
+			return i
 	}	
 	return null
+}
+
+Util.prototype.findElemById = function(elems, id) {
+	var index = this.findIndexById(elems, id)
+	if (index === null)
+		return null
+	return elems[index]
+}
+
+Util.prototype.removeElemById = function(elems, id) {
+	var index = this.findIndexById(elems, id)
+	if (index === null)
+		return null
+	elems.splice(index, 1)
 }
 
 },{}]},{},[5]);

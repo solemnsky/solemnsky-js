@@ -14,6 +14,12 @@ function Null() {
 }
 /**** }}} constructor ****/
 
+/**** {{{ methods ****/
+Null.prototype.findPlayerById = function(id) {
+	Utils.findElemById(this.player, id)
+}
+/**** }}} methods ****/
+
 /**** {{{ init() and step() ****/
 Null.prototype.makeInitData = function(key) {
 	if (key == 'red') {
@@ -30,7 +36,7 @@ Null.prototype.init = function(initdata) {
 Null.prototype.step = function(delta) {
 	this.players.forEach(
 		function(player) {
-			player.counter++
+			player.timespent += delta
 		}
 	)
 }
@@ -43,17 +49,19 @@ Null.prototype.hasEnded = function() {
 /**** {{{ join() and quit() ****/
 Null.prototype.join = function(name) {
 	ids = this.players.map(function(player) { return player.id })
-	this.players.push({name: name, id: Utils.findAvailableId(ids)})
+	newId = Utils.findAvailableId(ids)	
+	this.players.push({name: name, id: newId})
+	return newId
 }
 
 Null.prototype.quit = function(id) {
+	Utils.removeElemById(this.players, id)
 }
 /**** }}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
 Null.prototype.initRender = function(stage) {
-	// this method is called exactly once at the beginning of a match,
-	// supplied with a fresh PIXI container (PIXI methods are in scope)
+	stage.removeChildren
 }
 
 Null.prototype.stepRender = function(stage, delta) {

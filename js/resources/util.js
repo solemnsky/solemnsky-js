@@ -100,10 +100,24 @@ Util.prototype.findAvailableId = function(xs) {
 	return y
 }
 
-Util.prototype.findElemById = function(elems, id) {
+Util.prototype.findIndexById = function(elems, id) {
 	for (i = 0; i <= elems.length; i++) {
 		if (elems[i].id == id) 
-			return elems[i]
+			return i
 	}	
 	return null
+}
+
+Util.prototype.findElemById = function(elems, id) {
+	var index = this.findIndexById(elems, id)
+	if (index === null)
+		return null
+	return elems[index]
+}
+
+Util.prototype.removeElemById = function(elems, id) {
+	var index = this.findIndexById(elems, id)
+	if (index === null)
+		return null
+	elems.splice(index, 1)
 }
