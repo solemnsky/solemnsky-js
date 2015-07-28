@@ -12,6 +12,7 @@ maps = require('../../resources/maps.js')
 
 Player = require('./player.js')
 gameplay = require('./gameplay.js')
+snapshots = requilre('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
@@ -139,30 +140,8 @@ Vanilla.prototype.evaluateContact = function(contact) {
 }
 /**** }}} methods ***/
 
-/**** {{{ join() and quit() ****/
-Vanilla.prototype.join = function(name) {
-	var ids = this.players.map(function(player) {return player.id})
-	var fillGap = Utils.range(0, (ids.length - 1)).reduce(
-		function(acc, x) { 
-			if (acc === null) {
-				if (ids[x] == x) {
-					return x
-				} else { return null }
-			} else { return acc }
-		}
-	, 0)
-	var id = ids.length
-	if (fillGap !== null) id = fillGap		
-	this.addPlayer(id, name)
-}
-
-Vanilla.prototype.quit = function(id) {
-
-}
-/**** }}}} join() and quit() ****/
-
 /**** {{{ init() and step() ****/
-Vanilla.prototype.init = function() {
+Vanilla.prototype.init = function(initData) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
@@ -203,6 +182,28 @@ Vanilla.prototype.hasEnded = function() {
 	// has ended; if you're a client, wait for a confirmation from the server
 }
 /**** }}} init() and step() ****/
+
+/**** {{{ join() and quit() ****/
+Vanilla.prototype.join = function(name) {
+	var ids = this.players.map(function(player) {return player.id})
+	var fillGap = Utils.range(0, (ids.length - 1)).reduce(
+		function(acc, x) { 
+			if (acc === null) {
+				if (ids[x] == x) {
+					return x
+				} else { return null }
+			} else { return acc }
+		}
+	, 0)
+	var id = ids.length
+	if (fillGap !== null) id = fillGap		
+	this.addPlayer(id, name)
+}
+
+Vanilla.prototype.quit = function(id) {
+
+}
+/**** }}}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
 Vanilla.prototype.renderMap = function(map) {
@@ -293,23 +294,25 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 
 /**** {{{ clientAssert() and serverAssert() ****/
 Vanilla.prototype.clientAssert = function(id) {
-	// snapshot that is broadcasted from a client to the server
-	return "je pense donc je suis"
+	return serialiseSnapshot(
+		snapshots.makePlayerSnapshot(this, id, 1, true, {})
+	)
 }
 
 Vanilla.prototype.serverAssert = function() {
-	// snapshot that is broadcasted from the server to all clients
-	return "yeah well that's kind of a tautology isn't it"
+	return serialiseSnapshot(
+		snapshots.makeTotalSnapshot(this, 0)
+	)
 }
 /**** }}} clientAssert() and serverAssert() ****/
 
 /**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, snap) {
-	// when a client recieves a snapshot from the server
+	// TODO				
 }
 
 Vanilla.prototype.serverMerge = function(id, snap) {
-	// when the server recieves a snapshot from a client
+	// TODO				
 }
 /**** }}} clientMerge() and serverMerge() ****/
 
@@ -318,14 +321,10 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 	var player = this.findPlayerById(id)
 	if (player !== null) {
 		switch (key) {
-			case ("up"): 
-				player.movement.forward = state; break
-			case ("down"): 
-				player.movement.backward = state; break
-			case ("left"): 
-				player.movement.left = state; break
-			case ("right"): 
-				player.movement.right = state; break
+			case ("up"): player.movement.forward = state; break
+			case ("down"): player.movement.backward = state; break
+			case ("left"): player.movement.left = state; break
+			case ("right"): player.movement.right = state; break
 		}
 	}
 }

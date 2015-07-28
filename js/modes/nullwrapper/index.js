@@ -10,19 +10,9 @@ function NullWrapper(mode) {
 }
 /**** }}} constructor ****/
 
-/**** {{{ join() and quit() ****/
-NullWrapper.prototype.join = function(name) {
-	return this.mode.join(name)
-}
-
-NullWrapper.prototype.quit = function(id) {
-	return this.mode.quit(id)
-}
-/**** }}} join() and quit() ****/
-
 /**** {{{ init() and step() ****/
-NullWrapper.prototype.init = function() {
-	return this.mode.init()
+NullWrapper.prototype.init = function(initData) {
+	return this.mode.init(initData)
 }
 
 NullWrapper.prototype.step = function(delta) {
@@ -33,6 +23,16 @@ NullWrapper.prototype.hasEnded = function() {
 	return this.mode.hasEnded()
 }
 /**** }}} init() and step() ****/
+
+/**** {{{ join() and quit() ****/
+NullWrapper.prototype.join = function(name) {
+	return this.mode.join(name)
+}
+
+NullWrapper.prototype.quit = function(id) {
+	return this.mode.quit(id)
+}
+/**** }}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
 NullWrapper.prototype.initRender = function(stage) {

@@ -2,13 +2,16 @@
 
 SolemnSky's development at the moment is seperated into two distinct components: top-level control structures and 'modes', javascript objects over which the top-level control structures are parameterized.
 
+Modes control the game logic throughout periods of the game where the only networked information involves the shifting of a dynamic (but fairly small) state. That is, things like switching maps are done during the execution of modes. This is to make the specification of modes as simple and easy to understand as possible.
+
 ## modes
 
 To define a mode, a constructor must be exported along with the following prototypical methods:
 
 ### initialisation and simulation
 
-	- init(players): this is called exactly once at the beginning of the game 
+	- init(initData): this is called exactly once at the beginning of the game, with a piece of initData. This data is expected to be large, and can contain things such as runtime resources and world maps. 
+
 	- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics.
 
 ### joining and quitting
@@ -21,16 +24,16 @@ To define a mode, a constructor must be exported along with the following protot
 	- initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
 	- stepRenderer(delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI
 
-### snapshots
+### assertions
 
-	- clientAssert(id): make a snapshot to be sent from a client to the server (sent at ~20Hz)
-	- serverAssert(): make a snapshot to be sent from the server to all clients (sent at ~20Hz)
+	- clientAssert(id): make an assertion to be sent from a client to the server (sent at ~20Hz)
+	- serverAssert(): make an assertion to be sent from the server to all clients (sent at ~20Hz)
 
 ### merging snapshots
 
-	- clientMerge(id, snap): merge a snapshot sent from the server into a client
-	- serverMerge(id, snap): merge a snapshot sent from a client into the server
+	- clientMerge(id, snap): merge an assertion sent from the server to a client
+	- serverMerge(id, snap): merge an assertion sent from a client to the server
 
 ## top-level control structures
 
-The game starts in a 'lobby' system, where players setup teams and chat with each other. Then, the game starts and a mode comes into play. The mode is used to deal with all the non-boilerplate of the game's progress, until it ends, when the clients and server go back into lobby mode.
+	Top-level control structure deal with making game modes playable. control/offline.js, for example, makes a game mode playable by a single offline player.

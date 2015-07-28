@@ -12,21 +12,10 @@ function Null() {
 }
 /**** }}} constructor ****/
 
-/**** {{{ join() and quit() ****/
-Null.prototype.join = function(name) {
-	// a player joins and suggests a name for theirself
-	// return a 'player id' 
-	return 0
-}
-
-Null.prototype.quit = function(id) {
-	// a player with the specified id quits
-}
-/**** }}} join() and quit() ****/
-
 /**** {{{ init() and step() ****/
-Null.prototype.init = function() {
-	// initialise the game
+Null.prototype.init = function(initData) {
+	// initialise the game with a possibly large amount of
+	// initData
 }
 
 Null.prototype.step = function(delta) {
@@ -38,6 +27,18 @@ Null.prototype.hasEnded = function() {
 	// do you think the game has ended?
 }
 /**** }}} init() and step() ****/
+
+/**** {{{ join() and quit() ****/
+Null.prototype.join = function(name) {
+	// a player joins and suggests a name for theirself
+	// return a 'player id' 
+	return 0
+}
+
+Null.prototype.quit = function(id) {
+	// a player with the specified id quits
+}
+/**** }}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
 Null.prototype.initRender = function(stage) {
