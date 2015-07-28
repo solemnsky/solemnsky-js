@@ -4,7 +4,7 @@
 \\ You can start from this file when you make a new mode.             \\
 //                  ******** null/index.js ********                   */
 
-// merely keeps track of who's online
+// merely keeps track of who's online (and how long they've been there)
 // the background color is customizable, can be white or red! 
 
 module.exports = Null
