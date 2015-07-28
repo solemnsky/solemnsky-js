@@ -54,11 +54,7 @@ Vanilla.prototype.addPlayer = function(id, name) {
 }
 
 Vanilla.prototype.findPlayerById = function(id) {
-	for (var i = 0; i < this.players.length; i ++) {
-		if (this.players[i].id == id)
-			return this.players[i]; 
-	}
-	return null; 
+	Utils.findElemById(this.players, id)
 }
 
 Vanilla.prototype.createBox = function(x, y, w, h, isStatic, fields) {
@@ -193,18 +189,7 @@ Vanilla.prototype.hasEnded = function() {
 /**** {{{ join() and quit() ****/
 Vanilla.prototype.join = function(name) {
 	var ids = this.players.map(function(player) {return player.id})
-	var fillGap = Utils.range(0, (ids.length - 1)).reduce(
-		function(acc, x) { 
-			if (acc === null) {
-				if (ids[x] == x) {
-					return x
-				} else { return null }
-			} else { return acc }
-		}
-	, 0)
-	var id = ids.length
-	if (fillGap !== null) id = fillGap		
-	this.addPlayer(id, name)
+	this.addPlayer((Utils.findAvailableId(ids)), name)
 }
 
 Vanilla.prototype.quit = function(id) {

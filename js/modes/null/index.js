@@ -6,6 +6,8 @@
 
 module.exports = Null
 
+Utils = require('../../resources/util.js')
+
 /**** {{{ constructor ****/
 function Null() {
 	this.players = []
@@ -14,31 +16,37 @@ function Null() {
 
 /**** {{{ init() and step() ****/
 Null.prototype.makeInitData = function(key) {
+	if (key == 'red') {
+		return 0xFF0000
+	} else {
+		return 0xFFFFFF
+	}
 }
 
 Null.prototype.init = function(initdata) {
-	// initialise the game
+	this.color = initdata
 }
 
 Null.prototype.step = function(delta) {
-	// step the game state forward
-	// called at ~60Hz, exact delta time supplied in milliseconds
+	this.players.forEach(
+		function(player) {
+			player.counter++
+		}
+	)
 }
 
 Null.prototype.hasEnded = function() {
-	// do you think the game has ended?
+	return false
 }
 /**** }}} init() and step() ****/
 
 /**** {{{ join() and quit() ****/
 Null.prototype.join = function(name) {
-	// a player joins and suggests a name for theirself
-	// return a 'player id' 
-	return 0
+	ids = this.players.map(function(player) { return player.id })
+	this.players.push({name: name, id: Utils.findAvailableId(ids)})
 }
 
 Null.prototype.quit = function(id) {
-	// a player with the specified id quits
 }
 /**** }}} join() and quit() ****/
 

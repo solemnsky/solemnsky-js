@@ -622,11 +622,13 @@ Null = require("../modes/null/")
 Vanilla = require("../modes/vanilla/")
 clientOffline = require("../control/client-offline.js")
 
+Utils = require('../resources/util.js')
+
 mode = new Vanilla()
 
 clientOffline(mode, mode.makeInitData("default"), "vanilla game mode")
 
-},{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8}],6:[function(require,module,exports){
+},{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8,"../resources/util.js":13}],6:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
@@ -634,6 +636,8 @@ clientOffline(mode, mode.makeInitData("default"), "vanilla game mode")
 //                  ******** null/index.js ********                   */
 
 module.exports = Null
+
+Utils = require('../../resources/util.js')
 
 /**** {{{ constructor ****/
 function Null() {
@@ -643,31 +647,37 @@ function Null() {
 
 /**** {{{ init() and step() ****/
 Null.prototype.makeInitData = function(key) {
+	if (key == 'red') {
+		return 0xFF0000
+	} else {
+		return 0xFFFFFF
+	}
 }
 
 Null.prototype.init = function(initdata) {
-	// initialise the game
+	this.color = initdata
 }
 
 Null.prototype.step = function(delta) {
-	// step the game state forward
-	// called at ~60Hz, exact delta time supplied in milliseconds
+	this.players.forEach(
+		function(player) {
+			player.counter++
+		}
+	)
 }
 
 Null.prototype.hasEnded = function() {
-	// do you think the game has ended?
+	return false
 }
 /**** }}} init() and step() ****/
 
 /**** {{{ join() and quit() ****/
 Null.prototype.join = function(name) {
-	// a player joins and suggests a name for theirself
-	// return a 'player id' 
-	return 0
+	ids = this.players.map(function(player) { return player.id })
+	this.players.push({name: name, id: Utils.findAvailableId(ids)})
 }
 
 Null.prototype.quit = function(id) {
-	// a player with the specified id quits
 }
 /**** }}} join() and quit() ****/
 
@@ -720,7 +730,7 @@ Null.describeState = function() {
 }
 /**** }}} returnState() ****/
 
-},{}],7:[function(require,module,exports){
+},{"../../resources/util.js":13}],7:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -828,11 +838,7 @@ Vanilla.prototype.addPlayer = function(id, name) {
 }
 
 Vanilla.prototype.findPlayerById = function(id) {
-	for (var i = 0; i < this.players.length; i ++) {
-		if (this.players[i].id == id)
-			return this.players[i]; 
-	}
-	return null; 
+	Utils.findElemById(this.players, id)
 }
 
 Vanilla.prototype.createBox = function(x, y, w, h, isStatic, fields) {
@@ -967,18 +973,7 @@ Vanilla.prototype.hasEnded = function() {
 /**** {{{ join() and quit() ****/
 Vanilla.prototype.join = function(name) {
 	var ids = this.players.map(function(player) {return player.id})
-	var fillGap = Utils.range(0, (ids.length - 1)).reduce(
-		function(acc, x) { 
-			if (acc === null) {
-				if (ids[x] == x) {
-					return x
-				} else { return null }
-			} else { return acc }
-		}
-	, 0)
-	var id = ids.length
-	if (fillGap !== null) id = fillGap		
-	this.addPlayer(id, name)
+	this.addPlayer((Utils.findAvailableId(ids)), name)
 }
 
 Vanilla.prototype.quit = function(id) {
@@ -1511,6 +1506,24 @@ Util.prototype.range = function(start, edge, step) {
 		ret.push(start);
 	}
 	return ret;
+}
+
+Util.prototype.findAvailableId = function(xs) {
+	y = xs.length
+	for (i = 0; i <= xs.length; i++) {
+		if (xs[i] != i) {
+			y = i; break
+		}
+	}
+	return y
+}
+
+Util.prototype.findElemById = function(elems, id) {
+	for (i = 0; i <= elems.length; i++) {
+		if (elems[i].id == id) 
+			return elems[i]
+	}	
+	return null
 }
 
 },{}]},{},[5]);
