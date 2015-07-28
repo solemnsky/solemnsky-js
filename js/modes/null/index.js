@@ -4,6 +4,9 @@
 \\ You can start from this file when you make a new mode.             \\
 //                  ******** null/index.js ********                   */
 
+// merely keeps track of who's online
+// the background color is customizable, can be white or red! 
+
 module.exports = Null
 
 Utils = require('../../resources/util.js')
@@ -50,7 +53,7 @@ Null.prototype.hasEnded = function() {
 Null.prototype.join = function(name) {
 	ids = this.players.map(function(player) { return player.id })
 	newId = Utils.findAvailableId(ids)	
-	this.players.push({name: name, id: newId})
+	this.players.push({name: name, id: newId, timespent: 0})
 	return newId
 }
 
@@ -60,49 +63,51 @@ Null.prototype.quit = function(id) {
 /**** }}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
-Null.prototype.initRender = function(stage) {
-	stage.removeChildren
-}
+Null.prototype.initRender = function(stage) { }
 
 Null.prototype.stepRender = function(stage, delta) {
-	// step the PIXI renderer state forward
-	// called at ~60Hz, exact delta time supplied in milliseconds
+	stage.removeChildren
+	stage.addChild(new PIXI.Text(
+		JSON.stringify(this.players)
+	))
 }
 /**** }}} initRender() and stepRender()  ****/
 
 /**** {{{ clientAssert() and serverAssert() ****/
 Null.prototype.clientAssert = function(id) {
 	// a client speaks it mind to the server
-	return "je pense donc je suis"
+	return JSON.stringify(this.findPlayerById(id).timespent)
 }
 
 Null.prototype.serverAssert = function() {
-	// a server speaks it mind to the clients
-	return "yeah well that's kind of a tautology isn't it"
+	return JSON.stringify(this.players)
 }
 /**** }}} clientAssert() and serverAssert() ****/
 
 /**** {{{ clientMerge() and serverMerge() ****/
 Null.prototype.clientMerge = function(id, snap) {
-	// when a client recieves a snapshot from the server
+	// sync all the other players, but be sure to keep myself intact
+	var myself = this.findPlayerById(id)
+	this.players = JSON.parse(snap)
+	Utils.removeElemById(this.players, id)
+	this.players.push(myself)
 }
 
 Null.prototype.serverMerge = function(id, snap) {
-	// when the server recieves a snapshot from a client
+	var player = this.findPlayerById(id)
+	if (player !== null)
+		player.timespent = JSON.parse(snap)
 }
 /**** }}} clientMerge() and serverMerge() ****/
 
 /**** {{{ acceptKey ****/
 Null.prototype.acceptKey = function(id, key, state) {
-	// player 'id' pressed 'key'
-	// wtf are we going to do now
-	// shitshitshitshit
+	// do absolutely nothing <3
 }
 /**** }}} acceptInput ****/
 
 /**** {{{ describeState() ****/
 Null.describeState = function() {
-	// describes the state of the game to a new player, telling them
-	// everything that they need to know (passed to an init())
+	JSON.stringify(this.players)
 }
 /**** }}} returnState() ****/
