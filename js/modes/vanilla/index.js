@@ -156,7 +156,7 @@ Vanilla.prototype.init = function(initdata) {
 	// there is only one map, no need for initkey
 	this.loadMap(maps.bloxMap)
 
-	// somehow integrate 'state'	
+	// somehow integrate 'initdata'
 }
 
 Vanilla.prototype.step = function(delta) {

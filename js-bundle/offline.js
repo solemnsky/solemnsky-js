@@ -467,14 +467,18 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 \\ used in all other clients.                                          \\
 //                  ******** client-core.js ********                   */
 
-PIXI = require("../../assets/pixi.min.js")
-nameFromkeyCode = require("../resources/keys.js")
+PIXI = require('../../assets/pixi.min.js')
+nameFromkeyCode = require('../resources/keys.js')
 
-module.exports = function(mode, initdata) {
+module.exports = function(mode, initdata, predicate, overlay) {
+if (typeof overlay == "undefined") overlay = new PIXI.Container()
+if (typeof predicate == "undefined") 
+	predicate = function() { return false }
+
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 requestAnimFrame = (function() {
-	return window.requestAnimationFrame   || 
+	return window.requestAnimationFrame  || 
 		window.webkitRequestAnimationFrame || 
 		window.mozRequestAnimationFrame    || 
 		window.oRequestAnimationFrame      || 
@@ -500,6 +504,7 @@ var fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
 
 var stage = new PIXI.Container(); stage.addChild(fps)
+stage.addChild(overlay)
 var modeStage = new PIXI.Container(); stage.addChild(modeStage)
 
 mode.initRender(modeStage)
@@ -544,6 +549,7 @@ simulating = true;
 // step()
 then = Date.now()
 function update() {
+	if (predicate()) return
 	engineCounter++
 	requestAnimFrame(update)
 
@@ -553,6 +559,7 @@ function update() {
 
 	if (simulating) mode.step(delta)
 } 
+if (predicate()) return
 
 // stepRender()
 thenRender = Date.now()
@@ -562,7 +569,7 @@ function updateRender() {
 
 	nowRender = Date.now()
 	delta = nowRender - thenRender
-	thenRender = now
+	thenRender = nowRender
 
 	mode.stepRender(modeStage, delta)
 	renderer.render(stage)
@@ -591,12 +598,23 @@ logCounters()
 
 },{"../../assets/pixi.min.js":2,"../resources/keys.js":11}],4:[function(require,module,exports){
 clientCore = require('./client-core.js')
+PIXI = require('../../assets/pixi.min.js')
 
 module.exports = function(mode, initdata) {
-	clientCore(mode, initdata)
+
+function predicate() {
+	return false
 }
 
-},{"./client-core.js":3}],5:[function(require,module,exports){
+overlay = new PIXI.Container()
+text = new PIXI.Text("hey", {fill: 0xFFFFFF})
+text.position = new PIXI.Point(800, 450)
+overlay.addChild(text)
+
+clientCore(mode, initdata, predicate, overlay)
+}
+
+},{"../../assets/pixi.min.js":2,"./client-core.js":3}],5:[function(require,module,exports){
 Null = require("../modes/null/")
 Vanilla = require("../modes/vanilla/")
 clientOffline = require("../control/client-offline.js")
@@ -909,7 +927,7 @@ Vanilla.prototype.init = function(initdata) {
 	// there is only one map, no need for initkey
 	this.loadMap(maps.bloxMap)
 
-	// somehow integrate 'state'	
+	// somehow integrate 'initdata'
 }
 
 Vanilla.prototype.step = function(delta) {
