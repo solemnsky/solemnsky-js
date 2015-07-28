@@ -838,7 +838,7 @@ Vanilla.prototype.addPlayer = function(id, name) {
 }
 
 Vanilla.prototype.findPlayerById = function(id) {
-	Utils.findElemById(this.players, id)
+	return Utils.findElemById(this.players, id)
 }
 
 Vanilla.prototype.createBox = function(x, y, w, h, isStatic, fields) {
