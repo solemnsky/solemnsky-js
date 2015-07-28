@@ -1,5 +1,4 @@
-// TODO this code is not yet compliant with the new 'modes' architecture 
-// and will not run without a considerable amount of refactoring
+// old archived server
 
 /**** {{{ dependencies ****/
 //Import Box2D library

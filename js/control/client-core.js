@@ -1,7 +1,8 @@
-/*                  ******** offline.js ********                   //
-\\ This file makes a offline client to test out a mode with a      \\
-// single player. Good for debugging.                              //
-//                  ******** offline.js ********                   */
+/*                  ******** client-core.js ********                   //
+\\ This exports a base client, a minimal wrapper over the offline      \\
+// internals of a mode. It should be adequately paremeterized to be    //
+\\ used in all other clients.                                          \\
+//                  ******** client-core.js ********                   */
 
 PIXI = require("../../assets/pixi.min.js")
 nameFromkeyCode = require("../resources/keys.js")
