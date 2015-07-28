@@ -2,7 +2,7 @@
 
 SolemnSky's development at the moment is seperated into two distinct components: top-level control structures and 'modes', javascript objects over which the top-level control structures are parameterized.
 
-Modes control the game logic throughout periods of the game where the only networked information involves the shifting of a dynamic (but fairly small) state. That is, things like switching maps are done during the execution of modes. This is to make the specification of modes as simple and easy to understand as possible.
+Modes control the game logic throughout periods of the game where the only networked information involves the shifting of a dynamic (but fairly small) state. That is, things like switching maps are not done during the execution of modes. This is to make the specification of modes as simple and easy to understand as possible.
 
 ## modes
 
