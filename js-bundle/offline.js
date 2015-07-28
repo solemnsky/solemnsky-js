@@ -470,7 +470,7 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 PIXI = require("../../assets/pixi.min.js")
 nameFromkeyCode = require("../resources/keys.js")
 
-module.exports = function(initkey, mode) {
+module.exports = function(mode, initdata) {
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 requestAnimFrame = (function() {
@@ -487,7 +487,7 @@ requestAnimFrame = (function() {
 
 /**** {{{ init ****/
 // init()
-mode.init(initkey)
+mode.init(initdata)
 mode.join("offline player")
 
 // initRender()
@@ -499,11 +499,8 @@ document.body.appendChild(renderer.view)
 var fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
 
-var stage = new PIXI.Container()
-stage.addChild(fps)
-
-var modeStage = new PIXI.Container()
-stage.addChild(modeStage)
+var stage = new PIXI.Container(); stage.addChild(fps)
+var modeStage = new PIXI.Container(); stage.addChild(modeStage)
 
 mode.initRender(modeStage)
 /**** }}} init ****/
@@ -572,11 +569,7 @@ function updateRender() {
 }
 /**** }}} update loops ****/
 
-smartResize()
-update()
-updateRender()
-logCounters()
-
+/**** {{{ event handling ****/
 keyHandler = function(state) {
 	return (
 		function(e) {
@@ -588,15 +581,19 @@ keyHandler = function(state) {
 window.onresize = smartResize
 window.addEventListener("keydown", keyHandler(true), true)
 window.addEventListener("keyup", keyHandler(false), true)
+/**** }}} event handling ****/
+
+smartResize()
+update()
+updateRender()
+logCounters()
 }
 
 },{"../../assets/pixi.min.js":2,"../resources/keys.js":11}],4:[function(require,module,exports){
 clientCore = require('./client-core.js')
 
-module.exports = function(initkey, mode) {
-	clientCore(initkey, mode)
-	// todo: parameterize clientCore and add 
-	// overlay in offline client with information
+module.exports = function(mode, initdata) {
+	clientCore(mode, initdata)
 }
 
 },{"./client-core.js":3}],5:[function(require,module,exports){
@@ -606,7 +603,7 @@ clientOffline = require("../control/client-offline.js")
 
 mode = new Vanilla()
 
-clientOffline("", mode)
+clientOffline(mode, mode.makeInitData("default"))
 
 },{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8}],6:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
@@ -624,9 +621,11 @@ function Null() {
 /**** }}} constructor ****/
 
 /**** {{{ init() and step() ****/
-Null.prototype.init = function(initkey, players) {
-	// initialise game with a key describing some key factors about
-	// this particular game, aside from the mode (for instance, a map name)
+Null.prototype.makeInitData = function(key) {
+}
+
+Null.prototype.init = function(initdata) {
+	// initialise the game
 }
 
 Null.prototype.step = function(delta) {
@@ -895,7 +894,11 @@ Vanilla.prototype.evaluateContact = function(contact) {
 /**** }}} methods ***/
 
 /**** {{{ init() and step() ****/
-Vanilla.prototype.init = function(initkey, state) {
+Vanilla.prototype.makeInitData = function(key) {
+	// TODO: implement initdata
+}
+
+Vanilla.prototype.init = function(initdata) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity

@@ -141,7 +141,11 @@ Vanilla.prototype.evaluateContact = function(contact) {
 /**** }}} methods ***/
 
 /**** {{{ init() and step() ****/
-Vanilla.prototype.init = function(initkey, state) {
+Vanilla.prototype.makeInitData = function(key) {
+	// TODO: implement initdata
+}
+
+Vanilla.prototype.init = function(initdata) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity

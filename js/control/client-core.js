@@ -7,7 +7,7 @@
 PIXI = require("../../assets/pixi.min.js")
 nameFromkeyCode = require("../resources/keys.js")
 
-module.exports = function(initkey, mode) {
+module.exports = function(mode, initdata) {
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 requestAnimFrame = (function() {
@@ -24,7 +24,7 @@ requestAnimFrame = (function() {
 
 /**** {{{ init ****/
 // init()
-mode.init(initkey)
+mode.init(initdata)
 mode.join("offline player")
 
 // initRender()
@@ -36,11 +36,8 @@ document.body.appendChild(renderer.view)
 var fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
 
-var stage = new PIXI.Container()
-stage.addChild(fps)
-
-var modeStage = new PIXI.Container()
-stage.addChild(modeStage)
+var stage = new PIXI.Container(); stage.addChild(fps)
+var modeStage = new PIXI.Container(); stage.addChild(modeStage)
 
 mode.initRender(modeStage)
 /**** }}} init ****/
@@ -109,11 +106,7 @@ function updateRender() {
 }
 /**** }}} update loops ****/
 
-smartResize()
-update()
-updateRender()
-logCounters()
-
+/**** {{{ event handling ****/
 keyHandler = function(state) {
 	return (
 		function(e) {
@@ -125,4 +118,10 @@ keyHandler = function(state) {
 window.onresize = smartResize
 window.addEventListener("keydown", keyHandler(true), true)
 window.addEventListener("keyup", keyHandler(false), true)
+/**** }}} event handling ****/
+
+smartResize()
+update()
+updateRender()
+logCounters()
 }

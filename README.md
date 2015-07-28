@@ -10,7 +10,9 @@ To define a mode, a constructor must be exported along with the following protot
 
 ### initialisation and simulation
 
-	- init(initkey, state): this is called exactly once at the beginning of the game, with an initkey and a state describing what we should know about the game.
+	- makeInitData(key): this provides an initial piece of initdata, given a key
+
+	- init(initdata): this is called exactly once at the beginning of the game, with an initkey, which defines what the new client has to know about the game 
 
 	- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics.
 
