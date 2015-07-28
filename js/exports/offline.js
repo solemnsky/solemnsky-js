@@ -4,4 +4,4 @@ clientOffline = require("../control/client-offline.js")
 
 mode = new Vanilla()
 
-clientOffline(mode, mode.makeInitData("default"))
+clientOffline(mode, mode.makeInitData("default"), "vanilla game mode")

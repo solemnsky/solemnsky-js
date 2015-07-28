@@ -41,8 +41,8 @@ var fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
 
 var stage = new PIXI.Container(); stage.addChild(fps)
-stage.addChild(overlay)
 var modeStage = new PIXI.Container(); stage.addChild(modeStage)
+stage.addChild(overlay)
 
 mode.initRender(modeStage)
 /**** }}} init ****/

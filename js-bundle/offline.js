@@ -504,8 +504,8 @@ var fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
 
 var stage = new PIXI.Container(); stage.addChild(fps)
-stage.addChild(overlay)
 var modeStage = new PIXI.Container(); stage.addChild(modeStage)
+stage.addChild(overlay)
 
 mode.initRender(modeStage)
 /**** }}} init ****/
@@ -600,16 +600,19 @@ logCounters()
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 
-module.exports = function(mode, initdata) {
+module.exports = function(mode, initdata, description) {
 
 function predicate() {
 	return false
 }
 
 overlay = new PIXI.Container()
-text = new PIXI.Text("hey", {fill: 0xFFFFFF})
-text.position = new PIXI.Point(800, 450)
-overlay.addChild(text)
+text1 = new PIXI.Text("offline demo" , {fill: 0xFFFFFF})
+text1.position = new PIXI.Point(800, 15)
+overlay.addChild(text1)
+text2 = new PIXI.Text(description , {fill: 0xFFFFFF})
+text2.position = new PIXI.Point(800, 850)
+overlay.addChild(text2)
 
 clientCore(mode, initdata, predicate, overlay)
 }
@@ -621,7 +624,7 @@ clientOffline = require("../control/client-offline.js")
 
 mode = new Vanilla()
 
-clientOffline(mode, mode.makeInitData("default"))
+clientOffline(mode, mode.makeInitData("default"), "vanilla game mode")
 
 },{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8}],6:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
