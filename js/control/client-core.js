@@ -25,7 +25,7 @@ init = function(stage) {
 	mode.initRender(modeStage)
 }
 
-step = function(stage, delta) {
+renderStep = function(stage, delta) {
 	fps.text = 
 		"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
 	mode.stepRender(modeStage, delta) 
@@ -36,7 +36,7 @@ logicStep = function(delta) {
 	callback()
 }
 
-pixiCore(init, step, logicStep)
+pixiCore(init, renderStep, logicStep)
 
 /**** {{{ event handling ****/
 keyHandler = function(state) {
