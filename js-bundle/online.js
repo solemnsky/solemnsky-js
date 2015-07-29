@@ -550,7 +550,7 @@ function onDisconnected() {
 
 function onMessage(message) {
 	//STUB
-	console.log(message);
+	console.log(message.data);
 }
 
 connect(address, port, path);
