@@ -34,6 +34,7 @@ function onClientDisconnected(client) {
 function onMessage(client, message) {
 	//STUB
 	console.log("Message from client: " + message);
+	client.send("TEST");
 }
 
 openSocket(port);
