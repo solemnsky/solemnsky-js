@@ -632,7 +632,6 @@ function onDisconnected() {
 function onMessage(message) {
 	//STUB
 	console.log(message);
-	socket.send("TEST");
 }
 
 connect(address, port, path);

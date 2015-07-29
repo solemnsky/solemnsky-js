@@ -20,7 +20,7 @@ function onClientConnected(client) {
 		onMessage(client, message);
 	});
 	client.on("close", function() {
-		onClientDisconneced(client);
+		onClientDisconnected(client);
 	});
 
 	console.log("Client connected");
@@ -34,7 +34,7 @@ function onClientDisconnected(client) {
 function onMessage(client, message) {
 	//STUB
 	console.log("Message from client: " + message);
-	client.send("TEST");
+	client.send(message);
 }
 
 openSocket(port);
