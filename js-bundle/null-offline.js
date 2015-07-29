@@ -476,13 +476,9 @@ if (typeof overlay == "undefined") overlay = new PIXI.Container()
 if (typeof callback  == "undefined") 
 	callback = function() { }
 
-running = true;
-
-pixiCore(init, step, logicStep, secondStep)
-
-var fps = new PIXI.Text("", {fill: 0xFFFFFF})
+fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
-var modeStage = new PIXI.Container(); 
+modeStage = new PIXI.Container(); 
 
 init = function(stage) {
 	stage.addChild(fps)
@@ -492,25 +488,19 @@ init = function(stage) {
 	mode.initRender(modeStage)
 }
 
-var renderCounter = 0
 step = function(stage, delta) {
-	renderCounter++
+	fps.text = 
+		"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
 	mode.stepRender(modeStage, delta) 
 }
 
-var engineCounter = 0
 logicStep = function(delta) {
-	engineCounter++
 	mode.step(delta)
 	callback()
 }
 
-secondStep = function() { 
-	fps.text = 
-		"render: " + renderCounter + "Hz\n" + "engine: " + engineCounter + "Hz"
-	renderCounter = 0 
-	engineCounter = 0 
-}
+
+pixiCore(init, step, logicStep)
 
 /**** {{{ event handling ****/
 keyHandler = function(state) {
@@ -561,17 +551,20 @@ clientCore(mode, callback, overlay)
 // logicStep: step logic forward, supplied with a time delta
 // set running = true at any time to break out
 
-module.exports = function(init, step, logicStep, secondStep) {
+module.exports = function(init, renderStep, logicStep, secondStep) {
 if (typeof init === "undefined") init = function(stage) {}
-if (typeof step === "undefined") step = function(stage, delta) {}
+if (typeof renderStep === "undefined") renderStep = function(stage, delta) {}
 if (typeof logicStep === "undefined") logicStep = function(delta) {}
 if (typeof secondStep === "undefined") secondStep = function() {}
 
 running = true;
 
-secondCallback = function() {
-	window.setTimeout(secondCallback, 1000)
-	secondStep()
+engineFps = 0; renderFps = 0
+renderFpsC = 0; engineFpsC = 0
+resetFps = function() {
+	window.setTimeout(resetFps, 1000)
+	renderFps = renderFpsC; engineFps = engineFpsC
+	renderFpsC = 0; engineFpsC = 0
 }
 
 /**** {{{ requestAnimFrame ****/
@@ -589,12 +582,13 @@ requestAnimFrame = (function() {
 /**** }}} requestAnimFrame ****/
 
 /**** {{{ init ****/
-var renderer =
+renderer =
 	PIXI.autoDetectRenderer(1600, 900, 
 		{backgroundColor : 0x000010, antialias : true})
 document.body.appendChild(renderer.view)
 
-var stage = new PIXI.Container()
+stage = new PIXI.Container()
+init(stage)
 /**** }}} init ****/
 
 /**** {{{ smartResize() ****/
@@ -622,21 +616,23 @@ function smartResize() {
 /**** {{{ step ****/
 // step()
 then = Date.now()
-function update() {
+function updateRender() {
+	renderFpsC++
 	if (!running) return
-	requestAnimFrame(update)
+	requestAnimFrame(updateRender)
 
 	now = Date.now()
 	delta = now - then
 	then = now
 
-	step(stage, delta)
+	renderStep(stage, delta)
+	renderer.render(stage)
 } 
 if (!running) return
 
 thenEngine = Date.now()
 function updateEngine() {
-	callback()
+	engineFpsC++
 	if (!running) return
 
 	requestAnimFrame(updateEngine)
@@ -647,11 +643,14 @@ function updateEngine() {
 
 	logicStep(delta)
 }
+if (!running) return
 /**** }}} step ****/
 
 window.onresize = smartResize
 
-update()
+smartResize()
+updateRender()
+updateEngine()
 }
 
 },{}],6:[function(require,module,exports){

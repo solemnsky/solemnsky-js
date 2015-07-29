@@ -13,13 +13,9 @@ if (typeof overlay == "undefined") overlay = new PIXI.Container()
 if (typeof callback  == "undefined") 
 	callback = function() { }
 
-running = true;
-
-pixiCore(init, step, logicStep, secondStep)
-
-var fps = new PIXI.Text("", {fill: 0xFFFFFF})
+fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
-var modeStage = new PIXI.Container(); 
+modeStage = new PIXI.Container(); 
 
 init = function(stage) {
 	stage.addChild(fps)
@@ -29,25 +25,19 @@ init = function(stage) {
 	mode.initRender(modeStage)
 }
 
-var renderCounter = 0
 step = function(stage, delta) {
-	renderCounter++
+	fps.text = 
+		"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
 	mode.stepRender(modeStage, delta) 
 }
 
-var engineCounter = 0
 logicStep = function(delta) {
-	engineCounter++
 	mode.step(delta)
 	callback()
 }
 
-secondStep = function() { 
-	fps.text = 
-		"render: " + renderCounter + "Hz\n" + "engine: " + engineCounter + "Hz"
-	renderCounter = 0 
-	engineCounter = 0 
-}
+
+pixiCore(init, step, logicStep)
 
 /**** {{{ event handling ****/
 keyHandler = function(state) {
