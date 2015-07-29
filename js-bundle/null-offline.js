@@ -624,9 +624,9 @@ clientOffline = require("../control/client-offline.js")
 
 Utils = require('../resources/util.js')
 
-mode = new Vanilla()
+mode = new Null()
 
-clientOffline(mode, mode.makeInitData("default"), "vanilla game mode")
+clientOffline(mode, mode.makeInitData("red"), "vanilla game mode")
 
 },{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8,"../resources/util.js":13}],6:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //

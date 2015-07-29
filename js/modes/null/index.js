@@ -5,7 +5,7 @@
 //                  ******** null/index.js ********                   */
 
 // merely keeps track of who's online (and how long they've been there)
-// the background color is customizable, can be white or red! 
+// the background color is customizable via initdata
 
 module.exports = Null
 
@@ -19,21 +19,22 @@ function Null() {
 
 /**** {{{ methods ****/
 Null.prototype.findPlayerById = function(id) {
-	Utils.findElemById(this.player, id)
+	return Utils.findElemById(this.players, id)
 }
 /**** }}} methods ****/
 
 /**** {{{ init() and step() ****/
 Null.prototype.makeInitData = function(key) {
 	if (key == 'red') {
-		return 0xFF0000
+		return {color: 0xFF0000, players: []}
 	} else {
-		return 0xFFFFFF
+		return {color: 0xFFFFFF, players: []}
 	}
 }
 
 Null.prototype.init = function(initdata) {
-	this.color = initdata
+	this.color = initdata.color
+	this.players = initdata.players
 }
 
 Null.prototype.step = function(delta) {
@@ -63,13 +64,17 @@ Null.prototype.quit = function(id) {
 /**** }}} join() and quit() ****/
 
 /**** {{{ initRender() and stepRender() ****/
-Null.prototype.initRender = function(stage) { }
+Null.prototype.initRender = function(stage) { 
+	stage.addChild(new PIXI.Text("", {fill: 0xFFFFFF}))
+}
 
 Null.prototype.stepRender = function(stage, delta) {
-	stage.removeChildren
-	stage.addChild(new PIXI.Text(
-		JSON.stringify(this.players)
-	))
+	stage.children[0].text = 
+		this.players.reduce(
+			function(acc, player) {
+				return acc + "\n" + JSON.stringify(player)
+			} 
+		, "")
 }
 /**** }}} initRender() and stepRender()  ****/
 
@@ -88,9 +93,10 @@ Null.prototype.serverAssert = function() {
 Null.prototype.clientMerge = function(id, snap) {
 	// sync all the other players, but be sure to keep myself intact
 	var myself = this.findPlayerById(id)
-	this.players = JSON.parse(snap)
-	Utils.removeElemById(this.players, id)
-	this.players.push(myself)
+		this.players = JSON.parse(snap)
+		Utils.removeElemById(this.players, id)
+	if (myself !== null) 
+		this.players.push(myself)
 }
 
 Null.prototype.serverMerge = function(id, snap) {

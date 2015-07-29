@@ -101,7 +101,7 @@ Util.prototype.findAvailableId = function(xs) {
 }
 
 Util.prototype.findIndexById = function(elems, id) {
-	for (i = 0; i <= elems.length; i++) {
+	for (i = 0; i < elems.length; i++) {
 		if (elems[i].id == id) 
 			return i
 	}	
