@@ -36,7 +36,7 @@ logicStep = function(delta) {
 	callback()
 }
 
-pixiCore(init, renderStep, logicStep)
+runPixi(init, renderStep, logicStep)
 
 /**** {{{ event handling ****/
 keyHandler = function(state) {
