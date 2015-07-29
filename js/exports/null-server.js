@@ -7,4 +7,4 @@ serverCore = require("../control/server-core.js");
 
 mode = new Null()
 
-serverCore(50042)
+serverCore(50042, mode, "default")

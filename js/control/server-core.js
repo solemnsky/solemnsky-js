@@ -3,11 +3,11 @@
 // to be used in all other servers.                                    //
 \\                  ******** server-core.js ********                   */
 
-module.exports = function(port) {
+module.exports = function(port, mode, key, callback) {
 //Sockets
 WebSocket = require("ws");
 
-function openSocket() {
+function openSocket(port) {
 	wss = new WebSocket.Server({port: port});
 	wss.on("connection", function(client) {
 		onClientConnected(client);
@@ -34,6 +34,9 @@ function onClientDisconnected(client) {
 function onMessage(client, message) {
 	//STUB
 	console.log("Message from client: " + message);
+	client.send("TEST");
 }
 
+openSocket(port);
+mode.init(mode.makeInitData(key));
 }
