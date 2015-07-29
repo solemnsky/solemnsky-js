@@ -7,10 +7,10 @@
 PIXI = require('../../assets/pixi.min.js')
 nameFromkeyCode = require('../resources/keys.js')
 
-module.exports = function(mode, initdata, predicate, overlay) {
+module.exports = function(mode, initdata, doStop, overlay) {
 if (typeof overlay == "undefined") overlay = new PIXI.Container()
-if (typeof predicate == "undefined") 
-	predicate = function() { return false }
+if (typeof doStop == "undefined") 
+	doStop = function() { return false }
 
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -86,7 +86,7 @@ simulating = true;
 // step()
 then = Date.now()
 function update() {
-	if (predicate()) return
+	if (doStop()) return
 	engineCounter++
 	requestAnimFrame(update)
 
@@ -96,11 +96,12 @@ function update() {
 
 	if (simulating) mode.step(delta)
 } 
-if (predicate()) return
+if (doStop()) return
 
 // stepRender()
 thenRender = Date.now()
 function updateRender() {
+	if (doStop()) return
 	renderCounter++
 	requestAnimFrame(updateRender)
 
@@ -111,6 +112,7 @@ function updateRender() {
 	mode.stepRender(modeStage, delta)
 	renderer.render(stage)
 }
+if (doStop()) return
 /**** }}} update loops ****/
 
 /**** {{{ event handling ****/

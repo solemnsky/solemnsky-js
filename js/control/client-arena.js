@@ -11,6 +11,6 @@ clientCore = require('./client-core.js')
 
 module.exports = function(address, mode) {
 	clientCore("this should be recieved from the server", mode)
-	mode.init("this data should also be recieved from the server", "as should this")
+	mode.init("this data should also be recieved from the server")
 }
 
