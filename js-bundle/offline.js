@@ -469,133 +469,52 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 
 PIXI = require('../../assets/pixi.min.js')
 nameFromkeyCode = require('../resources/keys.js')
+pixiCore = require('./pixi-core.js')
 
 module.exports = function(mode, callback, overlay) {
 if (typeof overlay == "undefined") overlay = new PIXI.Container()
-if (typeof doStop == "undefined") 
-	doStop = function() { return false }
+if (typeof callback  == "undefined") 
+	callback = function() { }
 
-running = true;
-
-/**** {{{ requestAnimFrame ****/
-// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-requestAnimFrame = (function() {
-	return window.requestAnimationFrame  || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
-		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, SolemnSky.tickTimeMs);
-		};
-})();
-/**** }}} requestAnimFrame ****/
-
-/**** {{{ init ****/
-// initRender()
-var renderer =
-	PIXI.autoDetectRenderer(1600, 900, 
-		{backgroundColor : 0x000010, antialias : true})
-document.body.appendChild(renderer.view)
-
-var fps = new PIXI.Text("", {fill: 0xFFFFFF})
+fps = new PIXI.Text("", {fill: 0xFFFFFF})
 fps.position = new PIXI.Point(1400, 10)
+modeStage = new PIXI.Container(); 
 
-var stage = new PIXI.Container(); stage.addChild(fps)
-var modeStage = new PIXI.Container(); stage.addChild(modeStage)
-stage.addChild(overlay)
+init = function(stage) {
+	stage.addChild(fps)
+	stage.addChild(modeStage)
+	stage.addChild(overlay)
 
-mode.initRender(modeStage)
-/**** }}} init ****/
-
-/**** {{{ smartResize() ****/
-function setMargins(mleft, mtop) {
-	document.body.style.setProperty("margin-left", mleft + "px")
-	document.body.style.setProperty("margin-top", mtop + "px")
+	mode.initRender(modeStage)
 }
 
-function smartResize() {
-	w = window.innerWidth; h = window.innerHeight;
-	if ((w / h) > (16 / 9)) {
-		nw = h * (16 / 9); nh = h
-		renderer.resize(nw, nh)
-		setMargins((w - nw) / 2, 0)
-	} else {
-		nh = w * (9 / 16); nw = w
-		renderer.resize(nw, nh)
-		setMargins(0, (h - nh) / 2)
-	}
-
-	stage.scale = new PIXI.Point(nw / 1600, nh / 900)
-}
-/**** }}} smartResize() ****/
-
-/**** {{{ update loops ****/
-var renderCounter = 0
-var engineCounter = 0
-
-function logCounters() { 
-	window.setTimeout(logCounters, 1000)
-
-	fps.text = "render: " + renderCounter + "Hz\n" + "engine: " + engineCounter + "Hz"
-	renderCounter = 0 
-	engineCounter = 0 
+step = function(stage, delta) {
+	fps.text = 
+		"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
+	mode.stepRender(modeStage, delta) 
 }
 
-// step()
-then = Date.now()
-function update() {
-	callback()
-	if (!running) return
-	engineCounter++
-	requestAnimFrame(update)
-
-	now = Date.now()
-	delta = now - then
-	then = now
-
+logicStep = function(delta) {
 	mode.step(delta)
-} 
-if (!running) return
-
-// stepRender()
-thenRender = Date.now()
-function updateRender() {
-	if (!running) return
-	renderCounter++
-	requestAnimFrame(updateRender)
-
-	nowRender = Date.now()
-	delta = nowRender - thenRender
-	thenRender = nowRender
-
-	mode.stepRender(modeStage, delta)
-	renderer.render(stage)
+	callback()
 }
-if (!running) return
-/**** }}} update loops ****/
+
+pixiCore(init, step, logicStep)
 
 /**** {{{ event handling ****/
 keyHandler = function(state) {
 	return (
-		function(e) {
-			mode.acceptKey(0, nameFromKeyCode(e.keyCode), state)
-		}
+		function(e) 
+			{ mode.acceptKey(0, nameFromKeyCode(e.keyCode), state) }
 	)
 }
 
-window.onresize = smartResize
 window.addEventListener("keydown", keyHandler(true), true)
 window.addEventListener("keyup", keyHandler(false), true)
 /**** }}} event handling ****/
-
-smartResize()
-update()
-updateRender()
-logCounters()
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/keys.js":12}],4:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../resources/keys.js":13,"./pixi-core.js":5}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Small wrapper over client-core, tests a mode out offline.           \\
 //                  ******** client-offline.js ********                */
@@ -622,6 +541,119 @@ clientCore(mode, callback, overlay)
 }
 
 },{"../../assets/pixi.min.js":2,"./client-core.js":3}],5:[function(require,module,exports){
+/*                  ******** pixi-core.js ********                     //
+\\ This exports a method for a basic UI with pixi, highly reusable.    \\
+//                  ******** pixi-core.js ********                     */
+
+// init: function called exactly once with a container
+// step: function called in a 60Hz loop with a container and a time delta
+// logicStep: step logic forward, supplied with a time delta
+// set running = true at any time to break out
+
+module.exports = function(init, renderStep, logicStep, secondStep) {
+if (typeof init === "undefined") init = function(stage) {}
+if (typeof renderStep === "undefined") renderStep = function(stage, delta) {}
+if (typeof logicStep === "undefined") logicStep = function(delta) {}
+if (typeof secondStep === "undefined") secondStep = function() {}
+
+running = true;
+
+engineFps = 0; renderFps = 0
+renderFpsC = 0; engineFpsC = 0
+resetFps = function() {
+	window.setTimeout(resetFps, 1000)
+	renderFps = renderFpsC; engineFps = engineFpsC
+	renderFpsC = 0; engineFpsC = 0
+}
+
+/**** {{{ requestAnimFrame ****/
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+requestAnimFrame = (function() {
+	return window.requestAnimationFrame  || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame    || 
+		window.oRequestAnimationFrame      || 
+		window.msRequestAnimationFrame     || 
+		function(callback, /* DOMElement */ element){
+			window.setTimeout(callback, SolemnSky.tickTimeMs);
+		};
+})();
+/**** }}} requestAnimFrame ****/
+
+/**** {{{ init ****/
+renderer =
+	PIXI.autoDetectRenderer(1600, 900, 
+		{backgroundColor : 0x000010, antialias : true})
+document.body.appendChild(renderer.view)
+
+stage = new PIXI.Container()
+init(stage)
+/**** }}} init ****/
+
+/**** {{{ smartResize() ****/
+function setMargins(mleft, mtop) {
+	document.body.style.setProperty("margin-left", mleft + "px")
+	document.body.style.setProperty("margin-top", mtop + "px")
+}
+
+function smartResize() {
+	w = window.innerWidth; h = window.innerHeight;
+	if ((w / h) > (16 / 9)) {
+		nw = h * (16 / 9); nh = h
+		renderer.resize(nw, nh)
+		setMargins((w - nw) / 2, 0)
+	} else {
+		nh = w * (9 / 16); nw = w
+		renderer.resize(nw, nh)
+		setMargins(0, (h - nh) / 2)
+	}
+
+	stage.scale = new PIXI.Point(nw / 1600, nh / 900)
+}
+/**** }}} smartResize() ****/
+
+/**** {{{ step ****/
+// step()
+then = Date.now()
+function updateRender() {
+	renderFpsC++
+	if (!running) return
+	requestAnimFrame(updateRender)
+
+	now = Date.now()
+	delta = now - then
+	then = now
+
+	renderStep(stage, delta)
+	renderer.render(stage)
+} 
+if (!running) return
+
+thenEngine = Date.now()
+function updateEngine() {
+	engineFpsC++
+	if (!running) return
+
+	requestAnimFrame(updateEngine)
+
+	nowEngine = Date.now()
+	delta = nowEngine - thenEngine
+	thenEngine = nowEngine
+
+	logicStep(delta)
+}
+if (!running) return
+/**** }}} step ****/
+
+window.onresize = smartResize
+
+smartResize()
+resetFps()
+updateRender()
+updateEngine()
+}
+
+},{}],6:[function(require,module,exports){
 Null = require("../modes/null/")
 Vanilla = require("../modes/vanilla/")
 VanillaRenderer = require("../modes/vanilla/render.js");
@@ -635,7 +667,7 @@ Utils = require('../resources/util.js')
 mode = new Vanilla()
 clientOffline(mode, "default", "vanilla game mode")
 
-},{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8,"../modes/vanilla/render.js":10,"../resources/util.js":14}],6:[function(require,module,exports){
+},{"../control/client-offline.js":4,"../modes/null/":7,"../modes/vanilla/":9,"../modes/vanilla/render.js":11,"../resources/util.js":15}],7:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
@@ -755,7 +787,7 @@ Null.prototype.describeState = function() {
 }
 /**** }}} describeState() ****/
 
-},{"../../resources/util.js":14}],7:[function(require,module,exports){
+},{"../../resources/util.js":15}],8:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -806,7 +838,7 @@ module.exports = {
 	, contactDamangeMultiplier: 0.01
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*                  ******** vanilla/index.js ********                //
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //                  ******** vanilla/index.js ********                */
@@ -1053,7 +1085,7 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} returnState() ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":13,"../../resources/util.js":14,"./gameplay.js":7,"./player.js":9,"./snapshots.js":11}],9:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":14,"../../resources/util.js":15,"./gameplay.js":8,"./player.js":10,"./snapshots.js":12}],10:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1250,7 +1282,7 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*          ******** vanilla/render.js ********       //
 \\ Client-sided renderer for the vanilla game mode.   \\
 //          ******** vanilla/render.js ********       */
@@ -1348,7 +1380,7 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 /**** }}} initRender() and stepRender()  ****/
 
 }
-},{"../../../assets/pixi.min.js":2}],11:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2}],12:[function(require,module,exports){
 Utils = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1414,7 +1446,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":14}],12:[function(require,module,exports){
+},{"../../resources/util.js":15}],13:[function(require,module,exports){
 var keyboardMap = ["","","","cancel","","","help","","back_space","tab","","","clear","enter","return","","shift","control","alt","pause","caps_lock","kana","eisu","junja","final","hanja","","escape","convert","nonconvert","accept","modechange","space","page_up","page_down","end","home","left","up","right","down","select","print","execute","printscreen","insert","delete","","0","1","2","3","4","5","6","7","8","9","colon","semicolon","less_than","equals","greater_than","question_mark","at","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","win","","context_menu","","sleep","numpad0","numpad1","numpad2","numpad3","numpad4","numpad5","numpad6","numpad7","numpad8","numpad9","multiply","add","separator","subtract","decimal","divide","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12","f13","f14","f15","f16","f17","f18","f19","f20","f21","f22","f23","f24","","","","","","","","","num_lock","scroll_lock","win_oem_fj_jisho","win_oem_fj_masshou","win_oem_fj_touroku","win_oem_fj_loya","win_oem_fj_roya","","","","","","","","","","circumflex","exclamation","double_quote","hash","dollar","percent","ampersand","underscore","open_paren","close_paren","asterisk","plus","pipe","hyphen_minus","open_curly_bracket","close_curly_bracket","tilde","","","","","volume_mute","volume_down","volume_up","","","semicolon","equals","comma","minus","period","slash","back_quote","","","","","","","","","","","","","","","","","","","","","","","","","","","open_bracket","back_slash","close_bracket","quote","","meta","altgr","","win_ico_help","win_ico_00","","win_ico_clear","","","win_oem_reset","win_oem_jump","win_oem_pa1","win_oem_pa2","win_oem_pa3","win_oem_wsctrl","win_oem_cusel","win_oem_attn","win_oem_finish","win_oem_copy","win_oem_auto","win_oem_enlw","win_oem_backtab","attn","crsel","exsel","ereof","play","zoom","","pa1","win_oem_clear",""];
 
 nameFromKeyCode = function(keycode) {
@@ -1423,7 +1455,7 @@ nameFromKeyCode = function(keycode) {
 
 module.exports = nameFromKeyCode
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1450,7 +1482,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1575,4 +1607,4 @@ Util.prototype.removeElemById = function(elems, id) {
 	elems.splice(index, 1)
 }
 
-},{}]},{},[5]);
+},{}]},{},[6]);
