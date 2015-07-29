@@ -7,7 +7,7 @@ module.exports = function(port) {
 //Sockets
 WebSocket = require("ws");
 
-function openSocket() {
+function openSocket(port) {
 	wss = new WebSocket.Server({port: port});
 	wss.on("connection", function(client) {
 		onClientConnected(client);
@@ -35,5 +35,7 @@ function onMessage(client, message) {
 	//STUB
 	console.log("Message from client: " + message);
 }
+
+openSocket(port);
 
 }
