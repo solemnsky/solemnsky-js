@@ -23,17 +23,17 @@ function onClientConnected(client) {
 		onClientDisconnected(client);
 	});
 
-	console.log("Client " + client._socket.address().address + " connected");
+	console.log("Client " + client._socket.remoteAddress + " connected");
 }
 
 function onClientDisconnected(client) {
 	//STUB
-	console.log("Client " + client._socket.address().address + " disconnected");
+	console.log("Client " + client._socket.remoteAddress + " disconnected");
 }
 
 function onMessage(client, message) {
 	//STUB
-	console.log("Message from client " + client._socket.address().address + ": " + message);
+	console.log("Message from client " + client._socket.remoteAddress + ": " + message);
 	client.send(message);
 }
 
