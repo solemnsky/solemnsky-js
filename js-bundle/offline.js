@@ -595,7 +595,10 @@ updateRender()
 logCounters()
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/keys.js":11}],4:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../resources/keys.js":12}],4:[function(require,module,exports){
+/*                  ******** client-offline.js ********                //
+\\ Small wrapper over client-core, tests a mode out offline.           \\
+//                  ******** client-offline.js ********                */
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 
@@ -621,6 +624,10 @@ clientCore(mode, callback, overlay)
 },{"../../assets/pixi.min.js":2,"./client-core.js":3}],5:[function(require,module,exports){
 Null = require("../modes/null/")
 Vanilla = require("../modes/vanilla/")
+VanillaRenderer = require("../modes/vanilla/render.js");
+
+VanillaRenderer.extend(Vanilla);
+
 clientOffline = require("../control/client-offline.js")
 
 Utils = require('../resources/util.js')
@@ -628,7 +635,7 @@ Utils = require('../resources/util.js')
 mode = new Vanilla()
 clientOffline(mode, "default", "vanilla game mode")
 
-},{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8,"../resources/util.js":13}],6:[function(require,module,exports){
+},{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8,"../modes/vanilla/render.js":10,"../resources/util.js":14}],6:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
@@ -748,7 +755,7 @@ Null.prototype.describeState = function() {
 }
 /**** }}} describeState() ****/
 
-},{"../../resources/util.js":13}],7:[function(require,module,exports){
+},{"../../resources/util.js":14}],7:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -807,7 +814,6 @@ module.exports = {
 module.exports = Vanilla
 
 Box2D = require('../../../assets/box2d.min.js')
-PIXI = require('../../../assets/pixi.min.js')
 
 Utils = require('../../resources/util.js')
 maps = require('../../resources/maps.js')
@@ -999,93 +1005,6 @@ Vanilla.prototype.quit = function(id) {
 }
 /**** }}}} join() and quit() ****/
 
-/**** {{{ initRender() and stepRender() ****/
-Vanilla.prototype.renderMap = function(map) {
-	map.removeChildren()
-
-	var mapGraphics = new PIXI.Graphics()
-
-	mapGraphics.clear
-	mapGraphics.beginFill(0xFFFFFF, 1)
-	
-	this.map.forEach(
-		function(block) {
-			var data = block.GetUserData()
-			mapGraphics.drawRect(
-				data.x - (data.w / 2)
-				, data.y - (data.h / 2)
-				, data.w, data.h
-			)
-		}
-	)
-	
-	map.addChild(mapGraphics)
-}
-Vanilla.prototype.renderPlayers = function(players) {
-	players.removeChildren()
-
-	this.players.forEach(
-		function(player) {
-			var pos = player.position
-			var rot = player.rotation
-			var stalled = player.stalled
-			var throttle = player.throttle
-			var health = player.health
-
-			var playerGraphics = new PIXI.Graphics()
-
-			playerGraphics.clear()
-
-			// at this point we have a pale matchstick with a red head
-
-			// if it's not stalled, draw the throttle on a pale white body
-			if (!player.stalled) {
-				// pale white body
-				playerGraphics.beginFill(0xFFFFFF , 0.2)
-				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-
-				// throttle view
-				playerGraphics.beginFill(0xFFFFFF, player.afterburner? 1 : 0.5)
-				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
-				
-			}
-
-			// if it is, draw a pale blue body
-			if (player.stalled) {
-				if (!player.afterburner) {
-					// pale blue body
-					playerGraphics.beginFill(0x000030 , 1)
-					playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-				} else {
-					// pale blue body
-					playerGraphics.beginFill(0x000050 , 1)
-					playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-				}
-			}
-
-			// draw a red head on top
-			playerGraphics.beginFill(0xFF0000, health)
-			playerGraphics.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
-			
-			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
-			playerGraphics.rotation = rot;
-			
-			players.addChild(playerGraphics)
-		}
-	)
-}
-
-Vanilla.prototype.initRender = function(stage) {
-	stage.addChild(new PIXI.Container)
-	stage.addChild(new PIXI.Container)
-}
-
-Vanilla.prototype.stepRender = function(stage, delta) {
-	this.renderMap(stage.children[0])
-	this.renderPlayers(stage.children[1])
-}
-/**** }}} initRender() and stepRender()  ****/
-
 /**** {{{ clientAssert() and serverAssert() ****/
 Vanilla.prototype.clientAssert = function(id) {
 	return snapshots.serialiseSnapshot(
@@ -1134,7 +1053,7 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} returnState() ****/
 
-},{"../../../assets/box2d.min.js":1,"../../../assets/pixi.min.js":2,"../../resources/maps.js":12,"../../resources/util.js":13,"./gameplay.js":7,"./player.js":9,"./snapshots.js":10}],9:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":13,"../../resources/util.js":14,"./gameplay.js":7,"./player.js":9,"./snapshots.js":11}],9:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1332,6 +1251,104 @@ Player.prototype.step = function(delta) {
 
 
 },{}],10:[function(require,module,exports){
+/*          ******** vanilla/render.js ********       //
+\\ Client-sided renderer for the vanilla game mode.   \\
+//          ******** vanilla/render.js ********       */
+
+PIXI = require('../../../assets/pixi.min.js')
+
+//Extend the original vanilla object to contain the renderer
+exports.extend = function(Vanilla) {
+
+/**** {{{ initRender() and stepRender() ****/
+Vanilla.prototype.renderMap = function(map) {
+	map.removeChildren()
+
+	var mapGraphics = new PIXI.Graphics()
+
+	mapGraphics.clear
+	mapGraphics.beginFill(0xFFFFFF, 1)
+	
+	this.map.forEach(
+		function(block) {
+			var data = block.GetUserData()
+			mapGraphics.drawRect(
+				data.x - (data.w / 2)
+				, data.y - (data.h / 2)
+				, data.w, data.h
+			)
+		}
+	)
+	
+	map.addChild(mapGraphics)
+}
+Vanilla.prototype.renderPlayers = function(players) {
+	players.removeChildren()
+
+	this.players.forEach(
+		function(player) {
+			var pos = player.position
+			var rot = player.rotation
+			var stalled = player.stalled
+			var throttle = player.throttle
+			var health = player.health
+
+			var playerGraphics = new PIXI.Graphics()
+
+			playerGraphics.clear()
+
+			// at this point we have a pale matchstick with a red head
+
+			// if it's not stalled, draw the throttle on a pale white body
+			if (!player.stalled) {
+				// pale white body
+				playerGraphics.beginFill(0xFFFFFF , 0.2)
+				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+
+				// throttle view
+				playerGraphics.beginFill(0xFFFFFF, player.afterburner? 1 : 0.5)
+				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
+				
+			}
+
+			// if it is, draw a pale blue body
+			if (player.stalled) {
+				if (!player.afterburner) {
+					// pale blue body
+					playerGraphics.beginFill(0x000030 , 1)
+					playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+				} else {
+					// pale blue body
+					playerGraphics.beginFill(0x000050 , 1)
+					playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
+				}
+			}
+
+			// draw a red head on top
+			playerGraphics.beginFill(0xFF0000, health)
+			playerGraphics.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
+			
+			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
+			playerGraphics.rotation = rot;
+			
+			players.addChild(playerGraphics)
+		}
+	)
+}
+
+Vanilla.prototype.initRender = function(stage) {
+	stage.addChild(new PIXI.Container)
+	stage.addChild(new PIXI.Container)
+}
+
+Vanilla.prototype.stepRender = function(stage, delta) {
+	this.renderMap(stage.children[0])
+	this.renderPlayers(stage.children[1])
+}
+/**** }}} initRender() and stepRender()  ****/
+
+}
+},{"../../../assets/pixi.min.js":2}],11:[function(require,module,exports){
 Utils = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1397,7 +1414,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":13}],11:[function(require,module,exports){
+},{"../../resources/util.js":14}],12:[function(require,module,exports){
 var keyboardMap = ["","","","cancel","","","help","","back_space","tab","","","clear","enter","return","","shift","control","alt","pause","caps_lock","kana","eisu","junja","final","hanja","","escape","convert","nonconvert","accept","modechange","space","page_up","page_down","end","home","left","up","right","down","select","print","execute","printscreen","insert","delete","","0","1","2","3","4","5","6","7","8","9","colon","semicolon","less_than","equals","greater_than","question_mark","at","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","win","","context_menu","","sleep","numpad0","numpad1","numpad2","numpad3","numpad4","numpad5","numpad6","numpad7","numpad8","numpad9","multiply","add","separator","subtract","decimal","divide","f1","f2","f3","f4","f5","f6","f7","f8","f9","f10","f11","f12","f13","f14","f15","f16","f17","f18","f19","f20","f21","f22","f23","f24","","","","","","","","","num_lock","scroll_lock","win_oem_fj_jisho","win_oem_fj_masshou","win_oem_fj_touroku","win_oem_fj_loya","win_oem_fj_roya","","","","","","","","","","circumflex","exclamation","double_quote","hash","dollar","percent","ampersand","underscore","open_paren","close_paren","asterisk","plus","pipe","hyphen_minus","open_curly_bracket","close_curly_bracket","tilde","","","","","volume_mute","volume_down","volume_up","","","semicolon","equals","comma","minus","period","slash","back_quote","","","","","","","","","","","","","","","","","","","","","","","","","","","open_bracket","back_slash","close_bracket","quote","","meta","altgr","","win_ico_help","win_ico_00","","win_ico_clear","","","win_oem_reset","win_oem_jump","win_oem_pa1","win_oem_pa2","win_oem_pa3","win_oem_wsctrl","win_oem_cusel","win_oem_attn","win_oem_finish","win_oem_copy","win_oem_auto","win_oem_enlw","win_oem_backtab","attn","crsel","exsel","ereof","play","zoom","","pa1","win_oem_clear",""];
 
 nameFromKeyCode = function(keycode) {
@@ -1406,7 +1423,7 @@ nameFromKeyCode = function(keycode) {
 
 module.exports = nameFromKeyCode
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1433,7 +1450,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
