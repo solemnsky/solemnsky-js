@@ -6,7 +6,7 @@
 
 PIXI = require('../../assets/pixi.min.js')
 nameFromkeyCode = require('../resources/keys.js')
-pixiCore = require('./pixi-core.js')
+runPixi = require('../resources/pixi.js')
 
 module.exports = function(mode, callback, overlay) {
 if (typeof overlay == "undefined") overlay = new PIXI.Container()
