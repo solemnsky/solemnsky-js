@@ -7,10 +7,12 @@
 PIXI = require('../../assets/pixi.min.js')
 nameFromkeyCode = require('../resources/keys.js')
 
-module.exports = function(mode, initdata, doStop, overlay) {
+module.exports = function(mode, callback, overlay) {
 if (typeof overlay == "undefined") overlay = new PIXI.Container()
 if (typeof doStop == "undefined") 
 	doStop = function() { return false }
+
+running = true;
 
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -27,10 +29,6 @@ requestAnimFrame = (function() {
 /**** }}} requestAnimFrame ****/
 
 /**** {{{ init ****/
-// init()
-mode.init(initdata)
-mode.join("offline player")
-
 // initRender()
 var renderer =
 	PIXI.autoDetectRenderer(1600, 900, 
@@ -81,12 +79,11 @@ function logCounters() {
 	engineCounter = 0 
 }
 
-simulating = true;
-
 // step()
 then = Date.now()
 function update() {
-	if (doStop()) return
+	callback()
+	if (!running) return
 	engineCounter++
 	requestAnimFrame(update)
 
@@ -94,14 +91,14 @@ function update() {
 	delta = now - then
 	then = now
 
-	if (simulating) mode.step(delta)
+	mode.step(delta)
 } 
-if (doStop()) return
+if (!running) return
 
 // stepRender()
 thenRender = Date.now()
 function updateRender() {
-	if (doStop()) return
+	if (!running) return
 	renderCounter++
 	requestAnimFrame(updateRender)
 
@@ -112,7 +109,7 @@ function updateRender() {
 	mode.stepRender(modeStage, delta)
 	renderer.render(stage)
 }
-if (doStop()) return
+if (!running) return
 /**** }}} update loops ****/
 
 /**** {{{ event handling ****/

@@ -470,10 +470,12 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 PIXI = require('../../assets/pixi.min.js')
 nameFromkeyCode = require('../resources/keys.js')
 
-module.exports = function(mode, initdata, predicate, overlay) {
+module.exports = function(mode, callback, overlay) {
 if (typeof overlay == "undefined") overlay = new PIXI.Container()
-if (typeof predicate == "undefined") 
-	predicate = function() { return false }
+if (typeof doStop == "undefined") 
+	doStop = function() { return false }
+
+running = true;
 
 /**** {{{ requestAnimFrame ****/
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -490,10 +492,6 @@ requestAnimFrame = (function() {
 /**** }}} requestAnimFrame ****/
 
 /**** {{{ init ****/
-// init()
-mode.init(initdata)
-mode.join("offline player")
-
 // initRender()
 var renderer =
 	PIXI.autoDetectRenderer(1600, 900, 
@@ -544,12 +542,11 @@ function logCounters() {
 	engineCounter = 0 
 }
 
-simulating = true;
-
 // step()
 then = Date.now()
 function update() {
-	if (predicate()) return
+	callback()
+	if (!running) return
 	engineCounter++
 	requestAnimFrame(update)
 
@@ -557,13 +554,14 @@ function update() {
 	delta = now - then
 	then = now
 
-	if (simulating) mode.step(delta)
+	mode.step(delta)
 } 
-if (predicate()) return
+if (!running) return
 
 // stepRender()
 thenRender = Date.now()
 function updateRender() {
+	if (!running) return
 	renderCounter++
 	requestAnimFrame(updateRender)
 
@@ -574,6 +572,7 @@ function updateRender() {
 	mode.stepRender(modeStage, delta)
 	renderer.render(stage)
 }
+if (!running) return
 /**** }}} update loops ****/
 
 /**** {{{ event handling ****/
@@ -602,10 +601,7 @@ PIXI = require('../../assets/pixi.min.js')
 
 module.exports = function(mode, key, description) {
 
-function predicate() {
-	return false
-}
-
+// overlay
 overlay = new PIXI.Container()
 text1 = new PIXI.Text("offline demo" , {fill: 0xFFFFFF})
 text1.position = new PIXI.Point(800, 15)
@@ -614,7 +610,12 @@ text2 = new PIXI.Text(description , {fill: 0xFFFFFF})
 text2.position = new PIXI.Point(800, 850)
 overlay.addChild(text2)
 
-clientCore(mode, mode.makeInitData(key), predicate, overlay)
+mode.init(mode.makeInitData(key))
+mode.join("offline player")
+
+function callback() { }
+
+clientCore(mode, callback, overlay)
 }
 
 },{"../../assets/pixi.min.js":2,"./client-core.js":3}],5:[function(require,module,exports){
@@ -626,7 +627,7 @@ Utils = require('../resources/util.js')
 
 mode = new Null()
 
-clientOffline(mode, mode.makeInitData("red"), "vanilla game mode")
+clientOffline(mode, "red", "vanilla game mode")
 
 },{"../control/client-offline.js":4,"../modes/null/":6,"../modes/vanilla/":8,"../resources/util.js":13}],6:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //

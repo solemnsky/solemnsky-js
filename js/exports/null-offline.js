@@ -6,4 +6,4 @@ Utils = require('../resources/util.js')
 
 mode = new Null()
 
-clientOffline(mode, mode.makeInitData("red"), "vanilla game mode")
+clientOffline(mode, "red", "vanilla game mode")
