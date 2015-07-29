@@ -657,21 +657,21 @@ Null.prototype.findPlayerById = function(id) {
 /**** {{{ init() and step() ****/
 Null.prototype.makeInitData = function(key) {
 	if (key == 'red') {
-		return 0xFF0000
+		return JSON.stringify({color: 0xFF0000, players: []})
 	} else {
-		return 0xFFFFFF
+		return JSON.stringify({color: 0xFFFFFF, players: []})
 	}
 }
 
 Null.prototype.init = function(initdata) {
-	this.color = initdata
+	var data = JSON.parse(initdata)	
+	this.color = data.color
+	this.players = data.players
 }
 
 Null.prototype.step = function(delta) {
 	this.players.forEach(
-		function(player) {
-			player.timespent += delta
-		}
+		function(player) { player.timespent += delta }
 	)
 }
 
@@ -743,10 +743,10 @@ Null.prototype.acceptKey = function(id, key, state) {
 /**** }}} acceptInput ****/
 
 /**** {{{ describeState() ****/
-Null.describeState = function() {
-	JSON.stringify(this.players)
+Null.prototype.describeState = function() {
+	return JSON.stringify({color: this.color, players: this.players})
 }
-/**** }}} returnState() ****/
+/**** }}} describeState() ****/
 
 },{"../../resources/util.js":13}],7:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
@@ -1128,7 +1128,7 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 /**** }}} acceptKey ****/
 
 /**** {{{ describeState() ****/
-Vanilla.describeState = function() {
+Vanilla.prototype.describeState = function() {
 	// describes the state of the game to a new player, telling them
 	// everything that they need to know (passed to an init())
 }

@@ -326,7 +326,7 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 /**** }}} acceptKey ****/
 
 /**** {{{ describeState() ****/
-Vanilla.describeState = function() {
+Vanilla.prototype.describeState = function() {
 	// describes the state of the game to a new player, telling them
 	// everything that they need to know (passed to an init())
 }

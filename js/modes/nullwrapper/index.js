@@ -75,7 +75,7 @@ NullWrapper.prototype.acceptKey = function(id, key, state) {
 /**** }}} acceptInput ****/
 
 /**** {{{ describeState() ****/
-Vanilla.describeState = function() {
+NullWrapper.prototype.describeState = function() {
 	return this.mode.describeState()
 }
 /**** }}} returnState() ****/
