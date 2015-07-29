@@ -7,6 +7,10 @@ module.exports = function(port, mode, key, callback) {
 //Sockets
 WebSocket = require("ws");
 
+function getClientAddress(client) {
+	return client._socket.remoteAddress + ":" + client._socket.remotePort;
+}
+
 function openSocket(port) {
 	wss = new WebSocket.Server({port: port});
 	wss.on("connection", function(client) {
@@ -23,17 +27,17 @@ function onClientConnected(client) {
 		onClientDisconnected(client);
 	});
 
-	console.log("Client " + client._socket.remoteAddress + " connected");
+	console.log("Client " + getClientAddress(client) + " connected");
 }
 
 function onClientDisconnected(client) {
 	//STUB
-	console.log("Client " + client._socket.remoteAddress + " disconnected");
+	console.log("Client " + getClientAddress(client) + " disconnected");
 }
 
 function onMessage(client, message) {
 	//STUB
-	console.log("Message from client " + client._socket.remoteAddress + ": " + message);
+	console.log("Message from client " + getClientAddress(client) + ": " + message);
 	client.send(message);
 }
 
