@@ -22,14 +22,18 @@ function onClientConnected(client) {
 	client.on("close", function() {
 		onClientDisconneced(client);
 	});
+
+	console.log("Client connected");
 }
 
 function onClientDisconnected(client) {
 	//STUB
+	console.log("Client disconnected");
 }
 
 function onMessage(client, message) {
 	//STUB
+	console.log("Message from client: " + message);
 }
 
 }
