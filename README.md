@@ -16,6 +16,8 @@ To define a mode, a constructor must be exported along with the following protot
 
 	- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics.
 
+	- hasEnded(): has the game ended?
+
 ### joining and quitting
 
 	- join(nick): this is called when a player joins the game, and should return a 'player id' through which the player can be identified (used in other methods)

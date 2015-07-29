@@ -1,7 +1,7 @@
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 
-module.exports = function(mode, initdata, description) {
+module.exports = function(mode, key, description) {
 
 function predicate() {
 	return false
@@ -15,5 +15,5 @@ text2 = new PIXI.Text(description , {fill: 0xFFFFFF})
 text2.position = new PIXI.Point(800, 850)
 overlay.addChild(text2)
 
-clientCore(mode, initdata, predicate, overlay)
+clientCore(mode, mode.makeInitData(key), predicate, overlay)
 }
