@@ -3,7 +3,7 @@ Vanilla = require("../modes/vanilla/")
 
 Utils = require('../resources/util.js')
 
-serverCore = require("./server-core.js");
+serverCore = require("../control/server-core.js");
 
 mode = new Null()
 
