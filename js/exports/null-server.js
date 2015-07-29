@@ -7,5 +7,4 @@ serverCore = require("../control/server-core.js");
 
 mode = new Null()
 
-Server = serverCore(50042)
-Server.openSocket();
+serverCore(50042)
