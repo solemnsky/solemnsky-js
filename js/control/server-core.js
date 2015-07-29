@@ -3,7 +3,7 @@
 // to be used in all other servers.                                    //
 \\                  ******** server-core.js ********                   */
 
-module.exports = function(port) {
+module.exports = function(port, mode, key, callback) {
 //Sockets
 WebSocket = require("ws");
 
@@ -37,5 +37,5 @@ function onMessage(client, message) {
 }
 
 openSocket(port);
-
+mode.init(mode.makeInitData(key));
 }
