@@ -36,7 +36,6 @@ logicStep = function(delta) {
 	callback()
 }
 
-
 pixiCore(init, step, logicStep)
 
 /**** {{{ event handling ****/

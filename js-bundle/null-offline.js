@@ -499,7 +499,6 @@ logicStep = function(delta) {
 	callback()
 }
 
-
 pixiCore(init, step, logicStep)
 
 /**** {{{ event handling ****/
@@ -649,6 +648,7 @@ if (!running) return
 window.onresize = smartResize
 
 smartResize()
+resetFps()
 updateRender()
 updateEngine()
 }

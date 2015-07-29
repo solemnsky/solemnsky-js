@@ -105,6 +105,7 @@ if (!running) return
 window.onresize = smartResize
 
 smartResize()
+resetFps()
 updateRender()
 updateEngine()
 }
