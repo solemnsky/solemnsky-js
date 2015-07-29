@@ -11,6 +11,16 @@ function getClientAddress(client) {
 	return client._socket.remoteAddress + ":" + client._socket.remotePort;
 }
 
+function broadcast(message) {
+	wss.clients.forEach(function(client) {
+		try {
+			client.send(message);
+		} catch (e) {
+			//Disconnected... just ignore this
+		}
+	});
+}
+
 function openSocket(port) {
 	wss = new WebSocket.Server({port: port});
 	wss.on("connection", function(client) {
