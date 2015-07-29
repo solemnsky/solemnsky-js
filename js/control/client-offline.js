@@ -1,3 +1,6 @@
+/*                  ******** client-offline.js ********                //
+\\ Small wrapper over client-core, tests a mode out offline.           \\
+//                  ******** client-offline.js ********                */
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 
