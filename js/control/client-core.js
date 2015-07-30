@@ -27,7 +27,7 @@ Game.prototype.init = function(stage) {
 	mode.initRender(this.modeStage)
 }
 
-Game.prototype.renderStep = function(stage, delta) {
+Game.prototype.renderStep = function(stage, delta, renderFps, engineFps) {
 	this.fps.text = 
 		"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
 	mode.stepRender(this.modeStage, delta) 

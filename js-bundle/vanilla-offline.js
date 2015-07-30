@@ -502,7 +502,7 @@ Game.prototype.init = function(stage) {
 	mode.initRender(this.modeStage)
 }
 
-Game.prototype.renderStep = function(stage, delta) {
+Game.prototype.renderStep = function(stage, delta, renderFps, engineFps) {
 	this.fps.text = 
 		"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
 	mode.stepRender(this.modeStage, delta) 
@@ -1266,12 +1266,13 @@ module.exports = maps;
 // next: the thing to do after the definition reportes that is has ended 
 
 module.exports = function(object, next) {
-if (typeof next === "undefined") next = function() {}
+if (typeof next === "undefined") next = function(){}
 
-running = true;
+var running = true;
 
-engineFps = 0; renderFps = 0
-renderFpsC = 0; engineFpsC = 0
+var engineFps = 0; var renderFps = 0
+var renderFpsC = 0; var engineFpsC = 0
+
 resetFps = function() {
 	if (running) {
 		window.setTimeout(resetFps, 1000)
@@ -1338,7 +1339,7 @@ function updateRender() {
 		delta = now - then
 		then = now
 
-		object.renderStep(stage, delta)
+		object.renderStep(stage, delta, renderFps, engineFps)
 		renderer.render(stage)
 	}
 } 
