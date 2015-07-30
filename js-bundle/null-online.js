@@ -18,12 +18,29 @@ NullRender = require("../modes/null/render.js");
 NullRender(Null);
 
 Utils = require('../resources/util.js')
-clientOnline = require("../control/client-online.js")
+clientArena = require("../control/client-arena.js")
 
 mode = new Null()
-clientOnline("198.55.237.151", 50042, "/", mode)
+clientArena("198.55.237.151", 50042, "/", mode)
 
-},{"../control/client-online.js":4,"../modes/null/":5,"../modes/null/render.js":6,"../resources/util.js":9}],3:[function(require,module,exports){
+},{"../control/client-arena.js":3,"../modes/null/":5,"../modes/null/render.js":6,"../resources/util.js":9}],3:[function(require,module,exports){
+/*                  ******** client-arena.js ********              //
+\\ This is a client that connects to an arena server, where teams  \\
+// are not fixed by any lobby mechanic and players can come and go //
+\\ from the game as they please.                                   \\
+//                  ******** client-arena.js ********              */
+
+PIXI = require("../../assets/pixi.min.js")
+nameFromkeyCode = require("../resources/keys.js")
+runPixi = require('../resources/pixi.js')
+clientCore = require('./client-core.js')
+
+module.exports = function(address, mode) {
+	
+}
+
+
+},{"../../assets/pixi.min.js":1,"../resources/keys.js":7,"../resources/pixi.js":8,"./client-core.js":4}],4:[function(require,module,exports){
 /*                  ******** client-core.js ********                   //
 \\ This exports a base client, a minimal wrapper over the offline      \\
 // internals of a mode. It should be adequately paremeterized to be    //
@@ -77,50 +94,7 @@ window.addEventListener("keyup", keyHandler(false), true)
 /**** }}} event handling ****/
 }
 
-},{"../../assets/pixi.min.js":1,"../resources/keys.js":7,"../resources/pixi.js":8}],4:[function(require,module,exports){
-/*                  ******** client-online.js ********                 //
-\\ Wrapper over client-core that connects to a given server.           \\
-//                  ******** client-online.js ********                 */
-clientCore = require('./client-core.js')
-PIXI = require('../../assets/pixi.min.js')
-
-module.exports = function(address, port, path, mode) {
-
-// overlay
-overlay = new PIXI.Container()
-text1 = new PIXI.Text("online test" , {fill: 0xFFFFFF})
-text1.position = new PIXI.Point(800, 15)
-overlay.addChild(text1)
-
-// function callback() { }
-// clientCore(mode, callback, overlay)
-
-function connect(address, port, path) {
-	socket = new WebSocket("ws://" + address + ":" + port + path);
-	socket.onopen = onConnected;
-	socket.onclose = onDisconnected;
-	socket.onmessage = onMessage;
-}
-
-function onConnected() {
-	//STUB
-	socket.send("TEST");
-}
-
-function onDisconnected() {
-	//STUB
-}
-
-function onMessage(message) {
-	//STUB
-	console.log(message.data);
-}
-
-connect(address, port, path);
-
-}
-
-},{"../../assets/pixi.min.js":1,"./client-core.js":3}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":1,"../resources/keys.js":7,"../resources/pixi.js":8}],5:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
@@ -137,6 +111,8 @@ Utils = require('../../resources/util.js')
 /**** {{{ constructor ****/
 function Null() {
 	this.players = []
+
+	this.modeId = "null dev"
 }
 /**** }}} constructor ****/
 
@@ -285,11 +261,10 @@ module.exports = function(keycode) {
 // logicStep: step logic forward, supplied with a time delta
 // set running = true at any time to break out
 
-module.exports = function(init, renderStep, logicStep, secondStep) {
+module.exports = function(init, renderStep, logicStep) {
 if (typeof init === "undefined") init = function(stage) {}
 if (typeof renderStep === "undefined") renderStep = function(stage, delta) {}
 if (typeof logicStep === "undefined") logicStep = function(delta) {}
-if (typeof secondStep === "undefined") secondStep = function() {}
 
 running = true;
 

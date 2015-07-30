@@ -6,11 +6,10 @@
 
 PIXI = require("../../assets/pixi.min.js")
 nameFromkeyCode = require("../resources/keys.js")
-
+runPixi = require('../resources/pixi.js')
 clientCore = require('./client-core.js')
 
 module.exports = function(address, mode) {
-	clientCore("this should be recieved from the server", mode)
-	mode.init("this data should also be recieved from the server")
+	
 }
 

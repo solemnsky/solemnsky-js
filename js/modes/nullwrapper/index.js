@@ -7,6 +7,7 @@ module.exports = NullWrapper
 /**** {{{ constructor ****/
 function NullWrapper(mode) {
 	this.mode = mode
+	this.modeId = mode.modeId
 }
 /**** }}} constructor ****/
 

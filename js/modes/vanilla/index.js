@@ -21,6 +21,8 @@ function Vanilla() {
 
 	// box2d world
 	this.world = null
+
+	this.modeId = "vanilla dev"
 }
 /**** }}} constructor ****/
 

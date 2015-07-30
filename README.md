@@ -38,9 +38,10 @@ To define a mode, a constructor must be exported along with the following protot
 	- clientMerge(id, snap): merge an assertion sent from the server to a client
 	- serverMerge(id, snap): merge an assertion sent from a client to the server
 
-### describing the state
+### information to new clients
 
 	- describeState(): describes the state of the game to a new player 
+	- modeId: the id of the mode, to check if a client and a server are compatible
 
 ## top-level control structures
 

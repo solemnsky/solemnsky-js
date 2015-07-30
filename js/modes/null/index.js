@@ -14,6 +14,8 @@ Utils = require('../../resources/util.js')
 /**** {{{ constructor ****/
 function Null() {
 	this.players = []
+
+	this.modeId = "null dev"
 }
 /**** }}} constructor ****/
 

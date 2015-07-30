@@ -120,6 +120,8 @@ Utils = require('../../resources/util.js')
 /**** {{{ constructor ****/
 function Null() {
 	this.players = []
+
+	this.modeId = "null dev"
 }
 /**** }}} constructor ****/
 
@@ -268,11 +270,10 @@ module.exports = function(keycode) {
 // logicStep: step logic forward, supplied with a time delta
 // set running = true at any time to break out
 
-module.exports = function(init, renderStep, logicStep, secondStep) {
+module.exports = function(init, renderStep, logicStep) {
 if (typeof init === "undefined") init = function(stage) {}
 if (typeof renderStep === "undefined") renderStep = function(stage, delta) {}
 if (typeof logicStep === "undefined") logicStep = function(delta) {}
-if (typeof secondStep === "undefined") secondStep = function() {}
 
 running = true;
 
