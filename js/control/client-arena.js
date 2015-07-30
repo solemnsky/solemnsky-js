@@ -19,7 +19,7 @@ connectUI = function(next) {
 		this.time = 0
 	}
 
-	ConnectUI.prototype.init = function(stage) { stage.addChild(this.text)	}
+	ConnectUI.prototype.initRender = function(stage) { stage.addChild(this.text)	}
 	ConnectUI.prototype.step = function(delta) {
 		this.time += delta
 	}

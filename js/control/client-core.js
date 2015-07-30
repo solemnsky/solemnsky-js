@@ -19,7 +19,7 @@ function Game() {
 	this.modeStage = new PIXI.Container(); 
 }
 
-Game.prototype.init = function(stage) {
+Game.prototype.initRender = function(stage) {
 	stage.addChild(this.fps)
 	stage.addChild(this.modeStage)
 	stage.addChild(overlay)

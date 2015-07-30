@@ -3,6 +3,8 @@
 //                  ******** client-offline.js ********                */
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
+runPixi = require('../resources/pixi.js')
+splash = require('../resources/splash.js')
 
 module.exports = function(mode, key) {
 

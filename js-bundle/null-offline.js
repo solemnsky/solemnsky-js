@@ -23,7 +23,7 @@ clientOffline = require("../control/client-offline.js")
 mode = new Null()
 clientOffline(mode, "red", "vanilla game mode")
 
-},{"../control/client-offline.js":4,"../modes/null/":5,"../modes/null/render.js":6,"../resources/util.js":9}],3:[function(require,module,exports){
+},{"../control/client-offline.js":4,"../modes/null/":5,"../modes/null/render.js":6,"../resources/util.js":10}],3:[function(require,module,exports){
 /*                  ******** client-core.js ********                   //
 \\ This exports a base client, a minimal wrapper over the offline      \\
 // internals of a mode. It should be adequately paremeterized to be    //
@@ -45,7 +45,7 @@ function Game() {
 	this.modeStage = new PIXI.Container(); 
 }
 
-Game.prototype.init = function(stage) {
+Game.prototype.initRender = function(stage) {
 	stage.addChild(this.fps)
 	stage.addChild(this.modeStage)
 	stage.addChild(overlay)
@@ -89,6 +89,8 @@ window.addEventListener("keyup", keyHandler(false), true)
 //                  ******** client-offline.js ********                */
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
+runPixi = require('../resources/pixi.js')
+splash = require('../resources/splash.js')
 
 module.exports = function(mode, key) {
 
@@ -109,7 +111,7 @@ function callback() { }
 clientCore(mode, callback, overlay)
 }
 
-},{"../../assets/pixi.min.js":1,"./client-core.js":3}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":1,"../resources/pixi.js":8,"../resources/splash.js":9,"./client-core.js":3}],5:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
@@ -231,7 +233,7 @@ Null.prototype.describeState = function() {
 }
 /**** }}} describeState() ****/
 
-},{"../../resources/util.js":9}],6:[function(require,module,exports){
+},{"../../resources/util.js":10}],6:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ Client-side rendering for null	                                    \\ 
 //                  ******** null/index.js ********                   */
@@ -256,7 +258,7 @@ Null.prototype.stepRender = function(stage, delta) {
 
 }
 
-},{"../../../assets/pixi.min.js":1,"../../resources/util.js":9}],7:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":1,"../../resources/util.js":10}],7:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -311,7 +313,7 @@ renderer =
 document.body.appendChild(renderer.view)
 
 stage = new PIXI.Container()
-object.init(stage)
+object.initRender(stage)
 /**** }}} init ****/
 
 /**** {{{ smartResize() ****/
@@ -383,6 +385,32 @@ updateEngine()
 }
 
 },{}],9:[function(require,module,exports){
+/*                  ******** splash.js ********                        //
+\\ A UI control object (see pixi.js) acting as a splashscreen.         \\
+//                  ******** splash.js ********                        */
+
+PIXI = require('../../assets/pixi.min.js')
+
+module.exports = function(texts, interval) {
+if (typeof interval === "undefined") var interval = 1000
+function Splash() {
+	this.time = 0
+	this.text = new PIXI.Text("", {fill: 0xFFFFFF})
+}
+
+Splash.prototype.initRender = function(stage) { stage.addChild(this.text) }
+Splash.prototype.step = function(delta) { this.time += delta }
+Splash.prototype.stepRender = function(stage, delta) {
+	this.text = "time is " + this.time
+}
+Splash.prototype.hasEnded = function() {
+	(this.time > ((texts.length + 1) * interval))
+}
+
+return new Splash()
+}
+
+},{"../../assets/pixi.min.js":1}],10:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */

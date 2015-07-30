@@ -42,7 +42,7 @@ renderer =
 document.body.appendChild(renderer.view)
 
 stage = new PIXI.Container()
-object.init(stage)
+object.initRender(stage)
 /**** }}} init ****/
 
 /**** {{{ smartResize() ****/
