@@ -39,30 +39,36 @@ if (typeof overlay == "undefined") overlay = new PIXI.Container()
 if (typeof callback  == "undefined") 
 	callback = function() { }
 
-fps = new PIXI.Text("", {fill: 0xFFFFFF})
-fps.position = new PIXI.Point(1400, 10)
-modeStage = new PIXI.Container(); 
+function Game() {
+	this.fps = new PIXI.Text("loading...", {fill: 0xFFFFFF})
+	this.fps.position = new PIXI.Point(1400, 10)
+	this.modeStage = new PIXI.Container(); 
+}
 
-init = function(stage) {
-	stage.addChild(fps)
-	stage.addChild(modeStage)
+Game.prototype.init = function(stage) {
+	stage.addChild(this.fps)
+	stage.addChild(this.modeStage)
 	stage.addChild(overlay)
 
-	mode.initRender(modeStage)
+	mode.initRender(this.modeStage)
 }
 
-renderStep = function(stage, delta) {
-	fps.text = 
+Game.prototype.renderStep = function(stage, delta) {
+	this.fps.text = 
 		"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
-	mode.stepRender(modeStage, delta) 
+	mode.stepRender(this.modeStage, delta) 
 }
 
-logicStep = function(delta) {
+Game.prototype.step = function(delta) {
 	mode.step(delta)
-	callback()
+	this.callbackResult = callback()
 }
 
-runPixi(init, renderStep, logicStep)
+Game.prototype.hasEnded = function() {
+	return false
+}
+
+runPixi(new Game())
 
 /**** {{{ event handling ****/
 keyHandler = function(state) {
@@ -265,24 +271,22 @@ module.exports = function(keycode) {
 \\ This exports a method for a basic UI with pixi, highly reusable.    \\
 //                  ******** pixi-core.js ********                     */
 
-// init: function called exactly once with a container
-// step: function called in a 60Hz loop with a container and a time delta
-// logicStep: step logic forward, supplied with a time delta
-// set running = true at any time to break out
+// object: an object containing init, step, stepRender, and hasEnded properities (exactly the same as in the mode specification)
+// next: the thing to do after the definition reportes that is has ended 
 
-module.exports = function(init, renderStep, logicStep) {
-if (typeof init === "undefined") init = function(stage) {}
-if (typeof renderStep === "undefined") renderStep = function(stage, delta) {}
-if (typeof logicStep === "undefined") logicStep = function(delta) {}
+module.exports = function(object, next) {
+if (typeof next === "undefined") next = function() {}
 
 running = true;
 
 engineFps = 0; renderFps = 0
 renderFpsC = 0; engineFpsC = 0
 resetFps = function() {
-	window.setTimeout(resetFps, 1000)
-	renderFps = renderFpsC; engineFps = engineFpsC
-	renderFpsC = 0; engineFpsC = 0
+	if (running) {
+		window.setTimeout(resetFps, 1000)
+		renderFps = renderFpsC; engineFps = engineFpsC
+		renderFpsC = 0; engineFpsC = 0
+	}
 }
 
 /**** {{{ requestAnimFrame ****/
@@ -306,7 +310,7 @@ renderer =
 document.body.appendChild(renderer.view)
 
 stage = new PIXI.Container()
-init(stage)
+object.init(stage)
 /**** }}} init ****/
 
 /**** {{{ smartResize() ****/
@@ -335,33 +339,36 @@ function smartResize() {
 // step()
 then = Date.now()
 function updateRender() {
-	renderFpsC++
-	if (!running) return
-	requestAnimFrame(updateRender)
+	if (running) {
+		renderFpsC++
+		requestAnimFrame(updateRender)
 
-	now = Date.now()
-	delta = now - then
-	then = now
+		now = Date.now()
+		delta = now - then
+		then = now
 
-	renderStep(stage, delta)
-	renderer.render(stage)
+		object.renderStep(stage, delta)
+		renderer.render(stage)
+	}
 } 
-if (!running) return
 
 thenEngine = Date.now()
 function updateEngine() {
-	engineFpsC++
-	if (!running) return
+	running = (!object.hasEnded())
+	if (running) {
+		engineFpsC++
 
-	requestAnimFrame(updateEngine)
+		requestAnimFrame(updateEngine)
 
-	nowEngine = Date.now()
-	delta = nowEngine - thenEngine
-	thenEngine = nowEngine
+		nowEngine = Date.now()
+		delta = nowEngine - thenEngine
+		thenEngine = nowEngine
 
-	logicStep(delta)
+		object.step(delta)
+	} else {
+		next()
+	}
 }
-if (!running) return
 /**** }}} step ****/
 
 window.onresize = smartResize

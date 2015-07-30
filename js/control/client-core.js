@@ -13,30 +13,36 @@ if (typeof overlay == "undefined") overlay = new PIXI.Container()
 if (typeof callback  == "undefined") 
 	callback = function() { }
 
-fps = new PIXI.Text("", {fill: 0xFFFFFF})
-fps.position = new PIXI.Point(1400, 10)
-modeStage = new PIXI.Container(); 
+function Game() {
+	this.fps = new PIXI.Text("", {fill: 0xFFFFFF})
+	this.fps.position = new PIXI.Point(1400, 10)
+	this.modeStage = new PIXI.Container(); 
+}
 
-init = function(stage) {
-	stage.addChild(fps)
-	stage.addChild(modeStage)
+Game.prototype.init = function(stage) {
+	stage.addChild(this.fps)
+	stage.addChild(this.modeStage)
 	stage.addChild(overlay)
 
-	mode.initRender(modeStage)
+	mode.initRender(this.modeStage)
 }
 
-renderStep = function(stage, delta) {
-	fps.text = 
+Game.prototype.renderStep = function(stage, delta) {
+	this.fps.text = 
 		"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
-	mode.stepRender(modeStage, delta) 
+	mode.stepRender(this.modeStage, delta) 
 }
 
-logicStep = function(delta) {
+Game.prototype.step = function(delta) {
 	mode.step(delta)
-	callback()
+	this.callbackResult = callback()
 }
 
-runPixi(init, renderStep, logicStep)
+Game.prototype.hasEnded = function() {
+	return false
+}
+
+runPixi(new Game())
 
 /**** {{{ event handling ****/
 keyHandler = function(state) {
