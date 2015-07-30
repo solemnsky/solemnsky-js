@@ -40,7 +40,7 @@ if (typeof callback  == "undefined")
 	callback = function() { }
 
 function Game() {
-	this.fps = new PIXI.Text("loading...", {fill: 0xFFFFFF})
+	this.fps = new PIXI.Text("", {fill: 0xFFFFFF})
 	this.fps.position = new PIXI.Point(1400, 10)
 	this.modeStage = new PIXI.Container(); 
 }
@@ -366,6 +366,8 @@ function updateEngine() {
 
 		object.step(delta)
 	} else {
+		document.body.removeChild(renderer.view)
+		renderer.destroy()
 		next()
 	}
 }

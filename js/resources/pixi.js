@@ -97,6 +97,8 @@ function updateEngine() {
 
 		object.step(delta)
 	} else {
+		document.body.removeChild(renderer.view)
+		renderer.destroy()
 		next()
 	}
 }

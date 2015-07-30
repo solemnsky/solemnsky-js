@@ -5,6 +5,7 @@ clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 runPixi = require('../resources/pixi.js')
 Utils = require('../resources/util.js')
+clientOffline = require('./client-offline.js')
 
 module.exports = function(address, port, path, mode) {
 
@@ -24,7 +25,7 @@ connectUI = function(next) {
 	}
 	ConnectUI.prototype.renderStep = function(stage, delta) {
 		if (this.time > 2000) {
-			this.text.text = "oh look, the text changed"
+			this.text.text = "bepbep! connecting!"
 		} else {
 			this.text.text = "welcome to the online client"
 		}
@@ -41,7 +42,7 @@ connectUI = function(next) {
 }
 /**** }}} connection interface ****/
 
-connectUI(function(){console.log("not really connecting...")})
+connectUI(function() {console.log("not really connecting"); clientOffline(mode, "")})
 
 /*
 // overlay

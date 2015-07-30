@@ -23,7 +23,7 @@ clientArena = require("../control/client-arena.js")
 mode = new Null()
 clientArena("198.55.237.151", 50042, "/", mode)
 
-},{"../control/client-arena.js":3,"../modes/null/":5,"../modes/null/render.js":6,"../resources/util.js":9}],3:[function(require,module,exports){
+},{"../control/client-arena.js":3,"../modes/null/":6,"../modes/null/render.js":7,"../resources/util.js":10}],3:[function(require,module,exports){
 /*                  ******** client-arena.js ********                  //
 \\ Connects to an arena server.                                        \\
 //                  ******** client-arena.js ********                  */
@@ -31,6 +31,7 @@ clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 runPixi = require('../resources/pixi.js')
 Utils = require('../resources/util.js')
+clientOffline = require('./client-offline.js')
 
 module.exports = function(address, port, path, mode) {
 
@@ -50,7 +51,7 @@ connectUI = function(next) {
 	}
 	ConnectUI.prototype.renderStep = function(stage, delta) {
 		if (this.time > 2000) {
-			this.text.text = "oh look, the text changed"
+			this.text.text = "bepbep! connecting!"
 		} else {
 			this.text.text = "welcome to the online client"
 		}
@@ -67,7 +68,7 @@ connectUI = function(next) {
 }
 /**** }}} connection interface ****/
 
-connectUI(function(){console.log("not really connecting...")})
+connectUI(function() {console.log("not really connecting"); clientOffline(mode, "")})
 
 /*
 // overlay
@@ -105,7 +106,7 @@ connect(address, port, path);
 
 }
 
-},{"../../assets/pixi.min.js":1,"../resources/pixi.js":8,"../resources/util.js":9,"./client-core.js":4}],4:[function(require,module,exports){
+},{"../../assets/pixi.min.js":1,"../resources/pixi.js":9,"../resources/util.js":10,"./client-core.js":4,"./client-offline.js":5}],4:[function(require,module,exports){
 /*                  ******** client-core.js ********                   //
 \\ This exports a base client, a minimal wrapper over the offline      \\
 // internals of a mode. It should be adequately paremeterized to be    //
@@ -122,7 +123,7 @@ if (typeof callback  == "undefined")
 	callback = function() { }
 
 function Game() {
-	this.fps = new PIXI.Text("loading...", {fill: 0xFFFFFF})
+	this.fps = new PIXI.Text("", {fill: 0xFFFFFF})
 	this.fps.position = new PIXI.Point(1400, 10)
 	this.modeStage = new PIXI.Container(); 
 }
@@ -165,7 +166,33 @@ window.addEventListener("keyup", keyHandler(false), true)
 /**** }}} event handling ****/
 }
 
-},{"../../assets/pixi.min.js":1,"../resources/keys.js":7,"../resources/pixi.js":8}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":1,"../resources/keys.js":8,"../resources/pixi.js":9}],5:[function(require,module,exports){
+/*                  ******** client-offline.js ********                //
+\\ Small wrapper over client-core, tests a mode out offline.           \\
+//                  ******** client-offline.js ********                */
+clientCore = require('./client-core.js')
+PIXI = require('../../assets/pixi.min.js')
+
+module.exports = function(mode, key) {
+
+// overlay
+overlay = new PIXI.Container()
+text1 = new PIXI.Text("offline demo" , {fill: 0xFFFFFF})
+text1.position = new PIXI.Point(800, 15)
+overlay.addChild(text1)
+text2 = new PIXI.Text("modeId = " + mode.modeId , {fill: 0xFFFFFF})
+text2.position = new PIXI.Point(800, 850)
+overlay.addChild(text2)
+
+mode.init(mode.makeInitData(key))
+mode.join("offline player")
+
+function callback() { }
+
+clientCore(mode, callback, overlay)
+}
+
+},{"../../assets/pixi.min.js":1,"./client-core.js":4}],6:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
@@ -287,7 +314,7 @@ Null.prototype.describeState = function() {
 }
 /**** }}} describeState() ****/
 
-},{"../../resources/util.js":9}],6:[function(require,module,exports){
+},{"../../resources/util.js":10}],7:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ Client-side rendering for null	                                    \\ 
 //                  ******** null/index.js ********                   */
@@ -312,7 +339,7 @@ Null.prototype.stepRender = function(stage, delta) {
 
 }
 
-},{"../../../assets/pixi.min.js":1,"../../resources/util.js":9}],7:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":1,"../../resources/util.js":10}],8:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -322,7 +349,7 @@ module.exports = function(keycode) {
 	return keyboardMap[keycode]
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*                  ******** pixi-core.js ********                     //
 \\ This exports a method for a basic UI with pixi, highly reusable.    \\
 //                  ******** pixi-core.js ********                     */
@@ -422,6 +449,8 @@ function updateEngine() {
 
 		object.step(delta)
 	} else {
+		document.body.removeChild(renderer.view)
+		renderer.destroy()
 		next()
 	}
 }
@@ -435,7 +464,7 @@ updateRender()
 updateEngine()
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
