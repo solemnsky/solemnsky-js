@@ -1,8 +1,9 @@
 Null = require("../modes/null/")
-Vanilla = require("../modes/vanilla/")
-clientOffline = require("../control/client-offline.js")
+NullRender = require("../modes/null/render.js");
+NullRender(Null);
 
 Utils = require('../resources/util.js')
+clientOffline = require("../control/client-offline.js")
 
 mode = new Null()
 clientOffline(mode, "red", "vanilla game mode")

@@ -1,9 +1,8 @@
 Null = require("../modes/null/")
 NullRender = require("../modes/null/render.js");
-Utils = require('../resources/util.js')
-
 NullRender(Null);
 
+Utils = require('../resources/util.js')
 clientOnline = require("../control/client-online.js")
 
 mode = new Null()

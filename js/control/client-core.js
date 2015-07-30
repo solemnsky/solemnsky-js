@@ -5,7 +5,7 @@
 //                  ******** client-core.js ********                   */
 
 PIXI = require('../../assets/pixi.min.js')
-nameFromkeyCode = require('../resources/keys.js')
+nameFromKeyCode = require('../resources/keys.js')
 runPixi = require('../resources/pixi.js')
 
 module.exports = function(mode, callback, overlay) {

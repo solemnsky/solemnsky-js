@@ -1,7 +1,5 @@
-Null = require("../modes/null/")
 Vanilla = require("../modes/vanilla/")
 VanillaRenderer = require("../modes/vanilla/render.js");
-
 VanillaRenderer.extend(Vanilla);
 
 clientOffline = require("../control/client-offline.js")
