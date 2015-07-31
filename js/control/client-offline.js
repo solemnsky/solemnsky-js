@@ -4,6 +4,8 @@
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 
+ui = require('../ui-object/')
+
 module.exports = function(mode) {
 
 // overlay
@@ -22,5 +24,6 @@ mode.join("offline player")
 function callback() { }
 */
 
-return clientCore(mode, function(){return false}) 
+//return clientCore(mode, function(){return false}) 
+return ui.splash(["asdf", "asdbaf"], 1000)
 }

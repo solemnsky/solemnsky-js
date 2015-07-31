@@ -1,5 +1,5 @@
 /*                  ******** run.js ********                           //
-\\ Runs a little UI object and then does something else.               \\
+\\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
 
 // object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities (exactly the same as in the mode specification)
@@ -7,9 +7,7 @@
 
 nameFromKeyCode = require('../resources/keys.js')
 
-module.exports = function(object, next) {
-	if (typeof next === "undefined") next = function(){}
-
+module.exports = function(object) {
 	var running = true;
 
 	var engineFps = 0; var renderFps = 0
@@ -103,7 +101,8 @@ module.exports = function(object, next) {
 		} else {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
-			next()
+			if (typeof object.next !== "undefined")
+				object.next()
 		}
 	}
 	/**** }}} step ****/
