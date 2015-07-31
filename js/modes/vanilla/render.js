@@ -5,7 +5,7 @@
 PIXI = require('../../../assets/pixi.min.js')
 
 //Extend the original vanilla object to contain the renderer
-exports.extend = function(Vanilla) {
+module.exports = function(Vanilla) {
 
 /**** {{{ initRender() and stepRender() ****/
 Vanilla.prototype.renderMap = function(map) {
