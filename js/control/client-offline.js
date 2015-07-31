@@ -4,7 +4,7 @@
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 
-ui = require('../ui-object/')
+ui = require('../ui/index.js')
 
 module.exports = function(mode) {
 

@@ -5,6 +5,7 @@
 //                  ******** client-core.js ********                   */
 
 PIXI = require('../../assets/pixi.min.js')
+ui = require('../ui/index.js')
 
 module.exports = function(mode, hasEnded) {
 	function Game() {
