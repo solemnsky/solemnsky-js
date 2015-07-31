@@ -471,92 +471,102 @@ mode = new Null()
 
 // use control method to turn mode into UI object
 clientOnline = require('../control/client-arena.js')
-myClient = clientOnline(mode)
+myClient = clientOnline(mode) 
 
 ui.run(myClient)
 
-},{"../control/client-arena.js":4,"../modes/vanilla/":8,"../modes/vanilla/render.js":10,"../ui/index.js":15}],4:[function(require,module,exports){
+},{"../control/client-arena.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":14}],4:[function(require,module,exports){
 /*                  ******** client-arena.js ********                  //
 \\ Connects to an arena server.                                        \\
 //                  ******** client-arena.js ********                  */
+
 clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
 
-Utils = require('../resources/util.js')
-clientOffline = require('./client-offline.js')
+module.exports = function(mode, address, port, path) {
 
-module.exports = function(address, port, path, mode) {
-
-/**** {{{ connectUI(next): connection interface ****/
-// next: the next thing to do
+/**** {{{ ConnectUI ****/
 ConnectUI = function() {
-	this.text = new PIXI.Text("welcome to the online client", {fill: 0xFFFFFF})
-	this.text.position = new PIXI.Point(800, 450)
-
-	this.time = 0
+	this.entered = false
+	this.countdown = 5
 }
 
-ConnectUI.prototype.initRender = function(stage) { stage.addChild(this.text)	}
+ConnectUI.prototype.init = function() {}
 ConnectUI.prototype.step = function(delta) {
-	this.time += delta
-}
-ConnectUI.prototype.renderStep = function(stage, delta) {
-	if (this.time > 2000) {
-		this.text.text = "bepbep! connecting!"
-	} else {
-		this.text.text = "welcome to the online client"
+	if (this.entered) {
+		this.countdown -= (delta / 1000)
 	}
+}
+ConnectUI.prototype.initRender = function(stage) {
+	this.text = new PIXI.Text("press enter to start...", {fill: 0xFFFFFF})
+	stage.addChild(this.text)
+}
+ConnectUI.prototype.stepRender = function() {
+	if (this.entered) {
+		this.text.text = this.countdown
+	}
+}
+ConnectUI.prototype.acceptKey = function(key, state) {
+	if (state)
+		if (key == "enter")
+			this.entered = true
 }
 ConnectUI.prototype.hasEnded = function() {
-	if (this.time > 4000) {
-		return true
-	} else {
-		return false
-	}
+	return (this.countdown < 0)
+}
+/**** }}} ConnectUI ****/
+
+/**** {{{ Game ****/
+Game = function() {
+	this.disconnected = false;
 }
 
-connectUI = new ConnectUI()
-
-return connectUI
-
-/*
-// overlay
-overlay = new PIXI.Container()
-text1 = new PIXI.Text("online test" , {fill: 0xFFFFFF})
-text1.position = new PIXI.Point(800, 15)
-overlay.addChild(text1)
-
-// function callback() { }
-// clientCore(mode, callback, overlay)
-
-function connect(address, port, path) {
-	socket = new WebSocket("ws://" + address + ":" + port + path);
-	socket.onopen = onConnected;
-	socket.onclose = onDisconnected;
-	socket.onmessage = onMessage;
+// ui control methods
+Game.prototype.init = function(){
+	/*
+	this.socket = new WebSocket("ws://" + address + ":" + port + path);
+	this.socket.onopen = this.onConnected;
+	this.socket.onclose = this.onDisconnected;
+	this.socket.onmessage = this.onMessage;
+	*/
+}
+Game.prototype.step = function(delta) {}
+Game.prototype.initRender = function(stage) { }
+Game.prototype.stepRender = function(stage, delta) {}
+Game.prototype.hasEnded = function() {
+	return (!this.disconnected)
 }
 
-function onConnected() {
+Game.prototype.connect = function(address, port, path) {
+}
+
+Game.prototype.onConnected = function() {
 	//STUB
 	socket.send("TEST");
 }
 
-function onDisconnected() {
-	//STUB
+Game.prototype.onDisconnected = function() {
+	this.disconnected = true;
 }
 
-function onMessage(message) {
+Game.prototype.onMessage = function(message) {
 	//STUB
 	console.log(message.data);
 }
 
-connect(address, port, path);
-*/
+// connect(address, port, path);
+/**** }}} Game ****/
+
+connectUI = new ConnectUI()
+game = new Game()
+connectUI.next = function() {return connectUI}
+
+return connectUI
 
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/util.js":14,"../ui/":15,"./client-core.js":5,"./client-offline.js":6}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/":14,"./client-core.js":5}],5:[function(require,module,exports){
 /*                  ******** client-core.js ********                   //
 \\ This exports a base client, a minimal wrapper over the offline      \\
 // internals of a mode. It should be adequately paremeterized to be    //
@@ -607,37 +617,7 @@ module.exports = function(mode, hasEnded) {
 	return new Game() 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":15}],6:[function(require,module,exports){
-/*                  ******** client-offline.js ********                //
-\\ Small wrapper over client-core, tests a mode out offline.           \\
-//                  ******** client-offline.js ********                */
-clientCore = require('./client-core.js')
-PIXI = require('../../assets/pixi.min.js')
-
-ui = require('../ui/index.js')
-
-module.exports = function(mode) {
-
-// overlay
-/*
-overlay = new PIXI.Container()
-text1 = new PIXI.Text("offline demo" , {fill: 0xFFFFFF})
-text1.position = new PIXI.Point(800, 15)
-overlay.addChild(text1)
-text2 = new PIXI.Text("modeId = " + mode.modeId , {fill: 0xFFFFFF})
-text2.position = new PIXI.Point(800, 850)
-overlay.addChild(text2)
-
-mode.init(mode.makeInitData(key))
-mode.join("offline player")
-
-function callback() { }
-*/
-
-return clientCore(mode, function(){return false}) 
-}
-
-},{"../../assets/pixi.min.js":2,"../ui/index.js":15,"./client-core.js":5}],7:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/index.js":14}],6:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -688,7 +668,7 @@ module.exports = {
 	, contactDamangeMultiplier: 0.01
 }
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*                  ******** vanilla/index.js ********                //
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //                  ******** vanilla/index.js ********                */
@@ -937,7 +917,7 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} returnState() ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":13,"../../resources/util.js":14,"./gameplay.js":7,"./player.js":9,"./snapshots.js":11}],9:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":13,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1134,7 +1114,7 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*          ******** vanilla/render.js ********       //
 \\ Client-sided renderer for the vanilla game mode.   \\
 //          ******** vanilla/render.js ********       */
@@ -1233,7 +1213,7 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 
 }
 
-},{"../../../assets/pixi.min.js":2}],11:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2}],10:[function(require,module,exports){
 Utils = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1299,7 +1279,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":14}],12:[function(require,module,exports){
+},{"../../resources/util.js":13}],11:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1309,7 +1289,7 @@ module.exports = function(keycode) {
 	return keyboardMap[keycode]
 }
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1336,7 +1316,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1461,7 +1441,7 @@ Util.prototype.removeElemById = function(elems, id) {
 	elems.splice(index, 1)
 }
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1495,13 +1475,12 @@ exports.splash = function(texts, interval) {
 	return new Splash()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":16}],16:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
 
 // object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities (exactly the same as in the mode specification)
-// next: the thing to do after the definition reports that it has ended 
 
 nameFromKeyCode = require('../resources/keys.js')
 
@@ -1600,7 +1579,7 @@ module.exports = function(object) {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
 			if (typeof object.next !== "undefined")
-				object.next()
+				module.exports(object.next())
 		}
 	}
 	/**** }}} step ****/
@@ -1622,4 +1601,4 @@ module.exports = function(object) {
 	updateEngine()
 }
 
-},{"../resources/keys.js":12}]},{},[3]);
+},{"../resources/keys.js":11}]},{},[3]);
