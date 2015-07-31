@@ -108,14 +108,14 @@ module.exports = function(object, next) {
 	}
 	/**** }}} step ****/
 
-	window.addEventListener("keyup", acceptKey(false))
-	window.addEventListener("keydown", acceptKey(true))
-
 	function acceptKey(state) {
 		return function(e) {
-			object.acceptKey(nameFromKeyCode(e.keycode), state)
+			object.acceptKey(nameFromKeyCode(e.keyCode), state)
 		}
 	}
+
+	window.addEventListener("keyup", acceptKey(false))
+	window.addEventListener("keydown", acceptKey(true))
 
 	window.onresize = smartResize
 
