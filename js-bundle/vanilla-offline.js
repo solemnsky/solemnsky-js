@@ -565,8 +565,7 @@ mode.join("offline player")
 function callback() { }
 */
 
-//return clientCore(mode, function(){return false}) 
-return ui.splash(["asdf", "asdbaf"], 1000)
+return clientCore(mode, function(){return false}) 
 }
 
 },{"../../assets/pixi.min.js":2,"../ui/index.js":14,"./client-core.js":4}],6:[function(require,module,exports){

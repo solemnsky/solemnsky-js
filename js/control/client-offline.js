@@ -24,6 +24,5 @@ mode.join("offline player")
 function callback() { }
 */
 
-//return clientCore(mode, function(){return false}) 
-return ui.splash(["asdf", "asdbaf"], 1000)
+return clientCore(mode, function(){return false}) 
 }
