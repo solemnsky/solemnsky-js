@@ -11,7 +11,7 @@ module.exports = function(mode, address, port, path) {
 /**** {{{ ConnectUI ****/
 ConnectUI = function() {
 	this.entered = false
-	this.countdown = 5
+	this.countdown = 1
 }
 
 ConnectUI.prototype.init = function() {}
@@ -21,12 +21,13 @@ ConnectUI.prototype.step = function(delta) {
 	}
 }
 ConnectUI.prototype.initRender = function(stage) {
-	this.text = new PIXI.Text("press enter to start...", {fill: 0xFFFFFF})
+	this.text = new PIXI.Text("press enter to start.", {fill: 0xFFFFFF})
+	this.text.position = new PIXI.Point(800, 450)
 	stage.addChild(this.text)
 }
-ConnectUI.prototype.stepRender = function() {
+ConnectUI.prototype.stepRender = function() { 
 	if (this.entered) {
-		this.text.text = this.countdown
+		this.text.position = new PIXI.Point(800, (550 * this.countdown - 100))
 	}
 }
 ConnectUI.prototype.acceptKey = function(key, state) {
