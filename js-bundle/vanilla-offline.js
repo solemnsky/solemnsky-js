@@ -1414,6 +1414,48 @@ exports.splash = function(texts, interval) {
 	return new Splash()
 }
 
+exports.centerText = function(text) {
+	center = Object()
+	center.init = function(){}
+	center.step = function(){}
+	center.initRender = function(stage) {
+		this.text = new PIXI.Text(text, {fill: 0xFFFFFF})
+		stage.addChild(text)
+	}
+	center.stepRender = function(){}
+	center.acceptKey = function(){}
+	center.hasEnded = function(){return false}
+	return center
+}
+
+exports.combineOverlay = function(overlay, object) {
+	function Result() { 
+		this.overlay = new PIXI.Container()
+		this.main = new PIXI.Container()
+	}
+
+	Result.prototype.init = function() {
+		overlay.init(); object.init()
+	}
+	Result.prototype.step = function(delta) {
+		overlay.step(delta); object.step(delta)
+	}
+	Result.prototype.initRender = function(stage) {
+		overlay.initRender(this.overlay); object.initRender(this.main)
+		stage.addChild(this.overlay); stage.addChild(this.main)
+	}
+	Result.prototype.stepRender = function(stage, delta, x, y) {
+		overlay.stepRender(this.overlay, delta, x, y)
+		object.stepRender(this.main, delta, x, y)
+	}
+	Result.prototype.acceptKey = function(key, state){
+		object.acceptKey(key, state)
+	}
+	Result.prototype.hasEnded = function() { return object.hasEnded() }
+
+	return new Result()
+}
+
 },{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
@@ -1517,20 +1559,23 @@ module.exports = function(object) {
 		} else {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
+			window.removeEventListener("keyup", acceptKeyUp)
+			window.removeEventListener("keydown", acceptKeyDown)
 			if (typeof object.next !== "undefined")
 				module.exports(object.next())
 		}
 	}
 	/**** }}} step ****/
 
-	function acceptKey(state) {
-		return function(e) {
-			object.acceptKey(nameFromKeyCode(e.keyCode), state)
-		}
+	function acceptKeyUp(e) {
+		object.acceptKey(nameFromKeyCode(e.keyCode), false)
+	}
+	function acceptKeyDown(e) {
+		object.acceptKey(nameFromKeyCode(e.keyCode), true)
 	}
 
-	window.addEventListener("keyup", acceptKey(false))
-	window.addEventListener("keydown", acceptKey(true))
+	window.addEventListener("keyup", acceptKeyUp)
+	window.addEventListener("keydown", acceptKeyDown)
 
 	window.onresize = smartResize
 

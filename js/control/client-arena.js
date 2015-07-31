@@ -48,12 +48,10 @@ Game = function() {
 
 // ui control methods
 Game.prototype.init = function(){
-	/*
 	this.socket = new WebSocket("ws://" + address + ":" + port + path);
 	this.socket.onopen = this.onConnected;
 	this.socket.onclose = this.onDisconnected;
 	this.socket.onmessage = this.onMessage;
-	*/
 }
 Game.prototype.step = function(delta) {}
 Game.prototype.initRender = function(stage) { }
@@ -67,7 +65,7 @@ Game.prototype.connect = function(address, port, path) {
 
 Game.prototype.onConnected = function() {
 	//STUB
-	socket.send("TEST");
+	this.send("TEST");
 }
 
 Game.prototype.onDisconnected = function() {
@@ -82,10 +80,7 @@ Game.prototype.onMessage = function(message) {
 // connect(address, port, path);
 /**** }}} Game ****/
 
-ConnectUI.prototype.next = function() {return new ConnectUI()}
-connectUI = new ConnectUI()
-game = new Game()
-
-return connectUI
-
+ConnectUI.prototype.next = function() {return new Game()}
+Game.prototype.next = function() {return new ConnectUI()}
+return new ConnectUI
 }

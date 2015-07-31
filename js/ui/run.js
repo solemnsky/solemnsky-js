@@ -100,20 +100,23 @@ module.exports = function(object) {
 		} else {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
+			window.removeEventListener("keyup", acceptKeyUp)
+			window.removeEventListener("keydown", acceptKeyDown)
 			if (typeof object.next !== "undefined")
 				module.exports(object.next())
 		}
 	}
 	/**** }}} step ****/
 
-	function acceptKey(state) {
-		return function(e) {
-			object.acceptKey(nameFromKeyCode(e.keyCode), state)
-		}
+	function acceptKeyUp(e) {
+		object.acceptKey(nameFromKeyCode(e.keyCode), false)
+	}
+	function acceptKeyDown(e) {
+		object.acceptKey(nameFromKeyCode(e.keyCode), true)
 	}
 
-	window.addEventListener("keyup", acceptKey(false))
-	window.addEventListener("keydown", acceptKey(true))
+	window.addEventListener("keyup", acceptKeyUp)
+	window.addEventListener("keydown", acceptKeyDown)
 
 	window.onresize = smartResize
 

@@ -471,7 +471,7 @@ mode = new Null()
 
 // use control method to turn mode into UI object
 clientOnline = require('../control/client-arena.js')
-myClient = clientOnline(mode) 
+myClient = clientOnline(mode, "198.55.237.151", 50042, "/") 
 
 ui.run(myClient)
 
@@ -526,12 +526,10 @@ Game = function() {
 
 // ui control methods
 Game.prototype.init = function(){
-	/*
 	this.socket = new WebSocket("ws://" + address + ":" + port + path);
 	this.socket.onopen = this.onConnected;
 	this.socket.onclose = this.onDisconnected;
 	this.socket.onmessage = this.onMessage;
-	*/
 }
 Game.prototype.step = function(delta) {}
 Game.prototype.initRender = function(stage) { }
@@ -545,7 +543,7 @@ Game.prototype.connect = function(address, port, path) {
 
 Game.prototype.onConnected = function() {
 	//STUB
-	socket.send("TEST");
+	this.send("TEST");
 }
 
 Game.prototype.onDisconnected = function() {
@@ -560,12 +558,9 @@ Game.prototype.onMessage = function(message) {
 // connect(address, port, path);
 /**** }}} Game ****/
 
-ConnectUI.prototype.next = function() {return new ConnectUI()}
-connectUI = new ConnectUI()
-game = new Game()
-
-return connectUI
-
+ConnectUI.prototype.next = function() {return new Game()}
+Game.prototype.next = function() {return new ConnectUI()}
+return new ConnectUI
 }
 
 },{"../../assets/pixi.min.js":2,"../ui/":14,"./client-core.js":5}],5:[function(require,module,exports){
@@ -1477,6 +1472,48 @@ exports.splash = function(texts, interval) {
 	return new Splash()
 }
 
+exports.centerText = function(text) {
+	center = Object()
+	center.init = function(){}
+	center.step = function(){}
+	center.initRender = function(stage) {
+		this.text = new PIXI.Text(text, {fill: 0xFFFFFF})
+		stage.addChild(text)
+	}
+	center.stepRender = function(){}
+	center.acceptKey = function(){}
+	center.hasEnded = function(){return false}
+	return center
+}
+
+exports.combineOverlay = function(overlay, object) {
+	function Result() { 
+		this.overlay = new PIXI.Container()
+		this.main = new PIXI.Container()
+	}
+
+	Result.prototype.init = function() {
+		overlay.init(); object.init()
+	}
+	Result.prototype.step = function(delta) {
+		overlay.step(delta); object.step(delta)
+	}
+	Result.prototype.initRender = function(stage) {
+		overlay.initRender(this.overlay); object.initRender(this.main)
+		stage.addChild(this.overlay); stage.addChild(this.main)
+	}
+	Result.prototype.stepRender = function(stage, delta, x, y) {
+		overlay.stepRender(this.overlay, delta, x, y)
+		object.stepRender(this.main, delta, x, y)
+	}
+	Result.prototype.acceptKey = function(key, state){
+		object.acceptKey(key, state)
+	}
+	Result.prototype.hasEnded = function() { return object.hasEnded() }
+
+	return new Result()
+}
+
 },{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
@@ -1580,20 +1617,23 @@ module.exports = function(object) {
 		} else {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
+			window.removeEventListener("keyup", acceptKeyUp)
+			window.removeEventListener("keydown", acceptKeyDown)
 			if (typeof object.next !== "undefined")
 				module.exports(object.next())
 		}
 	}
 	/**** }}} step ****/
 
-	function acceptKey(state) {
-		return function(e) {
-			object.acceptKey(nameFromKeyCode(e.keyCode), state)
-		}
+	function acceptKeyUp(e) {
+		object.acceptKey(nameFromKeyCode(e.keyCode), false)
+	}
+	function acceptKeyDown(e) {
+		object.acceptKey(nameFromKeyCode(e.keyCode), true)
 	}
 
-	window.addEventListener("keyup", acceptKey(false))
-	window.addEventListener("keydown", acceptKey(true))
+	window.addEventListener("keyup", acceptKeyUp)
+	window.addEventListener("keydown", acceptKeyDown)
 
 	window.onresize = smartResize
 
