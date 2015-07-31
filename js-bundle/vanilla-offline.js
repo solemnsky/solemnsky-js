@@ -1466,6 +1466,41 @@ exports.combineOverlay = function(overlay, object) {
 nameFromKeyCode = require('../resources/keys.js')
 
 module.exports = function(object) {
+	var renderer =
+		PIXI.autoDetectRenderer(1600, 900, 
+			{backgroundColor : 0x000010, antialias : true})
+	document.body.appendChild(renderer.view)
+	var stage = new PIXI.Container()
+
+	/**** {{{ smartResize() ****/
+	function setMargins(mleft, mtop) {
+		document.body.style.setProperty("margin-left", mleft + "px")
+		document.body.style.setProperty("margin-top", mtop + "px")
+	}
+
+	function smartResize() {
+		w = window.innerWidth; h = window.innerHeight;
+		if ((w / h) > (16 / 9)) {
+			nw = h * (16 / 9); nh = h
+			renderer.resize(nw, nh)
+			setMargins((w - nw) / 2, 0)
+		} else {
+			nh = w * (9 / 16); nw = w
+			renderer.resize(nw, nh)
+			setMargins(0, (h - nh) / 2)
+		}
+
+		stage.scale = new PIXI.Point(nw / 1600, nh / 900)
+	}
+	/**** }}} smartResize() ****/
+
+	window.onresize = smartResize
+	smartResize()
+	
+	runWithStage(renderer, stage, object)
+}
+
+runWithStage = function(renderer, stage, object) {
 	var running = true;
 
 	var engineFps = 0; var renderFps = 0
@@ -1493,38 +1528,8 @@ module.exports = function(object) {
 	})();
 	/**** }}} requestAnimFrame ****/
 
-	/**** {{{ init ****/
-	renderer =
-		PIXI.autoDetectRenderer(1600, 900, 
-			{backgroundColor : 0x000010, antialias : true})
-	document.body.appendChild(renderer.view)
-
-	stage = new PIXI.Container()
 	object.initRender(stage)
 	object.init()
-	/**** }}} init ****/
-
-	/**** {{{ smartResize() ****/
-	function setMargins(mleft, mtop) {
-		document.body.style.setProperty("margin-left", mleft + "px")
-		document.body.style.setProperty("margin-top", mtop + "px")
-	}
-
-	function smartResize() {
-		w = window.innerWidth; h = window.innerHeight;
-		if ((w / h) > (16 / 9)) {
-			nw = h * (16 / 9); nh = h
-			renderer.resize(nw, nh)
-			setMargins((w - nw) / 2, 0)
-		} else {
-			nh = w * (9 / 16); nw = w
-			renderer.resize(nw, nh)
-			setMargins(0, (h - nh) / 2)
-		}
-
-		stage.scale = new PIXI.Point(nw / 1600, nh / 900)
-	}
-	/**** }}} smartResize() ****/
 
 	/**** {{{ step ****/
 	// step()
@@ -1557,12 +1562,10 @@ module.exports = function(object) {
 
 			object.step(delta)
 		} else {
-			document.body.removeChild(renderer.view)
-			renderer.destroy()
 			window.removeEventListener("keyup", acceptKeyUp)
 			window.removeEventListener("keydown", acceptKeyDown)
 			if (typeof object.next !== "undefined")
-				module.exports(object.next())
+				runWithStage(renderer, stage, object.next())
 		}
 	}
 	/**** }}} step ****/
@@ -1577,9 +1580,6 @@ module.exports = function(object) {
 	window.addEventListener("keyup", acceptKeyUp)
 	window.addEventListener("keydown", acceptKeyDown)
 
-	window.onresize = smartResize
-
-	smartResize()
 	resetFps()
 	updateRender()
 	updateEngine()
