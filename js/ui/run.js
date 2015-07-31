@@ -3,7 +3,6 @@
 //                  ******** run.js ********                           */
 
 // object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities (exactly the same as in the mode specification)
-// next: the thing to do after the definition reports that it has ended 
 
 nameFromKeyCode = require('../resources/keys.js')
 
@@ -102,7 +101,7 @@ module.exports = function(object) {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
 			if (typeof object.next !== "undefined")
-				object.next()
+				module.exports(object.next())
 		}
 	}
 	/**** }}} step ****/

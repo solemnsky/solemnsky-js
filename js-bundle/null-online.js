@@ -464,18 +464,99 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 ui = require('../ui/index.js')
 
 // make mode
-Vanilla = require("../modes/vanilla/")
-VanillaRenderer = require("../modes/vanilla/render.js");
-VanillaRenderer(Vanilla)
-mode = new Vanilla()
+Null = require('../modes/vanilla/')
+NullRenderer = require('../modes/vanilla/render.js')
+NullRenderer(Null)
+mode = new Null()
 
 // use control method to turn mode into UI object
-clientOffline = require('../control/client-offline.js')
-myClient = clientOffline(mode)
+clientOnline = require('../control/client-arena.js')
+myClient = clientOnline(mode)
 
 ui.run(myClient)
 
-},{"../control/client-offline.js":5,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":14}],4:[function(require,module,exports){
+},{"../control/client-arena.js":4,"../modes/vanilla/":8,"../modes/vanilla/render.js":10,"../ui/index.js":15}],4:[function(require,module,exports){
+/*                  ******** client-arena.js ********                  //
+\\ Connects to an arena server.                                        \\
+//                  ******** client-arena.js ********                  */
+clientCore = require('./client-core.js')
+PIXI = require('../../assets/pixi.min.js')
+ui = require('../ui/')
+
+Utils = require('../resources/util.js')
+clientOffline = require('./client-offline.js')
+
+module.exports = function(address, port, path, mode) {
+
+/**** {{{ connectUI(next): connection interface ****/
+// next: the next thing to do
+ConnectUI = function() {
+	this.text = new PIXI.Text("welcome to the online client", {fill: 0xFFFFFF})
+	this.text.position = new PIXI.Point(800, 450)
+
+	this.time = 0
+}
+
+ConnectUI.prototype.initRender = function(stage) { stage.addChild(this.text)	}
+ConnectUI.prototype.step = function(delta) {
+	this.time += delta
+}
+ConnectUI.prototype.renderStep = function(stage, delta) {
+	if (this.time > 2000) {
+		this.text.text = "bepbep! connecting!"
+	} else {
+		this.text.text = "welcome to the online client"
+	}
+}
+ConnectUI.prototype.hasEnded = function() {
+	if (this.time > 4000) {
+		return true
+	} else {
+		return false
+	}
+}
+
+connectUI = new ConnectUI()
+
+return connectUI
+
+/*
+// overlay
+overlay = new PIXI.Container()
+text1 = new PIXI.Text("online test" , {fill: 0xFFFFFF})
+text1.position = new PIXI.Point(800, 15)
+overlay.addChild(text1)
+
+// function callback() { }
+// clientCore(mode, callback, overlay)
+
+function connect(address, port, path) {
+	socket = new WebSocket("ws://" + address + ":" + port + path);
+	socket.onopen = onConnected;
+	socket.onclose = onDisconnected;
+	socket.onmessage = onMessage;
+}
+
+function onConnected() {
+	//STUB
+	socket.send("TEST");
+}
+
+function onDisconnected() {
+	//STUB
+}
+
+function onMessage(message) {
+	//STUB
+	console.log(message.data);
+}
+
+connect(address, port, path);
+*/
+
+}
+
+},{"../../assets/pixi.min.js":2,"../resources/util.js":14,"../ui/":15,"./client-core.js":5,"./client-offline.js":6}],5:[function(require,module,exports){
 /*                  ******** client-core.js ********                   //
 \\ This exports a base client, a minimal wrapper over the offline      \\
 // internals of a mode. It should be adequately paremeterized to be    //
@@ -526,7 +607,7 @@ module.exports = function(mode, hasEnded) {
 	return new Game() 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":14}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/index.js":15}],6:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Small wrapper over client-core, tests a mode out offline.           \\
 //                  ******** client-offline.js ********                */
@@ -556,7 +637,7 @@ function callback() { }
 return clientCore(mode, function(){return false}) 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":14,"./client-core.js":4}],6:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/index.js":15,"./client-core.js":5}],7:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -607,7 +688,7 @@ module.exports = {
 	, contactDamangeMultiplier: 0.01
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*                  ******** vanilla/index.js ********                //
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //                  ******** vanilla/index.js ********                */
@@ -856,7 +937,7 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} returnState() ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":13,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":13,"../../resources/util.js":14,"./gameplay.js":7,"./player.js":9,"./snapshots.js":11}],9:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1053,7 +1134,7 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*          ******** vanilla/render.js ********       //
 \\ Client-sided renderer for the vanilla game mode.   \\
 //          ******** vanilla/render.js ********       */
@@ -1152,7 +1233,7 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 
 }
 
-},{"../../../assets/pixi.min.js":2}],10:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2}],11:[function(require,module,exports){
 Utils = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1218,7 +1299,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":13}],11:[function(require,module,exports){
+},{"../../resources/util.js":14}],12:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1228,7 +1309,7 @@ module.exports = function(keycode) {
 	return keyboardMap[keycode]
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1255,7 +1336,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1380,7 +1461,7 @@ Util.prototype.removeElemById = function(elems, id) {
 	elems.splice(index, 1)
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1414,7 +1495,7 @@ exports.splash = function(texts, interval) {
 	return new Splash()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":16}],16:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -1541,4 +1622,4 @@ module.exports = function(object) {
 	updateEngine()
 }
 
-},{"../resources/keys.js":11}]},{},[3]);
+},{"../resources/keys.js":12}]},{},[3]);
