@@ -101,7 +101,7 @@ module.exports = function(object) {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
 			if (typeof object.next !== "undefined")
-				module.exports(new object.next())
+				module.exports(object.next())
 		}
 	}
 	/**** }}} step ****/

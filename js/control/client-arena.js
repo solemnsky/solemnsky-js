@@ -37,6 +37,7 @@ ConnectUI.prototype.acceptKey = function(key, state) {
 ConnectUI.prototype.hasEnded = function() {
 	return (this.countdown < 0)
 }
+
 /**** }}} ConnectUI ****/
 
 /**** {{{ Game ****/
@@ -80,9 +81,9 @@ Game.prototype.onMessage = function(message) {
 // connect(address, port, path);
 /**** }}} Game ****/
 
+ConnectUI.prototype.next = function() {return new ConnectUI()}
 connectUI = new ConnectUI()
 game = new Game()
-ConnectUI.prototype.next = function() {return ConnectUI()}
 
 return connectUI
 

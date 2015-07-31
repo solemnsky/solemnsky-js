@@ -515,6 +515,7 @@ ConnectUI.prototype.acceptKey = function(key, state) {
 ConnectUI.prototype.hasEnded = function() {
 	return (this.countdown < 0)
 }
+
 /**** }}} ConnectUI ****/
 
 /**** {{{ Game ****/
@@ -558,9 +559,9 @@ Game.prototype.onMessage = function(message) {
 // connect(address, port, path);
 /**** }}} Game ****/
 
+ConnectUI.prototype.next = function() {return new ConnectUI()}
 connectUI = new ConnectUI()
 game = new Game()
-ConnectUI.prototype.next = function() {return ConnectUI()}
 
 return connectUI
 
@@ -1579,7 +1580,7 @@ module.exports = function(object) {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
 			if (typeof object.next !== "undefined")
-				module.exports(new object.next())
+				module.exports(object.next())
 		}
 	}
 	/**** }}} step ****/
