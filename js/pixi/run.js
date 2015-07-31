@@ -1,8 +1,8 @@
-/*                  ******** pixi-core.js ********                     //
-\\ This exports a method for a basic UI with pixi, highly reusable.    \\
-//                  ******** pixi-core.js ********                     */
+/*                  ******** run.js ********                           //
+\\ Runs a little UI object and then does something else.               \\
+//                  ******** run.js ********                           */
 
-// object: an object containing init, step, stepRender, and hasEnded properities (exactly the same as in the mode specification)
+// object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities (exactly the same as in the mode specification)
 // next: the thing to do after the definition reportes that is has ended 
 
 module.exports = function(object, next) {
@@ -43,6 +43,7 @@ document.body.appendChild(renderer.view)
 
 stage = new PIXI.Container()
 object.initRender(stage)
+object.init()
 /**** }}} init ****/
 
 /**** {{{ smartResize() ****/
@@ -79,7 +80,7 @@ function updateRender() {
 		delta = now - then
 		then = now
 
-		object.renderStep(stage, delta, renderFps, engineFps)
+		object.stepRender(stage, delta, renderFps, engineFps)
 		renderer.render(stage)
 	}
 } 
@@ -104,6 +105,15 @@ function updateEngine() {
 	}
 }
 /**** }}} step ****/
+
+window.addEventListener("keyup", acceptKey(false))
+window.addEventListener("keydown", acceptKey(true))
+
+function acceptKey(state) {
+	return function(e) {
+		object.acceptKey(Utils.nameFromKeyCode(e.keycode), state)
+	}
+}
 
 window.onresize = smartResize
 

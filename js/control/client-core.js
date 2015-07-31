@@ -8,7 +8,7 @@ PIXI = require('../../assets/pixi.min.js')
 nameFromKeyCode = require('../resources/keys.js')
 runPixi = require('../resources/pixi.js')
 
-module.exports = function(mode, callback, overlay) {
+module.exports = Game() 
 if (typeof overlay == "undefined") overlay = new PIXI.Container()
 if (typeof callback  == "undefined") 
 	callback = function() { }
@@ -39,20 +39,9 @@ Game.prototype.step = function(delta) {
 }
 
 Game.prototype.hasEnded = function() {
-	return false
+	return this.callbackResult
 }
 
-runPixi(new Game())
-
-/**** {{{ event handling ****/
-keyHandler = function(state) {
-	return (
-		function(e) 
-			{ mode.acceptKey(0, nameFromKeyCode(e.keyCode), state) }
-	)
-}
-
-window.addEventListener("keydown", keyHandler(true), true)
-window.addEventListener("keyup", keyHandler(false), true)
-/**** }}} event handling ****/
+Game.prototype.acceptKey = function(key, state) {
+	mode.acceptKey(key, state)
 }
