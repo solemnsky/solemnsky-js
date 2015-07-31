@@ -82,7 +82,7 @@ Game.prototype.onMessage = function(message) {
 
 connectUI = new ConnectUI()
 game = new Game()
-connectUI.next = function() {return connectUI}
+ConnectUI.prototype.next = function() {return ConnectUI()}
 
 return connectUI
 

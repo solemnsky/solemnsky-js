@@ -560,7 +560,7 @@ Game.prototype.onMessage = function(message) {
 
 connectUI = new ConnectUI()
 game = new Game()
-connectUI.next = function() {return connectUI}
+ConnectUI.prototype.next = function() {return ConnectUI()}
 
 return connectUI
 
@@ -1579,7 +1579,7 @@ module.exports = function(object) {
 			document.body.removeChild(renderer.view)
 			renderer.destroy()
 			if (typeof object.next !== "undefined")
-				module.exports(object.next())
+				module.exports(new object.next())
 		}
 	}
 	/**** }}} step ****/
