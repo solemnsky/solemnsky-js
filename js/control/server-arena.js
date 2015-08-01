@@ -56,9 +56,9 @@ function onMessage(client, message) {
 			mode.join(data); broadcast("JOIN " + data); break;
 		case "SNAP":
 			mode.serverMerge(data)
+		default:
+			client.send("ECHO " + data)
 	}
-
-	client.sent(message)
 }
 
 openSocket(port);
