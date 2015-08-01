@@ -40,7 +40,6 @@ function onClientConnected(client) {
 }
 
 function onClientDisconnected(client) {
-	//STUB
 	console.log("Client " + getClientAddress(client) + " disconnected");
 }
 

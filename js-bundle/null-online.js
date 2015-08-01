@@ -484,6 +484,11 @@ clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
 
+Vanilla = require('../modes/vanilla/')
+VanillaRender = require('../modes/vanilla/render.js')
+VanillaRender(Vanilla)
+mode = new Vanilla()
+
 module.exports = function(mode, address, port, path) {
 
 /**** {{{ ConnectUI ****/
@@ -519,6 +524,8 @@ ConnectUI.prototype.hasEnded = function() {
 
 /**** }}} ConnectUI ****/
 
+mode = 
+
 /**** {{{ Game ****/
 Game = function() {
 	this.disconnected = false;
@@ -526,24 +533,22 @@ Game = function() {
 
 // ui control methods
 Game.prototype.init = function(){
+	this.name = prompt("enter desired player name")	
+
 	this.socket = new WebSocket("ws://" + address + ":" + port + path);
 	this.socket.onopen = this.onConnected;
 	this.socket.onclose = this.onDisconnected;
 	this.socket.onmessage = this.onMessage;
 }
-Game.prototype.step = function(delta) {}
+Game.prototype.step = function(delta) { }
 Game.prototype.initRender = function(stage) { }
 Game.prototype.stepRender = function(stage, delta) {}
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
 
-Game.prototype.connect = function(address, port, path) {
-}
-
 Game.prototype.onConnected = function() {
-	//STUB
-	this.send("TEST");
+	this.send("CONNECT " + this.name);
 }
 
 Game.prototype.onDisconnected = function() {
@@ -551,7 +556,19 @@ Game.prototype.onDisconnected = function() {
 }
 
 Game.prototype.onMessage = function(message) {
-	//STUB
+	console.log("Message from server: " + message)
+	var type = message.split(" ")[0]
+	var data = message.split(" ").splice(1).join(" ")
+	switch (type) {
+		case "INIT":
+			mode.init(data); break
+		case "SNAP":
+			mode.clientMerge(data); break	
+		case "JOIN":
+			mode.join(data); break
+		case "QUIT":
+			mode.quit(data); break
+	}
 	console.log(message.data);
 }
 
@@ -563,7 +580,7 @@ Game.prototype.next = function() {return new ConnectUI()}
 return new ConnectUI
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/":14,"./client-core.js":5}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/":14,"./client-core.js":5}],5:[function(require,module,exports){
 /*                  ******** client-core.js ********                   //
 \\ This exports a base client, a minimal wrapper over the offline      \\
 // internals of a mode. It should be adequately paremeterized to be    //
@@ -807,7 +824,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 
 /**** {{{ init() and step() ****/
 Vanilla.prototype.makeInitData = function(key) {
-	// TODO: implement initdata
+	return "it's like this"
 }
 
 Vanilla.prototype.init = function(initdata) {
@@ -909,8 +926,7 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 
 /**** {{{ describeState() ****/
 Vanilla.prototype.describeState = function() {
-	// describes the state of the game to a new player, telling them
-	// everything that they need to know (passed to an init())
+	return "it's like this"
 }
 /**** }}} returnState() ****/
 
