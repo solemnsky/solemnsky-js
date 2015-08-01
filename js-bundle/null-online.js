@@ -535,7 +535,7 @@ Game.prototype.step = function(delta) {}
 Game.prototype.initRender = function(stage) { }
 Game.prototype.stepRender = function(stage, delta) {}
 Game.prototype.hasEnded = function() {
-	return (!this.disconnected)
+	return (this.disconnected)
 }
 
 Game.prototype.connect = function(address, port, path) {

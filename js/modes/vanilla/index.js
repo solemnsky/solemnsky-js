@@ -139,7 +139,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 
 /**** {{{ init() and step() ****/
 Vanilla.prototype.makeInitData = function(key) {
-	// TODO: implement initdata
+	return "it's like this"
 }
 
 Vanilla.prototype.init = function(initdata) {
@@ -241,7 +241,6 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 
 /**** {{{ describeState() ****/
 Vanilla.prototype.describeState = function() {
-	// describes the state of the game to a new player, telling them
-	// everything that they need to know (passed to an init())
+	return "it's like this"
 }
 /**** }}} returnState() ****/

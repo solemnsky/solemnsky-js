@@ -1,9 +1,8 @@
-/*                  ******** server-core.js ********                   //
-\\ This exports a base server, It should be adequately paremeterized   \\
-// to be used in all other servers.                                    //
-\\                  ******** server-core.js ********                   */
+/*                  ******** server-arena.js ********                  //
+// An arena server where players may join and quit freely.             \\
+\\                  ******** server-arena.js ********                  */
 
-module.exports = function(port, mode, key, callback) {
+module.exports = function(port, mode, key) {
 //Sockets
 WebSocket = require("ws");
 
@@ -48,7 +47,18 @@ function onClientDisconnected(client) {
 function onMessage(client, message) {
 	//STUB
 	console.log("Message from client " + getClientAddress(client) + ": " + message);
-	broadcast(getClientAddress(client) + " says " + message);
+
+	var type = message.split(" ")[0]
+	var data = message.split(" ").splice(1).join(" ")
+
+	switch (type) {
+		case "CONNECT":
+			mode.join(data); broadcast("JOIN " + data); break;
+		case "SNAP":
+			mode.serverMerge(data)
+	}
+
+	client.sent(message)
 }
 
 openSocket(port);
