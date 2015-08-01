@@ -543,6 +543,7 @@ Game.prototype.init = function(){
 Game.prototype.step = function(delta) { }
 Game.prototype.initRender = function(stage) { }
 Game.prototype.stepRender = function(stage, delta) {}
+Game.prototype.acceptKey = function(){}
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
@@ -557,8 +558,8 @@ Game.prototype.onDisconnected = function() {
 
 Game.prototype.onMessage = function(message) {
 	console.log("Message from server: " + message)
-	var type = message.split(" ")[0]
-	var data = message.split(" ").splice(1).join(" ")
+	var type = message.data.split(" ")[0]
+	var data = message.data.split(" ").splice(1).join(" ")
 	switch (type) {
 		case "INIT":
 			mode.init(data); break

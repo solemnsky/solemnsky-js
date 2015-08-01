@@ -65,6 +65,7 @@ Game.prototype.init = function(){
 Game.prototype.step = function(delta) { }
 Game.prototype.initRender = function(stage) { }
 Game.prototype.stepRender = function(stage, delta) {}
+Game.prototype.acceptKey = function(){}
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
