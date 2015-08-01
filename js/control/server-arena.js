@@ -47,8 +47,8 @@ function onMessage(client, message) {
 	//STUB
 	console.log("Message from client " + getClientAddress(client) + ": " + message);
 
-	var type = message.split(" ")[0]
-	var data = message.split(" ").splice(1).join(" ")
+	var type = message.data.split(" ")[0]
+	var data = message.data.split(" ").splice(1).join(" ")
 
 	switch (type) {
 		case "CONNECT":
