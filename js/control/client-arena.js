@@ -71,7 +71,9 @@ Game.prototype.hasEnded = function() {
 }
 
 Game.prototype.onConnected = function() {
-	this.send("CONNECT " + this.name);
+	var msg = "CONNECT " + this.name;
+	console.log("sending: " + msg")
+	this.send(msg)
 }
 
 Game.prototype.onDisconnected = function() {
@@ -79,7 +81,7 @@ Game.prototype.onDisconnected = function() {
 }
 
 Game.prototype.onMessage = function(message) {
-	console.log("Message from server: " + message)
+	console.log("recieving: " + message)
 	var type = message.data.split(" ")[0]
 	var data = message.data.split(" ").splice(1).join(" ")
 	switch (type) {
