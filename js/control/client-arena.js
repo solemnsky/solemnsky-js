@@ -6,11 +6,6 @@ clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
 
-Vanilla = require('../modes/vanilla/')
-VanillaRender = require('../modes/vanilla/render.js')
-VanillaRender(Vanilla)
-mode = new Vanilla()
-
 module.exports = function(mode, address, port, path) {
 
 /**** {{{ ConnectUI ****/
@@ -66,7 +61,7 @@ Game.prototype.processCue = function() {
 		var type = message.split(" ")[0]
 		var data = message.split(" ").splice(1).join(" ")
 
-		if (this.intialised) {
+		if (!this.intialised) {
 			if (type === "INIT") {
 				mode.init(data); 
 				mode.initRender(this.stage)
@@ -82,6 +77,7 @@ Game.prototype.processCue = function() {
 						mode.clientMerge(this.id, data); break	
 				case "JOIN":
 					mode.join(data); break
+					break
 				case "QUIT":
 					mode.quit(data); break
 				default:
@@ -113,7 +109,7 @@ Game.prototype.initRender = function(stage) {
 }
 Game.prototype.stepRender = function(stage, delta, x, y) {
 	if (this.initialised) 
-		mode.stepRender(stage, delta, xy, y)
+		mode.stepRender(stage, delta, x, y)
 }
 Game.prototype.acceptKey = function(key, state) {
 	if (this.initialised)
