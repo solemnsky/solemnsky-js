@@ -46,8 +46,6 @@ ConnectUI.prototype.hasEnded = function() {
 
 /**** }}} ConnectUI ****/
 
-mode = 
-
 /**** {{{ Game ****/
 Game = function() {
 	this.disconnected = false;
