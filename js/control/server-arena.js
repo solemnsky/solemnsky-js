@@ -52,9 +52,10 @@ function onMessage(client, message) {
 
 	switch (type) {
 		case "CONNECT":
-			mode.join(data); broadcast("JOIN " + data); break;
+			client.id = mode.join(data); broadcast("JOIN " + data); 
+			client.send("CONNECTED " + client.id); break;
 		case "SNAP":
-			mode.serverMerge(data)
+			mode.serverMerge(data); break
 		default:
 			client.send("ECHO " + data)
 	}

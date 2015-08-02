@@ -83,6 +83,8 @@ Game.prototype.onMessage = function(message) {
 	var type = message.data.split(" ")[0]
 	var data = message.data.split(" ").splice(1).join(" ")
 	switch (type) {
+		case "CONNECTED":
+			this.id = data
 		case "INIT":
 			mode.init(data); break
 		case "SNAP":
