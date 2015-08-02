@@ -48,7 +48,45 @@ ConnectUI.prototype.hasEnded = function() {
 
 /**** {{{ Game ****/
 Game = function() {
+	this.id = null;
 	this.disconnected = false;
+	this.initialised = false;
+
+	this.messageCue = []
+	this.processingCue = false;
+}
+
+Game.prototype.processCue = function() {
+	if (this.processingCue === false && this.messageCue.length > 0) {
+		this.processingCue = true;
+
+		var message = this.messageCue.pop
+		var type = message.split(" ")[0]
+		var data = message.split(" ").splice(1).join(" ")
+
+		if (this.intialised) {
+			if (type === "INIT") {
+				mode.init(data); this.initialised = true;
+			}
+		} else {
+			switch (type) {
+				case "CONNECTED":
+					this.id = data
+				case "SNAP":
+					mode.clientMerge(data); break	
+				case "JOIN":
+					mode.join(data); break
+				case "QUIT":
+					mode.quit(data); break
+				default:
+					break
+			}
+		}
+
+		this.processingCue = false;
+		if (this.messageCue.length !== 0) 
+			this.processCue()
+	}
 }
 
 // ui control methods
@@ -60,10 +98,21 @@ Game.prototype.init = function(){
 	this.socket.onclose = this.onDisconnected.bind(this);
 	this.socket.onmessage = this.onMessage.bind(this);
 }
-Game.prototype.step = function(delta) { }
-Game.prototype.initRender = function(stage) { }
-Game.prototype.stepRender = function(stage, delta) {}
-Game.prototype.acceptKey = function(){}
+Game.prototype.step = function(delta) { 
+	mode.step(delta)
+}
+Game.prototype.initRender = function(stage) { 
+	if (this.initialised)
+		mode.initRender(stage)
+}
+Game.prototype.stepRender = function(stage, delta, x, y) {
+	if (this.initialised) 
+		mode.stepRender(stage, delta, xy, y)
+}
+Game.prototype.acceptKey = function(key, state) {
+	if (this.initialised)
+		mode.acceptKey(this.id, key, state)
+}
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
@@ -79,25 +128,10 @@ Game.prototype.onDisconnected = function() {
 }
 
 Game.prototype.onMessage = function(message) {
-	console.log("recieving: " + message)
-	var type = message.data.split(" ")[0]
-	var data = message.data.split(" ").splice(1).join(" ")
-	switch (type) {
-		case "CONNECTED":
-			this.id = data
-		case "INIT":
-			mode.init(data); break
-		case "SNAP":
-			mode.clientMerge(data); break	
-		case "JOIN":
-			mode.join(data); break
-		case "QUIT":
-			mode.quit(data); break
-	}
-	console.log(message.data);
+	console.log("recieving: " + message.data)
+	this.messageCue.push(message.data)
+	this.processCue()
 }
-
-// connect(address, port, path);
 /**** }}} Game ****/
 
 ConnectUI.prototype.next = function() {return new Game()}
