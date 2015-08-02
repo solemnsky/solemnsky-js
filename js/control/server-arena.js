@@ -51,8 +51,9 @@ function onMessage(client, message) {
 
 	switch (type) {
 		case "CONNECT":
-			client.id = mode.join(data); broadcast("JOIN " + data); 
-			client.send("CONNECTED " + client.id); break;
+			client.send("INIT " + mode.describeState())
+			client.id = mode.join(data); client.send("CONNECTED " + client.id); 
+			broadcast("JOIN " + data); 
 		case "SNAP":
 			mode.serverMerge(data); break
 		default:

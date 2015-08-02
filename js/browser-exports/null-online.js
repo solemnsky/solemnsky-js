@@ -1,8 +1,8 @@
 ui = require('../ui/index.js')
 
 // make mode
-Null = require('../modes/vanilla/')
-NullRenderer = require('../modes/vanilla/render.js')
+Null = require('../modes/null/')
+NullRenderer = require('../modes/null/render.js')
 NullRenderer(Null)
 mode = new Null()
 

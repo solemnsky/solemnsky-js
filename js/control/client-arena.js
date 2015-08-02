@@ -54,26 +54,32 @@ Game = function() {
 
 	this.messageCue = []
 	this.processingCue = false;
+
+	this.stage = null
 }
 
 Game.prototype.processCue = function() {
 	if (this.processingCue === false && this.messageCue.length > 0) {
 		this.processingCue = true;
 
-		var message = this.messageCue.pop
+		var message = this.messageCue.pop()
 		var type = message.split(" ")[0]
 		var data = message.split(" ").splice(1).join(" ")
 
 		if (this.intialised) {
 			if (type === "INIT") {
-				mode.init(data); this.initialised = true;
+				mode.init(data); 
+				mode.initRender(this.stage)
+				this.initialised = true;
+			} else {
 			}
 		} else {
 			switch (type) {
 				case "CONNECTED":
-					this.id = data
+					this.id = data; break
 				case "SNAP":
-					mode.clientMerge(data); break	
+					if (typeof this.id !== "undefined")
+						mode.clientMerge(this.id, data); break	
 				case "JOIN":
 					mode.join(data); break
 				case "QUIT":
@@ -99,11 +105,11 @@ Game.prototype.init = function(){
 	this.socket.onmessage = this.onMessage.bind(this);
 }
 Game.prototype.step = function(delta) { 
-	mode.step(delta)
+	if (this.initialised)
+		mode.step(delta)
 }
 Game.prototype.initRender = function(stage) { 
-	if (this.initialised)
-		mode.initRender(stage)
+	this.stage = stage
 }
 Game.prototype.stepRender = function(stage, delta, x, y) {
 	if (this.initialised) 

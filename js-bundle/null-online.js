@@ -464,8 +464,8 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 ui = require('../ui/index.js')
 
 // make mode
-Null = require('../modes/vanilla/')
-NullRenderer = require('../modes/vanilla/render.js')
+Null = require('../modes/null/')
+NullRenderer = require('../modes/null/render.js')
 NullRenderer(Null)
 mode = new Null()
 
@@ -476,7 +476,7 @@ myClient = clientOnline(mode, "localhost", 50042, "/")
 
 ui.run(myClient)
 
-},{"../control/client-arena.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":14}],4:[function(require,module,exports){
+},{"../control/client-arena.js":4,"../modes/null/":6,"../modes/null/render.js":7,"../ui/index.js":16}],4:[function(require,module,exports){
 /*                  ******** client-arena.js ********                  //
 \\ Connects to an arena server.                                        \\
 //                  ******** client-arena.js ********                  */
@@ -533,26 +533,32 @@ Game = function() {
 
 	this.messageCue = []
 	this.processingCue = false;
+
+	this.stage = null
 }
 
 Game.prototype.processCue = function() {
 	if (this.processingCue === false && this.messageCue.length > 0) {
 		this.processingCue = true;
 
-		var message = this.messageCue.pop
+		var message = this.messageCue.pop()
 		var type = message.split(" ")[0]
 		var data = message.split(" ").splice(1).join(" ")
 
 		if (this.intialised) {
 			if (type === "INIT") {
-				mode.init(data); this.initialised = true;
+				mode.init(data); 
+				mode.initRender(this.stage)
+				this.initialised = true;
+			} else {
 			}
 		} else {
 			switch (type) {
 				case "CONNECTED":
-					this.id = data
+					this.id = data; break
 				case "SNAP":
-					mode.clientMerge(data); break	
+					if (typeof this.id !== "undefined")
+						mode.clientMerge(this.id, data); break	
 				case "JOIN":
 					mode.join(data); break
 				case "QUIT":
@@ -578,11 +584,11 @@ Game.prototype.init = function(){
 	this.socket.onmessage = this.onMessage.bind(this);
 }
 Game.prototype.step = function(delta) { 
-	mode.step(delta)
+	if (this.initialised)
+		mode.step(delta)
 }
 Game.prototype.initRender = function(stage) { 
-	if (this.initialised)
-		mode.initRender(stage)
+	this.stage = stage
 }
 Game.prototype.stepRender = function(stage, delta, x, y) {
 	if (this.initialised) 
@@ -618,7 +624,7 @@ Game.prototype.next = function() {return new ConnectUI()}
 return new ConnectUI
 }
 
-},{"../../assets/pixi.min.js":2,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/":14,"./client-core.js":5}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../modes/vanilla/":9,"../modes/vanilla/render.js":11,"../ui/":16,"./client-core.js":5}],5:[function(require,module,exports){
 /*                  ******** client-core.js ********                   //
 \\ This exports a base client, a minimal wrapper over the offline      \\
 // internals of a mode. It should be adequately paremeterized to be    //
@@ -669,7 +675,154 @@ module.exports = function(mode, hasEnded) {
 	return new Game() 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":14}],6:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/index.js":16}],6:[function(require,module,exports){
+/*                  ******** null/index.js ********                   //
+\\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
+// It has a very simple functionality for demonstration and testing.  //
+\\ You can start from this file when you make a new mode.             \\
+//                  ******** null/index.js ********                   */
+
+// merely keeps track of who's online (and how long they've been there)
+// the background color is customizable via initdata
+
+module.exports = Null
+
+Utils = require('../../resources/util.js')
+
+/**** {{{ constructor ****/
+function Null() {
+	this.players = []
+
+	this.modeId = "null dev"
+}
+/**** }}} constructor ****/
+
+/**** {{{ methods ****/
+Null.prototype.findPlayerById = function(id) {
+	return Utils.findElemById(this.players, id)
+}
+/**** }}} methods ****/
+
+/**** {{{ init() and step() ****/
+Null.prototype.makeInitData = function(key) {
+	if (key == 'red') {
+		return JSON.stringify({color: 0xFF0000, players: []})
+	} else {
+		return JSON.stringify({color: 0xFFFFFF, players: []})
+	}
+}
+
+Null.prototype.init = function(initdata) {
+	var data = JSON.parse(initdata)	
+	this.color = data.color
+	this.players = data.players
+}
+
+Null.prototype.step = function(delta) {
+	this.players.forEach(
+		function(player) { player.timespent += delta }
+	)
+}
+
+Null.prototype.hasEnded = function() {
+	return false
+}
+/**** }}} init() and step() ****/
+
+/**** {{{ join() and quit() ****/
+Null.prototype.join = function(name) {
+	ids = this.players.map(function(player) { return player.id })
+	newId = Utils.findAvailableId(ids)	
+	this.players.push({name: name, id: newId, timespent: 0})
+	return newId
+}
+
+Null.prototype.quit = function(id) {
+	Utils.removeElemById(this.players, id)
+}
+/**** }}} join() and quit() ****/
+
+/**** {{{ initRender() and stepRender() ****/
+Null.prototype.initRender = function(stage) { 
+	stage.addChild(new PIXI.Text("", {fill: 0xFFFFFF}))
+}
+
+Null.prototype.stepRender = function(stage, delta) {
+	stage.children[0].text = 
+		this.players.reduce(
+			function(acc, player) {
+				return acc + "\n" + JSON.stringify(player)
+			} 
+		, "")
+}
+/**** }}} initRender() and stepRender()  ****/
+
+/**** {{{ clientAssert() and serverAssert() ****/
+Null.prototype.clientAssert = function(id) {
+	// a client speaks it mind to the server
+	return JSON.stringify(this.findPlayerById(id).timespent)
+}
+
+Null.prototype.serverAssert = function() {
+	return JSON.stringify(this.players)
+}
+/**** }}} clientAssert() and serverAssert() ****/
+
+/**** {{{ clientMerge() and serverMerge() ****/
+Null.prototype.clientMerge = function(id, snap) {
+	// sync all the other players, but be sure to keep myself intact
+	var myself = this.findPlayerById(id)
+		this.players = JSON.parse(snap)
+		Utils.removeElemById(this.players, id)
+	if (myself !== null) 
+		this.players.push(myself)
+}
+
+Null.prototype.serverMerge = function(id, snap) {
+	var player = this.findPlayerById(id)
+	if (player !== null)
+		player.timespent = JSON.parse(snap)
+}
+/**** }}} clientMerge() and serverMerge() ****/
+
+/**** {{{ acceptKey ****/
+Null.prototype.acceptKey = function(id, key, state) {
+	// do absolutely nothing <3
+}
+/**** }}} acceptInput ****/
+
+/**** {{{ describeState() ****/
+Null.prototype.describeState = function() {
+	return JSON.stringify({color: this.color, players: this.players})
+}
+/**** }}} describeState() ****/
+
+},{"../../resources/util.js":15}],7:[function(require,module,exports){
+/*                  ******** null/index.js ********                   //
+\\ Client-side rendering for null	                                    \\ 
+//                  ******** null/index.js ********                   */
+
+PIXI = require('../../../assets/pixi.min.js')
+Utils = require('../../resources/util.js')
+
+module.exports = function(Null) {
+
+Null.prototype.initRender = function(stage) { 
+	stage.addChild(new PIXI.Text("", {fill: 0xFFFFFF}))
+}
+
+Null.prototype.stepRender = function(stage, delta) {
+	stage.children[0].text = 
+		this.players.reduce(
+			function(acc, player) {
+				return acc + "\n" + JSON.stringify(player)
+			} 
+		, "")
+}
+
+}
+
+},{"../../../assets/pixi.min.js":2,"../../resources/util.js":15}],8:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -720,7 +873,7 @@ module.exports = {
 	, contactDamangeMultiplier: 0.01
 }
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*                  ******** vanilla/index.js ********                //
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //                  ******** vanilla/index.js ********                */
@@ -968,7 +1121,7 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} returnState() ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":13,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":14,"../../resources/util.js":15,"./gameplay.js":8,"./player.js":10,"./snapshots.js":12}],10:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1165,7 +1318,7 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*          ******** vanilla/render.js ********       //
 \\ Client-sided renderer for the vanilla game mode.   \\
 //          ******** vanilla/render.js ********       */
@@ -1264,7 +1417,7 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 
 }
 
-},{"../../../assets/pixi.min.js":2}],10:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2}],12:[function(require,module,exports){
 Utils = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1330,7 +1483,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":13}],11:[function(require,module,exports){
+},{"../../resources/util.js":15}],13:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1340,7 +1493,7 @@ module.exports = function(keycode) {
 	return keyboardMap[keycode]
 }
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1367,7 +1520,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1492,7 +1645,7 @@ Util.prototype.removeElemById = function(elems, id) {
 	elems.splice(index, 1)
 }
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1568,7 +1721,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":17}],17:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -1697,4 +1850,4 @@ runWithStage = function(renderer, stage, object) {
 	updateEngine()
 }
 
-},{"../resources/keys.js":11}]},{},[3]);
+},{"../resources/keys.js":13}]},{},[3]);
