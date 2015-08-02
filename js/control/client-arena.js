@@ -56,9 +56,9 @@ Game.prototype.init = function(){
 	this.name = prompt("enter desired player name")	
 
 	this.socket = new WebSocket("ws://" + address + ":" + port + path);
-	this.socket.onopen = this.onConnected;
-	this.socket.onclose = this.onDisconnected;
-	this.socket.onmessage = this.onMessage;
+	this.socket.onopen = this.onConnected.bind(this);
+	this.socket.onclose = this.onDisconnected.bind(this);
+	this.socket.onmessage = this.onMessage.bind(this);
 }
 Game.prototype.step = function(delta) { }
 Game.prototype.initRender = function(stage) { }
@@ -68,10 +68,10 @@ Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
 
-Game.prototype.onConnected = function() {
+Game.prototype.onConnected = function(event) {
 	var msg = "CONNECT " + this.name;
 	console.log("sending: " + msg)
-	this.send(msg)
+	this.socket.send(msg)
 }
 
 Game.prototype.onDisconnected = function() {
