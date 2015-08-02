@@ -72,7 +72,7 @@ Game.prototype.hasEnded = function() {
 
 Game.prototype.onConnected = function() {
 	var msg = "CONNECT " + this.name;
-	console.log("sending: " + msg")
+	console.log("sending: " + msg)
 	this.send(msg)
 }
 
