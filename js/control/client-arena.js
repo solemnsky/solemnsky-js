@@ -1,8 +1,7 @@
 /*                  ******** client-arena.js ********                  //
-\\ Connects to an arena server.                                        \\
+\\ Online arena client.                                                \\
 //                  ******** client-arena.js ********                  */
 
-clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
 

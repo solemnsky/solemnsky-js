@@ -1,8 +1,8 @@
 ui = require('../ui/index.js')
 
 // make mode
-Vanilla = require('../modes/null/')
-VanillaRenderer = require('../modes/null/render.js')
+Vanilla = require('../modes/vanilla/')
+VanillaRenderer = require('../modes/vanilla/render.js')
 VanillaRenderer(Vanilla)
 mode = new Vanilla()
 

@@ -28,12 +28,11 @@ myClient = clientOnline(mode, "localhost", 50042, "/")
 
 ui.run(myClient)
 
-},{"../control/client-arena.js":3,"../modes/null/":5,"../modes/null/render.js":6,"../ui/index.js":9}],3:[function(require,module,exports){
+},{"../control/client-arena.js":3,"../modes/null/":4,"../modes/null/render.js":5,"../ui/index.js":8}],3:[function(require,module,exports){
 /*                  ******** client-arena.js ********                  //
-\\ Connects to an arena server.                                        \\
+\\ Online arena client.                                                \\
 //                  ******** client-arena.js ********                  */
 
-clientCore = require('./client-core.js')
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
 
@@ -173,58 +172,7 @@ Game.prototype.next = function() {return new ConnectUI()}
 return new ConnectUI
 }
 
-},{"../../assets/pixi.min.js":1,"../ui/":9,"./client-core.js":4}],4:[function(require,module,exports){
-/*                  ******** client-core.js ********                   //
-\\ This exports a base client, a minimal wrapper over the offline      \\
-// internals of a mode. It should be adequately paremeterized to be    //
-\\ used in all other clients.                                          \\
-//                  ******** client-core.js ********                   */
-
-PIXI = require('../../assets/pixi.min.js')
-ui = require('../ui/index.js')
-
-module.exports = function(mode, hasEnded) {
-	function Game() {
-		this.fps = new PIXI.Text("", {fill: 0xFFFFFF})
-		this.fps.position = new PIXI.Point(1400, 10)
-		this.modeStage = new PIXI.Container(); 
-	}
-
-	Game.prototype.init = function() {
-		mode.init()
-		mode.join("offline player")
-	}
-
-	Game.prototype.step = function(delta) {
-		mode.step(delta)
-	}
-
-	Game.prototype.initRender = function(stage) {
-		stage.addChild(this.fps)
-		stage.addChild(this.modeStage)
-
-		mode.initRender(this.modeStage)
-	}
-
-	Game.prototype.stepRender = 
-		function(stage, delta, renderFps, engineFps) {
-			this.fps.text = 
-				"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
-			mode.stepRender(this.modeStage, delta) 
-		}
-
-	Game.prototype.hasEnded = function() {
-		return hasEnded()
-	}
-
-	Game.prototype.acceptKey = function(key, state) {
-		mode.acceptKey(0, key, state)
-	}
-
-	return new Game() 
-}
-
-},{"../../assets/pixi.min.js":1,"../ui/index.js":9}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":1,"../ui/":8}],4:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ This is a trivial placeholder mode; the 0 of the set of modes.     \\
 // It has a very simple functionality for demonstration and testing.  //
@@ -336,7 +284,7 @@ Null.prototype.describeState = function() {
 }
 /**** }}} describeState() ****/
 
-},{"../../resources/util.js":8}],6:[function(require,module,exports){
+},{"../../resources/util.js":7}],5:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //
 \\ Client-side rendering for null	                                    \\ 
 //                  ******** null/index.js ********                   */
@@ -361,7 +309,7 @@ Null.prototype.stepRender = function(stage, delta) {
 
 }
 
-},{"../../../assets/pixi.min.js":1,"../../resources/util.js":8}],7:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":1,"../../resources/util.js":7}],6:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -371,7 +319,7 @@ module.exports = function(keycode) {
 	return keyboardMap[keycode]
 }
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -496,7 +444,7 @@ Util.prototype.removeElemById = function(elems, id) {
 	elems.splice(index, 1)
 }
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -572,7 +520,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":1,"./run.js":10}],10:[function(require,module,exports){
+},{"../../assets/pixi.min.js":1,"./run.js":9}],9:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -703,4 +651,4 @@ runWithStage = function(renderer, stage, object) {
 	updateEngine()
 }
 
-},{"../resources/keys.js":7}]},{},[2]);
+},{"../resources/keys.js":6}]},{},[2]);

@@ -475,25 +475,23 @@ myClient = clientOffline(mode)
 
 ui.run(myClient)
 
-},{"../control/client-offline.js":5,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":14}],4:[function(require,module,exports){
-/*                  ******** client-core.js ********                   //
-\\ This exports a base client, a minimal wrapper over the offline      \\
-// internals of a mode. It should be adequately paremeterized to be    //
-\\ used in all other clients.                                          \\
-//                  ******** client-core.js ********                   */
+},{"../control/client-offline.js":4,"../modes/vanilla/":6,"../modes/vanilla/render.js":8,"../ui/index.js":13}],4:[function(require,module,exports){
+/*                  ******** client-offline.js ********                //
+\\ Offline demo client.                                                \\
+//                  ******** client-offline.js ********                */
 
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/index.js')
 
-module.exports = function(mode, hasEnded) {
+module.exports = function(mode) {
 	function Game() {
 		this.fps = new PIXI.Text("", {fill: 0xFFFFFF})
 		this.fps.position = new PIXI.Point(1400, 10)
 		this.modeStage = new PIXI.Container(); 
 	}
 
-	Game.prototype.init = function() {
-		mode.init()
+	Game.prototype.init = function() { 
+		mode.init(mode.makeInitData(""))
 		mode.join("offline player")
 	}
 
@@ -516,7 +514,7 @@ module.exports = function(mode, hasEnded) {
 		}
 
 	Game.prototype.hasEnded = function() {
-		return hasEnded()
+		return false
 	}
 
 	Game.prototype.acceptKey = function(key, state) {
@@ -526,37 +524,7 @@ module.exports = function(mode, hasEnded) {
 	return new Game() 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":14}],5:[function(require,module,exports){
-/*                  ******** client-offline.js ********                //
-\\ Small wrapper over client-core, tests a mode out offline.           \\
-//                  ******** client-offline.js ********                */
-clientCore = require('./client-core.js')
-PIXI = require('../../assets/pixi.min.js')
-
-ui = require('../ui/index.js')
-
-module.exports = function(mode) {
-
-// overlay
-/*
-overlay = new PIXI.Container()
-text1 = new PIXI.Text("offline demo" , {fill: 0xFFFFFF})
-text1.position = new PIXI.Point(800, 15)
-overlay.addChild(text1)
-text2 = new PIXI.Text("modeId = " + mode.modeId , {fill: 0xFFFFFF})
-text2.position = new PIXI.Point(800, 850)
-overlay.addChild(text2)
-
-mode.init(mode.makeInitData(key))
-mode.join("offline player")
-
-function callback() { }
-*/
-
-return clientCore(mode, function(){return false}) 
-}
-
-},{"../../assets/pixi.min.js":2,"../ui/index.js":14,"./client-core.js":4}],6:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/index.js":13}],5:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -607,7 +575,7 @@ module.exports = {
 	, contactDamangeMultiplier: 0.01
 }
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*                  ******** vanilla/index.js ********                //
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //                  ******** vanilla/index.js ********                */
@@ -873,7 +841,7 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} returnState() ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":13,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":11,"../../resources/util.js":12,"./gameplay.js":5,"./player.js":7,"./snapshots.js":9}],7:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1070,7 +1038,7 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*          ******** vanilla/render.js ********       //
 \\ Client-sided renderer for the vanilla game mode.   \\
 //          ******** vanilla/render.js ********       */
@@ -1169,7 +1137,7 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 
 }
 
-},{"../../../assets/pixi.min.js":2}],10:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2}],9:[function(require,module,exports){
 Utils = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1235,7 +1203,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":13}],11:[function(require,module,exports){
+},{"../../resources/util.js":12}],10:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1245,7 +1213,7 @@ module.exports = function(keycode) {
 	return keyboardMap[keycode]
 }
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1272,7 +1240,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1397,7 +1365,7 @@ Util.prototype.removeElemById = function(elems, id) {
 	elems.splice(index, 1)
 }
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1473,7 +1441,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":14}],14:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -1604,4 +1572,4 @@ runWithStage = function(renderer, stage, object) {
 	updateEngine()
 }
 
-},{"../resources/keys.js":11}]},{},[3]);
+},{"../resources/keys.js":10}]},{},[3]);

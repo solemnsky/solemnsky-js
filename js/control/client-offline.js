@@ -1,28 +1,47 @@
 /*                  ******** client-offline.js ********                //
-\\ Small wrapper over client-core, tests a mode out offline.           \\
+\\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
-clientCore = require('./client-core.js')
-PIXI = require('../../assets/pixi.min.js')
 
+PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/index.js')
 
 module.exports = function(mode) {
+	function Game() {
+		this.fps = new PIXI.Text("", {fill: 0xFFFFFF})
+		this.fps.position = new PIXI.Point(1400, 10)
+		this.modeStage = new PIXI.Container(); 
+	}
 
-// overlay
-/*
-overlay = new PIXI.Container()
-text1 = new PIXI.Text("offline demo" , {fill: 0xFFFFFF})
-text1.position = new PIXI.Point(800, 15)
-overlay.addChild(text1)
-text2 = new PIXI.Text("modeId = " + mode.modeId , {fill: 0xFFFFFF})
-text2.position = new PIXI.Point(800, 850)
-overlay.addChild(text2)
+	Game.prototype.init = function() { 
+		mode.init(mode.makeInitData(""))
+		mode.join("offline player")
+	}
 
-mode.init(mode.makeInitData(key))
-mode.join("offline player")
+	Game.prototype.step = function(delta) {
+		mode.step(delta)
+	}
 
-function callback() { }
-*/
+	Game.prototype.initRender = function(stage) {
+		stage.addChild(this.fps)
+		stage.addChild(this.modeStage)
 
-return clientCore(mode, function(){return false}) 
+		mode.initRender(this.modeStage)
+	}
+
+	Game.prototype.stepRender = 
+		function(stage, delta, renderFps, engineFps) {
+			this.fps.text = 
+				"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
+			mode.stepRender(this.modeStage, delta) 
+		}
+
+	Game.prototype.hasEnded = function() {
+		return false
+	}
+
+	Game.prototype.acceptKey = function(key, state) {
+		mode.acceptKey(0, key, state)
+	}
+
+	return new Game() 
 }
