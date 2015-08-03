@@ -680,6 +680,8 @@ Vanilla.prototype.createBox = function(x, y, w, h, isStatic, fields) {
 } 
 
 Vanilla.prototype.loadMap = function (map) {
+	this.staticMap = map
+	this.map = []
 	map.forEach(
 		function(box) {
 			var box = this.createBox(
@@ -831,7 +833,7 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 /**** {{{ describeState() ****/
 Vanilla.prototype.describeState = function() {
 	return JSON.stringify({
-		map: this.map
+		map: this.staticMap
 		, players: this.players.map(
 			function(player) {
 				return {id: player.id, name: player.name}
