@@ -831,11 +831,13 @@ Vanilla.prototype.serverAssert = function() {
 /**** }}} clientAssert() and serverAssert() ****/
 
 /**** {{{ clientMerge() and serverMerge() ****/
-Vanilla.prototype.clientMerge = function(id, snap) {
+Vanilla.prototype.clientMerge = function(id, data) {
+	var snap = snapshots.readSnapshot(data)		
 	snapshots.applySnapshot(this, this.clientAssert.concat([snap]))
 }
 
-Vanilla.prototype.serverMerge = function(id, snap) {
+Vanilla.prototype.serverMerge = function(id, data) {
+	var snap = snapshots.readSnapshot(data)
 	snapshots.applySnapshot(this, snap)
 }
 

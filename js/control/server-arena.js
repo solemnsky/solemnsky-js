@@ -57,8 +57,9 @@ function onMessage(client, message) {
 			client.id = mode.join(data); 
 			broadcast("JOIN " + client.id + " " + data); 
 			client.send("CONNECTED " + client.id); 
+			break
 		case "SNAP":
-			mode.serverMerge(data); break
+			mode.serverMerge(client.id, data); break
 		default:
 			client.send("ECHO " + data)
 	}
