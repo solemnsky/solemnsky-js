@@ -749,10 +749,10 @@ Vanilla.prototype.evaluateContact = function(contact) {
 
 /**** {{{ init() and step() ****/
 Vanilla.prototype.makeInitData = function(key) {
-	return {map: maps.bloxMap, players: []}
+	return JSON.stringify({map: maps.bloxMap, players: []})
 }
 
-Vanilla.prototype.init = function(initdata) {
+Vanilla.prototype.init = function(data) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
@@ -760,6 +760,7 @@ Vanilla.prototype.init = function(initdata) {
 	);
 	this.world.gravity = this.gravity;
 
+	var initdata = JSON.parse(data)
 	this.loadMap(initdata.map)
 	initdata.players.forEach(
 		function(player) {
@@ -861,14 +862,14 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 
 /**** {{{ describeState() ****/
 Vanilla.prototype.describeState = function() {
-	return {
+	return JSON.stringify({
 		map: this.map
 		, players: this.players.map(
 			function(player) {
 				return {id: player.id, name: player.name}
 			}
 		)
-	}
+	})
 }
 /**** }}} returnState() ****/
 

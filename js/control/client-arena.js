@@ -63,7 +63,6 @@ Game.prototype.processCue = function() {
 		var data = message.split(" ").splice(1).join(" ")
 
 		if (!this.initialised) {
-			// currently doesn't run
 			if (type === "INIT") {
 				mode.init(data); 
 				mode.initRender(this.stage)
