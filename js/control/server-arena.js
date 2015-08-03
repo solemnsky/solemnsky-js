@@ -52,13 +52,19 @@ function onMessage(client, message) {
 	switch (type) {
 		case "CONNECT":
 			client.send("INIT " + mode.describeState())
-			client.id = mode.join(data); client.send("CONNECTED " + client.id); 
-			broadcast("JOIN " + data); 
+			client.id = mode.join(data); 
+			broadcast("JOIN " + client.id + " " + data); 
+			client.send("CONNECTED " + client.id); 
 		case "SNAP":
 			mode.serverMerge(data); break
 		default:
 			client.send("ECHO " + data)
 	}
+}
+
+function snapBroadcast() {
+	
+
 }
 
 openSocket(port);

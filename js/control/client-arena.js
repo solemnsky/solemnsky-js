@@ -14,7 +14,8 @@ ConnectUI = function() {
 	this.countdown = 1
 }
 
-ConnectUI.prototype.init = function() {}
+ConnectUI.prototype.init = function() {
+}
 ConnectUI.prototype.step = function(delta) {
 	if (this.entered) {
 		this.countdown -= (delta / 1000)
@@ -61,12 +62,12 @@ Game.prototype.processCue = function() {
 		var type = message.split(" ")[0]
 		var data = message.split(" ").splice(1).join(" ")
 
-		if (!this.intialised) {
+		if (!this.initialised) {
+			// currently doesn't run
 			if (type === "INIT") {
 				mode.init(data); 
 				mode.initRender(this.stage)
 				this.initialised = true;
-			} else {
 			}
 		} else {
 			switch (type) {
@@ -76,8 +77,9 @@ Game.prototype.processCue = function() {
 					if (typeof this.id !== "undefined")
 						mode.clientMerge(this.id, data); break	
 				case "JOIN":
-					mode.join(data); break
-					break
+					split = data.split(" ")
+					mode.join(split[0], split[1]); 
+					break;
 				case "QUIT":
 					mode.quit(data); break
 				default:

@@ -52,9 +52,14 @@ Null.prototype.hasEnded = function() {
 /**** }}} init() and step() ****/
 
 /**** {{{ join() and quit() ****/
-Null.prototype.join = function(name) {
-	ids = this.players.map(function(player) { return player.id })
-	newId = Utils.findAvailableId(ids)	
+Null.prototype.join = function(name, id) {
+	if (typeof id !== undefined) {
+		ids = this.players.map(function(player) { return player.id })
+		newId = Utils.findAvailableId(ids)	
+	} else {
+		newId = id
+	}
+
 	this.players.push({name: name, id: newId, timespent: 0})
 	return newId
 }

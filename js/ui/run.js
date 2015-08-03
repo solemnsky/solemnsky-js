@@ -42,6 +42,8 @@ module.exports = function(object) {
 }
 
 runWithStage = function(renderer, stage, object) {
+	stage.removeChildren()
+
 	var running = true;
 
 	var engineFps = 0; var renderFps = 0
