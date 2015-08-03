@@ -41,6 +41,8 @@ function onClientConnected(client) {
 
 function onClientDisconnected(client) {
 	console.log("Client " + getClientAddress(client) + " disconnected");
+	mode.quit(client.id)
+	broadcast("QUIT " + client.id)
 }
 
 function onMessage(client, message) {
@@ -62,11 +64,21 @@ function onMessage(client, message) {
 	}
 }
 
-function snapBroadcast() {
-	
+then = Date.now()
+function logicLoop() {
+	now = Date.now()
+	mode.step(now - then)
+	then = now
+	setTimeout(logicLoop, (1/60))
+}
 
+function snapBroadcast() {
+	broadcast("SNAP " + mode.serverAssert())	
+	setTimeout(snapBroadcast, 15)
 }
 
 openSocket(port);
 mode.init(mode.makeInitData(key));
+snapBroadcast()
+logicLoop()
 }

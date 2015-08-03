@@ -78,7 +78,7 @@ Game.prototype.processCue = function() {
 						mode.clientMerge(this.id, data); break	
 				case "JOIN":
 					split = data.split(" ")
-					mode.join(split[0], split[1]); 
+					mode.join(split[1], split[0]); 
 					break;
 				case "QUIT":
 					mode.quit(data); break
