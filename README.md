@@ -20,7 +20,7 @@ To define a mode, a constructor must be exported along with the following protot
 
 ### joining and quitting
 
-	- join(nick): this is called when a player joins the game, and should return a 'player id' through which the player can be identified (used in other methods)
+	- join(nick, <id>): this is called when a player joins the game, and should return a 'player id' through which the player can be identified (used in other methods). A manual id may be specified as second parameter.
 	- quit(id): this is called when a player of a certain id quits the game
 
 ### rendering

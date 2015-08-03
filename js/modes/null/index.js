@@ -54,7 +54,7 @@ Null.prototype.hasEnded = function() {
 /**** {{{ join() and quit() ****/
 Null.prototype.join = function(name, id) {
 	if (typeof id !== undefined) {
-		ids = this.players.map(function(player) { return player.id })
+		var ids = this.players.map(function(player) { return player.id })
 		newId = Utils.findAvailableId(ids)	
 	} else {
 		newId = id
@@ -68,21 +68,6 @@ Null.prototype.quit = function(id) {
 	Utils.removeElemById(this.players, id)
 }
 /**** }}} join() and quit() ****/
-
-/**** {{{ initRender() and stepRender() ****/
-Null.prototype.initRender = function(stage) { 
-	stage.addChild(new PIXI.Text("", {fill: 0xFFFFFF}))
-}
-
-Null.prototype.stepRender = function(stage, delta) {
-	stage.children[0].text = 
-		this.players.reduce(
-			function(acc, player) {
-				return acc + "\n" + JSON.stringify(player)
-			} 
-		, "")
-}
-/**** }}} initRender() and stepRender()  ****/
 
 /**** {{{ clientAssert() and serverAssert() ****/
 Null.prototype.clientAssert = function(id) {

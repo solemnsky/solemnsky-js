@@ -139,7 +139,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 
 /**** {{{ init() and step() ****/
 Vanilla.prototype.makeInitData = function(key) {
-	return "it's like this"
+	return {map: maps.bloxMap, players: []}
 }
 
 Vanilla.prototype.init = function(initdata) {
@@ -150,10 +150,12 @@ Vanilla.prototype.init = function(initdata) {
 	);
 	this.world.gravity = this.gravity;
 
-	// there is only one map, no need for initkey
-	this.loadMap(maps.bloxMap)
-
-	// somehow integrate 'initdata'
+	this.loadMap(initdata.map)
+	initdata.players.forEach(
+		function(player) {
+			this.addPlayer(player.id, player.name)
+		}
+	)
 }
 
 Vanilla.prototype.step = function(delta) {
@@ -188,9 +190,15 @@ Vanilla.prototype.hasEnded = function() {
 /**** }}} init() and step() ****/
 
 /**** {{{ join() and quit() ****/
-Vanilla.prototype.join = function(name) {
-	var ids = this.players.map(function(player) {return player.id})
-	this.addPlayer((Utils.findAvailableId(ids)), name)
+Vanilla.prototype.join = function(name, id) {
+	if (typeof id !== undefined) {
+		var ids = this.players.map(function(player) {return player.id})
+		newId = Utils.findAvailableId(ids)
+	} else {
+		newId = id
+	}
+	this.addPlayer(newId, name)
+	return newId
 }
 
 Vanilla.prototype.quit = function(id) {
@@ -214,7 +222,7 @@ Vanilla.prototype.serverAssert = function() {
 
 /**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, snap) {
-	snapshots.applySnapshot(this, this.clientAssert + snap)
+	snapshots.applySnapshot(this, this.clientAssert.concat([snap]))
 }
 
 Vanilla.prototype.serverMerge = function(id, snap) {
@@ -241,6 +249,13 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 
 /**** {{{ describeState() ****/
 Vanilla.prototype.describeState = function() {
-	return "it's like this"
+	return {
+		map: this.map
+		, players: this.players.map(
+			function(player) {
+				return {id: player.id, name: player.name}
+			}
+		)
+	}
 }
 /**** }}} returnState() ****/

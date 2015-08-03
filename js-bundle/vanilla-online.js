@@ -16,10 +16,10 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 ui = require('../ui/index.js')
 
 // make mode
-Null = require('../modes/null/')
-NullRenderer = require('../modes/null/render.js')
-NullRenderer(Null)
-mode = new Null()
+Vanilla = require('../modes/null/')
+VanillaRenderer = require('../modes/null/render.js')
+VanillaRenderer(Vanilla)
+mode = new Vanilla()
 
 // use control method to turn mode into UI object
 clientOnline = require('../control/client-arena.js')
