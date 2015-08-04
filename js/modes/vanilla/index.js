@@ -158,7 +158,7 @@ Vanilla.prototype.init = function(data) {
 		function(player) {
 			this.addPlayer(player.id, player.name)
 		}
-	)
+	, this)
 }
 
 Vanilla.prototype.step = function(delta) {
@@ -226,7 +226,7 @@ Vanilla.prototype.serverAssert = function() {
 /**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, data) {
 	var snap = snapshots.readSnapshot(data)		
-	snapshots.applySnapshot(this, this.clientAssert.concat([snap]))
+	snapshots.applySnapshot(this, snapshots.readSnapshot(this.clientAssert().concat([snap])))
 }
 
 Vanilla.prototype.serverMerge = function(id, data) {

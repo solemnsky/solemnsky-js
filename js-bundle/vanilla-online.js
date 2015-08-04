@@ -532,6 +532,7 @@ Game = function() {
 	this.stage = null
 }
 
+/**** {{{ processCue ****/
 Game.prototype.processCue = function() {
 	if (this.processingCue === false && this.messageCue.length > 0) {
 		this.processingCue = true;
@@ -543,7 +544,7 @@ Game.prototype.processCue = function() {
 		if (!this.initialised) {
 			if (type === "INIT") {
 				mode.init(data); 
-				mode.initRender(this.stage)
+				mode.initRender(this.modeStage)
 				this.initialised = true;
 			}
 		} else {
@@ -569,6 +570,7 @@ Game.prototype.processCue = function() {
 			this.processCue()
 	}
 }
+/**** }}} processCue ****/
 
 // ui control methods
 Game.prototype.init = function(){
@@ -585,10 +587,16 @@ Game.prototype.step = function(delta) {
 }
 Game.prototype.initRender = function(stage) { 
 	this.stage = stage
+	this.modeStage = new PIXI.Container
+	this.fpsText = new PIXI.Text("", {fill: 0xFFFFFF})
+	this.fpsText.position = new PIXI.Point(1400, 10)
+	this.stage.addChild(this.modeStage); this.stage.addChild(this.fpsText)
 }
 Game.prototype.stepRender = function(stage, delta, x, y) {
-	if (this.initialised) 
-		mode.stepRender(stage, delta, x, y)
+	if (this.initialised) {
+		mode.stepRender(this.modeStage, delta, x, y)
+		this.fpsText.text = "render: " + x + "Hz\nengine: " + y + "Hz"
+	}
 }
 Game.prototype.acceptKey = function(key, state) {
 	if (this.initialised)
@@ -603,15 +611,16 @@ Game.prototype.onConnected = function(event) {
 	console.log("sending: " + msg)
 	this.socket.send(msg)
 }
-
 Game.prototype.onDisconnected = function() {
 	this.disconnected = true;
 }
-
 Game.prototype.onMessage = function(message) {
-	console.log("recieving: " + message.data)
 	this.messageCue.push(message.data)
 	this.processCue()
+}
+Game.prototype.broadcastLoop = function() {
+	setTimeout(this.broadcastLoop, 15)
+	this.socket.send("SNAP " + mode.clientAssert())
 }
 /**** }}} Game ****/
 
@@ -832,7 +841,7 @@ Vanilla.prototype.init = function(data) {
 		function(player) {
 			this.addPlayer(player.id, player.name)
 		}
-	)
+	, this)
 }
 
 Vanilla.prototype.step = function(delta) {
@@ -900,7 +909,7 @@ Vanilla.prototype.serverAssert = function() {
 /**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, data) {
 	var snap = snapshots.readSnapshot(data)		
-	snapshots.applySnapshot(this, this.clientAssert.concat([snap]))
+	snapshots.applySnapshot(this, snapshots.readSnapshot(this.clientAssert().concat([snap])))
 }
 
 Vanilla.prototype.serverMerge = function(id, data) {
