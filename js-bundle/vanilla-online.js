@@ -1282,13 +1282,8 @@ Vanilla.prototype.renderPlayers = function(players) {
 		
 			playerGraphics.position = new PIXI.Point(pos.x, pos.y) 
 			playerGraphics.rotation = rot;
-
-			playerPoint = new PIXI.Graphics()
-			playerPoint.beginFill(0xFF0000, 1)
-			playerPoint.drawCircle(pos.x, pos.y, 5)
 			
 			players.addChild(playerGraphics)
-			players.addChild(playerPoint)
 		}
 	, this)
 }
