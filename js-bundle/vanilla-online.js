@@ -471,8 +471,8 @@ mode = new Vanilla()
 
 // use control method to turn mode into UI object
 clientOnline = require('../control/client-arena.js')
-myClient = clientOnline(mode, "198.55.237.151", 50042, "/") 
-// myClient = clientOnline(mode, "localhost", 50042, "/")
+// myClient = clientOnline(mode, "198.55.237.151", 50042, "/") 
+myClient = clientOnline(mode, "localhost", 50042, "/")
 
 ui.run(myClient)
 
@@ -525,6 +525,7 @@ Game = function() {
 	this.id = null;
 	this.disconnected = false;
 	this.initialised = false;
+	this.serverValid = false;
 
 	this.messageCue = []
 	this.processingCue = false;
@@ -541,28 +542,38 @@ Game.prototype.processCue = function() {
 		var type = message.split(" ")[0]
 		var data = message.split(" ").splice(1).join(" ")
 
-		if (!this.initialised) {
-			if (type === "INIT") {
-				mode.init(data); 
-				mode.initRender(this.modeStage)
-				this.initialised = true;
-				this.broadcastLoop()
-			}
+		if (!this.serverValid) {
+			if (type === "WHO")
+				if (data === mode.modeId) {
+					this.serverValid = true
+				} else {
+					console.log("invalid server response from WHO request")
+					this.disconnected = true
+				}
 		} else {
-			switch (type) {
-				case "CONNECTED":
-					this.id = data; break
-				case "SNAP":
-					if (typeof this.id !== "undefined")
-						mode.clientMerge(this.id, data); break	
-				case "JOIN":
-					split = data.split(" ")
-					mode.join(split[1], split[0]); 
-					break;
-				case "QUIT":
-					mode.quit(data); break
-				default:
-					break
+			if (!this.initialised) {
+				if (type === "INIT") {
+					mode.init(data); 
+					mode.initRender(this.modeStage)
+					this.initialised = true;
+					this.broadcastLoop()
+				}
+			} else {
+				switch (type) {
+					case "CONNECTED":
+						this.id = data; break
+					case "SNAP":
+						if (typeof this.id !== "undefined")
+							mode.clientMerge(this.id, data); break	
+					case "JOIN":
+						split = data.split(" ")
+						mode.join(split[1], split[0]); 
+						break;
+					case "QUIT":
+						mode.quit(data); break
+					default:
+						break
+				}
 			}
 		}
 
@@ -573,7 +584,7 @@ Game.prototype.processCue = function() {
 }
 /**** }}} processCue ****/
 
-// ui control methods
+/**** {{{ ui control methods ****/
 Game.prototype.init = function(){
 	this.name = prompt("enter desired player name")	
 
@@ -606,22 +617,34 @@ Game.prototype.acceptKey = function(key, state) {
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
+/**** }}} ui control methods ****/
+
+/**** {{{ network control ****/
 Game.prototype.onConnected = function(event) {
 	var msg = "CONNECT " + this.name;
-	console.log("sending: " + msg)
-	this.socket.send(msg)
+	this.send(msg)
 }
 Game.prototype.onDisconnected = function() {
 	this.disconnected = true;
 }
 Game.prototype.onMessage = function(message) {
+	if (message.data.split(" ")[0] === "SNAP") {
+		console.log("<<<" + "<SNAP>")
+	} else {
+		console.log("<<<" + message.data)
+	}
 	this.messageCue.push(message.data)
 	this.processCue()
 }
 Game.prototype.broadcastLoop = function() {
 	setTimeout(this.broadcastLoop, 15)
-	this.socket.send("SNAP " + mode.clientAssert())
+	this.send("SNAP " + mode.clientAssert())
 }
+Game.prototype.send = function(msg) {
+	console.log(">>>" + msg)
+	this.socket.send(msg)
+}
+/**** }}} network control ****/
 /**** }}} Game ****/
 
 ConnectUI.prototype.next = function() {return new Game()}
@@ -1146,7 +1169,7 @@ PIXI = require('../../../assets/pixi.min.js')
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
 
-/**** {{{ initRender() and stepRender() ****/
+/**** {{{ render map and players ****/
 Vanilla.prototype.renderMap = function(map) {
 	map.removeChildren()
 
@@ -1221,6 +1244,7 @@ Vanilla.prototype.renderPlayers = function(players) {
 		}
 	)
 }
+/**** }}} render map and players ****/
 
 Vanilla.prototype.initRender = function(stage) {
 	stage.addChild(new PIXI.Container)
@@ -1231,8 +1255,6 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 	this.renderMap(stage.children[0])
 	this.renderPlayers(stage.children[1])
 }
-/**** }}} initRender() and stepRender()  ****/
-
 }
 
 },{"../../../assets/pixi.min.js":2}],9:[function(require,module,exports){

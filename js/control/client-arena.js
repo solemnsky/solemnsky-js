@@ -143,19 +143,27 @@ Game.prototype.hasEnded = function() {
 /**** {{{ network control ****/
 Game.prototype.onConnected = function(event) {
 	var msg = "CONNECT " + this.name;
-	console.log("sending: " + msg)
-	this.socket.send(msg)
+	this.send(msg)
 }
 Game.prototype.onDisconnected = function() {
 	this.disconnected = true;
 }
 Game.prototype.onMessage = function(message) {
+	if (message.data.split(" ")[0] === "SNAP") {
+		console.log("<<<" + "<SNAP>")
+	} else {
+		console.log("<<<" + message.data)
+	}
 	this.messageCue.push(message.data)
 	this.processCue()
 }
 Game.prototype.broadcastLoop = function() {
 	setTimeout(this.broadcastLoop, 15)
-	this.socket.send("SNAP " + mode.clientAssert())
+	this.send("SNAP " + mode.clientAssert())
+}
+Game.prototype.send = function(msg) {
+	console.log(">>>" + msg)
+	this.socket.send(msg)
 }
 /**** }}} network control ****/
 /**** }}} Game ****/
