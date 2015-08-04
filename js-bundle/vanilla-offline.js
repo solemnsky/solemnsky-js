@@ -475,7 +475,7 @@ myClient = clientOffline(mode)
 
 ui.run(myClient)
 
-},{"../control/client-offline.js":4,"../modes/vanilla/":6,"../modes/vanilla/render.js":8,"../ui/index.js":13}],4:[function(require,module,exports){
+},{"../control/client-offline.js":4,"../modes/vanilla/":6,"../modes/vanilla/render.js":8,"../ui/index.js":14}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
@@ -524,7 +524,7 @@ module.exports = function(mode) {
 	return new Game() 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":13}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/index.js":14}],5:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -843,7 +843,7 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":11,"../../resources/util.js":12,"./gameplay.js":5,"./player.js":7,"./snapshots.js":9}],7:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":11,"../../resources/util.js":13,"./gameplay.js":5,"./player.js":7,"./snapshots.js":9}],7:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1046,6 +1046,7 @@ Player.prototype.step = function(delta) {
 //          ******** vanilla/render.js ********       */
 
 PIXI = require('../../../assets/pixi.min.js')
+urls = require('../../resources/urls.js')
 
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
@@ -1105,7 +1106,7 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 }
 }
 
-},{"../../../assets/pixi.min.js":2}],9:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":12}],9:[function(require,module,exports){
 Utils = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1177,7 +1178,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":12}],10:[function(require,module,exports){
+},{"../../resources/util.js":13}],10:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1219,6 +1220,11 @@ maps = {
 module.exports = maps;
 
 },{}],12:[function(require,module,exports){
+module.exports = {
+	playerSprite: "http://solemnsky.github.io/multimedia/player.png"
+}
+
+},{}],13:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1343,7 +1349,7 @@ Util.prototype.removeElemById = function(elems, id) {
 	elems.splice(index, 1)
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1419,7 +1425,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":14}],14:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
