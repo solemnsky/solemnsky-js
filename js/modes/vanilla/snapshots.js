@@ -21,17 +21,14 @@ exports.makePlayerSnapshot =
 	function(world, id, priority, defaultState, states) {
 	var player = world.findPlayerById(id);
 	if (player !== null) {
-		return new Snapshot(player, priority, defaultState, states);
+		return [new Snapshot(player, priority, defaultState, states)];
 	} else { return null }
 }
 
 exports.makeTotalSnapshot = function(world, priority) {
-	return (function(game) {
-		return world.players.reduce(function(list, player) {
-			list.push(exports.makePlayerSnapshot(world, player.id, priority, true, {}));
-			return list;
-		}, []);
-	})(this);
+	return world.players.reduce(function(list, player) {
+		return list.concat(exports.makePlayerSnapshot(world, player.id, priority, true, {}));
+	}, []);
 }
 
 exports.applySnapshot = function(world, snapshot) {
@@ -44,7 +41,7 @@ exports.applySnapshot = function(world, snapshot) {
 	}
 	snapshot.sort(compare).forEach(
 		function(snapshot) {
-			var player = this.findPlayerById(snapshot.id);
+			var player = world.findPlayerById(snapshot.id);
 			if (player !== null) {
 				Object.keys(snapshot).forEach(
 					function(key) {

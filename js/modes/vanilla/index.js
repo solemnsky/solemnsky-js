@@ -229,7 +229,7 @@ Vanilla.prototype.serverAssert = function() {
 Vanilla.prototype.clientMerge = function(id, data) {
 	var snap = snapshots.readSnapshot(data)		
 	if (snap !== null && typeof(snapshot) !== "undefined")
-		snapshots.applySnapshot(this, snapshots.readSnapshot(this.clientAssert().concat([snap])))
+		snapshots.applySnapshot(this, snapshots.readSnapshot(this.clientAssert()).concat(snap))
 }
 
 Vanilla.prototype.serverMerge = function(id, data) {

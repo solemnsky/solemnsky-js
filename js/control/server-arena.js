@@ -46,8 +46,7 @@ function onClientDisconnected(client) {
 }
 
 function onMessage(client, message) {
-	//STUB
-	console.log("recieved from " + getClientAddress(client) + ": " + message);
+	// console.log("recieved from " + getClientAddress(client) + ": " + message);
 	var type = message.split(" ")[0]
 	var data = message.split(" ").splice(1).join(" ")
 
@@ -76,6 +75,7 @@ function logicLoop() {
 }
 
 function snapBroadcast() {
+	console.log("broadcasting: " + mode.serverAssert())
 	broadcast("SNAP " + mode.serverAssert())	
 	setTimeout(snapBroadcast, 15)
 }
