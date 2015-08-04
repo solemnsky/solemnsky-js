@@ -5,6 +5,10 @@
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
 
+Keys = require('../resources/keys.js')
+nameFromKeyCode = Keys.nameFromKeyCode
+keyCodeFromName = Keys.keyCodeFromName
+
 module.exports = function(mode, address, port, path) {
 
 /**** {{{ ConnectUI ****/
@@ -52,6 +56,7 @@ Game = function() {
 	this.processingCue = false;
 
 	this.stage = null
+	this.chatting = false;
 }
 
 /**** {{{ processCue ****/
@@ -94,6 +99,9 @@ Game.prototype.processCue = function() {
 						break;
 					case "QUIT":
 						mode.quit(data); break
+					case "CHAT":
+						//TODO chatting
+						break;
 					default:
 						break
 				}
@@ -134,13 +142,60 @@ Game.prototype.stepRender = function(stage, delta, x, y) {
 	}
 }
 Game.prototype.acceptKey = function(key, state) {
-	if (this.initialised)
+	if (this.initialised) {
+		if (key === "enter") { //Enter: Open chat
+			//Only send on keydown
+			if (state) {
+				//If we're chatting, send it. If not, open chat.
+				if (this.chatting) {
+					this.sendChat();
+				} else {
+					this.openChat();
+				}
+			}
+			//Don't let these go to the game
+			return true;
+		}
+		if (this.chatting) {
+			//Espace for closing
+			if (key === "escape") {
+				this.closeChat();
+				return true;
+			}
+			//Let the DOM eat these keys for the chatbox
+			return false;
+		}
 		return mode.acceptKey(this.id, key, state);
+	}
 }
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
 /**** }}} ui control methods ****/
+
+/**** {{{ chat ****/
+
+Game.prototype.openChat = function() {
+	this.chatTextBox = document.createElement("input");
+	this.chatTextBox.style.position = "absolute";
+	this.chatTextBox.style.bottom = "10px";
+	this.chatTextBox.style.left = "10px";
+	this.chatTextBox.setAttribute("class", "chatTextBox");
+	document.body.appendChild(this.chatTextBox);
+	this.chatTextBox.focus();
+	this.chatText = "";
+	this.chatting = true;
+}
+Game.prototype.closeChat = function() {
+	document.body.removeChild(this.chatTextBox);
+	this.chatting = false;
+}
+Game.prototype.sendChat = function() {
+	this.closeChat();
+	this.send("CHAT " + this.chatTextBox.value);
+}
+
+/**** }}} chat ****/
 
 /**** {{{ network control ****/
 Game.prototype.send = function(msg) {
