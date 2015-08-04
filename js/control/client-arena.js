@@ -67,6 +67,7 @@ Game.prototype.processCue = function() {
 				mode.init(data); 
 				mode.initRender(this.modeStage)
 				this.initialised = true;
+				this.broadcastLoop()
 			}
 		} else {
 			switch (type) {
