@@ -4,7 +4,9 @@
 
 // object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities (exactly the same as in the mode specification)
 
-nameFromKeyCode = require('../resources/keys.js')
+Keys = require('../resources/keys.js')
+nameFromKeyCode = Keys.nameFromKeyCode
+keyCodeFromName = Keys.keyCodeFromName
 
 module.exports = function(object) {
 	var renderer =
