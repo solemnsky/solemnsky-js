@@ -3,6 +3,7 @@
 //          ******** vanilla/render.js ********       */
 
 PIXI = require('../../../assets/pixi.min.js')
+urls = require('../../resources/urls.js')
 
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
