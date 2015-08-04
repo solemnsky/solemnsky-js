@@ -55,11 +55,12 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 				playerBars = new PIXI.Graphics()
 				playerBars.beginFill(0xFFFFFF, 1)
 				playerBars.drawCircle(pos.x, (pos.y - 40), 5)
-				players.addChild(playerGraphics)
+
+				players.addChild(playerBars)
 			}
 
+			players.addChild(playerGraphics)
 			players.addChild(playerName)
-			players.addChild(playerBars)
 		}
 	, this)
 }

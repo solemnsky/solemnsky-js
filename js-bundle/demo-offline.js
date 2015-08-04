@@ -512,7 +512,7 @@ module.exports = function(mode) {
 		function(stage, delta, renderFps, engineFps) {
 			this.fps.text = 
 				"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
-			mode.stepRender(this.modeStage, delta) 
+			mode.stepRender(0, this.modeStage, delta) 
 		}
 
 	Game.prototype.hasEnded = function() {
@@ -622,7 +622,7 @@ Demo.prototype.initRender = function(stage) {
 	this.vanilla.initRender(this.vanillaStage)
 }
 
-Demo.prototype.stepRender = function(stage, delta) {
+Demo.prototype.stepRender = function(id, stage, delta) {
 	this.vanilla.stepRender(this.vanillaStage, delta)
 }
 
@@ -1183,7 +1183,7 @@ Vanilla.prototype.renderMap = function(map) {
 	
 	map.addChild(mapGraphics)
 }
-Vanilla.prototype.renderPlayers = function(players) {
+Vanilla.prototype.renderPlayers = function(id, players) {
 	players.removeChildren()
 
 	this.players.forEach(
@@ -1204,13 +1204,16 @@ Vanilla.prototype.renderPlayers = function(players) {
 			playerName = new PIXI.Text(player.name, {font: "12px", fill: 0x003060})
 			playerName.position = new PIXI.Point(pos.x - (playerName.width / 2), (pos.y + 35))
 
-			playerBars = new PIXI.Graphics()
-			playerBars.beginFill(0xFFFFFF, 1)
-			playerBars.drawCircle(pos.x, (pos.y - 40), 5)
-			
+			if (id === player.id) {
+				playerBars = new PIXI.Graphics()
+				playerBars.beginFill(0xFFFFFF, 1)
+				playerBars.drawCircle(pos.x, (pos.y - 40), 5)
+
+				players.addChild(playerBars)
+			}
+
 			players.addChild(playerGraphics)
 			players.addChild(playerName)
-			players.addChild(playerBars)
 		}
 	, this)
 }
@@ -1224,9 +1227,9 @@ Vanilla.prototype.initRender = function(stage) {
 	stage.addChild(new PIXI.Container)
 }
 
-Vanilla.prototype.stepRender = function(stage, delta) {
+Vanilla.prototype.stepRender = function(id, stage, delta) {
 	this.renderMap(stage.children[0])
-	this.renderPlayers(stage.children[1])
+	this.renderPlayers(id, stage.children[1])
 }
 }
 
