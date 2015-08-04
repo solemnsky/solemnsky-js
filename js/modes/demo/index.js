@@ -15,12 +15,6 @@ function Demo(vanilla) {
 /**** {{{ initialisation ****/ 
 Demo.prototype.init = function(initdata) {
 	this.vanilla.init(initdata)
-
-	// chat interface
-	this.chat = ""; this.chatState = false
-
-	// chat relay
-	this.chatCue = ""
 }
 
 Demo.prototype.makeInitData = function(key) {
@@ -68,17 +62,7 @@ Demo.prototype.serverMerge = function(id, snap) {
 
 /**** {{{ misc ****/
 Demo.prototype.acceptKey = function(id, key, state) {
-	if (state) {
-		if (this.chatState) {
-			if (key === "enter") {
-				this.chatState = false; this.chatCue = this.chat; this.chat = ""
-			} else {
-				// TODO	
-			}
-		}
-	}
-	if (!this.chatState) 
-		this.vanilla.acceptKey(id, key, state)
+	this.vanilla.acceptKey(id, key, state)
 }
 
 

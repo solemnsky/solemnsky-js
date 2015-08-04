@@ -544,12 +544,6 @@ function Demo(vanilla) {
 /**** {{{ initialisation ****/ 
 Demo.prototype.init = function(initdata) {
 	this.vanilla.init(initdata)
-
-	// chat interface
-	this.chat = ""; this.chatState = false
-
-	// chat relay
-	this.chatCue = ""
 }
 
 Demo.prototype.makeInitData = function(key) {
@@ -597,17 +591,7 @@ Demo.prototype.serverMerge = function(id, snap) {
 
 /**** {{{ misc ****/
 Demo.prototype.acceptKey = function(id, key, state) {
-	if (state) {
-		if (this.chatState) {
-			if (key === "enter") {
-				this.chatState = false; this.chatCue = this.chat; this.chat = ""
-			} else {
-				// TODO	
-			}
-		}
-	}
-	if (!this.chatState) 
-		this.vanilla.acceptKey(id, key, state)
+	this.vanilla.acceptKey(id, key, state)
 }
 
 
@@ -629,11 +613,6 @@ Utils = require('../../resources/util.js')
 module.exports = function(Demo) {
 
 Demo.prototype.initRender = function(stage) { 
-
-	this.keyDisplay = new PIXI.Text("", {fill: 0xFFFFFF})
-	this.keyDisplay.position = new PIXI.Point(800, 850)
-	stage.addChild(this.keyDisplay)
-
 	var title = new PIXI.Text("solemnsky development demo", {fill: 0xFFFFFF})
 	title.position = new PIXI.Point(800, 10)
 	stage.addChild(title)
@@ -645,7 +624,6 @@ Demo.prototype.initRender = function(stage) {
 
 Demo.prototype.stepRender = function(stage, delta) {
 	this.vanilla.stepRender(this.vanillaStage, delta)
-	this.keyDisplay.text = this.key
 }
 
 }
@@ -1209,41 +1187,8 @@ Vanilla.prototype.renderPlayers = function(players) {
 			var throttle = player.throttle
 			var health = player.health
 
-			var playerGraphics = new PIXI.Graphics()
-
-			playerGraphics.clear()
-
-			// at this point we have a pale matchstick with a red head
-
-			// if it's not stalled, draw the throttle on a pale white body
-			if (!player.stalled) {
-				// pale white body
-				playerGraphics.beginFill(0xFFFFFF , 0.2)
-				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-
-				// throttle view
-				playerGraphics.beginFill(0xFFFFFF, player.afterburner? 1 : 0.5)
-				playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), (gameplay.playerWidth - 15) * player.throttle, gameplay.playerHeight)
-				
-			}
-
-			// if it is, draw a pale blue body
-			if (player.stalled) {
-				if (!player.afterburner) {
-					// pale blue body
-					playerGraphics.beginFill(0x000030 , 1)
-					playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-				} else {
-					// pale blue body
-					playerGraphics.beginFill(0x000050 , 1)
-					playerGraphics.drawRect(-(gameplay.playerWidth / 2), -(gameplay.playerHeight / 2), gameplay.playerWidth, gameplay.playerHeight)
-				}
-			}
-
-			// draw a red head on top
-			playerGraphics.beginFill(0xFF0000, health)
-			playerGraphics.drawRect(15, -(gameplay.playerHeight / 2), ((gameplay.playerWidth / 2) - 15), gameplay.playerHeight)
-			
+			var playerGraphics = new PIXI.Sprite.fromImage('art/player.png')
+		
 			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
 			playerGraphics.rotation = rot;
 			
