@@ -255,10 +255,10 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 	var player = this.findPlayerById(id)
 	if (player !== null) {
 		switch (key) {
-			case ("up"): player.movement.forward = state; break
-			case ("down"): player.movement.backward = state; break
-			case ("left"): player.movement.left = state; break
-			case ("right"): player.movement.right = state; break
+			case ("up"): player.movement.forward = state; return true;
+			case ("down"): player.movement.backward = state; return true;
+			case ("left"): player.movement.left = state; return true;
+			case ("right"): player.movement.right = state; return true;
 		}
 	}
 }

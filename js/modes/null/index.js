@@ -97,6 +97,7 @@ Null.prototype.serverMerge = function(id, snap) {
 /**** {{{ misc ****/
 Null.prototype.acceptKey = function(id, key, state) {
 	// do absolutely nothing <3
+	return false;
 }
 
 Null.prototype.hasEnded = function() {

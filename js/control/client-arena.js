@@ -135,7 +135,7 @@ Game.prototype.stepRender = function(stage, delta, x, y) {
 }
 Game.prototype.acceptKey = function(key, state) {
 	if (this.initialised)
-		mode.acceptKey(this.id, key, state)
+		return mode.acceptKey(this.id, key, state);
 }
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)

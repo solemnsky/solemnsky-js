@@ -116,10 +116,12 @@ runWithStage = function(renderer, stage, object) {
 	/**** }}} step ****/
 
 	function acceptKeyUp(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), false)
+		if (object.acceptKey(nameFromKeyCode(e.keyCode), false))
+			e.preventDefault(); //Don't allow the page to use this
 	}
 	function acceptKeyDown(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), true)
+		if (object.acceptKey(nameFromKeyCode(e.keyCode), true))
+			e.preventDefault(); //Don't allow the page to use this
 	}
 
 	window.addEventListener("keyup", acceptKeyUp)
