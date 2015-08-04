@@ -67,3 +67,12 @@ To define a mode, a constructor must be exported along with the following protot
 
 This loop runs approximately every 15 ms.
 
+### verbs
+
+    CONNECT: issued by client to request connection
+    INIT: issued by server to give init data
+    CONNECTED: issued by server to confirm and lock connection
+    JOIN: issued by server when a player joins
+    QUIT: issued by server when a player quits
+    SNAP: issued by servers and clients with respective assertion data
+
