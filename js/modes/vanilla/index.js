@@ -228,12 +228,14 @@ Vanilla.prototype.serverAssert = function() {
 
 Vanilla.prototype.clientMerge = function(id, data) {
 	var snap = snapshots.readSnapshot(data)		
-	snapshots.applySnapshot(this, snapshots.readSnapshot(this.clientAssert().concat([snap])))
+	if (snap !== null && typeof(snapshot) !== "undefined")
+		snapshots.applySnapshot(this, snapshots.readSnapshot(this.clientAssert().concat([snap])))
 }
 
 Vanilla.prototype.serverMerge = function(id, data) {
 	var snap = snapshots.readSnapshot(data)
-	snapshots.applySnapshot(this, snap)
+	if (snap !== null && typeof(snapshot) !== "undefined")
+		snapshots.applySnapshot(this, snap)
 }
 /**** }}} continuous networking ****/
 
