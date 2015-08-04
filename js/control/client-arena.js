@@ -64,13 +64,15 @@ Game.prototype.processCue = function() {
 		var data = message.split(" ").splice(1).join(" ")
 
 		if (!this.serverValid) {
-			if (type === "WHO")
+			if (type === "WHO") {
 				if (data === mode.modeId) {
+					this.send("CONNECT " + this.name)
 					this.serverValid = true
 				} else {
 					console.log("invalid server response from WHO request")
 					this.disconnected = true
 				}
+			}
 		} else {
 			if (!this.initialised) {
 				if (type === "INIT") {
@@ -141,9 +143,12 @@ Game.prototype.hasEnded = function() {
 /**** }}} ui control methods ****/
 
 /**** {{{ network control ****/
+Game.prototype.send = function(msg) {
+	console.log(">>>" + msg)
+	this.socket.send(msg)
+}
 Game.prototype.onConnected = function(event) {
-	var msg = "CONNECT " + this.name;
-	this.send(msg)
+	this.send("WHO")
 }
 Game.prototype.onDisconnected = function() {
 	this.disconnected = true;
@@ -160,10 +165,6 @@ Game.prototype.onMessage = function(message) {
 Game.prototype.broadcastLoop = function() {
 	setTimeout(this.broadcastLoop, 15)
 	this.send("SNAP " + mode.clientAssert())
-}
-Game.prototype.send = function(msg) {
-	console.log(">>>" + msg)
-	this.socket.send(msg)
 }
 /**** }}} network control ****/
 /**** }}} Game ****/

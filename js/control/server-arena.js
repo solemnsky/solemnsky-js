@@ -53,7 +53,7 @@ function onMessage(client, message) {
 
 	switch (type) {
 		case "WHO":
-			client.send("WHO " + mode.modeId())
+			client.send("WHO " + mode.modeId)
 		case "CONNECT":
 			client.send("INIT " + mode.describeState())
 			client.id = mode.join(data); 
