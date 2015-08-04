@@ -158,7 +158,6 @@ Game.prototype.acceptKey = function(key, state) {
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
-
 Game.prototype.onConnected = function(event) {
 	var msg = "CONNECT " + this.name;
 	console.log("sending: " + msg)
@@ -200,7 +199,6 @@ Utils = require('../../resources/util.js')
 function Null() {
 	this.players = []
 
-	this.modeId = "null dev"
 }
 /**** }}} constructor ****/
 
@@ -210,7 +208,13 @@ Null.prototype.findPlayerById = function(id) {
 }
 /**** }}} methods ****/
 
-/**** {{{ init() and step() ****/
+/**** {{{ initialisation ****/ 
+Null.prototype.init = function(initdata) {
+	var data = JSON.parse(initdata)	
+	this.color = data.color
+	this.players = data.players
+}
+
 Null.prototype.makeInitData = function(key) {
 	if (key == 'red') {
 		return JSON.stringify({color: 0xFF0000, players: []})
@@ -219,31 +223,26 @@ Null.prototype.makeInitData = function(key) {
 	}
 }
 
-Null.prototype.init = function(initdata) {
-	var data = JSON.parse(initdata)	
-	this.color = data.color
-	this.players = data.players
+Null.prototype.describeState = function() {
+	return JSON.stringify({color: this.color, players: this.players})
 }
 
+/**** }}} initialisation ****/
+
+/**** {{{ update loop ****/
 Null.prototype.step = function(delta) {
 	this.players.forEach(
 		function(player) { player.timespent += delta }
 	)
 }
+/**** }}} update loop ****/
 
-Null.prototype.hasEnded = function() {
-	return false
-}
-/**** }}} init() and step() ****/
-
-/**** {{{ join() and quit() ****/
+/**** {{{ discrete networking ****/
 Null.prototype.join = function(name, id) {
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) { return player.id })
 		newId = Utils.findAvailableId(ids)	
-	} else {
-		newId = id
-	}
+	} else { newId = id }
 
 	this.players.push({name: name, id: newId, timespent: 0})
 	return newId
@@ -254,7 +253,7 @@ Null.prototype.quit = function(id) {
 }
 /**** }}} join() and quit() ****/
 
-/**** {{{ clientAssert() and serverAssert() ****/
+/**** {{{ continuous networking ****/
 Null.prototype.clientAssert = function(id) {
 	// a client speaks it mind to the server
 	return JSON.stringify(this.findPlayerById(id).timespent)
@@ -263,9 +262,7 @@ Null.prototype.clientAssert = function(id) {
 Null.prototype.serverAssert = function() {
 	return JSON.stringify(this.players)
 }
-/**** }}} clientAssert() and serverAssert() ****/
 
-/**** {{{ clientMerge() and serverMerge() ****/
 Null.prototype.clientMerge = function(id, snap) {
 	// sync all the other players, but be sure to keep myself intact
 	var myself = this.findPlayerById(id)
@@ -280,19 +277,19 @@ Null.prototype.serverMerge = function(id, snap) {
 	if (player !== null)
 		player.timespent = JSON.parse(snap)
 }
-/**** }}} clientMerge() and serverMerge() ****/
+/**** }}} continuous networking ****/
 
-/**** {{{ acceptKey ****/
+/**** {{{ misc ****/
 Null.prototype.acceptKey = function(id, key, state) {
 	// do absolutely nothing <3
 }
-/**** }}} acceptInput ****/
 
-/**** {{{ describeState() ****/
-Null.prototype.describeState = function() {
-	return JSON.stringify({color: this.color, players: this.players})
+Null.prototype.hasEnded = function() {
+	return false
 }
-/**** }}} describeState() ****/
+
+Null.prototype.modeId = "null dev"
+/**** }}} misc ****/
 
 },{"../../resources/util.js":7}],5:[function(require,module,exports){
 /*                  ******** null/index.js ********                   //

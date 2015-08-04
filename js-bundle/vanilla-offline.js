@@ -599,8 +599,6 @@ function Vanilla() {
 
 	// box2d world
 	this.world = null
-
-	this.modeId = "vanilla dev"
 }
 /**** }}} constructor ****/
 
@@ -717,11 +715,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 }
 /**** }}} methods ***/
 
-/**** {{{ init() and step() ****/
-Vanilla.prototype.makeInitData = function(key) {
-	return JSON.stringify({map: maps.bloxMap, players: []})
-}
-
+/**** {{{ initialisation ****/
 Vanilla.prototype.init = function(data) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
@@ -739,6 +733,23 @@ Vanilla.prototype.init = function(data) {
 	, this)
 }
 
+Vanilla.prototype.makeInitData = function(key) {
+	return JSON.stringify({map: maps.bloxMap, players: []})
+}
+
+Vanilla.prototype.describeState = function() {
+	return JSON.stringify({
+		map: this.staticMap
+		, players: this.players.map(
+			function(player) {
+				return {id: player.id, name: player.name}
+			}
+		)
+	})
+}
+/**** }}} initialisation ****/
+
+/**** {{{ update loop ****/
 Vanilla.prototype.step = function(delta) {
 	// use box2d to mutate the player's states
 	this.players.forEach( function(player) { player.writeToBlock() } )
@@ -761,16 +772,9 @@ Vanilla.prototype.step = function(delta) {
 	}, this);
 }
 
-Vanilla.prototype.hasEnded = function() {
-	return false;
-	// has the game ended?
+/**** }}} update loop ****/
 
-	// WARNING: only return true when you're absolutely sure the game
-	// has ended; if you're a client, wait for a confirmation from the server
-}
-/**** }}} init() and step() ****/
-
-/**** {{{ join() and quit() ****/
+/**** {{{ discrete networking ****/
 Vanilla.prototype.join = function(name, id) {
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
@@ -785,9 +789,9 @@ Vanilla.prototype.join = function(name, id) {
 Vanilla.prototype.quit = function(id) {
 	Utils.removeElemById(this.players, id)
 }
-/**** }}}} join() and quit() ****/
+/**** }}}} discrete networking ****/
 
-/**** {{{ clientAssert() and serverAssert() ****/
+/**** {{{ continuous networking ****/
 Vanilla.prototype.clientAssert = function(id) {
 	return snapshots.serialiseSnapshot(
 		snapshots.makePlayerSnapshot(this, id, 1, true, {})
@@ -799,9 +803,7 @@ Vanilla.prototype.serverAssert = function() {
 		snapshots.makeTotalSnapshot(this, 0)
 	)
 }
-/**** }}} clientAssert() and serverAssert() ****/
 
-/**** {{{ clientMerge() and serverMerge() ****/
 Vanilla.prototype.clientMerge = function(id, data) {
 	var snap = snapshots.readSnapshot(data)		
 	snapshots.applySnapshot(this, snapshots.readSnapshot(this.clientAssert().concat([snap])))
@@ -811,12 +813,13 @@ Vanilla.prototype.serverMerge = function(id, data) {
 	var snap = snapshots.readSnapshot(data)
 	snapshots.applySnapshot(this, snap)
 }
+/**** }}} continuous networking ****/
 
-// this is currently very simplistic and does not do anything special
-// for interactions
-/**** }}} clientMerge() and serverMerge() ****/
+/**** {{{ misc ****/
+Vanilla.prototype.modeId = "vanilla dev"
 
-/**** {{{ acceptKey() ****/
+Vanilla.prototype.hasEnded = function() { return false }
+
 Vanilla.prototype.acceptKey = function(id, key, state) {
 	var player = this.findPlayerById(id)
 	if (player !== null) {
@@ -828,20 +831,8 @@ Vanilla.prototype.acceptKey = function(id, key, state) {
 		}
 	}
 }
-/**** }}} acceptKey ****/
 
-/**** {{{ describeState() ****/
-Vanilla.prototype.describeState = function() {
-	return JSON.stringify({
-		map: this.staticMap
-		, players: this.players.map(
-			function(player) {
-				return {id: player.id, name: player.name}
-			}
-		)
-	})
-}
-/**** }}} returnState() ****/
+/**** }}} misc ****/
 
 },{"../../../assets/box2d.min.js":1,"../../resources/maps.js":11,"../../resources/util.js":12,"./gameplay.js":5,"./player.js":7,"./snapshots.js":9}],7:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //

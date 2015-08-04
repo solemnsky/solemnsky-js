@@ -58,6 +58,8 @@ To define a mode, a constructor must be exported along with the following protot
 
 ### entry protocol
 
+    client: WHO
+    server (to client): WHO <mode.modeId>
     client: CONNECT <player name>
     server (to client): INIT <mode.describeState()>
     server joins player

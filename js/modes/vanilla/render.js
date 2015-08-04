@@ -7,7 +7,7 @@ PIXI = require('../../../assets/pixi.min.js')
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
 
-/**** {{{ initRender() and stepRender() ****/
+/**** {{{ render map and players ****/
 Vanilla.prototype.renderMap = function(map) {
 	map.removeChildren()
 
@@ -82,6 +82,7 @@ Vanilla.prototype.renderPlayers = function(players) {
 		}
 	)
 }
+/**** }}} render map and players ****/
 
 Vanilla.prototype.initRender = function(stage) {
 	stage.addChild(new PIXI.Container)
@@ -92,6 +93,4 @@ Vanilla.prototype.stepRender = function(stage, delta) {
 	this.renderMap(stage.children[0])
 	this.renderPlayers(stage.children[1])
 }
-/**** }}} initRender() and stepRender()  ****/
-
 }
