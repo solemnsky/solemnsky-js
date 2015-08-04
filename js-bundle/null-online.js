@@ -199,7 +199,7 @@ Game.prototype.onMessage = function(message) {
 	this.processCue()
 }
 Game.prototype.broadcastLoop = function() {
-	setTimeout(this.broadcastLoop, 15)
+	setTimeout(this.broadcastLoop.bind(this), 15)
 
 	//Don't send snapshots if we don't have an id yet
 	if (this.id !== null)
