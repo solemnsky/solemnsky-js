@@ -14,7 +14,6 @@ Utils = require('../../resources/util.js')
 /**** {{{ constructor ****/
 function Null() {
 	this.players = []
-
 }
 /**** }}} constructor ****/
 

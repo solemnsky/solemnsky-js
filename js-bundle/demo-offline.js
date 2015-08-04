@@ -468,7 +468,7 @@ require('../modes/vanilla/render.js')(Vanilla)
 
 // make mode
 Demo = require('../modes/demo/')
-require('../modes/null/render.js')(Demo)
+require('../modes/demo/render.js')(Demo)
 mode = new Demo(new Vanilla())
 
 // use control method to turn mode into UI object
@@ -477,7 +477,7 @@ myClient = clientOffline(mode)
 
 ui.run(myClient)
 
-},{"../control/client-offline.js":4,"../modes/demo/":5,"../modes/null/render.js":6,"../modes/vanilla/":8,"../modes/vanilla/render.js":10,"../ui/index.js":15}],4:[function(require,module,exports){
+},{"../control/client-offline.js":4,"../modes/demo/":5,"../modes/demo/render.js":6,"../modes/vanilla/":8,"../modes/vanilla/render.js":10,"../ui/index.js":15}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
@@ -527,9 +527,9 @@ module.exports = function(mode) {
 }
 
 },{"../../assets/pixi.min.js":2,"../ui/index.js":15}],5:[function(require,module,exports){
-/*                  ******** null/index.js ********                   //
+/*                  ******** demo/index.js ********                   //
 \\ Development demo with fun features!                                \\
-//                  ******** null/index.js ********                   */
+//                  ******** demo/index.js ********                   */
 
 module.exports = Demo
 
@@ -544,6 +544,12 @@ function Demo(vanilla) {
 /**** {{{ initialisation ****/ 
 Demo.prototype.init = function(initdata) {
 	this.vanilla.init(initdata)
+
+	// chat interface
+	this.chat = ""; this.chatState = false
+
+	// chat relay
+	this.chatCue = ""
 }
 
 Demo.prototype.makeInitData = function(key) {
@@ -591,8 +597,19 @@ Demo.prototype.serverMerge = function(id, snap) {
 
 /**** {{{ misc ****/
 Demo.prototype.acceptKey = function(id, key, state) {
-	this.vanilla.acceptKey(id, key, state)
+	if (state) {
+		if (this.chatState) {
+			if (key === "enter") {
+				this.chatState = false; this.chatCue = this.chat; this.chat = ""
+			} else {
+				// TODO	
+			}
+		}
+	}
+	if (!this.chatState) 
+		this.vanilla.acceptKey(id, key, state)
 }
+
 
 Demo.prototype.hasEnded = function() {
 	return this.vanilla.hasEnded()
@@ -602,24 +619,33 @@ Demo.prototype.modeId = "demo dev"
 /**** }}} misc ****/
 
 },{"../../resources/util.js":14}],6:[function(require,module,exports){
-/*                  ******** null/index.js ********                   //
-\\ Client-side rendering for null	                                    \\ 
-//                  ******** null/index.js ********                   */
+/*                  ******** demo/render.js ********                  //
+\\ Rendering for the demo.                                            \\
+//                  ******** demo/render.js ********                  */
 
 PIXI = require('../../../assets/pixi.min.js')
 Utils = require('../../resources/util.js')
 
-module.exports = function(Null) {
+module.exports = function(Demo) {
 
-Null.prototype.initRender = function(stage) { 
+Demo.prototype.initRender = function(stage) { 
+
+	this.keyDisplay = new PIXI.Text("", {fill: 0xFFFFFF})
+	this.keyDisplay.position = new PIXI.Point(800, 850)
+	stage.addChild(this.keyDisplay)
+
+	var title = new PIXI.Text("solemnsky development demo", {fill: 0xFFFFFF})
+	title.position = new PIXI.Point(800, 10)
+	stage.addChild(title)
+
 	this.vanillaStage = new PIXI.Container()
 	stage.addChild(this.vanillaStage)
-	stage.addChild(new PIXI.Text("welcome to the demo mode"))	
 	this.vanilla.initRender(this.vanillaStage)
 }
 
-Null.prototype.stepRender = function(stage, delta) {
+Demo.prototype.stepRender = function(stage, delta) {
 	this.vanilla.stepRender(this.vanillaStage, delta)
+	this.keyDisplay.text = this.key
 }
 
 }
@@ -1648,7 +1674,7 @@ runWithStage = function(renderer, stage, object) {
 		if (running) {
 			engineFpsC++
 
-			requestAnimFrame(updateEngine)
+			setTimeout(updateEngine, (1/60) * 1000)
 
 			nowEngine = Date.now()
 			delta = nowEngine - thenEngine

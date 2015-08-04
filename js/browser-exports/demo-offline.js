@@ -5,7 +5,7 @@ require('../modes/vanilla/render.js')(Vanilla)
 
 // make mode
 Demo = require('../modes/demo/')
-require('../modes/null/render.js')(Demo)
+require('../modes/demo/render.js')(Demo)
 mode = new Demo(new Vanilla())
 
 // use control method to turn mode into UI object

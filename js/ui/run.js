@@ -97,7 +97,7 @@ runWithStage = function(renderer, stage, object) {
 		if (running) {
 			engineFpsC++
 
-			requestAnimFrame(updateEngine)
+			setTimeout(updateEngine, (1/60) * 1000)
 
 			nowEngine = Date.now()
 			delta = nowEngine - thenEngine
