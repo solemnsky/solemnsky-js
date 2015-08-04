@@ -137,7 +137,7 @@ Game.prototype.initRender = function(stage) {
 }
 Game.prototype.stepRender = function(stage, delta, x, y) {
 	if (this.initialised) {
-		if (typeof this.id !== "undefined") {
+		if (this.id !== null) {
 			mode.stepRender(this.id, this.modeStage, delta, x, y)
 		} else {
 			mode.stepRender(null, this.modeStage, delta, x, y)
