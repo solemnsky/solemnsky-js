@@ -117,7 +117,7 @@ Game.prototype.processCue = function() {
 					case "CONNECTED":
 						this.id = data; break
 					case "SNAP":
-						if (typeof this.id !== "undefined")
+						if (this.id !== null)
 							mode.clientMerge(this.id, data); break	
 					case "JOIN":
 						split = data.split(" ")
@@ -195,7 +195,10 @@ Game.prototype.onMessage = function(message) {
 }
 Game.prototype.broadcastLoop = function() {
 	setTimeout(this.broadcastLoop, 15)
-	this.send("SNAP " + mode.clientAssert())
+
+	//Don't send snapshots if we don't have an id yet
+	if (this.id !== null)
+		this.send("SNAP " + mode.clientAssert(this.id))
 }
 /**** }}} network control ****/
 /**** }}} Game ****/

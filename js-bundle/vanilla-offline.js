@@ -1167,6 +1167,10 @@ exports.makeTotalSnapshot = function(world, priority) {
 }
 
 exports.applySnapshot = function(world, snapshot) {
+	//Don't try to use invalid snapshots.
+	if (typeof(snapshot) === "undefined" || snapshot === null)
+		return;
+
 	var compare = function(snapshot1, snapshot2) {
 		snapshot1.priority - snapshot2.priority
 	}
@@ -1190,7 +1194,12 @@ exports.serialiseSnapshot = function(snapshot) {
 }
 
 exports.readSnapshot = function(string) {
-	return JSON.parse(string)
+	try {
+		return JSON.parse(string)
+	} catch (e) {
+		//Could not read snapshot; but don't let the Syntax Error break the loop
+		return null;
+	}
 }
 
 exports.Snapshot = Snapshot

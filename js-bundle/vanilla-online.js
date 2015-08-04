@@ -565,7 +565,7 @@ Game.prototype.processCue = function() {
 					case "CONNECTED":
 						this.id = data; break
 					case "SNAP":
-						if (typeof this.id !== "undefined")
+						if (this.id !== null)
 							mode.clientMerge(this.id, data); break	
 					case "JOIN":
 						split = data.split(" ")
@@ -643,7 +643,10 @@ Game.prototype.onMessage = function(message) {
 }
 Game.prototype.broadcastLoop = function() {
 	setTimeout(this.broadcastLoop, 15)
-	this.send("SNAP " + mode.clientAssert())
+
+	//Don't send snapshots if we don't have an id yet
+	if (this.id !== null)
+		this.send("SNAP " + mode.clientAssert(this.id))
 }
 /**** }}} network control ****/
 /**** }}} Game ****/
@@ -1296,6 +1299,10 @@ exports.makeTotalSnapshot = function(world, priority) {
 }
 
 exports.applySnapshot = function(world, snapshot) {
+	//Don't try to use invalid snapshots.
+	if (typeof(snapshot) === "undefined" || snapshot === null)
+		return;
+
 	var compare = function(snapshot1, snapshot2) {
 		snapshot1.priority - snapshot2.priority
 	}
@@ -1319,7 +1326,12 @@ exports.serialiseSnapshot = function(snapshot) {
 }
 
 exports.readSnapshot = function(string) {
-	return JSON.parse(string)
+	try {
+		return JSON.parse(string)
+	} catch (e) {
+		//Could not read snapshot; but don't let the Syntax Error break the loop
+		return null;
+	}
 }
 
 exports.Snapshot = Snapshot
