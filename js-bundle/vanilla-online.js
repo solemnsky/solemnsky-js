@@ -950,7 +950,7 @@ Vanilla.prototype.clientMerge = function(id, data) {
 
 Vanilla.prototype.serverMerge = function(id, data) {
 	var snap = snapshots.readSnapshot(data)
-	if (snap !== null && typeof(snapshot) !== "undefined")
+	if (snap !== null)
 		snapshots.applySnapshot(this, snap)
 }
 /**** }}} continuous networking ****/
