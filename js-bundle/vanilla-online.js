@@ -1288,8 +1288,17 @@ Vanilla.prototype.renderPlayers = function(players) {
 		
 			playerGraphics.position = new PIXI.Point(pos.x, pos.y) 
 			playerGraphics.rotation = rot;
+
+			playerName = new PIXI.Text(player.name, {font: "12px", fill: 0x003060})
+			playerName.position = new PIXI.Point(pos.x - (playerName.width / 2), (pos.y + 35))
+
+			playerBars = new PIXI.Graphics()
+			playerBars.beginFill(0xFFFFFF, 1)
+			playerBars.drawCircle(pos.x, (pos.y - 40), 5)
 			
 			players.addChild(playerGraphics)
+			players.addChild(playerName)
+			players.addChild(playerBars)
 		}
 	, this)
 }

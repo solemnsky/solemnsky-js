@@ -137,7 +137,11 @@ Game.prototype.initRender = function(stage) {
 }
 Game.prototype.stepRender = function(stage, delta, x, y) {
 	if (this.initialised) {
-		mode.stepRender(this.modeStage, delta, x, y)
+		if (typeof this.id !== "undefined") {
+			mode.stepRender(this.id, this.modeStage, delta, x, y)
+		} else {
+			mode.stepRender(null, this.modeStage, delta, x, y)
+		}
 		this.fpsText.text = "render: " + x + "Hz\nengine: " + y + "Hz"
 	}
 }

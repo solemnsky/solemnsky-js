@@ -32,7 +32,7 @@ module.exports = function(mode) {
 		function(stage, delta, renderFps, engineFps) {
 			this.fps.text = 
 				"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
-			mode.stepRender(this.modeStage, delta) 
+			mode.stepRender(0, this.modeStage, delta) 
 		}
 
 	Game.prototype.hasEnded = function() {

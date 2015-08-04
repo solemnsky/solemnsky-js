@@ -47,7 +47,7 @@ To define a mode, a constructor must be exported along with the following protot
 
 	- initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
 
-	- stepRenderer(delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI
+	- stepRenderer(id, delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI and the id of the active player, null if not applicable
 
 
 ## top-level control structures

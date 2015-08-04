@@ -11,7 +11,7 @@ Null.prototype.initRender = function(stage) {
 	stage.addChild(new PIXI.Text("", {fill: 0xFFFFFF}))
 }
 
-Null.prototype.stepRender = function(stage, delta) {
+Null.prototype.stepRender = function(id, stage, delta) {
 	stage.children[0].text = 
 		this.players.reduce(
 			function(acc, player) {

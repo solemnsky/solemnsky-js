@@ -17,7 +17,7 @@ Demo.prototype.initRender = function(stage) {
 	this.vanilla.initRender(this.vanillaStage)
 }
 
-Demo.prototype.stepRender = function(stage, delta) {
+Demo.prototype.stepRender = function(id, stage, delta) {
 	this.vanilla.stepRender(this.vanillaStage, delta)
 }
 
