@@ -8,40 +8,47 @@ Modes control the game logic throughout periods of the game where the only netwo
 
 To define a mode, a constructor must be exported along with the following prototypical methods:
 
-### initialisation and simulation
+### initialisation
+
+	- init(initdata): called exactly once at the beginning of the game, with an init string (for instance, players already in the game and the map being used)
 
 	- makeInitData(key): this provides an initial piece of initdata, given a key
 
-	- init(initdata): this is called exactly once at the beginning of the game, with an initkey, which defines what the new client has to know about the game 
+	- describeState(): describes the state of the game to a new player 
+
+### update loop
 
 	- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics.
 
-	- hasEnded(): has the game ended?
+### discrete networking
 
-### joining and quitting
+	- join(nick, id): this is called when a player joins the game, and should return a 'player id' through which the player can be identified (used in other methods). The second parameter is optional, and defaults to the smallest available id.
 
-	- join(nick, <id>): this is called when a player joins the game, and should return a 'player id' through which the player can be identified (used in other methods). A manual id may be specified as second parameter.
 	- quit(id): this is called when a player of a certain id quits the game
 
-### rendering
-
-	- initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
-	- stepRenderer(delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI
-
-### assertions
+### "continuous" networking
 
 	- clientAssert(id): make an assertion to be sent from a client to the server (sent at ~20Hz)
-	- serverAssert(): make an assertion to be sent from the server to all clients (sent at ~20Hz)
 
-### merging snapshots
+	- serverAssert(): make an assertion to be sent from the server to all clients (sent at ~20Hz)
 
 	- clientMerge(id, snap): merge an assertion sent from the server to a client
 	- serverMerge(id, snap): merge an assertion sent from a client to the server
 
-### information to new clients
+### misc
 
-	- describeState(): describes the state of the game to a new player 
 	- modeId: the id of the mode, to check if a client and a server are compatible
+
+	- hasEnded(): has the game ended?
+	
+  - acceptKey(id, key, state): player id puts a key into a state (input for clients)
+
+## rendering (defined in seperate file, only for clients)
+
+	- initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
+
+	- stepRenderer(delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI
+
 
 ## top-level control structures
 
