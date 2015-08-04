@@ -669,8 +669,14 @@ Vanilla.prototype.createBox = function(x, y, w, h, isStatic, isPlayer, fields) {
 	
 	fixDef.shape = new b2PolygonShape;
 	
-	// half width, half height. eg actual height here is 1 unit
-	fixDef.shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale);
+	if (isPlayer) {
+		fixDef.shape.SetAsArray([
+			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
+			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
+			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+	} else {
+		fixDef.shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale);
+	}
 	box = this.world.CreateBody(bodyDef);
 	box.CreateFixture(fixDef);
 
