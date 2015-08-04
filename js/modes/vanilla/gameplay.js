@@ -10,7 +10,7 @@ module.exports = {
 
 	// dimensions of the simple player rectangle
 	, playerWidth:  60
-	, playerHeight: 10
+	, playerHeight: 30
 
 	// acceleration of gravity 
 	, gravity: 3 

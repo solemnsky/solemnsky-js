@@ -729,7 +729,7 @@ module.exports = {
 
 	// dimensions of the simple player rectangle
 	, playerWidth:  60
-	, playerHeight: 10
+	, playerHeight: 30
 
 	// acceleration of gravity 
 	, gravity: 3 
@@ -1276,19 +1276,28 @@ Vanilla.prototype.renderPlayers = function(players) {
 			var throttle = player.throttle
 			var health = player.health
 
-			var playerGraphics = new PIXI.Sprite.fromImage(urls.playerSprite)
-			playerGraphics.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerWidth / 400))
+			var playerGraphics = new PIXI.Sprite(this.graphics.playerTexture)
+			playerGraphics.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
+			playerGraphics.pivot = new PIXI.Point((gameplay.playerWidth / 2) / (gameplay.playerWidth / 400), (gameplay.playerHeight / 2) / (gameplay.playerHeight / 200))
 		
-			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
+			playerGraphics.position = new PIXI.Point(pos.x, pos.y) 
 			playerGraphics.rotation = rot;
+
+			playerPoint = new PIXI.Graphics()
+			playerPoint.beginFill(0xFF0000, 1)
+			playerPoint.drawCircle(pos.x, pos.y, 5)
 			
 			players.addChild(playerGraphics)
+			players.addChild(playerPoint)
 		}
-	)
+	, this)
 }
 /**** }}} render map and players ****/
 
 Vanilla.prototype.initRender = function(stage) {
+	this.graphics = {}
+	this.graphics.playerTexture = new PIXI.Texture.fromImage(urls.playerSprite)
+
 	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)
 }
