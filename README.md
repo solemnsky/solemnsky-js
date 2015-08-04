@@ -45,4 +45,25 @@ To define a mode, a constructor must be exported along with the following protot
 
 ## top-level control structures
 
-	Top-level control structure deal with making game modes playable. control/offline.js, for example, makes a game mode playable by a single offline player.
+	Top-level control structure deal with making game modes playable. control/offline.js, for example, makes a game mode playable by a single offline player, and control/client-arena.js and control/server-arena.js respectively form a client-server pair where players can join and quit freely during a game. 
+
+## arena multiplayer protocol
+
+### entry protocol
+
+    client: CONNECT <player name>
+    server (to client): INIT <mode.describeState()>
+    server joins player
+    server (to all clients): JOIN <client id> <client name>
+    clients join player
+    server (to specific client): CONNECTED <client id>
+
+### game protocol
+
+    client: SNAP <mode.clientAssert()>
+    server merges snapshot with mode.serverMerge
+    server: SNAP <mode.serverAssert()>
+    clients merge snapshot with mode.clientMerge
+
+This loop runs approximately every 15 ms.
+

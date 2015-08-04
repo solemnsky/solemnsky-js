@@ -127,7 +127,6 @@ Game.prototype.acceptKey = function(key, state) {
 Game.prototype.hasEnded = function() {
 	return (this.disconnected)
 }
-
 Game.prototype.onConnected = function(event) {
 	var msg = "CONNECT " + this.name;
 	console.log("sending: " + msg)
