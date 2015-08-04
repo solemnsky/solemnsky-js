@@ -4,7 +4,9 @@
 
 // object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities (exactly the same as in the mode specification)
 
-nameFromKeyCode = require('../resources/keys.js')
+Keys = require('../resources/keys.js')
+nameFromKeyCode = Keys.nameFromKeyCode
+keyCodeFromName = Keys.keyCodeFromName
 
 module.exports = function(object) {
 	var renderer =
@@ -114,10 +116,12 @@ runWithStage = function(renderer, stage, object) {
 	/**** }}} step ****/
 
 	function acceptKeyUp(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), false)
+		if (object.acceptKey(nameFromKeyCode(e.keyCode), false))
+			e.preventDefault(); //Don't allow the page to use this
 	}
 	function acceptKeyDown(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), true)
+		if (object.acceptKey(nameFromKeyCode(e.keyCode), true))
+			e.preventDefault(); //Don't allow the page to use this
 	}
 
 	window.addEventListener("keyup", acceptKeyUp)
