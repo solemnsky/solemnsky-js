@@ -144,8 +144,13 @@ Game.prototype.hasEnded = function() {
 
 /**** {{{ network control ****/
 Game.prototype.send = function(msg) {
+	if (this.socket.readyState !== this.socket.OPEN) {
+		//We're done here
+		return false;
+	}
 	console.log(">>>" + msg)
 	this.socket.send(msg)
+	return true;
 }
 Game.prototype.onConnected = function(event) {
 	this.send("WHO")
