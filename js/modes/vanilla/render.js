@@ -41,7 +41,8 @@ Vanilla.prototype.renderPlayers = function(players) {
 			var throttle = player.throttle
 			var health = player.health
 
-			var playerGraphics = new PIXI.Sprite.fromImage('art/player.png')
+			var playerGraphics = new PIXI.Sprite.fromImage(urls.playerSprite)
+			playerGraphics.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerWidth / 400))
 		
 			playerGraphics.position = new PIXI.Point(pos.x, pos.y)
 			playerGraphics.rotation = rot;
