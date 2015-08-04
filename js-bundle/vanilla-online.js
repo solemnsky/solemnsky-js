@@ -771,12 +771,18 @@ Vanilla.prototype.findPlayerById = function(id) {
 	return Utils.findElemById(this.players, id)
 }
 
-Vanilla.prototype.createBox = function(x, y, w, h, isStatic, fields) {
+Vanilla.prototype.createBox = function(x, y, w, h, isStatic, isPlayer, fields) {
 	//Create a fixture definition for the box
 	var fixDef = new b2FixtureDef;
 	fixDef.density = 10;
 	fixDef.friction = 1;
 	fixDef.restitution = 0;
+	if (isPlayer) {
+		fixDef.filter.categoryBits = 0x0002
+		fixDef.filter.maskBits = 0x0001
+	} else {
+		fixDef.filter.categoryBits = 0x0001
+	}
 
 	//Create the body definition
 	var bodyDef = new b2BodyDef;
@@ -820,7 +826,7 @@ Vanilla.prototype.loadMap = function (map) {
 	map.forEach(
 		function(box) {
 			var box = this.createBox(
-				box.x, box.y, box.w, box.h, box.isStatic, box.fields)		
+				box.x, box.y, box.w, box.h, box.isStatic, false, box.fields)		
 			this.map.push(box);
 		}, this)
 }
@@ -956,7 +962,7 @@ Vanilla.prototype.serverMerge = function(id, data) {
 /**** }}} continuous networking ****/
 
 /**** {{{ misc ****/
-Vanilla.prototype.modeId = "vanilla dev"
+Vanilla.prototype.modeId = "vanilla engine"
 
 Vanilla.prototype.hasEnded = function() { return false }
 
@@ -1019,7 +1025,7 @@ function Player(game, id, x, y, name) {
 
 	// this value should *never* be accessed; instead, access
 	// the position, velocity, rotation, and rotationVel values above
-	this.block = this.game.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {restitution: 0.1, friction: 0.1});
+	this.block = this.game.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, true, {restitution: 0.1, friction: 0.1});
 }
 /**** }}} Player() ****/
 

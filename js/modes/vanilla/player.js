@@ -42,7 +42,7 @@ function Player(game, id, x, y, name) {
 
 	// this value should *never* be accessed; instead, access
 	// the position, velocity, rotation, and rotationVel values above
-	this.block = this.game.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, {restitution: 0.1, friction: 0.1});
+	this.block = this.game.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, true, {restitution: 0.1, friction: 0.1});
 }
 /**** }}} Player() ****/
 
