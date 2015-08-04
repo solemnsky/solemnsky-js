@@ -179,7 +179,8 @@ Game.prototype.send = function(msg) {
 		//We're done here
 		return false;
 	}
-	console.log(">>>" + msg)
+	if (msg.split(" ")[0] !== "SNAP")
+		console.log(">>>" + msg)
 	this.socket.send(msg)
 	return true;
 }
@@ -191,7 +192,6 @@ Game.prototype.onDisconnected = function() {
 }
 Game.prototype.onMessage = function(message) {
 	if (message.data.split(" ")[0] === "SNAP") {
-		console.log("<<<" + "<SNAP>")
 	} else {
 		console.log("<<<" + message.data)
 	}
