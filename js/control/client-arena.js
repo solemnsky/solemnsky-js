@@ -56,6 +56,13 @@ Game = function() {
 	this.processingCue = false;
 
 	this.stage = null
+
+	this.chatting = false
+	this.chatBuffer = ""
+	this.chatLog = 
+		[ {from: "player 1", chat: "asdf", time: 1}
+		, {from: "player 2", chat: "yeah, asdf to YOU good sir", time: 2}
+		, {from: "player 3", chat: "yeah well fk this I'm leaving", time: 3}]
 }
 
 /**** {{{ processCue ****/
@@ -86,6 +93,7 @@ Game.prototype.processCue = function() {
 					this.broadcastLoop()
 				}
 			} else {
+				split = data.split(" ")
 				switch (type) {
 					case "CONNECTED":
 						this.id = data; break
@@ -93,13 +101,14 @@ Game.prototype.processCue = function() {
 						if (this.id !== null)
 							mode.clientMerge(this.id, data); break	
 					case "JOIN":
-						split = data.split(" ")
 						mode.join(split[1], split[0]); 
 						break;
 					case "QUIT":
 						mode.quit(data); break
 					case "CHAT":
-						//TODO chatting
+						this.chatLog.push(
+							{from: split[0], chat: split[1]}
+						)
 						break;
 					default:
 						break
@@ -129,10 +138,16 @@ Game.prototype.step = function(delta) {
 }
 Game.prototype.initRender = function(stage) { 
 	this.stage = stage
-	this.modeStage = new PIXI.Container
+
+	this.modeStage = new PIXI.Container()
+	stage.addChild(this.modeStage);
+
 	this.fpsText = new PIXI.Text("", {fill: 0xFFFFFF})
 	this.fpsText.position = new PIXI.Point(1400, 10)
-	this.stage.addChild(this.modeStage); this.stage.addChild(this.fpsText)
+	stage.addChild(this.fpsText)
+	
+	this.chatStage = new PIXI.Container()
+	stage.addChild(this.chatStage)
 }
 Game.prototype.stepRender = function(stage, delta, x, y) {
 	if (this.initialised) {
@@ -143,13 +158,12 @@ Game.prototype.stepRender = function(stage, delta, x, y) {
 		}
 		this.fpsText.text = "render: " + x + "Hz\nengine: " + y + "Hz"
 	}
+	this.displayChat()
 }
 Game.prototype.acceptKey = function(key, state) {
 	if (this.initialised) {
 		if (key === "enter") { //Enter: Open chat
-			//Only send on keydown
 			if (state) {
-				//If we're chatting, send it. If not, open chat.
 				if (this.chatting) {
 					this.sendChat();
 				} else {
@@ -177,27 +191,40 @@ Game.prototype.hasEnded = function() {
 /**** }}} ui control methods ****/
 
 /**** {{{ chat ****/
+Game.prototype.displayChat = function() {
+	// STUB
+	var size = 25
+	var style = {fill: 0xFFFFFF, font: size + "px arial"}
+	var height = (new PIXI.Text("I", style)).height
+	var maxLines = 5
 
+	this.chatStage.removeChildren()
+	if (this.chatting) {
+		if (this.chatBuffer.length > maxLines) {
+			// TODO
+		} else {
+			var chatLines = this.chatLog.map(
+				function(value) { return value.chat }
+			).join("\n")
+		}
+		var backlog = new PIXI.Text(chatLines, style)	
+		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
+
+		var chatEntry = 
+		this.chatStage.addChild(backlog)
+	}
+}
 Game.prototype.openChat = function() {
-	this.chatTextBox = document.createElement("input");
-	this.chatTextBox.style.position = "absolute";
-	this.chatTextBox.style.bottom = "10px";
-	this.chatTextBox.style.left = "10px";
-	this.chatTextBox.setAttribute("class", "chatTextBox");
-	document.body.appendChild(this.chatTextBox);
-	this.chatTextBox.focus();
-	this.chatText = "";
 	this.chatting = true;
+	this.chatBuffer = ""
 }
 Game.prototype.closeChat = function() {
-	document.body.removeChild(this.chatTextBox);
 	this.chatting = false;
 }
 Game.prototype.sendChat = function() {
 	this.closeChat();
-	this.send("CHAT " + this.chatTextBox.value);
+	this.send("CHAT " + this.chatBuffer);
 }
-
 /**** }}} chat ****/
 
 /**** {{{ network control ****/
@@ -206,7 +233,7 @@ Game.prototype.send = function(msg) {
 		//We're done here
 		return false;
 	}
-	// if (msg.split(" ")[0] !== "SNAP")
+	if (msg.split(" ")[0] !== "SNAP")
 		console.log(">>>" + msg)
 	this.socket.send(msg)
 	return true;
@@ -218,10 +245,8 @@ Game.prototype.onDisconnected = function() {
 	this.disconnected = true;
 }
 Game.prototype.onMessage = function(message) {
-	// if (message.data.split(" ")[0] === "SNAP") {
-	// else {
+	if (message.data.split(" ")[0] !== "SNAP") 
 		console.log("<<<" + message.data)
-	// }
 	this.messageCue.push(message.data)
 	this.processCue()
 }
