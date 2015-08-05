@@ -49,4 +49,8 @@ module.exports = {
 
 	// graphics that look nice
 	, graphicsThrustFade: 4
+	, graphicsBarWidth: 50
+	, graphicsBarHeight: 8
+	, graphicsBarClear: 50
+	, graphicsNameClear: 35
 }

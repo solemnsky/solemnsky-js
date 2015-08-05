@@ -771,6 +771,10 @@ module.exports = {
 
 	// graphics that look nice
 	, graphicsThrustFade: 4
+	, graphicsBarWidth: 50
+	, graphicsBarHeight: 7
+	, graphicsBarClear: 45
+	, graphicsNameClear: 35
 }
 
 },{}],6:[function(require,module,exports){
@@ -1312,13 +1316,13 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			placeSprite(thrustSprite); placeSprite(normalSprite)
 			thrustSprite.alpha = player.anim.thrustLevel
 
-			playerName = new PIXI.Text(player.name, {font: "12px", fill: 0x003060})
-			playerName.position = new PIXI.Point(pos.x - (playerName.width / 2), (pos.y + 35))
+			playerName = new PIXI.Text(player.name, {font: "15px arial", fill: 0x003060})
+			playerName.position = new PIXI.Point(pos.x - (playerName.width / 2), (pos.y + gameplay.graphicsNameClear))
 
 			if (id == player.id) {
 				playerBars = new PIXI.Graphics()
 				playerBars.beginFill(0xFFFFFF, 1)
-				playerBars.drawCircle(pos.x, (pos.y - 40), 5)
+				playerBars.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), gameplay.graphicsBarWidth, gameplay.graphicsBarHeight)
 
 				players.addChild(playerBars)
 			}
