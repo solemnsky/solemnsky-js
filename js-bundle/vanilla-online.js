@@ -1326,7 +1326,7 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 }
 
 },{"../../../assets/pixi.min.js":2,"../../resources/urls.js":12}],9:[function(require,module,exports){
-Utils = require('../../resources/util.js')
+Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
 	if (typeof priority == "undefined") priority = 0
@@ -1340,7 +1340,7 @@ function Snapshot(player, priority, defaultState, states) {
 		function(key) {
 			if (["game", "block", "name"].indexOf(key) === -1)
 				if (states[key] || defaultState)
-					this[key] = Utils.clone(player[key])
+					this[key] = Util.clone(player[key])
 		}
 	, this)
 }
@@ -1373,7 +1373,7 @@ exports.applySnapshot = function(world, snapshot) {
 			if (player !== null) {
 				Object.keys(snapshot).forEach(
 					function(key) {
-						player[key] = Utils.clone(snapshot[key])
+						player[key] = Util.clone(snapshot[key])
 					}	
 				, this)
 				player.writeToBlock();
@@ -1384,31 +1384,41 @@ exports.applySnapshot = function(world, snapshot) {
 // archived
 function oldDeflatePair(pair) {
 	if (pair.key == "afterburner")
-		return {key: "a", value: Utils.deflateBool(pair.value)}
+		return {key: "a", value: Util.deflateBool(pair.value)}
 	if (pair.key == "energy")
-		return {key: "e", value: Utils.deflateFloat(pair.value)}
+		return {key: "e", value: Util.deflateFloat(pair.value)}
 	if (pair.key == "leftoverVel")
-		return {key: "l", value: Utils.deflateVec(pair.value)}
+		return {key: "l", value: Util.deflateVec(pair.value)}
 	if (pair.key == "movement")
 		return {key: "m", value: pair.value}
 	if (pair.key == "position")
-		return {key: "p", value: Utils.deflateVec(pair.value)}
+		return {key: "p", value: Util.deflateVec(pair.value)}
 	if (pair.key == "priority")
 		return {key: "x", value: pair.value}
 	if (pair.key == "respawning")
-		return {key: "r", value: Utils.deflateBool(pair.value)}
+		return {key: "r", value: Util.deflateBool(pair.value)}
 	if (pair.key == "rotation")
-		return {key: "h", value: Utils.deflateFloat(pair.value)}
+		return {key: "h", value: Util.deflateFloat(pair.value)}
 	if (pair.key == "rotationVel")
-		return {key: "j", value: Utils.deflateFloat(pair.value)}
+		return {key: "j", value: Util.deflateFloat(pair.value)}
 	return pair
 }
 
 deflationRules =
-  [ { key: "priority", shortKey: "p", deflation: Utils.noDeflation }
-	, { key: "afterburner", shortKey: "a", deflation: Utils.boolDeflation }
-	, { key: "energy", shortKey: "e", deflation: Utils.floatDeflation} 
-	// STUB
+	[ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
+	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation } 
+	, { key: "health", shortKey: "h", deflation: Util.floatDeflation }
+	, { key: "leftoverVel", shortKey: "l", deflation: Util.vecDeflation }
+	, { key: "movement", shortKey: "m", deflation: Util.movementDeflation }
+	, { key: "position", shortKey: "p", deflation: Util.vecDeflation }
+  , { key: "priority", shortKey: "x", deflation: Util.noDeflation }
+	, { key: "respawning", shortKey: "n", deflation: Util.boolDeflation }
+	, { key: "rotation", shortKey: "r", deflation: Util.floatDeflation }
+	, { key: "rotationVel", shortKey: "j", deflation: Util.floatDeflation	}
+	, { key: "spawnpoint", shortKey: "s", deflation: Util.vecDeflation }
+	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
+	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
+	, { key: "velocity", shortKey: "v", deflation: Util.floatDeflation }
 	]
 
 function deflatePair(pair) {
@@ -1528,8 +1538,9 @@ module.exports = {
 
 function Util() {}
 
-module.exports = new Util();
+module.exports = new Util(); 
 
+/**** {{{ byte magic ****/
 Util.prototype.intToFloat = function(int_) {
 	var buffer = new ArrayBuffer(4);
 	var intView = new Int32Array(buffer);
@@ -1593,7 +1604,9 @@ Util.prototype.strToVec = function(str) {
 	return {x: this.charToFloat(str[0]), y: this.charToFloat(str[2])}
 	// that is not a typo, has to do with how byte characters are concatenated
 }
+/**** }}} byte magic ****/
 
+/**** {{{ deflation pairs ****/
 Util.prototype.noDeflation =
 	{ deflate: function(x){return x}
 	, inflate: function(x){return x} }
@@ -1610,6 +1623,21 @@ Util.prototype.vecDeflation =
 	{ deflate: function(vec) { return vec }
 	, inflate: function(val) { return val } }
 
+Util.prototype.movementDeflation = 
+	{ deflate:
+			function(movement) {
+				return "" + (movement.left ? 1 : 0) + (movement.right ? 1 : 0)
+					+ (movement.forward ? 1 : 0) + (movement.backward ? 1 : 0)
+			}
+	, inflate:
+			function(val) {
+				return {left: (val[0] == 1), right: (val[1] == 1)
+					, forward: (val[2] == 1), backward: (val[3] == 1)}
+			}
+	}
+/**** }}} deflation pairs ****/
+
+/**** {{{ vector math ****/
 Util.prototype.getAngle = function(vec) {
 	return Math.atan2(vec.y, vec.x);
 }
@@ -1617,14 +1645,18 @@ Util.prototype.getAngle = function(vec) {
 Util.prototype.getLength = function(vec) {
 	return Math.sqrt(vec.x * vec.x + vec.y * vec.y)
 }
+/**** }}} vector math ****/
 
+/**** {{{ the absurd problem of cloning ****/
 Util.prototype.jsonClone = function(o) {
 	return JSON.parse(JSON.stringify(o))
 }
 
 // https://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
 Util.prototype.clone = function(obj) { var copy; if (null == obj || "object" != typeof obj) return obj; if (obj instanceof Date) { copy = new Date(); copy.setTime(obj.getTime()); return copy; } if (obj instanceof Array) { copy = []; for (var i = 0, len = obj.length; i < len; i++) { copy[i] = this.clone(obj[i]); } return copy; } if (obj instanceof Object) { copy = {}; for (var attr in obj) { if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]); } return copy; } throw new Error("Unable to copy object."); }
+/**** }}} the absurd problem of cloning ****/
 
+/**** {{{ utility ****/
 Util.prototype.range = function(start, edge, step) {
 	if (arguments.length == 1) {
 		edge = start;
@@ -1637,7 +1669,9 @@ Util.prototype.range = function(start, edge, step) {
 	}
 	return ret;
 }
+/**** }}} utility ****/
 
+/**** {{{ elem id operations ****/
 Util.prototype.findAvailableId = function(xs) {
 	y = xs.length
 	for (i = 0; i <= xs.length; i++) {
@@ -1669,6 +1703,7 @@ Util.prototype.removeElemById = function(elems, id) {
 		return null
 	elems.splice(index, 1)
 }
+/**** }}} elem id operations ****/
 
 },{}],14:[function(require,module,exports){
 /*                  ******** run.js ********                           //

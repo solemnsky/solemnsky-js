@@ -1,4 +1,4 @@
-Utils = require('../../resources/util.js')
+Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
 	if (typeof priority == "undefined") priority = 0
@@ -12,7 +12,7 @@ function Snapshot(player, priority, defaultState, states) {
 		function(key) {
 			if (["game", "block", "name"].indexOf(key) === -1)
 				if (states[key] || defaultState)
-					this[key] = Utils.clone(player[key])
+					this[key] = Util.clone(player[key])
 		}
 	, this)
 }
@@ -45,7 +45,7 @@ exports.applySnapshot = function(world, snapshot) {
 			if (player !== null) {
 				Object.keys(snapshot).forEach(
 					function(key) {
-						player[key] = Utils.clone(snapshot[key])
+						player[key] = Util.clone(snapshot[key])
 					}	
 				, this)
 				player.writeToBlock();
@@ -56,31 +56,41 @@ exports.applySnapshot = function(world, snapshot) {
 // archived
 function oldDeflatePair(pair) {
 	if (pair.key == "afterburner")
-		return {key: "a", value: Utils.deflateBool(pair.value)}
+		return {key: "a", value: Util.deflateBool(pair.value)}
 	if (pair.key == "energy")
-		return {key: "e", value: Utils.deflateFloat(pair.value)}
+		return {key: "e", value: Util.deflateFloat(pair.value)}
 	if (pair.key == "leftoverVel")
-		return {key: "l", value: Utils.deflateVec(pair.value)}
+		return {key: "l", value: Util.deflateVec(pair.value)}
 	if (pair.key == "movement")
 		return {key: "m", value: pair.value}
 	if (pair.key == "position")
-		return {key: "p", value: Utils.deflateVec(pair.value)}
+		return {key: "p", value: Util.deflateVec(pair.value)}
 	if (pair.key == "priority")
 		return {key: "x", value: pair.value}
 	if (pair.key == "respawning")
-		return {key: "r", value: Utils.deflateBool(pair.value)}
+		return {key: "r", value: Util.deflateBool(pair.value)}
 	if (pair.key == "rotation")
-		return {key: "h", value: Utils.deflateFloat(pair.value)}
+		return {key: "h", value: Util.deflateFloat(pair.value)}
 	if (pair.key == "rotationVel")
-		return {key: "j", value: Utils.deflateFloat(pair.value)}
+		return {key: "j", value: Util.deflateFloat(pair.value)}
 	return pair
 }
 
 deflationRules =
-  [ { key: "priority", shortKey: "p", deflation: Utils.noDeflation }
-	, { key: "afterburner", shortKey: "a", deflation: Utils.boolDeflation }
-	, { key: "energy", shortKey: "e", deflation: Utils.floatDeflation} 
-	// STUB
+	[ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
+	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation } 
+	, { key: "health", shortKey: "h", deflation: Util.floatDeflation }
+	, { key: "leftoverVel", shortKey: "l", deflation: Util.vecDeflation }
+	, { key: "movement", shortKey: "m", deflation: Util.movementDeflation }
+	, { key: "position", shortKey: "p", deflation: Util.vecDeflation }
+  , { key: "priority", shortKey: "x", deflation: Util.noDeflation }
+	, { key: "respawning", shortKey: "n", deflation: Util.boolDeflation }
+	, { key: "rotation", shortKey: "r", deflation: Util.floatDeflation }
+	, { key: "rotationVel", shortKey: "j", deflation: Util.floatDeflation	}
+	, { key: "spawnpoint", shortKey: "s", deflation: Util.vecDeflation }
+	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
+	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
+	, { key: "velocity", shortKey: "v", deflation: Util.floatDeflation }
 	]
 
 function deflatePair(pair) {

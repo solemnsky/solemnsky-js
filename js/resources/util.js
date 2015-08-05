@@ -4,8 +4,9 @@
 
 function Util() {}
 
-module.exports = new Util();
+module.exports = new Util(); 
 
+/**** {{{ byte magic ****/
 Util.prototype.intToFloat = function(int_) {
 	var buffer = new ArrayBuffer(4);
 	var intView = new Int32Array(buffer);
@@ -69,7 +70,9 @@ Util.prototype.strToVec = function(str) {
 	return {x: this.charToFloat(str[0]), y: this.charToFloat(str[2])}
 	// that is not a typo, has to do with how byte characters are concatenated
 }
+/**** }}} byte magic ****/
 
+/**** {{{ deflation pairs ****/
 Util.prototype.noDeflation =
 	{ deflate: function(x){return x}
 	, inflate: function(x){return x} }
@@ -86,6 +89,21 @@ Util.prototype.vecDeflation =
 	{ deflate: function(vec) { return vec }
 	, inflate: function(val) { return val } }
 
+Util.prototype.movementDeflation = 
+	{ deflate:
+			function(movement) {
+				return "" + (movement.left ? 1 : 0) + (movement.right ? 1 : 0)
+					+ (movement.forward ? 1 : 0) + (movement.backward ? 1 : 0)
+			}
+	, inflate:
+			function(val) {
+				return {left: (val[0] == 1), right: (val[1] == 1)
+					, forward: (val[2] == 1), backward: (val[3] == 1)}
+			}
+	}
+/**** }}} deflation pairs ****/
+
+/**** {{{ vector math ****/
 Util.prototype.getAngle = function(vec) {
 	return Math.atan2(vec.y, vec.x);
 }
@@ -93,14 +111,18 @@ Util.prototype.getAngle = function(vec) {
 Util.prototype.getLength = function(vec) {
 	return Math.sqrt(vec.x * vec.x + vec.y * vec.y)
 }
+/**** }}} vector math ****/
 
+/**** {{{ the absurd problem of cloning ****/
 Util.prototype.jsonClone = function(o) {
 	return JSON.parse(JSON.stringify(o))
 }
 
 // https://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
 Util.prototype.clone = function(obj) { var copy; if (null == obj || "object" != typeof obj) return obj; if (obj instanceof Date) { copy = new Date(); copy.setTime(obj.getTime()); return copy; } if (obj instanceof Array) { copy = []; for (var i = 0, len = obj.length; i < len; i++) { copy[i] = this.clone(obj[i]); } return copy; } if (obj instanceof Object) { copy = {}; for (var attr in obj) { if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]); } return copy; } throw new Error("Unable to copy object."); }
+/**** }}} the absurd problem of cloning ****/
 
+/**** {{{ utility ****/
 Util.prototype.range = function(start, edge, step) {
 	if (arguments.length == 1) {
 		edge = start;
@@ -113,7 +135,9 @@ Util.prototype.range = function(start, edge, step) {
 	}
 	return ret;
 }
+/**** }}} utility ****/
 
+/**** {{{ elem id operations ****/
 Util.prototype.findAvailableId = function(xs) {
 	y = xs.length
 	for (i = 0; i <= xs.length; i++) {
@@ -145,3 +169,4 @@ Util.prototype.removeElemById = function(elems, id) {
 		return null
 	elems.splice(index, 1)
 }
+/**** }}} elem id operations ****/
