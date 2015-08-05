@@ -475,7 +475,7 @@ mode = new Demo(new Vanilla())
 clientOffline = require('../control/client-offline.js')
 myClient = clientOffline(mode) 
 
-ui.run(myClient)
+ui.run(60, myClient)
 
 },{"../control/client-offline.js":4,"../modes/demo/":5,"../modes/demo/render.js":6,"../modes/vanilla/":8,"../modes/vanilla/render.js":10,"../ui/index.js":16}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
@@ -509,8 +509,8 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.stepRender = 
-		function(stage, delta, fps) {
-			this.fps.text = fps + "tps"
+		function(stage, delta, tps, fps) {
+			this.fps.text = tps + "tps, " + fps + "fps"
 			mode.stepRender(0, this.modeStage, delta) 
 		}
 
@@ -1706,7 +1706,7 @@ Keys = require('../resources/keys.js')
 nameFromKeyCode = Keys.nameFromKeyCode
 keyCodeFromName = Keys.keyCodeFromName
 
-module.exports = function(object) {
+module.exports = function(target, object) {
 	var renderer =
 		PIXI.autoDetectRenderer(1600, 900, 
 			{backgroundColor : 0x000010, antialias : true})
@@ -1738,22 +1738,8 @@ module.exports = function(object) {
 	window.onresize = smartResize
 	smartResize()
 	
-	runWithStage(renderer, stage, object)
+	runWithStage(target, renderer, stage, object)
 }
-
-runWithStage = function(renderer, stage, object) {
-	stage.removeChildren()
-
-	var running = true;
-
-	var fps = 0; var fpsC = 0
-
-	resetFps = function() {
-		if (running) {
-			window.setTimeout(resetFps, 1000)
-			fps = fpsC; fpsC = 0
-		}
-	}
 
 	/**** {{{ requestAnimFrame ****/
 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -1764,35 +1750,64 @@ runWithStage = function(renderer, stage, object) {
 			window.oRequestAnimationFrame      || 
 			window.msRequestAnimationFrame     || 
 			function(callback, /* DOMElement */ element){
-				window.setTimeout(callback, SolemnSky.tickTimeMs);
+				window.setTimeout(callback, (1/target) * 1000);
 			};
 	})();
 	/**** }}} requestAnimFrame ****/
 
+runWithStage = function(target, renderer, stage, object) {
+	stage.removeChildren()
+	renderer.render(stage)
+
 	object.initRender(stage)
 	object.init()
 
+	var running = true;
+
+	var fps = 0; var fpsC = 0
+	var tps = 0; var tpsC = 0
+	var accum = 0;
+	var lastPrint = Date.now()
+
+	resetFps = function() {
+		if (running) {
+			window.setTimeout(resetFps, 1000)
+			fps = fpsC; fpsC = 0
+			tps = tpsC; tpsC = 0
+		}
+	}
+
 	/**** {{{ step ****/
-	// step()
 	then = Date.now()
 	function update() {
 		running = (!object.hasEnded())
 		if (running) {
-			fpsC++
 			requestAnimFrame(update)
 
 			now = Date.now()
 			delta = now - then
 			then = now
 
-			object.step(delta)
-			object.stepRender(stage, delta, fps)
-			renderer.render(stage)
+			accum += delta
+
+			var needPaint = false;
+			while (accum >= ((1 / target) * 1000)) {
+				object.step(delta)
+				accum -= ((1 / target) * 1000)
+				needPaint = true
+				tpsC++
+			}
+
+			if (needPaint) {
+				object.stepRender(stage, delta, tps, fps)
+				renderer.render(stage)
+				fpsC++
+			}
 		} else {
 			window.removeEventListener("keyup", acceptKeyUp)
 			window.removeEventListener("keydown", acceptKeyDown)
 			if (typeof object.next !== "undefined")
-				runWithStage(renderer, stage, object.next())
+				runWithStage(target, renderer, stage, object.next())
 		}
 	} 
 	/**** }}} step ****/

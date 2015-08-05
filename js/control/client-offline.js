@@ -29,8 +29,8 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.stepRender = 
-		function(stage, delta, fps) {
-			this.fps.text = fps + "tps"
+		function(stage, delta, tps, fps) {
+			this.fps.text = tps + "tps, " + fps + "fps"
 			mode.stepRender(0, this.modeStage, delta) 
 		}
 

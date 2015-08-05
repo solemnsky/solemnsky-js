@@ -10,4 +10,4 @@ mode = new Vanilla()
 clientOffline = require('../control/client-offline.js')
 myClient = clientOffline(mode)
 
-ui.run(myClient)
+ui.run(60, myClient)

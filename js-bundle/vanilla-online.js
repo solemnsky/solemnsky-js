@@ -474,7 +474,7 @@ clientOnline = require('../control/client-arena.js')
 // myClient = clientOnline(mode, "198.55.237.151", 50042, "/") 
 myClient = clientOnline(mode, "localhost", 50042, "/")
 
-ui.run(myClient)
+ui.run(60, myClient)
 
 },{"../control/client-arena.js":4,"../modes/vanilla/":6,"../modes/vanilla/render.js":8,"../ui/index.js":14}],4:[function(require,module,exports){
 /*                  ******** client-arena.js ********                  //
@@ -1798,7 +1798,7 @@ Keys = require('../resources/keys.js')
 nameFromKeyCode = Keys.nameFromKeyCode
 keyCodeFromName = Keys.keyCodeFromName
 
-module.exports = function(object) {
+module.exports = function(target, object) {
 	var renderer =
 		PIXI.autoDetectRenderer(1600, 900, 
 			{backgroundColor : 0x000010, antialias : true})
@@ -1830,22 +1830,8 @@ module.exports = function(object) {
 	window.onresize = smartResize
 	smartResize()
 	
-	runWithStage(renderer, stage, object)
+	runWithStage(target, renderer, stage, object)
 }
-
-runWithStage = function(renderer, stage, object) {
-	stage.removeChildren()
-
-	var running = true;
-
-	var fps = 0; var fpsC = 0
-
-	resetFps = function() {
-		if (running) {
-			window.setTimeout(resetFps, 1000)
-			fps = fpsC; fpsC = 0
-		}
-	}
 
 	/**** {{{ requestAnimFrame ****/
 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -1856,35 +1842,64 @@ runWithStage = function(renderer, stage, object) {
 			window.oRequestAnimationFrame      || 
 			window.msRequestAnimationFrame     || 
 			function(callback, /* DOMElement */ element){
-				window.setTimeout(callback, SolemnSky.tickTimeMs);
+				window.setTimeout(callback, (1/target) * 1000);
 			};
 	})();
 	/**** }}} requestAnimFrame ****/
 
+runWithStage = function(target, renderer, stage, object) {
+	stage.removeChildren()
+	renderer.render(stage)
+
 	object.initRender(stage)
 	object.init()
 
+	var running = true;
+
+	var fps = 0; var fpsC = 0
+	var tps = 0; var tpsC = 0
+	var accum = 0;
+	var lastPrint = Date.now()
+
+	resetFps = function() {
+		if (running) {
+			window.setTimeout(resetFps, 1000)
+			fps = fpsC; fpsC = 0
+			tps = tpsC; tpsC = 0
+		}
+	}
+
 	/**** {{{ step ****/
-	// step()
 	then = Date.now()
 	function update() {
 		running = (!object.hasEnded())
 		if (running) {
-			fpsC++
 			requestAnimFrame(update)
 
 			now = Date.now()
 			delta = now - then
 			then = now
 
-			object.step(delta)
-			object.stepRender(stage, delta, fps)
-			renderer.render(stage)
+			accum += delta
+
+			var needPaint = false;
+			while (accum >= ((1 / target) * 1000)) {
+				object.step(delta)
+				accum -= ((1 / target) * 1000)
+				needPaint = true
+				tpsC++
+			}
+
+			if (needPaint) {
+				object.stepRender(stage, delta, tps, fps)
+				renderer.render(stage)
+				fpsC++
+			}
 		} else {
 			window.removeEventListener("keyup", acceptKeyUp)
 			window.removeEventListener("keydown", acceptKeyDown)
 			if (typeof object.next !== "undefined")
-				runWithStage(renderer, stage, object.next())
+				runWithStage(target, renderer, stage, object.next())
 		}
 	} 
 	/**** }}} step ****/
