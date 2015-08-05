@@ -535,7 +535,6 @@ Game = function() {
 	this.processingCue = false;
 
 	this.stage = null
-	this.chatting = false;
 }
 
 /**** {{{ processCue ****/
@@ -686,7 +685,7 @@ Game.prototype.send = function(msg) {
 		//We're done here
 		return false;
 	}
-	if (msg.split(" ")[0] !== "SNAP")
+	// if (msg.split(" ")[0] !== "SNAP")
 		console.log(">>>" + msg)
 	this.socket.send(msg)
 	return true;
@@ -698,10 +697,10 @@ Game.prototype.onDisconnected = function() {
 	this.disconnected = true;
 }
 Game.prototype.onMessage = function(message) {
-	if (message.data.split(" ")[0] === "SNAP") {
-	} else {
+	// if (message.data.split(" ")[0] === "SNAP") {
+	// else {
 		console.log("<<<" + message.data)
-	}
+	// }
 	this.messageCue.push(message.data)
 	this.processCue()
 }
@@ -1313,7 +1312,8 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 
 Vanilla.prototype.initRender = function(stage) {
 	this.graphics = {}
-	this.graphics.playerTexture = new PIXI.Texture.fromImage(urls.playerSprite)
+	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
+	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
 
 	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)
@@ -1505,7 +1505,10 @@ module.exports = maps;
 
 },{}],12:[function(require,module,exports){
 module.exports = {
-	playerSprite: "http://solemnsky.github.io/multimedia/player.png"
+	playerSprite: 
+		"http://solemnsky.github.io/multimedia/player.png"
+	, playerThrustSprite: 
+		"http://solemnsky.github.io/multimedia/player-thrust.png"
 }
 
 },{}],13:[function(require,module,exports){

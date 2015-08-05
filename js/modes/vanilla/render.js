@@ -68,7 +68,8 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 
 Vanilla.prototype.initRender = function(stage) {
 	this.graphics = {}
-	this.graphics.playerTexture = new PIXI.Texture.fromImage(urls.playerSprite)
+	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
+	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
 
 	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)

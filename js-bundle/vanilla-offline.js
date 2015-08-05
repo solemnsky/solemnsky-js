@@ -1117,7 +1117,8 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 
 Vanilla.prototype.initRender = function(stage) {
 	this.graphics = {}
-	this.graphics.playerTexture = new PIXI.Texture.fromImage(urls.playerSprite)
+	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
+	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
 
 	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)
@@ -1309,7 +1310,10 @@ module.exports = maps;
 
 },{}],12:[function(require,module,exports){
 module.exports = {
-	playerSprite: "http://solemnsky.github.io/multimedia/player.png"
+	playerSprite: 
+		"http://solemnsky.github.io/multimedia/player.png"
+	, playerThrustSprite: 
+		"http://solemnsky.github.io/multimedia/player-thrust.png"
 }
 
 },{}],13:[function(require,module,exports){

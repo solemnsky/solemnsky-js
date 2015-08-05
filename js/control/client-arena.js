@@ -56,7 +56,6 @@ Game = function() {
 	this.processingCue = false;
 
 	this.stage = null
-	this.chatting = false;
 }
 
 /**** {{{ processCue ****/
@@ -207,7 +206,7 @@ Game.prototype.send = function(msg) {
 		//We're done here
 		return false;
 	}
-	if (msg.split(" ")[0] !== "SNAP")
+	// if (msg.split(" ")[0] !== "SNAP")
 		console.log(">>>" + msg)
 	this.socket.send(msg)
 	return true;
@@ -219,10 +218,10 @@ Game.prototype.onDisconnected = function() {
 	this.disconnected = true;
 }
 Game.prototype.onMessage = function(message) {
-	if (message.data.split(" ")[0] === "SNAP") {
-	} else {
+	// if (message.data.split(" ")[0] === "SNAP") {
+	// else {
 		console.log("<<<" + message.data)
-	}
+	// }
 	this.messageCue.push(message.data)
 	this.processCue()
 }
