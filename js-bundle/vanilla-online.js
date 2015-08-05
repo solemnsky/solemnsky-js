@@ -1385,11 +1385,21 @@ function deflatePair(pair) {
 	if (pair.key == "afterburner")
 		return {key: "a", value: pair.value ? 1 : 0}
 	if (pair.key == "energy")
-		return {key: "e", value: Utils.floatToChar(pair.value)}
+		return {key: "e", value: pair.value}
 	if (pair.key == "leftoverVel")
-		return {key: "l", value: Utils.vecToStr(pair.value)}
+		return {key: "l", value: pair.value}
 	if (pair.key == "movement")
-		return {key: "m", value: Utils.vecToStr(pair.value)}
+		return {key: "m", value: pair.value}
+	if (pair.key == "position")
+		return {key: "p", value: pair.value}
+	if (pair.key == "priority")
+		return {key: "x", value: pair.value}
+	if (pair.key == "respawning")
+		return {key: "r", value: pair.value ? 1 : 0}
+	if (pair.key == "rotation")
+		return {key: "h", value: pair.value}
+	if (pair.key == "rotationVel")
+		return {key: "j", value: pair.value}
 	return pair
 }
 
@@ -1397,11 +1407,21 @@ function inflatePair(pair) {
 	if (pair.key == "a")
 		return {key: "afterburner", value: (pair.value == 1)}
 	if (pair.key == "e")
-		return {key: "energy", value: Utils.charToFloat(pair.value)}
+		return {key: "energy", value: pair.value}
 	if (pair.key == "l")
-		return {key: "leftoverVel", value: Utils.strToVec(pair.value)}
+		return {key: "leftoverVel", value: pair.value}
 	if (pair.key == "m")
-		return {key: "movement", value: Utils.strToVec(pair.value)}
+		return {key: "movement", value: pair.value}
+	if (pair.key == "p")
+		return {key: "position", value: pair.value}
+	if (pair.key == "x")
+		return {key: "priority", value: pair.value}
+	if (pair.key == "r")
+		return {key: "respawning", value: (pair.value == 1)}
+	if (pair.key == "h")
+		return {key: "rotation", value: pair.value}
+	if (pair.key == "j")
+		return {key: "rotationVel", value: pair.value}
 	return pair
 }
 
