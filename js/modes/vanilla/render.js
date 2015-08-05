@@ -41,7 +41,7 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 			var throttle = player.throttle
 			var health = player.health
 
-			var playerGraphics = new PIXI.Sprite(this.graphics.playerTexture)
+			var playerGraphics = new PIXI.Sprite(this.textures.player)
 			playerGraphics.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
 			playerGraphics.pivot = new PIXI.Point((gameplay.playerWidth / 2) / (gameplay.playerWidth / 400), (gameplay.playerHeight / 2) / (gameplay.playerHeight / 200))
 		
@@ -67,7 +67,7 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 /**** }}} render map and players ****/
 
 Vanilla.prototype.initRender = function(stage) {
-	this.graphics = {}
+	this.textures = {}
 	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
 	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
 

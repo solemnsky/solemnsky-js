@@ -1090,7 +1090,7 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 			var throttle = player.throttle
 			var health = player.health
 
-			var playerGraphics = new PIXI.Sprite(this.graphics.playerTexture)
+			var playerGraphics = new PIXI.Sprite(this.textures.player)
 			playerGraphics.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
 			playerGraphics.pivot = new PIXI.Point((gameplay.playerWidth / 2) / (gameplay.playerWidth / 400), (gameplay.playerHeight / 2) / (gameplay.playerHeight / 200))
 		
@@ -1116,7 +1116,7 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 /**** }}} render map and players ****/
 
 Vanilla.prototype.initRender = function(stage) {
-	this.graphics = {}
+	this.textures = {}
 	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
 	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
 
@@ -1311,9 +1311,9 @@ module.exports = maps;
 },{}],12:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
-		"http://solemnsky.github.io/multimedia/player.png"
+		"http://solemnsky.com/multimedia/player.png"
 	, playerThrustSprite: 
-		"http://solemnsky.github.io/multimedia/player-thrust.png"
+		"http://solemnsky.com/multimedia/player-thrust.png"
 }
 
 },{}],13:[function(require,module,exports){
