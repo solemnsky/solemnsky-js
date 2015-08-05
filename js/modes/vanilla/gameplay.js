@@ -46,4 +46,7 @@ module.exports = {
 
 	, minimumContactDamage: 0.02
 	, contactDamangeMultiplier: 0.01
+
+	// graphics that look nice
+	, graphicsThrustFade: 4
 }

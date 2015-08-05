@@ -10,7 +10,7 @@ function Snapshot(player, priority, defaultState, states) {
 
 	Object.keys(player).forEach(
 		function(key) {
-			if (["game", "block", "name"].indexOf(key) === -1)
+			if (["game", "block", "name", "anim"].indexOf(key) === -1)
 				if (states[key] || defaultState)
 					this[key] = Util.clone(player[key])
 		}

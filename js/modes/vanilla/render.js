@@ -4,6 +4,7 @@
 
 PIXI = require('../../../assets/pixi.min.js')
 urls = require('../../resources/urls.js')
+gameplay = require('./gameplay.js')
 
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
@@ -30,23 +31,39 @@ Vanilla.prototype.renderMap = function(map) {
 	
 	map.addChild(mapGraphics)
 }
-Vanilla.prototype.renderPlayers = function(id, players) {
+
+Vanilla.prototype.renderPlayers = function(delta, id, players) {
 	players.removeChildren()
 
 	this.players.forEach(
 		function(player) {
+			if (typeof player.anim == "undefined")
+				player.anim = {thrustLevel: 0} 
+
 			var pos = player.position
 			var rot = player.rotation
-			var stalled = player.stalled
-			var throttle = player.throttle
-			var health = player.health
+			
+			// thrustLevel modification
+			if (player.afterburner) {
+				player.anim.thrustLevel += (delta / 1000) * gameplay.graphicsThrustFade
+			} else {
+				player.anim.thrustLevel -= (delta / 1000) * gameplay.graphicsThrustFade	
+			}
+			if (player.anim.thrustLevel < 0) player.anim.thrustLevel = 0
+			if (player.anim.thrustLevel > 1) player.anim.thrustLevel = 1
 
-			var playerGraphics = new PIXI.Sprite(this.textures.player)
-			playerGraphics.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
-			playerGraphics.pivot = new PIXI.Point((gameplay.playerWidth / 2) / (gameplay.playerWidth / 400), (gameplay.playerHeight / 2) / (gameplay.playerHeight / 200))
-		
-			playerGraphics.position = new PIXI.Point(pos.x, pos.y) 
-			playerGraphics.rotation = rot;
+			var thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
+			var normalSprite = new PIXI.Sprite(this.textures.player)
+			
+			function placeSprite(sprite) {
+				sprite.pivot = new PIXI.Point(sprite.width / 2, sprite.height / 2)
+				sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
+				sprite.position = new PIXI.Point(pos.x, pos.y) 
+				sprite.rotation = rot;
+			}
+
+			placeSprite(thrustSprite); placeSprite(normalSprite)
+			thrustSprite.alpha = player.anim.thrustLevel
 
 			playerName = new PIXI.Text(player.name, {font: "12px", fill: 0x003060})
 			playerName.position = new PIXI.Point(pos.x - (playerName.width / 2), (pos.y + 35))
@@ -59,7 +76,8 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 				players.addChild(playerBars)
 			}
 
-			players.addChild(playerGraphics)
+			players.addChild(normalSprite)
+			players.addChild(thrustSprite)
 			players.addChild(playerName)
 		}
 	, this)
@@ -77,6 +95,6 @@ Vanilla.prototype.initRender = function(stage) {
 
 Vanilla.prototype.stepRender = function(id, stage, delta) {
 	this.renderMap(stage.children[0])
-	this.renderPlayers(id, stage.children[1])
+	this.renderPlayers(delta, id, stage.children[1])
 }
 }
