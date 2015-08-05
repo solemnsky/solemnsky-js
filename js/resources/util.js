@@ -61,6 +61,15 @@ Util.prototype.charToFloat = function(char_) {
 	return this.intToFloat(this.charToInt(char_));
 }
 
+Util.prototype.vecToStr = function(vec) {
+	return (this.floatToChar(vec.x) + this.floatToChar(vec.y))
+}
+
+Util.prototype.strToVec = function(str) {
+	return {x: this.charToFloat(str[0]), y: this.charToFloat(str[2])}
+	// that is not a typo, has to do with how byte characters are concatenated
+}
+
 Util.prototype.getAngle = function(vec) {
 	return Math.atan2(vec.y, vec.x);
 }

@@ -54,14 +54,26 @@ exports.applySnapshot = function(world, snapshot) {
 }
 
 function deflatePair(pair) {
-	if (pair.key == "priority")
-		return {key: "p", value: pair.value}
+	if (pair.key == "afterburner")
+		return {key: "a", value: pair.value ? 1 : 0}
+	if (pair.key == "energy")
+		return {key: "e", value: Utils.floatToChar(pair.value)}
+	if (pair.key == "leftoverVel")
+		return {key: "l", value: Utils.vecToStr(pair.value)}
+	if (pair.key == "movement")
+		return {key: "m", value: Utils.vecToStr(pair.value)}
 	return pair
 }
 
 function inflatePair(pair) {
-	if (pair.key == "p")
-		return {key: "priority", value: pair.value}
+	if (pair.key == "a")
+		return {key: "afterburner", value: (pair.value == 1)}
+	if (pair.key == "e")
+		return {key: "energy", value: Utils.charToFloat(pair.value)}
+	if (pair.key == "l")
+		return {key: "leftoverVel", value: Utils.strToVec(pair.value)}
+	if (pair.key == "m")
+		return {key: "movement", value: Utils.strToVec(pair.value)}
 	return pair
 }
 
