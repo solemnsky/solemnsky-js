@@ -1209,8 +1209,8 @@ function oldDeflatePair(pair) {
 }
 
 deflationRules =
-  [ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
-	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation} 
+  [ { key: "afterburner", shortKey: "a", deflation: Utils.boolDeflation }
+	, { key: "energy", shortKey: "e", deflation: Utils.floatDeflation} 
 	// STUB
 	]
 
@@ -1219,7 +1219,7 @@ function deflatePair(pair) {
 		function(rule) {
 			rule.key = pair.key	
 		} 
-	)
+	, pair)
 	if (matches.length > 0) {
 		var rule = matches[0]
 		return {key: rule.shortKey, value: rule.deflate(pair.value)}
@@ -1231,7 +1231,7 @@ function inflatePair(pair) {
 		function(rule) {
 			rule.shortKey = pair.key	
 		} 
-	)
+	, pair)
 	if (matches.length > 0) {
 		var rule = matches[0]
 		return {key: rule.key, value: rule.inflate(pair.value)}
@@ -1249,7 +1249,7 @@ exports.serialiseSnapshot = function(snap) {
 					var pair = deflatePair({key: key, value: inflated[key]})
 					deflated[pair.key] = pair.value	
 				}
-			)
+			, deflated)
 			result.push(deflated)
 		}
 	, result)
