@@ -70,6 +70,22 @@ Util.prototype.strToVec = function(str) {
 	// that is not a typo, has to do with how byte characters are concatenated
 }
 
+Util.prototype.noDeflation =
+	{ deflate: function(x){x}
+	, inflate: function(x){x} }
+
+Util.prototype.boolDeflation =
+	{ deflate: function(bool) { return bool ? 1 : 0 }
+	, inflate: function(val) { return (val == 1) } }
+
+Util.prototype.floatDeflation =
+	{ deflate: function(f) { return f }
+	, inflate: function(val) { return val } }
+
+Util.prototype.vecDeflation =
+	{ deflate: function(vec) { return vec }
+	, inflate: function(val) { return val } }
+
 Util.prototype.getAngle = function(vec) {
 	return Math.atan2(vec.y, vec.x);
 }

@@ -1381,48 +1381,57 @@ exports.applySnapshot = function(world, snapshot) {
 		}, this)
 }
 
-function deflatePair(pair) {
+// archived
+function oldDeflatePair(pair) {
 	if (pair.key == "afterburner")
-		return {key: "a", value: pair.value ? 1 : 0}
+		return {key: "a", value: Utils.deflateBool(pair.value)}
 	if (pair.key == "energy")
-		return {key: "e", value: pair.value}
+		return {key: "e", value: Utils.deflateFloat(pair.value)}
 	if (pair.key == "leftoverVel")
-		return {key: "l", value: pair.value}
+		return {key: "l", value: Utils.deflateVec(pair.value)}
 	if (pair.key == "movement")
 		return {key: "m", value: pair.value}
 	if (pair.key == "position")
-		return {key: "p", value: pair.value}
+		return {key: "p", value: Utils.deflateVec(pair.value)}
 	if (pair.key == "priority")
 		return {key: "x", value: pair.value}
 	if (pair.key == "respawning")
-		return {key: "r", value: pair.value ? 1 : 0}
+		return {key: "r", value: Utils.deflateBool(pair.value)}
 	if (pair.key == "rotation")
-		return {key: "h", value: pair.value}
+		return {key: "h", value: Utils.deflateFloat(pair.value)}
 	if (pair.key == "rotationVel")
-		return {key: "j", value: pair.value}
+		return {key: "j", value: Utils.deflateFloat(pair.value)}
 	return pair
 }
 
+deflationRules =
+  [ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
+	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation} 
+	// STUB
+	]
+
+function deflatePair(pair) {
+	var matches = deflationRules.filter(
+		function(rule) {
+			rule.key = pair.key	
+		} 
+	)
+	if (matches.length > 0) {
+		var rule = matches[0]
+		return {key: rule.shortKey, value: rule.deflate(pair.value)}
+	}
+}
+
 function inflatePair(pair) {
-	if (pair.key == "a")
-		return {key: "afterburner", value: (pair.value == 1)}
-	if (pair.key == "e")
-		return {key: "energy", value: pair.value}
-	if (pair.key == "l")
-		return {key: "leftoverVel", value: pair.value}
-	if (pair.key == "m")
-		return {key: "movement", value: pair.value}
-	if (pair.key == "p")
-		return {key: "position", value: pair.value}
-	if (pair.key == "x")
-		return {key: "priority", value: pair.value}
-	if (pair.key == "r")
-		return {key: "respawning", value: (pair.value == 1)}
-	if (pair.key == "h")
-		return {key: "rotation", value: pair.value}
-	if (pair.key == "j")
-		return {key: "rotationVel", value: pair.value}
-	return pair
+	var matches = deflationRules.filter(
+		function(rule) {
+			rule.shortKey = pair.key	
+		} 
+	)
+	if (matches.length > 0) {
+		var rule = matches[0]
+		return {key: rule.key, value: rule.inflate(pair.value)}
+	}
 }
 
 exports.serialiseSnapshot = function(snap) {
@@ -1587,6 +1596,22 @@ Util.prototype.strToVec = function(str) {
 	return {x: this.charToFloat(str[0]), y: this.charToFloat(str[2])}
 	// that is not a typo, has to do with how byte characters are concatenated
 }
+
+Util.prototype.noDeflation =
+	{ deflate: function(x){x}
+	, inflate: function(x){x} }
+
+Util.prototype.boolDeflation =
+	{ deflate: function(bool) { return bool ? 1 : 0 }
+	, inflate: function(val) { return (val == 1) } }
+
+Util.prototype.floatDeflation =
+	{ deflate: function(f) { return f }
+	, inflate: function(val) { return val } }
+
+Util.prototype.vecDeflation =
+	{ deflate: function(vec) { return vec }
+	, inflate: function(val) { return val } }
 
 Util.prototype.getAngle = function(vec) {
 	return Math.atan2(vec.y, vec.x);
