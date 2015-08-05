@@ -1663,7 +1663,6 @@ runWithStage = function(target, renderer, stage, object) {
 	var fps = 0; var fpsC = 0
 	var tps = 0; var tpsC = 0
 	var accum = 0;
-	var lastPrint = Date.now()
 
 	resetFps = function() {
 		if (running) {
