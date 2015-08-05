@@ -1838,14 +1838,12 @@ runWithStage = function(renderer, stage, object) {
 
 	var running = true;
 
-	var engineFps = 0; var renderFps = 0
-	var renderFpsC = 0; var engineFpsC = 0
+	var fps = 0; var fpsC = 0
 
 	resetFps = function() {
 		if (running) {
 			window.setTimeout(resetFps, 1000)
-			renderFps = renderFpsC; engineFps = engineFpsC
-			renderFpsC = 0; engineFpsC = 0
+			fps = fpsC; fpsC = 0
 		}
 	}
 
@@ -1869,40 +1867,26 @@ runWithStage = function(renderer, stage, object) {
 	/**** {{{ step ****/
 	// step()
 	then = Date.now()
-	function updateRender() {
+	function update() {
+		running = (!object.hasEnded())
 		if (running) {
-			renderFpsC++
-			requestAnimFrame(updateRender)
+			fpsC++
+			requestAnimFrame(update)
 
 			now = Date.now()
 			delta = now - then
 			then = now
 
-			object.stepRender(stage, delta, renderFps, engineFps)
-			renderer.render(stage)
-		}
-	} 
-
-	thenEngine = Date.now()
-	function updateEngine() {
-		running = (!object.hasEnded())
-		if (running) {
-			engineFpsC++
-
-			setTimeout(updateEngine, (1/60) * 1000)
-
-			nowEngine = Date.now()
-			delta = nowEngine - thenEngine
-			thenEngine = nowEngine
-
 			object.step(delta)
+			object.stepRender(stage, delta, fps)
+			renderer.render(stage)
 		} else {
 			window.removeEventListener("keyup", acceptKeyUp)
 			window.removeEventListener("keydown", acceptKeyDown)
 			if (typeof object.next !== "undefined")
 				runWithStage(renderer, stage, object.next())
 		}
-	}
+	} 
 	/**** }}} step ****/
 
 	function acceptKeyUp(e) {
@@ -1918,8 +1902,7 @@ runWithStage = function(renderer, stage, object) {
 	window.addEventListener("keydown", acceptKeyDown)
 
 	resetFps()
-	updateRender()
-	updateEngine()
+	update()
 }
 
 },{"../resources/keys.js":10}]},{},[3]);

@@ -29,9 +29,8 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.stepRender = 
-		function(stage, delta, renderFps, engineFps) {
-			this.fps.text = 
-				"render: " + renderFps + "Hz\n" + "engine: " + engineFps + "Hz"
+		function(stage, delta, fps) {
+			this.fps.text = fps + "tps"
 			mode.stepRender(0, this.modeStage, delta) 
 		}
 
