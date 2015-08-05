@@ -5,6 +5,7 @@
 function Util() {}
 
 module.exports = new Util(); 
+exports = module.exports
 
 /**** {{{ byte magic ****/
 Util.prototype.intToFloat = function(int_) {

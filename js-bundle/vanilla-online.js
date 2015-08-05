@@ -1381,29 +1381,6 @@ exports.applySnapshot = function(world, snapshot) {
 		}, this)
 }
 
-// archived
-function oldDeflatePair(pair) {
-	if (pair.key == "afterburner")
-		return {key: "a", value: Util.deflateBool(pair.value)}
-	if (pair.key == "energy")
-		return {key: "e", value: Util.deflateFloat(pair.value)}
-	if (pair.key == "leftoverVel")
-		return {key: "l", value: Util.deflateVec(pair.value)}
-	if (pair.key == "movement")
-		return {key: "m", value: pair.value}
-	if (pair.key == "position")
-		return {key: "p", value: Util.deflateVec(pair.value)}
-	if (pair.key == "priority")
-		return {key: "x", value: pair.value}
-	if (pair.key == "respawning")
-		return {key: "r", value: Util.deflateBool(pair.value)}
-	if (pair.key == "rotation")
-		return {key: "h", value: Util.deflateFloat(pair.value)}
-	if (pair.key == "rotationVel")
-		return {key: "j", value: Util.deflateFloat(pair.value)}
-	return pair
-}
-
 deflationRules =
 	[ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
 	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation } 
@@ -1539,6 +1516,7 @@ module.exports = {
 function Util() {}
 
 module.exports = new Util(); 
+exports = module.exports
 
 /**** {{{ byte magic ****/
 Util.prototype.intToFloat = function(int_) {
