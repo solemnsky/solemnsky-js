@@ -772,8 +772,8 @@ module.exports = {
 	// graphics that look nice
 	, graphicsThrustFade: 4
 	, graphicsBarWidth: 50
-	, graphicsBarHeight: 7
-	, graphicsBarClear: 45
+	, graphicsBarHeight: 8
+	, graphicsBarClear: 50
 	, graphicsNameClear: 35
 }
 
@@ -1321,8 +1321,8 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 
 			if (id == player.id) {
 				playerBars = new PIXI.Graphics()
-				playerBars.beginFill(0xFFFFFF, 1)
-				playerBars.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), gameplay.graphicsBarWidth, gameplay.graphicsBarHeight)
+				playerBars.beginFill(0xFFFFFF, 0.5)
+				playerBars.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
 
 				players.addChild(playerBars)
 			}

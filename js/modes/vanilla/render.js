@@ -71,7 +71,7 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			if (id == player.id) {
 				playerBars = new PIXI.Graphics()
 				playerBars.beginFill(0xFFFFFF, 0.5)
-				playerBars.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), gameplay.graphicsBarWidth, gameplay.graphicsBarHeight)
+				playerBars.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
 
 				players.addChild(playerBars)
 			}
