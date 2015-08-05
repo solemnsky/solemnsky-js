@@ -53,14 +53,54 @@ exports.applySnapshot = function(world, snapshot) {
 		}, this)
 }
 
-exports.serialiseSnapshot = function(snapshot) {
-	return JSON.stringify(snapshot)
-	// TODO make more space efficent 
+function deflatePair(pair) {
+	if (pair.key == "priority")
+		return {key: "p", value: pair.value}
+	return pair
+}
+
+function inflatePair(pair) {
+	if (pair.key == "p")
+		return {key: "priority", value: pair.value}
+	return pair
+}
+
+exports.serialiseSnapshot = function(snap) {
+	result = []
+	
+	snap.forEach(
+		function(inflated) {
+			var deflated = {}
+			Object.keys(inflated).forEach(
+				function(key) {
+					var pair = deflatePair({key: key, value: inflated[key]})
+					deflated[pair.key] = pair.value	
+				}
+			)
+			result.push(deflated)
+		}
+	, result)
+
+	return JSON.stringify(result)
 }
 
 exports.readSnapshot = function(string) {
 	try {
-		return JSON.parse(string)
+		var snap = JSON.parse(string)
+		var result = []
+		snap.forEach(
+			function(deflated) {
+				var inflated = {}
+				Object.keys(deflated).forEach(
+					function(key) {
+						var pair = inflatePair({key: key, value: deflated[key]})
+						inflated[pair.key] = pair.value
+					}
+				)
+				result.push(inflated)
+			}
+		, result)
+		return result
 	} catch (e) {
 		//Could not read snapshot; but don't let the Syntax Error break the loop
 		return null;

@@ -61,7 +61,6 @@ Util.prototype.charToFloat = function(char_) {
 	return this.intToFloat(this.charToInt(char_));
 }
 
-
 Util.prototype.getAngle = function(vec) {
 	return Math.atan2(vec.y, vec.x);
 }

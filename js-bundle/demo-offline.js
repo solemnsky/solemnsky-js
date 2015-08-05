@@ -1204,7 +1204,7 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 			playerName = new PIXI.Text(player.name, {font: "12px", fill: 0x003060})
 			playerName.position = new PIXI.Point(pos.x - (playerName.width / 2), (pos.y + 35))
 
-			if (id === player.id) {
+			if (id == player.id) {
 				playerBars = new PIXI.Graphics()
 				playerBars.beginFill(0xFFFFFF, 1)
 				playerBars.drawCircle(pos.x, (pos.y - 40), 5)
@@ -1289,14 +1289,54 @@ exports.applySnapshot = function(world, snapshot) {
 		}, this)
 }
 
-exports.serialiseSnapshot = function(snapshot) {
-	return JSON.stringify(snapshot)
-	// TODO make more space efficent 
+function deflatePair(pair) {
+	if (pair.key == "priority")
+		return {key: "p", value: pair.value}
+	return pair
+}
+
+function inflatePair(pair) {
+	if (pair.key == "p")
+		return {key: "priority", value: pair.value}
+	return pair
+}
+
+exports.serialiseSnapshot = function(snap) {
+	result = []
+	
+	snap.forEach(
+		function(inflated) {
+			var deflated = {}
+			Object.keys(inflated).forEach(
+				function(key) {
+					var pair = deflatePair({key: key, value: inflated[key]})
+					deflated[pair.key] = pair.value	
+				}
+			)
+			result.push(deflated)
+		}
+	, result)
+
+	return JSON.stringify(result)
 }
 
 exports.readSnapshot = function(string) {
 	try {
-		return JSON.parse(string)
+		var snap = JSON.parse(string)
+		var result = []
+		snap.forEach(
+			function(deflated) {
+				var inflated = {}
+				Object.keys(deflated).forEach(
+					function(key) {
+						var pair = inflatePair({key: key, value: deflated[key]})
+						inflated[pair.key] = pair.value
+					}
+				)
+				result.push(inflated)
+			}
+		, result)
+		return result
 	} catch (e) {
 		//Could not read snapshot; but don't let the Syntax Error break the loop
 		return null;
@@ -1414,7 +1454,6 @@ Util.prototype.floatToChar = function(float_) {
 Util.prototype.charToFloat = function(char_) {
 	return this.intToFloat(this.charToInt(char_));
 }
-
 
 Util.prototype.getAngle = function(vec) {
 	return Math.atan2(vec.y, vec.x);

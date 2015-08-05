@@ -51,7 +51,7 @@ Vanilla.prototype.renderPlayers = function(id, players) {
 			playerName = new PIXI.Text(player.name, {font: "12px", fill: 0x003060})
 			playerName.position = new PIXI.Point(pos.x - (playerName.width / 2), (pos.y + 35))
 
-			if (id === player.id) {
+			if (id == player.id) {
 				playerBars = new PIXI.Graphics()
 				playerBars.beginFill(0xFFFFFF, 1)
 				playerBars.drawCircle(pos.x, (pos.y - 40), 5)
