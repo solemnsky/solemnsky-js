@@ -1209,33 +1209,30 @@ function oldDeflatePair(pair) {
 }
 
 deflationRules =
-  [ { key: "afterburner", shortKey: "a", deflation: Utils.boolDeflation }
+  [ { key: "priority", shortKey: "p", deflation: Utils.noDeflation }
+	, { key: "afterburner", shortKey: "a", deflation: Utils.boolDeflation }
 	, { key: "energy", shortKey: "e", deflation: Utils.floatDeflation} 
 	// STUB
 	]
 
 function deflatePair(pair) {
 	var matches = deflationRules.filter(
-		function(rule) {
-			rule.key = pair.key	
-		} 
+		function(rule) { return rule.key == pair.key	} 
 	, pair)
 	if (matches.length > 0) {
 		var rule = matches[0]
-		return {key: rule.shortKey, value: rule.deflate(pair.value)}
-	}
+		return {key: rule.shortKey, value: rule.deflation.deflate(pair.value)}
+	} else { return pair }
 }
 
 function inflatePair(pair) {
 	var matches = deflationRules.filter(
-		function(rule) {
-			rule.shortKey = pair.key	
-		} 
+		function(rule) { return rule.shortKey == pair.key	} 
 	, pair)
 	if (matches.length > 0) {
 		var rule = matches[0]
-		return {key: rule.key, value: rule.inflate(pair.value)}
-	}
+		return {key: rule.key, value: rule.deflation.inflate(pair.value)}
+	} else { return pair }
 }
 
 exports.serialiseSnapshot = function(snap) {
@@ -1402,8 +1399,8 @@ Util.prototype.strToVec = function(str) {
 }
 
 Util.prototype.noDeflation =
-	{ deflate: function(x){x}
-	, inflate: function(x){x} }
+	{ deflate: function(x){return x}
+	, inflate: function(x){return x} }
 
 Util.prototype.boolDeflation =
 	{ deflate: function(bool) { return bool ? 1 : 0 }

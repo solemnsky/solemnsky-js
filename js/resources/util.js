@@ -71,8 +71,8 @@ Util.prototype.strToVec = function(str) {
 }
 
 Util.prototype.noDeflation =
-	{ deflate: function(x){x}
-	, inflate: function(x){x} }
+	{ deflate: function(x){return x}
+	, inflate: function(x){return x} }
 
 Util.prototype.boolDeflation =
 	{ deflate: function(bool) { return bool ? 1 : 0 }
