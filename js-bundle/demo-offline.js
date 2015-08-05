@@ -1415,9 +1415,9 @@ module.exports = maps;
 },{}],14:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
-		"http://solemnsky.com/multimedia/player.png"
+		"http://solemnsky.github.io/multimedia/player.png"
 	, playerThrustSprite: 
-		"http://solemnsky.com/multimedia/player-thrust.png"
+		"http://solemnsky.github.io/multimedia/player-thrust.png"
 }
 
 },{}],15:[function(require,module,exports){
