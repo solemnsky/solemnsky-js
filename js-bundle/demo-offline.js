@@ -1792,7 +1792,7 @@ runWithStage = function(target, renderer, stage, object) {
 
 			var needPaint = false;
 			while (accum >= ((1 / target) * 1000)) {
-				object.step(delta)
+				object.step((1 / target) * 1000)
 				accum -= ((1 / target) * 1000)
 				needPaint = true
 				tpsC++
