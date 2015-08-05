@@ -64,6 +64,7 @@ runWithStage = function(target, renderer, stage, object) {
 	object.initRender(stage)
 	object.init()
 
+	var paused = false;
 	var running = true;
 
 	var fps = 0; var fpsC = 0
@@ -82,31 +83,40 @@ runWithStage = function(target, renderer, stage, object) {
 	then = Date.now()
 	function update() {
 		running = (!object.hasEnded())
-		if (running) {
-			requestAnimFrame(update)
+		if (running) { 
+			requestAnimFrame(update) 
+			if (!paused) {
 
-			now = Date.now()
-			delta = now - then
-			then = now
+				now = Date.now()
+				delta = now - then
+				then = now
 
-			accum += delta
+				accum += delta
 
-			var needPaint = false;
-			while (accum >= ((1 / target) * 1000)) {
-				object.step((1 / target) * 1000)
-				accum -= ((1 / target) * 1000)
-				needPaint = true
-				tpsC++
-			}
+				var needPaint = false;
+				while (accum >= ((1 / target) * 1000)) {
+					object.step((1 / target) * 1000)
+					accum -= ((1 / target) * 1000)
+					needPaint = true
+					tpsC++
+				}
 
-			if (needPaint) {
-				object.stepRender(stage, delta, tps, fps)
-				renderer.render(stage)
-				fpsC++
+				if (needPaint) {
+					object.stepRender(stage, delta, tps, fps)
+					renderer.render(stage)
+					fpsC++
+				}
+			} else {
+				now = Date.now()
+				then = now
+				accum = 0
 			}
 		} else {
 			window.removeEventListener("keyup", acceptKeyUp)
 			window.removeEventListener("keydown", acceptKeyDown)
+			window.removeEventListener("blur", onBlur)
+			window.removeEventListener("focus", onFocus)
+
 			if (typeof object.next !== "undefined")
 				runWithStage(target, renderer, stage, object.next())
 		}
@@ -122,8 +132,18 @@ runWithStage = function(target, renderer, stage, object) {
 			e.preventDefault(); //Don't allow the page to use this
 	}
 
+	function onBlur() {
+		paused = true
+	}
+
+	function onFocus() {
+		paused = false
+	}	
+
 	window.addEventListener("keyup", acceptKeyUp)
 	window.addEventListener("keydown", acceptKeyDown)
+	window.addEventListener("blur", onBlur)
+	window.addEventListener("focus", onFocus)
 
 	resetFps()
 	update()
