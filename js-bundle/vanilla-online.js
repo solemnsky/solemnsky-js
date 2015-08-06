@@ -730,7 +730,7 @@ Game.prototype.onMessage = function(message) {
 	this.processCue()
 }
 Game.prototype.broadcastLoop = function() {
-	setTimeout(this.broadcastLoop.bind(this), 50)
+	setTimeout(this.broadcastLoop.bind(this), 30)
 
 	//Don't send snapshots if we don't have an id yet
 	if (this.id !== null)
@@ -1879,8 +1879,8 @@ runWithStage = function(target, renderer, stage, object) {
 	object.initRender(stage)
 	object.init()
 
-	var paused = false;
-	var running = true;
+	var blurred = false
+	var running = true
 
 	var fps = 0; var fpsC = 0
 	var tps = 0; var tpsC = 0
@@ -1899,32 +1899,29 @@ runWithStage = function(target, renderer, stage, object) {
 	function update() {
 		running = (!object.hasEnded())
 		if (running) { 
-			requestAnimFrame(update) 
-			if (!paused) {
-
-				now = Date.now()
-				delta = now - then
-				then = now
-
-				accum += delta
-
-				var needPaint = false;
-				while (accum >= ((1 / target) * 1000)) {
-					object.step((1 / target) * 1000)
-					accum -= ((1 / target) * 1000)
-					needPaint = true
-					tpsC++
-				}
-
-				if (needPaint) {
-					object.stepRender(stage, delta, tps, fps)
-					renderer.render(stage)
-					fpsC++
-				}
+			if (!blurred) {
+				requestAnimFrame(update) 
 			} else {
-				now = Date.now()
-				then = now
-				accum = 0
+				setTimeout(update, ((1/target) * 1000))
+			}
+			now = Date.now()
+			delta = now - then
+			then = now
+
+			accum += delta
+
+			var needPaint = false;
+			while (accum >= ((1 / target) * 1000)) {
+				object.step((1 / target) * 1000)
+				accum -= ((1 / target) * 1000)
+				needPaint = true
+				tpsC++
+			}
+
+			if (needPaint) {
+				object.stepRender(stage, delta, tps, fps)
+				renderer.render(stage)
+				fpsC++
 			}
 		} else {
 			window.removeEventListener("keyup", acceptKeyUp)
@@ -1948,11 +1945,11 @@ runWithStage = function(target, renderer, stage, object) {
 	}
 
 	function onBlur() {
-		paused = true
+		blurred = true
 	}
 
 	function onFocus() {
-		paused = false
+		blurred = false
 	}	
 
 	window.addEventListener("keyup", acceptKeyUp)
