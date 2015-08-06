@@ -517,9 +517,7 @@ module.exports = function(mode) {
 		renderHud(this.eventLog, this.hudStage)
 	}
 
-	Game.prototype.hasEnded = function() {
-		return false
-	}
+	Game.prototype.hasEnded = function() { return false }
 
 	Game.prototype.acceptKey = function(key, state) {
 		mode.acceptEvent({id: 0, type: "control", name: key, state: state})

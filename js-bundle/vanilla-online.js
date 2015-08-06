@@ -675,14 +675,20 @@ Game.prototype.displayChat = function() {
 	var height = (new PIXI.Text("I", style)).height
 	var maxLines = 15
 	var maxLinesNormal = 5 // max lines when not chatting
+	
+	var chatLog = this.eventLog.filter(
+		function(event) {
+			return (event.type === "chat")
+		}
+	)
 
 	this.chatStage.removeChildren()
 	if (this.chatting) {
 	/**** {{{ when chatting ****/
-		if (this.chatLog.length > maxLines) {
-			var shownChat = this.chatLog	
+		if (chatLog.length > maxLines) {
+			var shownChat = chatLog	
 		} else {
-			var shownChat = this.chatLog	
+			var shownChat = chatLog	
 		}
 
 		var chatLines = shownChat.map(
@@ -703,10 +709,10 @@ Game.prototype.displayChat = function() {
 	/**** }}} when chatting ****/
 	} else {
 	/**** {{{ when not chatting ****/
-		if (this.chatLog.length > maxLinesNormal) {
-			var shownChat = this.chatLog	
+		if (chatLog.length > maxLinesNormal) {
+			var shownChat = chatLog	
 		} else {
-			var shownChat = this.chatLog	
+			var shownChat = chatLog	
 		}
 
 		var chatLines = shownChat.map(

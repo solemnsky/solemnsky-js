@@ -10,94 +10,94 @@ To define a mode, a constructor must be exported along with the following protot
 
 ### initialisation
 
-	- init(initdata): called exactly once at the beginning of the game, with an init string (for instance, players already in the game and the map being used)
+- init(initdata): called exactly once at the beginning of the game, with an init string (for instance, players already in the game and the map being used)
 
-	- makeInitData(key): this provides an initial piece of initdata, given a key
+- makeInitData(key): this provides an initial piece of initdata, given a key
 
-	- describeState(): describes the state of the game to a new player 
+- describeState(): describes the state of the game to a new player 
 
 ### simulation
 
-	- acceptEvent(event): called when an event (chat or game controller or something) happens. Clients rarely enter chat events into their game engines, servers rarely enter controller events into their ones.
-	
-	- listPlayers(): bunch of data for matching players with their ids and also kill counters and stuff maybe?
+- acceptEvent(event): called when an event (chat or game controller or something) happens. Clients rarely enter chat events into their game engines, servers rarely enter controller events into their ones.
 
-	- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics. Returns an array of events.
+- listPlayers(): bunch of data for matching players with their ids and also kill counters and stuff maybe?
 
-	- hasEnded(): has the game ended?
+- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics. Returns an array of events.
+
+- hasEnded(): has the game ended?
 
 ### discrete networking
 
-	- join(nick, id): this is called when a player joins the game, and should return a 'player id' through which the player can be identified (used in other methods). The second parameter is optional, and defaults to the smallest available id.
+- join(nick, id): this is called when a player joins the game, and should return a 'player id' through which the player can be identified (used in other methods). The second parameter is optional, and defaults to the smallest available id.
 
-	- quit(id): this is called when a player of a certain id quits the game
+- quit(id): this is called when a player of a certain id quits the game
 
 ### "continuous" networking
 
-	- clientAssert(id): make an assertion to be sent from a client to the server (sent at ~20Hz)
+- clientAssert(id): make an assertion to be sent from a client to the server (sent at ~20Hz)
 
-	- serverAssert(): make an assertion to be sent from the server to all clients (sent at ~20Hz)
+- serverAssert(): make an assertion to be sent from the server to all clients (sent at ~20Hz)
 
-	- clientMerge(id, snap): merge an assertion sent from the server to a client
-	- serverMerge(id, snap): merge an assertion sent from a client to the server
+- clientMerge(id, snap): merge an assertion sent from the server to a client
+- serverMerge(id, snap): merge an assertion sent from a client to the server
 
 ### modeId
 
-	- modeId: the id of the mode, to check if a client and a server are compatible
+- modeId: the id of the mode, to check if a client and a server are compatible
 
 ## rendering (defined in seperate file, only for clients)
 
-	- initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
+- initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
 
-	- stepRenderer(id, delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI and the id of the active player, null if not applicable
+- stepRenderer(id, delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI and the id of the active player, null if not applicable
 
 ## top-level control structures
 
-	Top-level control structure deal with making game modes playable. control/offline.js, for example, makes a game mode playable by a single offline player, and control/client-arena.js and control/server-arena.js respectively form a client-server pair where players can join and quit freely during a game. 
+Top-level control structure deal with making game modes playable. control/offline.js, for example, makes a game mode playable by a single offline player, and control/client-arena.js and control/server-arena.js respectively form a client-server pair where players can join and quit freely during a game. 
 
 ## events
 
-	There are several references to events in the mode specification, especially in regard to simulation; events may be passed into a mode with acceptEvent and the logical iteration method 'step' returns a list of events. These are used to communicate the increasingly large and variable set of information that may influence the game (from client's controls to their choices of planes to things they say in the chat) and the information that a game mode may make available for its clients, aside from the basic rendering method and the player listing (points being scored, kill interactions, and the like.) It is important to note, however, that events are never sent over the network. While team switching may be returned as an event from a game engine and subsequently rendered by the HUD, the communication of this information with other clients is to be done via snapshots.
+There are several references to events in the mode specification, especially in regard to simulation; events may be passed into a mode with acceptEvent and the logical iteration method 'step' returns a list of events. These are used to communicate the increasingly large and variable set of information that may influence the game (from client's controls to their choices of planes to things they say in the chat) and the information that a game mode may make available for its clients, aside from the basic rendering method and the player listing (points being scored, kill interactions, and the like.) It is important to note, however, that events are never sent over the network. While team switching may be returned as an event from a game engine and subsequently rendered by the HUD, the communication of this information with other clients is to be done via snapshots.
 
-	Here is a hopefully complete listing of events as they currently stand, and should be updated as they grow:
+Here is a hopefully complete listing of events as they currently stand, and should be updated as they grow:
 
-	events for acceptEvent:
+events for acceptEvent:
 
-	- { type: "control", name: (key name), state: (boolean, if the key is pressed) }
+- { type: "control", name: (key name), state: (boolean, if the key is pressed) }
 
-	events returned by step:
+events returned by step:
 
-	(empty as of now)
+- (empty as of now)
 
 ## arena multiplayer protocol
 
 ### entry protocol
 
-    client: WHO
-    server (to client): WHO <mode.modeId>
-    client: CONNECT <player name>
-    server (to client): INIT <mode.describeState()>
-    server joins player
-    server (to all clients): JOIN <client id> <client name>
-    clients join player
-    server (to specific client): CONNECTED <client id>
+	client: WHO
+	server (to client): WHO <mode.modeId>
+	client: CONNECT <player name>
+	server (to client): INIT <mode.describeState()>
+	server joins player
+	server (to all clients): JOIN <client id> <client name>
+	clients join player
+	server (to specific client): CONNECTED <client id>
 
 ### game protocol
 
-    client: SNAP <mode.clientAssert()>
-    server merges snapshot with mode.serverMerge
-    server: SNAP <mode.serverAssert()>
-    clients merge snapshot with mode.clientMerge
+	client: SNAP <mode.clientAssert()>
+	server merges snapshot with mode.serverMerge
+	server: SNAP <mode.serverAssert()>
+	clients merge snapshot with mode.clientMerge
 
 This loop runs approximately every 20 ms.
 
 ### verbs
 
-    CONNECT: issued by client to request connection
-    INIT: issued by server to give init data
-    CONNECTED: issued by server to confirm and lock connection
-    JOIN: issued by server when a player joins
-    QUIT: issued by server when a player quits
-    SNAP: issued by servers and clients with respective assertion data
-		CHAT: issued by servers and clients; when issued by the server, has an id variable with the id of the player who sent the message to start with.
+- CONNECT: issued by client to request connection
+- INIT: issued by server to give init data
+- CONNECTED: issued by server to confirm and lock connection
+- JOIN: issued by server when a player joins
+- QUIT: issued by server when a player quits
+- SNAP: issued by servers and clients with respective assertion data
+- CHAT: issued by servers and clients; when issued by the server, has an id variable with the id of the player who sent the message to start with.
 
