@@ -31,8 +31,8 @@ Demo.prototype.acceptEvent = function(theEvent) {
 	this.vanilla.acceptEvent(theEvent)
 }
 
-Demo.prototype.playerList = function() {
-	return this.vanilla.playerList()
+Demo.prototype.listPlayers = function() {
+	return this.vanilla.listPlayers()
 }
 
 Demo.prototype.step = function(delta) {

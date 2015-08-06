@@ -559,8 +559,8 @@ Demo.prototype.acceptEvent = function(theEvent) {
 	this.vanilla.acceptEvent(theEvent)
 }
 
-Demo.prototype.playerList = function() {
-	return this.vanilla.playerList()
+Demo.prototype.listPlayers = function() {
+	return this.vanilla.listPlayers()
 }
 
 Demo.prototype.step = function(delta) {
@@ -891,7 +891,7 @@ Vanilla.prototype.acceptEvent = function(theEvent) {
 Vanilla.prototype.listPlayers = function() {
 	return this.players.map(
 		function(player) {
-			{name: player.name}
+			return { name: player.name, id: player.id }
 		}
 	)
 }
@@ -1799,6 +1799,11 @@ runWithStage = function(target, renderer, stage, object) {
 		now = Date.now()
 		delta = now - then
 		then = now
+
+		if (delta > 200) {
+			console.log("shit just blew up, what the hell")
+			return
+		}
 
 		if (running) { 
 			if (!blurred) {

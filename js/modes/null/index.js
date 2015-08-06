@@ -52,7 +52,7 @@ Null.prototype.acceptEvent = function(theEvent) {
 Null.prototype.listPlayers = funciton() {
 	return this.players.map(
 		function(player) {
-			return { name: player.name }		
+			return { name: player.name, id: players.id }		
 		}
 	}
 }

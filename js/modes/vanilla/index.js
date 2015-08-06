@@ -202,7 +202,7 @@ Vanilla.prototype.acceptEvent = function(theEvent) {
 Vanilla.prototype.listPlayers = function() {
 	return this.players.map(
 		function(player) {
-			{name: player.name}
+			return { name: player.name, id: player.id }
 		}
 	)
 }

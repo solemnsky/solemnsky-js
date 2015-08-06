@@ -89,6 +89,11 @@ runWithStage = function(target, renderer, stage, object) {
 		delta = now - then
 		then = now
 
+		if (delta > 200) {
+			console.log("shit just blew up, what the hell")
+			return
+		}
+
 		if (running) { 
 			if (!blurred) {
 				requestAnimFrame(update) 

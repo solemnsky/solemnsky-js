@@ -188,7 +188,7 @@ Game.prototype.hasEnded = function() {
 
 /**** {{{ chat ****/
 Game.prototype.displayChat = function() {
-	// STUB
+	// WIP, will make prettier later
 	var size = 25
 	var style = {fill: 0xFFFFFF, font: size + "px arial"}
 	var height = (new PIXI.Text("I", style)).height
@@ -197,6 +197,7 @@ Game.prototype.displayChat = function() {
 
 	this.chatStage.removeChildren()
 	if (this.chatting) {
+	/**** {{{ when chatting ****/
 		if (this.chatLog.length > maxLines) {
 			var shownChat = this.chatLog	
 		} else {
@@ -210,15 +211,18 @@ Game.prototype.displayChat = function() {
 		var backlog = new PIXI.Text(chatLines, style)	
 		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
 
-		var chatEntry = new PIXI.Text(this.chatBuffer, style)
+		var chatEntry = new PIXI.Text(">>" + this.chatBuffer, style)
 		chatEntry.position = new PIXI.Point(15, (880 - height))
-
 		this.chatStage.addChild(chatEntry)
+
 		this.chatStage.addChild(backlog)
+	/**** }}} when chatting ****/
 	} else {
-		if (this.chatLog.length > maxLines) {
+	/**** {{{ when not chatting ****/
+		if (this.chatLog.length > maxLinesNormal) {
 			var shownChat = this.chatLog	
 		} else {
+			var shownChat = this.chatLog	
 		}
 
 		var chatLines = shownChat.map(
@@ -227,8 +231,17 @@ Game.prototype.displayChat = function() {
 
 		var backlog = new PIXI.Text(chatLines, style)	
 		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
+		backlog.alpha = 0.5
+
+		/*
+		var chatPrompt = new PIXI.Text("(press enter to chat)", style)
+		chatPrompt.position = new PIXI.Point(15, (880 - height))
+		chatPrompt.alpha = 0.3
+		this.chatStage.addChild(chatPrompt)
+		*/
 
 		this.chatStage.addChild(backlog)
+	/**** }}} when not chatting ****/
 	}
 }
 Game.prototype.openChat = function() {
