@@ -61,6 +61,8 @@ Null.prototype.step = function(delta) {
 	this.players.forEach(
 		function(player) { player.timespent += delta }
 	)
+
+	return [] // event log
 }
 
 Null.prototype.hasEnded = function() {

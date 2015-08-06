@@ -476,17 +476,14 @@ myClient = clientOnline(mode, "localhost", 50042, "/")
 
 ui.run(60, myClient)
 
-},{"../control/client-arena.js":4,"../modes/vanilla/":6,"../modes/vanilla/render.js":8,"../ui/index.js":14}],4:[function(require,module,exports){
+},{"../control/client-arena.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":15}],4:[function(require,module,exports){
 /*                  ******** client-arena.js ********                  //
 \\ Online arena client.                                                \\
 //                  ******** client-arena.js ********                  */
 
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
-
-Keys = require('../resources/keys.js')
-nameFromKeyCode = Keys.nameFromKeyCode
-keyCodeFromName = Keys.keyCodeFromName
+renderHud = require('./hud.js')
 
 module.exports = function(mode, address, port, path) {
 
@@ -504,7 +501,10 @@ ConnectUI.prototype.step = function(delta) {
 	}
 }
 ConnectUI.prototype.initRender = function(stage) {
-	this.text = new PIXI.Text("press enter to start.", {fill: 0xFFFFFF})
+	this.text = 
+		new PIXI.Text(
+			"press enter to start\nuse arrow keys to fly"
+			, {fill: 0xFFFFFF})
 	this.text.position = new PIXI.Point(800, 450)
 	stage.addChild(this.text)
 }
@@ -521,7 +521,6 @@ ConnectUI.prototype.acceptKey = function(key, state) {
 ConnectUI.prototype.hasEnded = function() {
 	return (this.countdown < 0)
 }
-
 /**** }}} ConnectUI ****/
 
 /**** {{{ Game ****/
@@ -537,11 +536,8 @@ Game = function() {
 	this.stage = null
 
 	this.chatting = false
-	this.chatBuffer = "this is what I'm saying"
-	this.chatLog = 
-		[ {from: "player 1", chat: "asdf", time: 1}
-		, {from: "player 2", chat: "yeah, asdf to YOU good sir", time: 2}
-		, {from: "player 3", chat: "yeah well fk this I'm leaving", time: 3}]
+	this.chatBuffer = ""
+	this.eventLog = []
 }
 
 /**** {{{ processCue ****/
@@ -585,9 +581,12 @@ Game.prototype.processCue = function() {
 					case "QUIT":
 						mode.quit(data); break
 					case "CHAT":
-						this.chatLog.push(
-							{from: split[0], chat: split[1]}
-						)
+						var id = split[0]
+						var player = Utils.findElemById(mode.listPlayers(), id)
+						if (player !== null) 
+							this.chatLog.push(
+								{type: "chat", from: player.name, chat: split.slice(1).join(" ")}
+							)
 						break;
 					default:
 						break
@@ -613,7 +612,7 @@ Game.prototype.init = function(){
 }
 Game.prototype.step = function(delta) { 
 	if (this.initialised)
-		mode.step(delta)
+		this.eventLog = this.eventLog.concat(mode.step(delta))
 }
 Game.prototype.initRender = function(stage) { 
 	this.stage = stage
@@ -638,6 +637,7 @@ Game.prototype.stepRender = function(stage, delta, x, y) {
 		this.fpsText.text = "render: " + x + "Hz\nengine: " + y + "Hz"
 	}
 	this.displayChat()
+	
 }
 Game.prototype.acceptKey = function(key, state) {
 	if (this.initialised) {
@@ -655,6 +655,8 @@ Game.prototype.acceptKey = function(key, state) {
 			if (key === "escape") {
 				this.closeChat();
 			}
+			if (key === "shift") this.shiftKey = state
+			if (key === "a") this.chatBuffer.push("a")
 		}
 		if (this.id !== null) 
 			mode.acceptEvent({id: this.id, type: "control", name: key, state: state})
@@ -684,8 +686,11 @@ Game.prototype.displayChat = function() {
 		}
 
 		var chatLines = shownChat.map(
-			function(value) { return value.chat }
+			function(value) { return value.from + ": " + value.chat }
 		).join("\n")
+		// this function is duplicated because in the future
+		// chat when not chatting will be displayed differently
+		// so it's not worth designing this placeholder code well
 
 		var backlog = new PIXI.Text(chatLines, style)	
 		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
@@ -705,19 +710,17 @@ Game.prototype.displayChat = function() {
 		}
 
 		var chatLines = shownChat.map(
-			function(value) { return value.chat }
+			function(value) { return value.from + ": " + value.chat }
 		).join("\n")
 
 		var backlog = new PIXI.Text(chatLines, style)	
 		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
 		backlog.alpha = 0.5
 
-		/*
 		var chatPrompt = new PIXI.Text("(press enter to chat)", style)
 		chatPrompt.position = new PIXI.Point(15, (880 - height))
 		chatPrompt.alpha = 0.3
 		this.chatStage.addChild(chatPrompt)
-		*/
 
 		this.chatStage.addChild(backlog)
 	/**** }}} when not chatting ****/
@@ -725,7 +728,7 @@ Game.prototype.displayChat = function() {
 }
 Game.prototype.openChat = function() {
 	this.chatting = true;
-	this.chatBuffer = "chat buffer"
+	this.chatBuffer = ""
 }
 Game.prototype.closeChat = function() {
 	this.chatting = false;
@@ -774,7 +777,18 @@ Game.prototype.next = function() {return new ConnectUI()}
 return new ConnectUI
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/keys.js":10,"../ui/":14}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/":15,"./hud.js":5}],5:[function(require,module,exports){
+/*                  ******** client-arena.js ********                  //
+\\ Basic HUD to render an event log to a pixi container.               \\
+//                  ******** client-arena.js ********                  */
+
+PIXI = require('../../assets/pixi.min.js')
+
+module.exports = function(events, container) {
+	// render the events to a HUD container
+}
+
+},{"../../assets/pixi.min.js":2}],6:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -832,7 +846,7 @@ module.exports = {
 	, graphicsNameClear: 35
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*                  ******** vanilla/index.js ********                //
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //                  ******** vanilla/index.js ********                */
@@ -1062,6 +1076,8 @@ Vanilla.prototype.step = function(delta) {
 	this.players.forEach(function each(player) {
 		 player.step(delta);
 	}, this);
+
+	return [] // event log, currently STUB
 }
 
 /**** }}} simulation ****/
@@ -1118,7 +1134,7 @@ Vanilla.prototype.hasEnded = function() { return false }
 
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":11,"../../resources/util.js":13,"./gameplay.js":5,"./player.js":7,"./snapshots.js":9}],7:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":14,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1315,7 +1331,7 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*          ******** vanilla/render.js ********       //
 \\ Client-sided renderer for the vanilla game mode.   \\
 //          ******** vanilla/render.js ********       */
@@ -1417,7 +1433,7 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 }
 }
 
-},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":12,"./gameplay.js":5}],9:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":13,"./gameplay.js":6}],10:[function(require,module,exports){
 Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1554,7 +1570,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":13}],10:[function(require,module,exports){
+},{"../../resources/util.js":14}],11:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1568,7 +1584,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1595,7 +1611,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
 		"http://solemnsky.github.io/multimedia/player.png"
@@ -1603,7 +1619,7 @@ module.exports = {
 		"http://solemnsky.github.io/multimedia/player-thrust.png"
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1778,7 +1794,7 @@ Util.prototype.removeElemById = function(elems, id) {
 }
 /**** }}} elem id operations ****/
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1854,7 +1870,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":16}],16:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -1947,6 +1963,7 @@ runWithStage = function(target, renderer, stage, object) {
 		then = now
 
 		if (delta > 200) {
+			// failsafe so if shit happens it doesn't hit the fan
 			console.log("shit just blew up, what the hell")
 			return
 		}
@@ -1987,12 +2004,20 @@ runWithStage = function(target, renderer, stage, object) {
 	} 
 	/**** }}} step ****/
 
-	function acceptKeyUp(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), false)
-	}
-	function acceptKeyDown(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), true)
-	}
+	function acceptKeyUp(e) { acceptKey(e, false) }
+	function acceptKeyDown(e) { acceptKey(e, true) }
+	function acceptKey(e, state) {
+		name = nameFromKeyCode(e.keyCode)
+		object.acceptKey(name, state)
+		// some keys have quite obnoxious default cases
+		// while others, such as the debug terminal, do not
+		switch (name) {
+			case ("back_space"): {
+				e.preventDefault(); break
+			}
+			default: break
+		}
+	}	
 
 	function onBlur() { blurred = true; blurTime = 0 }
 	function onFocus() { blurred = false; blurTime = 0 }	
@@ -2006,4 +2031,4 @@ runWithStage = function(target, renderer, stage, object) {
 	update()
 }
 
-},{"../resources/keys.js":10}]},{},[3]);
+},{"../resources/keys.js":11}]},{},[3]);

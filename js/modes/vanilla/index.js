@@ -227,6 +227,8 @@ Vanilla.prototype.step = function(delta) {
 	this.players.forEach(function each(player) {
 		 player.step(delta);
 	}, this);
+
+	return [] // event log, currently STUB
 }
 
 /**** }}} simulation ****/

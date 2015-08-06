@@ -62,7 +62,7 @@ function onMessage(client, message) {
 		case "SNAP":
 			mode.serverMerge(client.id, data); break
 		case "CHAT":
-			broadcast("CHAT " + mode.findPlayerById(client.id).name + ": " + data);
+			broadcast("CHAT " + client.id + " " + data);
 			break;
 		default:
 			client.send("ECHO " + data)

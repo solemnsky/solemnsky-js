@@ -4,10 +4,7 @@
 
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
-
-Keys = require('../resources/keys.js')
-nameFromKeyCode = Keys.nameFromKeyCode
-keyCodeFromName = Keys.keyCodeFromName
+renderHud = require('./hud.js')
 
 module.exports = function(mode, address, port, path) {
 
@@ -25,7 +22,10 @@ ConnectUI.prototype.step = function(delta) {
 	}
 }
 ConnectUI.prototype.initRender = function(stage) {
-	this.text = new PIXI.Text("press enter to start.", {fill: 0xFFFFFF})
+	this.text = 
+		new PIXI.Text(
+			"press enter to start\nuse arrow keys to fly"
+			, {fill: 0xFFFFFF})
 	this.text.position = new PIXI.Point(800, 450)
 	stage.addChild(this.text)
 }
@@ -42,7 +42,6 @@ ConnectUI.prototype.acceptKey = function(key, state) {
 ConnectUI.prototype.hasEnded = function() {
 	return (this.countdown < 0)
 }
-
 /**** }}} ConnectUI ****/
 
 /**** {{{ Game ****/
@@ -58,11 +57,8 @@ Game = function() {
 	this.stage = null
 
 	this.chatting = false
-	this.chatBuffer = "this is what I'm saying"
-	this.chatLog = 
-		[ {from: "player 1", chat: "asdf", time: 1}
-		, {from: "player 2", chat: "yeah, asdf to YOU good sir", time: 2}
-		, {from: "player 3", chat: "yeah well fk this I'm leaving", time: 3}]
+	this.chatBuffer = ""
+	this.eventLog = []
 }
 
 /**** {{{ processCue ****/
@@ -106,9 +102,12 @@ Game.prototype.processCue = function() {
 					case "QUIT":
 						mode.quit(data); break
 					case "CHAT":
-						this.chatLog.push(
-							{from: split[0], chat: split[1]}
-						)
+						var id = split[0]
+						var player = Utils.findElemById(mode.listPlayers(), id)
+						if (player !== null) 
+							this.chatLog.push(
+								{type: "chat", from: player.name, chat: split.slice(1).join(" ")}
+							)
 						break;
 					default:
 						break
@@ -134,7 +133,7 @@ Game.prototype.init = function(){
 }
 Game.prototype.step = function(delta) { 
 	if (this.initialised)
-		mode.step(delta)
+		this.eventLog = this.eventLog.concat(mode.step(delta))
 }
 Game.prototype.initRender = function(stage) { 
 	this.stage = stage
@@ -159,6 +158,7 @@ Game.prototype.stepRender = function(stage, delta, x, y) {
 		this.fpsText.text = "render: " + x + "Hz\nengine: " + y + "Hz"
 	}
 	this.displayChat()
+	
 }
 Game.prototype.acceptKey = function(key, state) {
 	if (this.initialised) {
@@ -176,6 +176,8 @@ Game.prototype.acceptKey = function(key, state) {
 			if (key === "escape") {
 				this.closeChat();
 			}
+			if (key === "shift") this.shiftKey = state
+			if (key === "a") this.chatBuffer.push("a")
 		}
 		if (this.id !== null) 
 			mode.acceptEvent({id: this.id, type: "control", name: key, state: state})
@@ -205,8 +207,11 @@ Game.prototype.displayChat = function() {
 		}
 
 		var chatLines = shownChat.map(
-			function(value) { return value.chat }
+			function(value) { return value.from + ": " + value.chat }
 		).join("\n")
+		// this function is duplicated because in the future
+		// chat when not chatting will be displayed differently
+		// so it's not worth designing this placeholder code well
 
 		var backlog = new PIXI.Text(chatLines, style)	
 		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
@@ -226,19 +231,17 @@ Game.prototype.displayChat = function() {
 		}
 
 		var chatLines = shownChat.map(
-			function(value) { return value.chat }
+			function(value) { return value.from + ": " + value.chat }
 		).join("\n")
 
 		var backlog = new PIXI.Text(chatLines, style)	
 		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
 		backlog.alpha = 0.5
 
-		/*
 		var chatPrompt = new PIXI.Text("(press enter to chat)", style)
 		chatPrompt.position = new PIXI.Point(15, (880 - height))
 		chatPrompt.alpha = 0.3
 		this.chatStage.addChild(chatPrompt)
-		*/
 
 		this.chatStage.addChild(backlog)
 	/**** }}} when not chatting ****/
@@ -246,7 +249,7 @@ Game.prototype.displayChat = function() {
 }
 Game.prototype.openChat = function() {
 	this.chatting = true;
-	this.chatBuffer = "chat buffer"
+	this.chatBuffer = ""
 }
 Game.prototype.closeChat = function() {
 	this.chatting = false;

@@ -90,6 +90,7 @@ runWithStage = function(target, renderer, stage, object) {
 		then = now
 
 		if (delta > 200) {
+			// failsafe so if shit happens it doesn't hit the fan
 			console.log("shit just blew up, what the hell")
 			return
 		}
@@ -130,12 +131,20 @@ runWithStage = function(target, renderer, stage, object) {
 	} 
 	/**** }}} step ****/
 
-	function acceptKeyUp(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), false)
-	}
-	function acceptKeyDown(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), true)
-	}
+	function acceptKeyUp(e) { acceptKey(e, false) }
+	function acceptKeyDown(e) { acceptKey(e, true) }
+	function acceptKey(e, state) {
+		name = nameFromKeyCode(e.keyCode)
+		object.acceptKey(name, state)
+		// some keys have quite obnoxious default cases
+		// while others, such as the debug terminal, do not
+		switch (name) {
+			case ("back_space"): {
+				e.preventDefault(); break
+			}
+			default: break
+		}
+	}	
 
 	function onBlur() { blurred = true; blurTime = 0 }
 	function onFocus() { blurred = false; blurTime = 0 }	

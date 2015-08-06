@@ -475,19 +475,23 @@ myClient = clientOffline(mode)
 
 ui.run(60, myClient)
 
-},{"../control/client-offline.js":4,"../modes/vanilla/":6,"../modes/vanilla/render.js":8,"../ui/index.js":14}],4:[function(require,module,exports){
+},{"../control/client-offline.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":15}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
 
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/index.js')
+renderHud = require('./hud.js')
 
 module.exports = function(mode) {
 	function Game() {
 		this.fps = new PIXI.Text("", {fill: 0xFFFFFF})
 		this.fps.position = new PIXI.Point(1400, 10)
 		this.modeStage = new PIXI.Container(); 
+		this.hudStage = new PIXI.Container()
+
+		this.eventLog = []
 	}
 
 	Game.prototype.init = function() { 
@@ -496,21 +500,22 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.step = function(delta) {
-		mode.step(delta)
+		this.eventLog = this.eventLog.concat(mode.step(delta))
 	}
 
 	Game.prototype.initRender = function(stage) {
 		stage.addChild(this.fps)
 		stage.addChild(this.modeStage)
+		stage.addChild(this.hudStage)
 
 		mode.initRender(this.modeStage)
 	}
 
-	Game.prototype.stepRender = 
-		function(stage, delta, tps, fps) {
-			this.fps.text = tps + "tps, " + fps + "fps"
-			mode.stepRender(0, this.modeStage, delta) 
-		}
+	Game.prototype.stepRender = function(stage, delta, tps, fps) {
+		this.fps.text = tps + "tps, " + fps + "fps"
+		mode.stepRender(0, this.modeStage, delta) 
+		renderHud(this.eventLog, this.hudStage)
+	}
 
 	Game.prototype.hasEnded = function() {
 		return false
@@ -523,7 +528,18 @@ module.exports = function(mode) {
 	return new Game() 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":14}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/index.js":15,"./hud.js":5}],5:[function(require,module,exports){
+/*                  ******** client-arena.js ********                  //
+\\ Basic HUD to render an event log to a pixi container.               \\
+//                  ******** client-arena.js ********                  */
+
+PIXI = require('../../assets/pixi.min.js')
+
+module.exports = function(events, container) {
+	// render the events to a HUD container
+}
+
+},{"../../assets/pixi.min.js":2}],6:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -581,7 +597,7 @@ module.exports = {
 	, graphicsNameClear: 35
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*                  ******** vanilla/index.js ********                //
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //                  ******** vanilla/index.js ********                */
@@ -811,6 +827,8 @@ Vanilla.prototype.step = function(delta) {
 	this.players.forEach(function each(player) {
 		 player.step(delta);
 	}, this);
+
+	return [] // event log, currently STUB
 }
 
 /**** }}} simulation ****/
@@ -867,7 +885,7 @@ Vanilla.prototype.hasEnded = function() { return false }
 
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":11,"../../resources/util.js":13,"./gameplay.js":5,"./player.js":7,"./snapshots.js":9}],7:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":14,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1064,7 +1082,7 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*          ******** vanilla/render.js ********       //
 \\ Client-sided renderer for the vanilla game mode.   \\
 //          ******** vanilla/render.js ********       */
@@ -1166,7 +1184,7 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 }
 }
 
-},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":12,"./gameplay.js":5}],9:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":13,"./gameplay.js":6}],10:[function(require,module,exports){
 Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1303,7 +1321,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":13}],10:[function(require,module,exports){
+},{"../../resources/util.js":14}],11:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1317,7 +1335,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1344,7 +1362,7 @@ maps = {
 
 module.exports = maps;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
 		"http://solemnsky.github.io/multimedia/player.png"
@@ -1352,7 +1370,7 @@ module.exports = {
 		"http://solemnsky.github.io/multimedia/player-thrust.png"
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1527,7 +1545,7 @@ Util.prototype.removeElemById = function(elems, id) {
 }
 /**** }}} elem id operations ****/
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1603,7 +1621,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":15}],15:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":16}],16:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -1696,6 +1714,7 @@ runWithStage = function(target, renderer, stage, object) {
 		then = now
 
 		if (delta > 200) {
+			// failsafe so if shit happens it doesn't hit the fan
 			console.log("shit just blew up, what the hell")
 			return
 		}
@@ -1736,12 +1755,20 @@ runWithStage = function(target, renderer, stage, object) {
 	} 
 	/**** }}} step ****/
 
-	function acceptKeyUp(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), false)
-	}
-	function acceptKeyDown(e) {
-		object.acceptKey(nameFromKeyCode(e.keyCode), true)
-	}
+	function acceptKeyUp(e) { acceptKey(e, false) }
+	function acceptKeyDown(e) { acceptKey(e, true) }
+	function acceptKey(e, state) {
+		name = nameFromKeyCode(e.keyCode)
+		object.acceptKey(name, state)
+		// some keys have quite obnoxious default cases
+		// while others, such as the debug terminal, do not
+		switch (name) {
+			case ("back_space"): {
+				e.preventDefault(); break
+			}
+			default: break
+		}
+	}	
 
 	function onBlur() { blurred = true; blurTime = 0 }
 	function onFocus() { blurred = false; blurTime = 0 }	
@@ -1755,4 +1782,4 @@ runWithStage = function(target, renderer, stage, object) {
 	update()
 }
 
-},{"../resources/keys.js":10}]},{},[3]);
+},{"../resources/keys.js":11}]},{},[3]);
