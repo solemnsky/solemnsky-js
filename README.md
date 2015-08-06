@@ -1,4 +1,4 @@
-e SolemnSky technical reference 
+# The SolemnSky technical reference 
 
 SolemnSky's development is currently concerned with the design of a set of reasonably scalable and extendable infrastructures to use in the future, and a basic game demo to demonstrate the design's effectiveness and feasibility.
 
