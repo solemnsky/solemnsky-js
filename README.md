@@ -55,6 +55,20 @@ To define a mode, a constructor must be exported along with the following protot
 
 	Top-level control structure deal with making game modes playable. control/offline.js, for example, makes a game mode playable by a single offline player, and control/client-arena.js and control/server-arena.js respectively form a client-server pair where players can join and quit freely during a game. 
 
+## events
+
+	There are several references to events in the mode specification, especially in regard to simulation; events may be passed into a mode with acceptEvent and the logical iteration method 'step' returns a list of events. These are used to communicate the increasingly large and variable set of information that may influence the game (from client's controls to their choices of planes to things they say in the chat) and the information that a game mode may make available for its clients, aside from the basic rendering method and the player listing (points being scored, kill interactions, and the like.) It is important to note, however, that events are never sent over the network. While team switching may be returned as an event from a game engine and subsequently rendered by the HUD, the communication of this information with other clients is to be done via snapshots.
+
+	Here is a hopefully complete listing of events as they currently stand, and should be updated as they grow:
+
+	events for acceptEvent:
+
+	- { type: "control", name: (key name), state: (boolean, if the key is pressed) }
+
+	events returned by step:
+
+	(empty as of now)
+
 ## arena multiplayer protocol
 
 ### entry protocol
