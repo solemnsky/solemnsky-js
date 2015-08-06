@@ -584,7 +584,7 @@ Game.prototype.processCue = function() {
 						var id = split[0]
 						var player = Utils.findElemById(mode.listPlayers(), id)
 						if (player !== null) 
-							this.chatLog.push(
+							this.eventLog.push(
 								{type: "chat", from: player.name, chat: split.slice(1).join(" ")}
 							)
 						break;
@@ -656,7 +656,19 @@ Game.prototype.acceptKey = function(key, state) {
 				this.closeChat();
 			}
 			if (key === "shift") this.shiftKey = state
-			if (key === "a") this.chatBuffer.push("a")
+			if (state) {
+				if ("abcdefghijklmnopqrstuvwxyz123456789".indexOf(key) !== -1) {
+					if (this.shiftKey) {
+						this.chatBuffer = this.chatBuffer + key.toUpperCase()
+					} else {
+						this.chatBuffer = this.chatBuffer + key
+					}
+				}
+				if (key === "space")
+					this.chatBuffer = this.chatBuffer.concat(" ")
+				if (key === "back_space")
+					this.chatBuffer = this.chatBuffer.slice(0, this.chatBuffer.length - 2)
+			}
 		}
 		if (this.id !== null) 
 			mode.acceptEvent({id: this.id, type: "control", name: key, state: state})
@@ -701,7 +713,7 @@ Game.prototype.displayChat = function() {
 		var backlog = new PIXI.Text(chatLines, style)	
 		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
 
-		var chatEntry = new PIXI.Text(">>" + this.chatBuffer, style)
+		var chatEntry = new PIXI.Text(">>" + this.chatBuffer + "|", style)
 		chatEntry.position = new PIXI.Point(15, (880 - height))
 		this.chatStage.addChild(chatEntry)
 
