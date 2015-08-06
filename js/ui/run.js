@@ -65,6 +65,7 @@ runWithStage = function(target, renderer, stage, object) {
 	object.init()
 
 	var blurred = false
+	var blurTime = 0
 	var running = true
 
 	var fps = 0; var fpsC = 0
@@ -83,15 +84,19 @@ runWithStage = function(target, renderer, stage, object) {
 	then = Date.now()
 	function update() {
 		running = (!object.hasEnded())
+
+		now = Date.now()
+		delta = now - then
+		then = now
+
 		if (running) { 
 			if (!blurred) {
 				requestAnimFrame(update) 
 			} else {
 				setTimeout(update, ((1/target) * 1000))
+				if (blurTime > 10000) return
+				blurTime += delta				
 			}
-			now = Date.now()
-			delta = now - then
-			then = now
 
 			accum += delta
 
@@ -122,20 +127,13 @@ runWithStage = function(target, renderer, stage, object) {
 
 	function acceptKeyUp(e) {
 		object.acceptKey(nameFromKeyCode(e.keyCode), false)
-		e.preventDefault(); //Don't allow the page to use this
 	}
 	function acceptKeyDown(e) {
 		object.acceptKey(nameFromKeyCode(e.keyCode), true)
-		e.preventDefault(); //Don't allow the page to use this
 	}
 
-	function onBlur() {
-		blurred = true
-	}
-
-	function onFocus() {
-		blurred = false
-	}	
+	function onBlur() { blurred = true; blurTime = 0 }
+	function onFocus() { blurred = false; blurTime = 0 }	
 
 	window.addEventListener("keyup", acceptKeyUp)
 	window.addEventListener("keydown", acceptKeyDown)

@@ -58,7 +58,7 @@ Game = function() {
 	this.stage = null
 
 	this.chatting = false
-	this.chatBuffer = ""
+	this.chatBuffer = "this is what I'm saying"
 	this.chatLog = 
 		[ {from: "player 1", chat: "asdf", time: 1}
 		, {from: "player 2", chat: "yeah, asdf to YOU good sir", time: 2}
@@ -192,27 +192,48 @@ Game.prototype.displayChat = function() {
 	var size = 25
 	var style = {fill: 0xFFFFFF, font: size + "px arial"}
 	var height = (new PIXI.Text("I", style)).height
-	var maxLines = 5
+	var maxLines = 15
+	var maxLinesNormal = 5 // max lines when not chatting
 
 	this.chatStage.removeChildren()
 	if (this.chatting) {
-		if (this.chatBuffer.length > maxLines) {
-			// TODO
+		if (this.chatLog.length > maxLines) {
+			var shownChat = this.chatLog	
 		} else {
-			var chatLines = this.chatLog.map(
-				function(value) { return value.chat }
-			).join("\n")
+			var shownChat = this.chatLog	
 		}
+
+		var chatLines = shownChat.map(
+			function(value) { return value.chat }
+		).join("\n")
+
 		var backlog = new PIXI.Text(chatLines, style)	
 		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
 
-		var chatEntry = 
+		var chatEntry = new PIXI.Text(this.chatBuffer, style)
+		chatEntry.position = new PIXI.Point(15, (880 - height))
+
+		this.chatStage.addChild(chatEntry)
+		this.chatStage.addChild(backlog)
+	} else {
+		if (this.chatLog.length > maxLines) {
+			var shownChat = this.chatLog	
+		} else {
+		}
+
+		var chatLines = shownChat.map(
+			function(value) { return value.chat }
+		).join("\n")
+
+		var backlog = new PIXI.Text(chatLines, style)	
+		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
+
 		this.chatStage.addChild(backlog)
 	}
 }
 Game.prototype.openChat = function() {
 	this.chatting = true;
-	this.chatBuffer = ""
+	this.chatBuffer = "chat buffer"
 }
 Game.prototype.closeChat = function() {
 	this.chatting = false;
