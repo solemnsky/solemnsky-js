@@ -44,13 +44,29 @@ Null.prototype.describeState = function() {
 
 /**** }}} initialisation ****/
 
-/**** {{{ update loop ****/
+/**** {{{ simulation****/
+Null.prototype.acceptEvent = function(theEvent) {
+	// do nothing
+}
+
+Null.prototype.listPlayers = funciton() {
+	return this.players.map(
+		function(player) {
+			return { name: player.name }		
+		}
+	}
+}
+
 Null.prototype.step = function(delta) {
 	this.players.forEach(
 		function(player) { player.timespent += delta }
 	)
 }
-/**** }}} update loop ****/
+
+Null.prototype.hasEnded = function() {
+	return false
+}
+/**** }}} simulation****/
 
 /**** {{{ discrete networking ****/
 Null.prototype.join = function(name, id) {
@@ -94,15 +110,4 @@ Null.prototype.serverMerge = function(id, snap) {
 }
 /**** }}} continuous networking ****/
 
-/**** {{{ misc ****/
-Null.prototype.acceptKey = function(id, key, state) {
-	// do absolutely nothing <3
-	return false;
-}
-
-Null.prototype.hasEnded = function() {
-	return false
-}
-
 Null.prototype.modeId = "null dev"
-/**** }}} misc ****/

@@ -121,12 +121,12 @@ runWithStage = function(target, renderer, stage, object) {
 	/**** }}} step ****/
 
 	function acceptKeyUp(e) {
-		if (object.acceptKey(nameFromKeyCode(e.keyCode), false))
-			e.preventDefault(); //Don't allow the page to use this
+		object.acceptKey(nameFromKeyCode(e.keyCode), false)
+		e.preventDefault(); //Don't allow the page to use this
 	}
 	function acceptKeyDown(e) {
-		if (object.acceptKey(nameFromKeyCode(e.keyCode), true))
-			e.preventDefault(); //Don't allow the page to use this
+		object.acceptKey(nameFromKeyCode(e.keyCode), true)
+		e.preventDefault(); //Don't allow the page to use this
 	}
 
 	function onBlur() {

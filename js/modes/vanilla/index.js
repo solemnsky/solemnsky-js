@@ -183,7 +183,30 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ update loop ****/
+/**** {{{ simulation****/
+Vanilla.prototype.acceptEvent = function(theEvent) {
+	if (theEvent.type == "control") {
+		var player = this.findPlayerById(theEvent.id)
+		if (player !== null) {
+			state = theEvent.state
+			switch (theEvent.name) {
+				case ("up"): player.movement.forward = state; return true;
+				case ("down"): player.movement.backward = state; return true;
+				case ("left"): player.movement.left = state; return true;
+				case ("right"): player.movement.right = state; return true;
+			}
+		}
+	}
+}
+
+Vanilla.prototype.listPlayers = function() {
+	return this.players.map(
+		function(player) {
+			{name: player.name}
+		}
+	)
+}
+
 Vanilla.prototype.step = function(delta) {
 	// use box2d to mutate the player's states
 	this.players.forEach( function(player) { player.writeToBlock() } )
@@ -206,7 +229,7 @@ Vanilla.prototype.step = function(delta) {
 	}, this);
 }
 
-/**** }}} update loop ****/
+/**** }}} simulation ****/
 
 /**** {{{ discrete networking ****/
 Vanilla.prototype.join = function(name, id) {
@@ -257,16 +280,5 @@ Vanilla.prototype.modeId = "vanilla engine"
 
 Vanilla.prototype.hasEnded = function() { return false }
 
-Vanilla.prototype.acceptKey = function(id, key, state) {
-	var player = this.findPlayerById(id)
-	if (player !== null) {
-		switch (key) {
-			case ("up"): player.movement.forward = state; return true;
-			case ("down"): player.movement.backward = state; return true;
-			case ("left"): player.movement.left = state; return true;
-			case ("right"): player.movement.right = state; return true;
-		}
-	}
-}
 
 /**** }}} misc ****/

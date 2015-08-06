@@ -39,7 +39,7 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.acceptKey = function(key, state) {
-		mode.acceptKey(0, key, state)
+		mode.acceptEvent({id: 0, type: "control", name: key, state: state})
 	}
 
 	return new Game() 

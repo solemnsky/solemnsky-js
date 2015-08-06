@@ -519,7 +519,7 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.acceptKey = function(key, state) {
-		mode.acceptKey(0, key, state)
+		mode.acceptEvent({id: 0, type: "control", name: key, state: state})
 	}
 
 	return new Game() 
@@ -554,11 +554,23 @@ Demo.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ update loop ****/
-Demo.prototype.step = function(delta) {
-	this.vanilla.step(delta)
+/**** {{{ simulation****/
+Demo.prototype.acceptEvent = function(theEvent) {
+	this.vanilla.acceptEvent(theEvent)
 }
-/**** }}} update loop ****/
+
+Demo.prototype.playerList = function() {
+	return this.vanilla.playerList()
+}
+
+Demo.prototype.step = function(delta) {
+	return this.vanilla.step(delta)
+}
+
+Demo.prototype.hasEnded = function() {
+	return this.vanilla.hasEnded()
+}
+/**** }}} simulation****/
 
 /**** {{{ discrete networking ****/
 Demo.prototype.join = function(name, id) {
@@ -588,18 +600,7 @@ Demo.prototype.serverMerge = function(id, snap) {
 }
 /**** }}} continuous networking ****/
 
-/**** {{{ misc ****/
-Demo.prototype.acceptKey = function(id, key, state) {
-	this.vanilla.acceptKey(id, key, state)
-}
-
-
-Demo.prototype.hasEnded = function() {
-	return this.vanilla.hasEnded()
-}
-
 Demo.prototype.modeId = "demo dev"
-/**** }}} misc ****/
 
 },{"../../resources/util.js":15}],6:[function(require,module,exports){
 /*                  ******** demo/render.js ********                  //
@@ -871,7 +872,30 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ update loop ****/
+/**** {{{ simulation****/
+Vanilla.prototype.acceptEvent = function(theEvent) {
+	if (theEvent.type == "control") {
+		var player = this.findPlayerById(theEvent.id)
+		if (player !== null) {
+			state = theEvent.state
+			switch (theEvent.name) {
+				case ("up"): player.movement.forward = state; return true;
+				case ("down"): player.movement.backward = state; return true;
+				case ("left"): player.movement.left = state; return true;
+				case ("right"): player.movement.right = state; return true;
+			}
+		}
+	}
+}
+
+Vanilla.prototype.listPlayers = function() {
+	return this.players.map(
+		function(player) {
+			{name: player.name}
+		}
+	)
+}
+
 Vanilla.prototype.step = function(delta) {
 	// use box2d to mutate the player's states
 	this.players.forEach( function(player) { player.writeToBlock() } )
@@ -894,7 +918,7 @@ Vanilla.prototype.step = function(delta) {
 	}, this);
 }
 
-/**** }}} update loop ****/
+/**** }}} simulation ****/
 
 /**** {{{ discrete networking ****/
 Vanilla.prototype.join = function(name, id) {
@@ -945,17 +969,6 @@ Vanilla.prototype.modeId = "vanilla engine"
 
 Vanilla.prototype.hasEnded = function() { return false }
 
-Vanilla.prototype.acceptKey = function(id, key, state) {
-	var player = this.findPlayerById(id)
-	if (player !== null) {
-		switch (key) {
-			case ("up"): player.movement.forward = state; return true;
-			case ("down"): player.movement.backward = state; return true;
-			case ("left"): player.movement.left = state; return true;
-			case ("right"): player.movement.right = state; return true;
-		}
-	}
-}
 
 /**** }}} misc ****/
 
@@ -1819,12 +1832,12 @@ runWithStage = function(target, renderer, stage, object) {
 	/**** }}} step ****/
 
 	function acceptKeyUp(e) {
-		if (object.acceptKey(nameFromKeyCode(e.keyCode), false))
-			e.preventDefault(); //Don't allow the page to use this
+		object.acceptKey(nameFromKeyCode(e.keyCode), false)
+		e.preventDefault(); //Don't allow the page to use this
 	}
 	function acceptKeyDown(e) {
-		if (object.acceptKey(nameFromKeyCode(e.keyCode), true))
-			e.preventDefault(); //Don't allow the page to use this
+		object.acceptKey(nameFromKeyCode(e.keyCode), true)
+		e.preventDefault(); //Don't allow the page to use this
 	}
 
 	function onBlur() {

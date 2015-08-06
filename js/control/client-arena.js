@@ -170,19 +170,15 @@ Game.prototype.acceptKey = function(key, state) {
 					this.openChat();
 				}
 			}
-			//Don't let these go to the game
-			return true;
 		}
 		if (this.chatting) {
 			//Espace for closing
 			if (key === "escape") {
 				this.closeChat();
-				return true;
 			}
-			//Let the DOM eat these keys for the chatbox
-			return false;
 		}
-		return mode.acceptKey(this.id, key, state);
+		if (this.id !== null) 
+			mode.acceptEvent({id: this.id, type: "control", name: key, state: state})
 	}
 }
 Game.prototype.hasEnded = function() {
@@ -251,7 +247,7 @@ Game.prototype.onMessage = function(message) {
 	this.processCue()
 }
 Game.prototype.broadcastLoop = function() {
-	setTimeout(this.broadcastLoop.bind(this), 30)
+	setTimeout(this.broadcastLoop.bind(this), 20)
 
 	//Don't send snapshots if we don't have an id yet
 	if (this.id !== null)

@@ -649,19 +649,15 @@ Game.prototype.acceptKey = function(key, state) {
 					this.openChat();
 				}
 			}
-			//Don't let these go to the game
-			return true;
 		}
 		if (this.chatting) {
 			//Espace for closing
 			if (key === "escape") {
 				this.closeChat();
-				return true;
 			}
-			//Let the DOM eat these keys for the chatbox
-			return false;
 		}
-		return mode.acceptKey(this.id, key, state);
+		if (this.id !== null) 
+			mode.acceptEvent({id: this.id, type: "control", name: key, state: state})
 	}
 }
 Game.prototype.hasEnded = function() {
@@ -730,7 +726,7 @@ Game.prototype.onMessage = function(message) {
 	this.processCue()
 }
 Game.prototype.broadcastLoop = function() {
-	setTimeout(this.broadcastLoop.bind(this), 30)
+	setTimeout(this.broadcastLoop.bind(this), 20)
 
 	//Don't send snapshots if we don't have an id yet
 	if (this.id !== null)
@@ -988,7 +984,30 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ update loop ****/
+/**** {{{ simulation****/
+Vanilla.prototype.acceptEvent = function(theEvent) {
+	if (theEvent.type == "control") {
+		var player = this.findPlayerById(theEvent.id)
+		if (player !== null) {
+			state = theEvent.state
+			switch (theEvent.name) {
+				case ("up"): player.movement.forward = state; return true;
+				case ("down"): player.movement.backward = state; return true;
+				case ("left"): player.movement.left = state; return true;
+				case ("right"): player.movement.right = state; return true;
+			}
+		}
+	}
+}
+
+Vanilla.prototype.listPlayers = function() {
+	return this.players.map(
+		function(player) {
+			{name: player.name}
+		}
+	)
+}
+
 Vanilla.prototype.step = function(delta) {
 	// use box2d to mutate the player's states
 	this.players.forEach( function(player) { player.writeToBlock() } )
@@ -1011,7 +1030,7 @@ Vanilla.prototype.step = function(delta) {
 	}, this);
 }
 
-/**** }}} update loop ****/
+/**** }}} simulation ****/
 
 /**** {{{ discrete networking ****/
 Vanilla.prototype.join = function(name, id) {
@@ -1062,17 +1081,6 @@ Vanilla.prototype.modeId = "vanilla engine"
 
 Vanilla.prototype.hasEnded = function() { return false }
 
-Vanilla.prototype.acceptKey = function(id, key, state) {
-	var player = this.findPlayerById(id)
-	if (player !== null) {
-		switch (key) {
-			case ("up"): player.movement.forward = state; return true;
-			case ("down"): player.movement.backward = state; return true;
-			case ("left"): player.movement.left = state; return true;
-			case ("right"): player.movement.right = state; return true;
-		}
-	}
-}
 
 /**** }}} misc ****/
 
@@ -1936,12 +1944,12 @@ runWithStage = function(target, renderer, stage, object) {
 	/**** }}} step ****/
 
 	function acceptKeyUp(e) {
-		if (object.acceptKey(nameFromKeyCode(e.keyCode), false))
-			e.preventDefault(); //Don't allow the page to use this
+		object.acceptKey(nameFromKeyCode(e.keyCode), false)
+		e.preventDefault(); //Don't allow the page to use this
 	}
 	function acceptKeyDown(e) {
-		if (object.acceptKey(nameFromKeyCode(e.keyCode), true))
-			e.preventDefault(); //Don't allow the page to use this
+		object.acceptKey(nameFromKeyCode(e.keyCode), true)
+		e.preventDefault(); //Don't allow the page to use this
 	}
 
 	function onBlur() {

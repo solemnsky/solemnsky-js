@@ -16,9 +16,15 @@ To define a mode, a constructor must be exported along with the following protot
 
 	- describeState(): describes the state of the game to a new player 
 
-### update loop
+### simulation
 
-	- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics.
+	- acceptEvent(event): called when an event (chat or game controller or something) happens. Clients rarely enter chat events into their game engines, servers rarely enter controller events into their ones.
+	
+	- listPlayers(): bunch of data for matching players with their ids and also kill counters and stuff maybe?
+
+	- step(delta): this is called at ~60Hz, and is supplied with the delta time since its last call. Its intention is to step the game world forward, simulating all game mechanics. Returns an array of events.
+
+	- hasEnded(): has the game ended?
 
 ### discrete networking
 
@@ -35,20 +41,15 @@ To define a mode, a constructor must be exported along with the following protot
 	- clientMerge(id, snap): merge an assertion sent from the server to a client
 	- serverMerge(id, snap): merge an assertion sent from a client to the server
 
-### misc
+### modeId
 
 	- modeId: the id of the mode, to check if a client and a server are compatible
-
-	- hasEnded(): has the game ended?
-	
-  - acceptKey(id, key, state): player id puts a key into a state (input for clients)
 
 ## rendering (defined in seperate file, only for clients)
 
 	- initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
 
 	- stepRenderer(id, delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI and the id of the active player, null if not applicable
-
 
 ## top-level control structures
 
@@ -74,7 +75,7 @@ To define a mode, a constructor must be exported along with the following protot
     server: SNAP <mode.serverAssert()>
     clients merge snapshot with mode.clientMerge
 
-This loop runs approximately every 15 ms.
+This loop runs approximately every 20 ms.
 
 ### verbs
 
@@ -84,4 +85,5 @@ This loop runs approximately every 15 ms.
     JOIN: issued by server when a player joins
     QUIT: issued by server when a player quits
     SNAP: issued by servers and clients with respective assertion data
+		CHAT: issued by servers and clients; when issued by the server, has an id variable with the id of the player who sent the message to start with.
 

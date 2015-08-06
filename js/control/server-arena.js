@@ -80,7 +80,7 @@ function logicLoop() {
 function snapBroadcast() {
 	console.log("broadcasting: " + mode.serverAssert())
 	broadcast("SNAP " + mode.serverAssert())	
-	setTimeout(snapBroadcast, 30)
+	setTimeout(snapBroadcast, 20)
 }
 
 openSocket(port);

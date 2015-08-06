@@ -26,11 +26,23 @@ Demo.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ update loop ****/
-Demo.prototype.step = function(delta) {
-	this.vanilla.step(delta)
+/**** {{{ simulation****/
+Demo.prototype.acceptEvent = function(theEvent) {
+	this.vanilla.acceptEvent(theEvent)
 }
-/**** }}} update loop ****/
+
+Demo.prototype.playerList = function() {
+	return this.vanilla.playerList()
+}
+
+Demo.prototype.step = function(delta) {
+	return this.vanilla.step(delta)
+}
+
+Demo.prototype.hasEnded = function() {
+	return this.vanilla.hasEnded()
+}
+/**** }}} simulation****/
 
 /**** {{{ discrete networking ****/
 Demo.prototype.join = function(name, id) {
@@ -60,15 +72,4 @@ Demo.prototype.serverMerge = function(id, snap) {
 }
 /**** }}} continuous networking ****/
 
-/**** {{{ misc ****/
-Demo.prototype.acceptKey = function(id, key, state) {
-	this.vanilla.acceptKey(id, key, state)
-}
-
-
-Demo.prototype.hasEnded = function() {
-	return this.vanilla.hasEnded()
-}
-
 Demo.prototype.modeId = "demo dev"
-/**** }}} misc ****/
