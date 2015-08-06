@@ -1,10 +1,12 @@
-# SolemnSky technical reference 
+e SolemnSky technical reference 
 
 SolemnSky's development is currently concerned with the design of a set of reasonably scalable and extendable infrastructures to use in the future, and a basic game demo to demonstrate the design's effectiveness and feasibility.
 
 ## modes
 
 Modes are objects that represent the essential game logic of a game mode; the logic and design that is constant across all concievable implementations of a multiplayer or offline system using the game mode in question.
+
+The seperation of modes and control structures (see the relevant section later in this readme) seperate boilerplate and things not directly related to game mechanics design (chatting, HUDs, networking) from the game mode definition, making the latter easy to understand and modify without fear of breaking other elements of the whole game experience.
 
 To define a mode, a constructor must be exported along with the following prototypical methods:
 
@@ -37,7 +39,7 @@ To define a mode, a constructor must be exported along with the following protot
 
 - modeId: the id of the mode, to check if a client and a server are compatible
 
-## rendering (defined in seperate file, only for clients)
+### rendering (defined in seperate file, only for clients)
 
 - initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
 - stepRenderer(id, delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI and the id of the active player, null if not applicable
