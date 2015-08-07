@@ -1258,7 +1258,7 @@ deflationRules =
 	, { key: "spawnpoint", shortKey: "s", deflation: Util.vecDeflation }
 	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
 	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
-	, { key: "velocity", shortKey: "v", deflation: Util.floatDeflation }
+	, { key: "velocity", shortKey: "v", deflation: Util.vecDeflation }
 	]
 
 function deflatePair(pair) {
@@ -1319,7 +1319,7 @@ exports.readSnapshot = function(string) {
 		return result
 	} catch (e) {
 		//Could not read snapshot; but don't let the Syntax Error break the loop
-		return null;
+		return null
 	}
 }
 
@@ -1460,12 +1460,22 @@ Util.prototype.boolDeflation =
 	, inflate: function(val) { return (val == 1) } }
 
 Util.prototype.floatDeflation =
-	{ deflate: function(f) { return f }
-	, inflate: function(val) { return val } }
+	{ deflate: function(f) { return exports.floatToChar(f) }
+	, inflate: function(val) { return exports.charToFloat(val) } }
 
+/*
 Util.prototype.vecDeflation =
-	{ deflate: function(vec) { return vec }
-	, inflate: function(val) { return val } }
+	{ deflate: function(vec) { 
+			return exports.floatToChar(vec.x) + exports.floatToChar(vec.y)
+		}
+	, inflate: function(val) { 
+			return {x: exports.charToFloat(val[0]), y: exports.charToFloat(val[2])}
+		} }
+*/
+
+Util.prototype.vecDeflation = 
+	{ deflate: function(x){return x}
+	, inflate: function(x){return x} }
 
 Util.prototype.movementDeflation = 
 	{ deflate:

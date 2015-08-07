@@ -67,7 +67,7 @@ deflationRules =
 	, { key: "spawnpoint", shortKey: "s", deflation: Util.vecDeflation }
 	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
 	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
-	, { key: "velocity", shortKey: "v", deflation: Util.floatDeflation }
+	, { key: "velocity", shortKey: "v", deflation: Util.vecDeflation }
 	]
 
 function deflatePair(pair) {
@@ -128,7 +128,7 @@ exports.readSnapshot = function(string) {
 		return result
 	} catch (e) {
 		//Could not read snapshot; but don't let the Syntax Error break the loop
-		return null;
+		return null
 	}
 }
 
