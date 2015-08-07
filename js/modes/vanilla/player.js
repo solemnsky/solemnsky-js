@@ -63,7 +63,6 @@ Player.prototype.writeToBlock = function() {
 		, this.velocity.y / this.game.scale))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
-	this.block.GetUserData().health = this.health
 }
 
 Player.prototype.readFromBlock = function() {
@@ -76,8 +75,6 @@ Player.prototype.readFromBlock = function() {
 	this.position.y = pos.y * this.game.scale;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
-
-	this.health = this.block.GetUserData().health 
 }
 /**** }}} reading and writing between wrappers and box2d ****/
 

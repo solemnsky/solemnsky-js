@@ -912,7 +912,6 @@ Vanilla.prototype.addPlayer = function(id, name) {
 	} else {
 		var player = new Player(this, id, 900, 450, name);
 		this.players.push(player);
-		player.block.SetUserData(player);
 		player.block.SetSleepingAllowed(false);
 		player.block.SetBullet(true);
 		player.respawning = true;
@@ -946,9 +945,9 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	var player = bodyB;
-	if (bodyA.GetUserData().isPlayer)
-		player = bodyA;
+	var player = bodyA;
+	if (typeof bodyA.GetUserData() !== undefined)
+		player = bodyB;
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -966,7 +965,10 @@ Vanilla.prototype.evaluateContact = function(contact) {
 
 	var loss = Math.max(gameplay.minimumContactDamage, impact * gameplay.contactDamangeMultiplier);
 
-	player.GetUserData().health -= loss;
+	// write the collision's effect to the player object
+	var playerData = this.findPlayerById(player.GetUserData().playerId)
+	if (playerData !== null)
+		playerData.health -= loss;
 }
 /**** }}} internal utility methods ***/
 
@@ -993,10 +995,10 @@ Vanilla.prototype.createShape = function(type, props) {
 Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ default params****/
 	if (typeof props == "undefined") props = {}
-	if (typeof props.density == "undefined") props.density = 0
-	if (typeof props.friction == "undefined") props.friction = 0
-	if (typeof props.restitution == "undefined") props.restitution = 1
-	if (typeof props.isPlayer == "undefined") props.isPlayer = false
+	if (typeof props.density == "undefined") props.density = 20
+	if (typeof props.friction == "undefined") props.friction = 1
+	if (typeof props.restitution == "undefined") props.restitution = 0
+	if (typeof props.playerId == "undefined") props.playerId = null
 	/**** }}} default params ****/
 
 	/**** {{{ fixture definition ****/
@@ -1024,7 +1026,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	
 	// enter box into world with body and fixture definitions
 	box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
-	box.SetUserData({isPlayer: props.isPlayer})
+	box.SetUserData({playerId: props.playerId, isPlayer: (props.playerId !== null)})
 
 	return box
 } 
@@ -1237,7 +1239,6 @@ Player.prototype.writeToBlock = function() {
 		, this.velocity.y / this.game.scale))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
-	this.block.GetUserData().health = this.health
 }
 
 Player.prototype.readFromBlock = function() {
@@ -1250,8 +1251,6 @@ Player.prototype.readFromBlock = function() {
 	this.position.y = pos.y * this.game.scale;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
-
-	this.health = this.block.GetUserData().health 
 }
 /**** }}} reading and writing between wrappers and box2d ****/
 
@@ -1392,13 +1391,12 @@ Vanilla.prototype.renderMap = function(map) {
 	map.clear()
 	map.beginFill(0xFFFFFF, 1)
 	
-	this.map.forEach(
+	this.mapData.blocks.forEach(
 		function(block) {
-			var data = block.GetUserData()
 			map.drawRect(
-				data.x - (data.w / 2)
-				, data.y - (data.h / 2)
-				, data.w, data.h
+				block.x - (block.w / 2)
+				, block.y - (block.h / 2)
+				, block.w, block.h
 			)
 		}
 	)

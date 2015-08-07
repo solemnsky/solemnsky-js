@@ -44,7 +44,6 @@ Vanilla.prototype.addPlayer = function(id, name) {
 	} else {
 		var player = new Player(this, id, 900, 450, name);
 		this.players.push(player);
-		player.block.SetUserData(player);
 		player.block.SetSleepingAllowed(false);
 		player.block.SetBullet(true);
 		player.respawning = true;
@@ -78,9 +77,9 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	var player = bodyB;
-	if (bodyA.GetUserData().isPlayer)
-		player = bodyA;
+	var player = bodyA;
+	if (typeof bodyA.GetUserData() !== undefined)
+		player = bodyB;
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -98,7 +97,10 @@ Vanilla.prototype.evaluateContact = function(contact) {
 
 	var loss = Math.max(gameplay.minimumContactDamage, impact * gameplay.contactDamangeMultiplier);
 
-	player.GetUserData().health -= loss;
+	// write the collision's effect to the player object
+	var playerData = this.findPlayerById(player.GetUserData().playerId)
+	if (playerData !== null)
+		playerData.health -= loss;
 }
 /**** }}} internal utility methods ***/
 
@@ -125,10 +127,10 @@ Vanilla.prototype.createShape = function(type, props) {
 Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ default params****/
 	if (typeof props == "undefined") props = {}
-	if (typeof props.density == "undefined") props.density = 0
-	if (typeof props.friction == "undefined") props.friction = 0
-	if (typeof props.restitution == "undefined") props.restitution = 1
-	if (typeof props.isPlayer == "undefined") props.isPlayer = false
+	if (typeof props.density == "undefined") props.density = 20
+	if (typeof props.friction == "undefined") props.friction = 1
+	if (typeof props.restitution == "undefined") props.restitution = 0
+	if (typeof props.playerId == "undefined") props.playerId = null
 	/**** }}} default params ****/
 
 	/**** {{{ fixture definition ****/
@@ -156,7 +158,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	
 	// enter box into world with body and fixture definitions
 	box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
-	box.SetUserData({isPlayer: props.isPlayer})
+	box.SetUserData({playerId: props.playerId, isPlayer: (props.playerId !== null)})
 
 	return box
 } 

@@ -14,13 +14,12 @@ Vanilla.prototype.renderMap = function(map) {
 	map.clear()
 	map.beginFill(0xFFFFFF, 1)
 	
-	this.map.forEach(
+	this.mapData.blocks.forEach(
 		function(block) {
-			var data = block.GetUserData()
 			map.drawRect(
-				data.x - (data.w / 2)
-				, data.y - (data.h / 2)
-				, data.w, data.h
+				block.x - (block.w / 2)
+				, block.y - (block.h / 2)
+				, block.w, block.h
 			)
 		}
 	)
