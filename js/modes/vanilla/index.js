@@ -61,8 +61,11 @@ Vanilla.prototype.loadMap = function (map) {
 	this.map = []
 	map.forEach(
 		function(box) {
-			var box = this.createBox(
-				box.x, box.y, box.w, box.h, box.isStatic, false, box.fields)		
+			var box = this.createBody(
+				{x: box.x, y: box.y}
+				, this.createShape("rectangle", {width: box.w, height: box.h})
+				, {isPlayer: false} 
+			)
 			this.map.push(box);
 		}, this)
 }
@@ -83,10 +86,15 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	contact.GetWorldManifold(worldManifold);
 
 	//http://www.iforce2d.net/b2dtut/collision-anatomy
-	var vel1 = bodyA.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
-	var vel2 = bodyB.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
+	var vel1 = 
+		bodyA.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
+	var vel2 = 
+		bodyB.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
 	var impactVelocity = {x: vel1.x - vel2.x, y: vel1.y - vel2.y};
-	var impact = Math.sqrt(impactVelocity.x * impactVelocity.x + impactVelocity.y * impactVelocity.y);
+	var impact = 
+		Math.sqrt(
+			impactVelocity.x * impactVelocity.x 
+			+ impactVelocity.y * impactVelocity.y);
 
 	var loss = Math.max(gameplay.minimumContactDamage, impact * gameplay.contactDamangeMultiplier);
 
@@ -98,12 +106,12 @@ Vanilla.prototype.evaluateContact = function(contact) {
 Vanilla.prototype.createShape = function(type, props) {
 	w = props.width; h = props.height
 	switch (type) {
-		case ("box"): {
+		case ("rectangle"): {
 			shape = new b2PolygonShape
 			shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
 			return shape
 		}
-		case ("player"): {
+		case ("triangle"): {
 			shape = new b2PolygonShape
 			shape.SetAsArray([
 				new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
@@ -114,21 +122,20 @@ Vanilla.prototype.createShape = function(type, props) {
 	}
 }
 
-Vanilla.prototype.createBox = function(pos, shape, props, userData) {
+Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ default params****/
 	if (typeof props == "undefined") props = {}
 	if (typeof props.density == "undefined") props.density = 0
 	if (typeof props.friction == "undefined") props.friction = 0
 	if (typeof props.restitution == "undefined") props.restitution = 1
 	if (typeof props.isPlayer == "undefined") props.isPlayer = false
-	if (typeof userData == "undefined") userData = {}
 	/**** }}} default params ****/
 
 	/**** {{{ fixture definition ****/
 	var fixDef = new b2FixtureDef
-	fixDef.density = fields.density
-	fixDef.friction = fields.friction
-	fixDef.restitution = fields.restitution
+	fixDef.density = props.density
+	fixDef.friction = props.friction
+	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
 	if (props.isPlayer) {
@@ -142,14 +149,14 @@ Vanilla.prototype.createBox = function(pos, shape, props, userData) {
 	/**** {{{ body definition ****/
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
-		(fields.isPlayer ? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
+		(props.isPlayer ? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
 	bodyDef.position.x = pos.x / this.scale
 	bodyDef.position.y = pos.y / this.scale
 	/**** }}} body definition ****/
 	
 	// enter box into world with body and fixture definitions
 	box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
-	box.SetUserData({userData: userData, isPlayer: props.isPlayer})
+	box.SetUserData({isPlayer: props.isPlayer})
 
 	return box
 } 
@@ -157,7 +164,6 @@ Vanilla.prototype.createBox = function(pos, shape, props, userData) {
 
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(pos) {
-	this.projectiles.push(this.createBox(pos, this.createShape("box", 
 }
 /**** }}} mode-facing methods ****/
 
