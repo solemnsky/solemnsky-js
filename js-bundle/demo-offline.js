@@ -1222,6 +1222,7 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			var pos = player.position; var rot = player.rotation
 			/**** {{{ initialise anim object ****/
 			function setPlayerSprite(sprite) {
+				sprite.anchor.set(0.5, 0.5)
 				sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
 			}
 			
@@ -1251,15 +1252,14 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			
 			/**** {{{ position player graphics ****/
 			function placePlayerSprite(sprite) {
-				sprite.pivot = new PIXI.Point(sprite.width / 2, sprite.height / 2)
-				sprite.position = new PIXI.Point(pos.x, pos.y) 
+				sprite.position.set(pos.x, pos.y) 
 				sprite.rotation = rot
 			}
 
 			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite)
 			player.anim.thrustSprite.alpha = player.anim.thrustLevel
 
-			player.anim.nameText.position = new PIXI.Point(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
+			player.anim.nameText.position.set(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
 
 			player.anim.barView.clear()
 			player.anim.barView.beginFill(0xFFFFFF, 0.5)
@@ -1798,7 +1798,7 @@ runWithStage = function(target, renderer, stage, object) {
 	object.init()
 
 	var blurred = false
-	var blurTime = 0
+	// var blurTime = 0
 	var running = true
 
 	var fps = 0; var fpsC = 0
@@ -1822,19 +1822,13 @@ runWithStage = function(target, renderer, stage, object) {
 		delta = now - then
 		then = now
 
-		if (delta > 200) {
-			// failsafe so if shit happens it doesn't hit the fan
-			console.log("shit just blew up, what the hell")
-			return
-		}
-
 		if (running) { 
 			if (!blurred) {
 				requestAnimFrame(update) 
 			} else {
 				setTimeout(update, ((1/target) * 1000))
-				if (blurTime > 10000) return
-				blurTime += delta				
+				// if (blurTime > 10000) return
+				// blurTime += delta				
 			}
 
 			accum += delta

@@ -34,6 +34,7 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			var pos = player.position; var rot = player.rotation
 			/**** {{{ initialise anim object ****/
 			function setPlayerSprite(sprite) {
+				sprite.anchor.set(0.5, 0.5)
 				sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
 			}
 			
@@ -63,15 +64,14 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			
 			/**** {{{ position player graphics ****/
 			function placePlayerSprite(sprite) {
-				sprite.pivot = new PIXI.Point(sprite.width / 2, sprite.height / 2)
-				sprite.position = new PIXI.Point(pos.x, pos.y) 
+				sprite.position.set(pos.x, pos.y) 
 				sprite.rotation = rot
 			}
 
 			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite)
 			player.anim.thrustSprite.alpha = player.anim.thrustLevel
 
-			player.anim.nameText.position = new PIXI.Point(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
+			player.anim.nameText.position.set(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
 
 			player.anim.barView.clear()
 			player.anim.barView.beginFill(0xFFFFFF, 0.5)

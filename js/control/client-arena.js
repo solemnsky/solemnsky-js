@@ -206,6 +206,9 @@ var height = (new PIXI.Text("I", style)).height
 var size = 25
 var maxLines = 15
 var maxLinesNormal = 5 // max lines when not chatting
+var chatEntry = new PIXI.Text("", style)
+var backlog = new PIXI.Text("", style)
+var chatPrompt = new PIXI.Text("(press enter to chat)", style)
 Game.prototype.displayChat = function() {
 	// WIP, will make prettier later
 	
@@ -215,9 +218,6 @@ Game.prototype.displayChat = function() {
 		}
 	)
 
-	this.chatStage.children.forEach(
-		function(child) { child.destroy(true) }
-	)
 	this.chatStage.removeChildren
 
 	if (this.chatting) {
@@ -235,14 +235,13 @@ Game.prototype.displayChat = function() {
 		// chat when not chatting will be displayed differently
 		// so it's not worth designing this placeholder code well
 
-		var backlog = new PIXI.Text(chatLines, style)	
-		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
-
-		var chatEntry = new PIXI.Text(">>" + this.chatBuffer + "|", style)
-		chatEntry.position = new PIXI.Point(15, (880 - height))
-		this.chatStage.addChild(chatEntry)
-
+		backlog.text = chatLines
+		backlog.position.set(15, (880 - height) - backlog.height)
 		this.chatStage.addChild(backlog)
+
+		chatEntry.text = ">>" + this.chatBuffer + "|"
+		chatEntry.position.set(15, (880 - height))
+		this.chatStage.addChild(chatEntry)
 	/**** }}} when chatting ****/
 	} else {
 	/**** {{{ when not chatting ****/
@@ -256,16 +255,14 @@ Game.prototype.displayChat = function() {
 			function(value) { return value.from + ": " + value.chat }
 		).join("\n")
 
-		var backlog = new PIXI.Text(chatLines, style)	
-		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
+		backlog.text = chatLines
+		backlog.position.set(15, (880 - height) - backlog.height)
 		backlog.alpha = 0.5
+		this.chatStage.addChild(backlog)
 
-		var chatPrompt = new PIXI.Text("(press enter to chat)", style)
-		chatPrompt.position = new PIXI.Point(15, (880 - height))
+		chatPrompt.position.set(15, (880 - height))
 		chatPrompt.alpha = 0.3
 		this.chatStage.addChild(chatPrompt)
-
-		this.chatStage.addChild(backlog)
 	/**** }}} when not chatting ****/
 	}
 }

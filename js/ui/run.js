@@ -65,7 +65,7 @@ runWithStage = function(target, renderer, stage, object) {
 	object.init()
 
 	var blurred = false
-	var blurTime = 0
+	// var blurTime = 0
 	var running = true
 
 	var fps = 0; var fpsC = 0
@@ -89,19 +89,13 @@ runWithStage = function(target, renderer, stage, object) {
 		delta = now - then
 		then = now
 
-		if (delta > 200) {
-			// failsafe so if shit happens it doesn't hit the fan
-			console.log("shit just blew up, what the hell")
-			return
-		}
-
 		if (running) { 
 			if (!blurred) {
 				requestAnimFrame(update) 
 			} else {
 				setTimeout(update, ((1/target) * 1000))
-				if (blurTime > 10000) return
-				blurTime += delta				
+				// if (blurTime > 10000) return
+				// blurTime += delta				
 			}
 
 			accum += delta

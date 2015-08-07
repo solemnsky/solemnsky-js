@@ -685,6 +685,9 @@ var height = (new PIXI.Text("I", style)).height
 var size = 25
 var maxLines = 15
 var maxLinesNormal = 5 // max lines when not chatting
+var chatEntry = new PIXI.Text("", style)
+var backlog = new PIXI.Text("", style)
+var chatPrompt = new PIXI.Text("(press enter to chat)", style)
 Game.prototype.displayChat = function() {
 	// WIP, will make prettier later
 	
@@ -694,9 +697,6 @@ Game.prototype.displayChat = function() {
 		}
 	)
 
-	this.chatStage.children.forEach(
-		function(child) { child.destroy(true) }
-	)
 	this.chatStage.removeChildren
 
 	if (this.chatting) {
@@ -714,14 +714,13 @@ Game.prototype.displayChat = function() {
 		// chat when not chatting will be displayed differently
 		// so it's not worth designing this placeholder code well
 
-		var backlog = new PIXI.Text(chatLines, style)	
-		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
-
-		var chatEntry = new PIXI.Text(">>" + this.chatBuffer + "|", style)
-		chatEntry.position = new PIXI.Point(15, (880 - height))
-		this.chatStage.addChild(chatEntry)
-
+		backlog.text = chatLines
+		backlog.position.set(15, (880 - height) - backlog.height)
 		this.chatStage.addChild(backlog)
+
+		chatEntry.text = ">>" + this.chatBuffer + "|"
+		chatEntry.position.set(15, (880 - height))
+		this.chatStage.addChild(chatEntry)
 	/**** }}} when chatting ****/
 	} else {
 	/**** {{{ when not chatting ****/
@@ -735,16 +734,14 @@ Game.prototype.displayChat = function() {
 			function(value) { return value.from + ": " + value.chat }
 		).join("\n")
 
-		var backlog = new PIXI.Text(chatLines, style)	
-		backlog.position = new PIXI.Point(15, (880 - height) - backlog.height)
+		backlog.text = chatLines
+		backlog.position.set(15, (880 - height) - backlog.height)
 		backlog.alpha = 0.5
+		this.chatStage.addChild(backlog)
 
-		var chatPrompt = new PIXI.Text("(press enter to chat)", style)
-		chatPrompt.position = new PIXI.Point(15, (880 - height))
+		chatPrompt.position.set(15, (880 - height))
 		chatPrompt.alpha = 0.3
 		this.chatStage.addChild(chatPrompt)
-
-		this.chatStage.addChild(backlog)
 	/**** }}} when not chatting ****/
 	}
 }
@@ -1390,6 +1387,7 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			var pos = player.position; var rot = player.rotation
 			/**** {{{ initialise anim object ****/
 			function setPlayerSprite(sprite) {
+				sprite.anchor.set(0.5, 0.5)
 				sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
 			}
 			
@@ -1419,15 +1417,14 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			
 			/**** {{{ position player graphics ****/
 			function placePlayerSprite(sprite) {
-				sprite.pivot = new PIXI.Point(sprite.width / 2, sprite.height / 2)
-				sprite.position = new PIXI.Point(pos.x, pos.y) 
+				sprite.position.set(pos.x, pos.y) 
 				sprite.rotation = rot
 			}
 
 			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite)
 			player.anim.thrustSprite.alpha = player.anim.thrustLevel
 
-			player.anim.nameText.position = new PIXI.Point(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
+			player.anim.nameText.position.set(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
 
 			player.anim.barView.clear()
 			player.anim.barView.beginFill(0xFFFFFF, 0.5)
@@ -1966,7 +1963,7 @@ runWithStage = function(target, renderer, stage, object) {
 	object.init()
 
 	var blurred = false
-	var blurTime = 0
+	// var blurTime = 0
 	var running = true
 
 	var fps = 0; var fpsC = 0
@@ -1990,19 +1987,13 @@ runWithStage = function(target, renderer, stage, object) {
 		delta = now - then
 		then = now
 
-		if (delta > 200) {
-			// failsafe so if shit happens it doesn't hit the fan
-			console.log("shit just blew up, what the hell")
-			return
-		}
-
 		if (running) { 
 			if (!blurred) {
 				requestAnimFrame(update) 
 			} else {
 				setTimeout(update, ((1/target) * 1000))
-				if (blurTime > 10000) return
-				blurTime += delta				
+				// if (blurTime > 10000) return
+				// blurTime += delta				
 			}
 
 			accum += delta
