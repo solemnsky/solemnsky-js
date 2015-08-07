@@ -1199,25 +1199,19 @@ module.exports = function(Vanilla) {
 
 /**** {{{ render map and players ****/
 Vanilla.prototype.renderMap = function(map) {
-	map.removeChildren()
-
-	var mapGraphics = new PIXI.Graphics()
-
-	mapGraphics.clear
-	mapGraphics.beginFill(0xFFFFFF, 1)
+	map.clear()
+	map.beginFill(0xFFFFFF, 1)
 	
 	this.map.forEach(
 		function(block) {
 			var data = block.GetUserData()
-			mapGraphics.drawRect(
+			map.drawRect(
 				data.x - (data.w / 2)
 				, data.y - (data.h / 2)
 				, data.w, data.h
 			)
 		}
 	)
-	
-	map.addChild(mapGraphics)
 }
 
 Vanilla.prototype.renderPlayers = function(delta, id, players) {
@@ -1225,13 +1219,27 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 
 	this.players.forEach(
 		function(player) {
-			if (typeof player.anim == "undefined")
-				player.anim = {thrustLevel: 0} 
-
-			var pos = player.position
-			var rot = player.rotation
+			var pos = player.position; var rot = player.rotation
+			/**** {{{ initialise anim object ****/
+			function setPlayerSprite(sprite) {
+				sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
+			}
 			
-			// thrustLevel modification
+			if (typeof player.anim === "undefined")
+				player.anim = {thrustLevel: 0} 
+			if (typeof player.anim.thrustSprite === "undefined") {
+				player.anim.thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
+				setPlayerSprite(player.anim.thrustSprite) }
+			if (typeof player.anim.normalSprite === "undefined") {
+				player.anim.normalSprite = new PIXI.Sprite(this.textures.player)
+				setPlayerSprite(player.anim.normalSprite) }
+			if (typeof player.anim.nameText === "undefined")
+				player.anim.nameText = new PIXI.Text(player.name, {font: "15px arial", fill: 0x003060})
+			if (typeof player.anim.barView === "undefined")
+				player.anim.barView = new PIXI.Graphics()
+			/**** }}} initialise anim object ****/
+			
+			/**** {{{ afterburner animation  ****/
 			if (player.afterburner) {
 				player.anim.thrustLevel += (delta / 1000) * gameplay.graphicsThrustFade
 			} else {
@@ -1239,34 +1247,32 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			}
 			if (player.anim.thrustLevel < 0) player.anim.thrustLevel = 0
 			if (player.anim.thrustLevel > 1) player.anim.thrustLevel = 1
-
-			var thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
-			var normalSprite = new PIXI.Sprite(this.textures.player)
+			/**** }}} afterburner animation  ****/
 			
-			function placeSprite(sprite) {
+			/**** {{{ position player graphics ****/
+			function placePlayerSprite(sprite) {
 				sprite.pivot = new PIXI.Point(sprite.width / 2, sprite.height / 2)
-				sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
 				sprite.position = new PIXI.Point(pos.x, pos.y) 
-				sprite.rotation = rot;
+				sprite.rotation = rot
 			}
 
-			placeSprite(thrustSprite); placeSprite(normalSprite)
-			thrustSprite.alpha = player.anim.thrustLevel
+			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite)
+			player.anim.thrustSprite.alpha = player.anim.thrustLevel
 
-			playerName = new PIXI.Text(player.name, {font: "15px arial", fill: 0x003060})
-			playerName.position = new PIXI.Point(pos.x - (playerName.width / 2), (pos.y + gameplay.graphicsNameClear))
+			player.anim.nameText.position = new PIXI.Point(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
 
-			if (id == player.id) {
-				playerBars = new PIXI.Graphics()
-				playerBars.beginFill(0xFFFFFF, 0.5)
-				playerBars.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
+			player.anim.barView.clear()
+			player.anim.barView.beginFill(0xFFFFFF, 0.5)
+			player.anim.barView.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
+			/**** }}} position player graphics ****/
 
-				players.addChild(playerBars)
-			}
-
-			players.addChild(normalSprite)
-			players.addChild(thrustSprite)
-			players.addChild(playerName)
+			/**** {{{ add to players container ****/
+			if (id == player.id) 
+				players.addChild(player.anim.barView)
+			players.addChild(player.anim.normalSprite)
+			players.addChild(player.anim.thrustSprite)
+			players.addChild(player.anim.nameText)
+			/**** }}} add to players container ****/
 		}
 	, this)
 }
@@ -1277,7 +1283,7 @@ Vanilla.prototype.initRender = function(stage) {
 	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
 	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
 
-	stage.addChild(new PIXI.Container)
+	stage.addChild(new PIXI.Graphics)
 	stage.addChild(new PIXI.Container)
 }
 

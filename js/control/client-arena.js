@@ -201,13 +201,13 @@ Game.prototype.hasEnded = function() {
 /**** }}} ui control methods ****/
 
 /**** {{{ chat ****/
+var style = {fill: 0xFFFFFF, font: size + "px arial"}
+var height = (new PIXI.Text("I", style)).height
+var size = 25
+var maxLines = 15
+var maxLinesNormal = 5 // max lines when not chatting
 Game.prototype.displayChat = function() {
 	// WIP, will make prettier later
-	var size = 25
-	var style = {fill: 0xFFFFFF, font: size + "px arial"}
-	var height = (new PIXI.Text("I", style)).height
-	var maxLines = 15
-	var maxLinesNormal = 5 // max lines when not chatting
 	
 	var chatLog = this.eventLog.filter(
 		function(event) {
@@ -215,7 +215,11 @@ Game.prototype.displayChat = function() {
 		}
 	)
 
-	this.chatStage.removeChildren()
+	this.chatStage.children.forEach(
+		function(child) { child.destroy(true) }
+	)
+	this.chatStage.removeChildren
+
 	if (this.chatting) {
 	/**** {{{ when chatting ****/
 		if (chatLog.length > maxLines) {
