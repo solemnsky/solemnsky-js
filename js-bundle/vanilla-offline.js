@@ -635,7 +635,7 @@ b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
 b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
 /**** }}} box2d synonyms ****/
 
-/**** {{{ methods ****/
+/**** {{{ internal utility methods ****/
 Vanilla.prototype.addPlayer = function(id, name) {
 	if (this.players.some(function(player) {return player.id == id})) {
 		return null
@@ -654,98 +654,116 @@ Vanilla.prototype.findPlayerById = function(id) {
 	return Utils.findElemById(this.players, id)
 }
 
-Vanilla.prototype.createBox = function(x, y, w, h, isStatic, isPlayer, fields) {
-	//Create a fixture definition for the box
-	var fixDef = new b2FixtureDef;
-	fixDef.density = 10;
-	fixDef.friction = 1;
-	fixDef.restitution = 0;
-	if (isPlayer) {
-		fixDef.filter.categoryBits = 0x0002
-		fixDef.filter.maskBits = 0x0001
-	} else {
-		fixDef.filter.categoryBits = 0x0001
-	}
-
-	//Create the body definition
-	var bodyDef = new b2BodyDef;
-
-	//Box type defined by the caller
-	bodyDef.type = (isStatic ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
-
-	//Read from the fields, if they exist
-	if (typeof fields !== "undefined") {
-		if (typeof fields.density !== "undefined") 
-			fixDef.density = fields.density;
-		if (typeof fields.friction !== "undefined") 
-			fixDef.friction = fields.friction;
-		if (typeof fields.restitution !== "undefined") 
-			fixDef.restitution = fields.restitution;
-	}
-	
-	//Positions the center of the object (not upper left!)
-	bodyDef.position.x = x / this.scale;
-	bodyDef.position.y = y / this.scale;
-	
-	fixDef.shape = new b2PolygonShape;
-	
-	if (isPlayer) {
-		fixDef.shape.SetAsArray([
-			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
-			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
-			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
-	} else {
-		fixDef.shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale);
-	}
-	box = this.world.CreateBody(bodyDef);
-	box.CreateFixture(fixDef);
-
-	box.life = 1;
-	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
-
-	box.SetUserData(
-		{x: x, y: y, w: w, h: h, isStatic: isStatic, fields: fields});
-
-	return box;
-} 
-
 Vanilla.prototype.loadMap = function (map) {
-	this.staticMap = map
+	this.mapData = map
 	this.map = []
-	map.forEach(
-		function(box) {
-			var box = this.createBox(
-				box.x, box.y, box.w, box.h, box.isStatic, false, box.fields)		
+	map.blocks.forEach(
+		function(block) {
+			var box = this.createBody(
+				{x: block.x, y: block.y}
+				, this.createShape("rectangle", {width: block.w, height: block.h})
+				, {isPlayer: false} 
+			)
 			this.map.push(box);
 		}, this)
 }
 
 Vanilla.prototype.evaluateContact = function(contact) {
 	if (!contact.IsTouching()) {
-		//Not touching
+		//Not touching yet
 		return;
 	}
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	var player = bodyA;
-	if (bodyA.GetUserData().isStatic)
-		player = bodyB;
+	var player = bodyB;
+	if (bodyA.GetUserData().isPlayer)
+		player = bodyA;
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
 
 	//http://www.iforce2d.net/b2dtut/collision-anatomy
-	var vel1 = bodyA.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
-	var vel2 = bodyB.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
+	var vel1 = 
+		bodyA.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
+	var vel2 = 
+		bodyB.GetLinearVelocityFromWorldPoint(worldManifold.m_points[0]);
 	var impactVelocity = {x: vel1.x - vel2.x, y: vel1.y - vel2.y};
-	var impact = Math.sqrt(impactVelocity.x * impactVelocity.x + impactVelocity.y * impactVelocity.y);
+	var impact = 
+		Math.sqrt(
+			impactVelocity.x * impactVelocity.x 
+			+ impactVelocity.y * impactVelocity.y);
 
 	var loss = Math.max(gameplay.minimumContactDamage, impact * gameplay.contactDamangeMultiplier);
 
 	player.GetUserData().health -= loss;
 }
-/**** }}} methods ***/
+/**** }}} internal utility methods ***/
+
+/**** {{{ physics interface methods ****/
+Vanilla.prototype.createShape = function(type, props) {
+	w = props.width; h = props.height
+	switch (type) {
+		case ("rectangle"): {
+			shape = new b2PolygonShape
+			shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
+			return shape
+		}
+		case ("triangle"): {
+			shape = new b2PolygonShape
+			shape.SetAsArray([
+				new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
+				, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
+				, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+			return shape 
+		}
+	}
+}
+
+Vanilla.prototype.createBody = function(pos, shape, props) {
+	/**** {{{ default params****/
+	if (typeof props == "undefined") props = {}
+	if (typeof props.density == "undefined") props.density = 0
+	if (typeof props.friction == "undefined") props.friction = 0
+	if (typeof props.restitution == "undefined") props.restitution = 1
+	if (typeof props.isPlayer == "undefined") props.isPlayer = false
+	/**** }}} default params ****/
+
+	/**** {{{ fixture definition ****/
+	var fixDef = new b2FixtureDef
+	fixDef.density = props.density
+	fixDef.friction = props.friction
+	fixDef.restitution = props.restitution
+	fixDef.shape = shape
+
+	if (props.isPlayer) {
+		fixDef.filter.categoryBits = 0x0002
+		fixDef.filter.maskBits = 0x0001
+	} else {
+		fixDef.filter.categoryBits = 0x0001
+	}
+	/**** }}} fixture definition ****/
+
+	/**** {{{ body definition ****/
+	var bodyDef = new b2BodyDef
+	bodyDef.type = 
+		(props.isPlayer ? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
+	bodyDef.position.x = pos.x / this.scale
+	bodyDef.position.y = pos.y / this.scale
+	/**** }}} body definition ****/
+	
+	// enter box into world with body and fixture definitions
+	box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
+	box.SetUserData({isPlayer: props.isPlayer})
+
+	return box
+} 
+/**** }}} physics interface methods ****/
+
+/**** {{{ mode-facing methods ****/
+Vanilla.prototype.addProjectile = function(pos) {
+}
+/**** }}} mode-facing methods ****/
 
 /**** {{{ initialisation ****/
 Vanilla.prototype.init = function(data) {
@@ -771,7 +789,7 @@ Vanilla.prototype.makeInitData = function(key) {
 
 Vanilla.prototype.describeState = function() {
 	return JSON.stringify({
-		map: this.staticMap
+		map: this.mapData
 		, players: this.players.map(
 			function(player) {
 				return {id: player.id, name: player.name}
@@ -928,7 +946,14 @@ function Player(game, id, x, y, name) {
 
 	// this value should *never* be accessed; instead, access
 	// the position, velocity, rotation, and rotationVel values above
-	this.block = this.game.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, true, {restitution: 0.1, friction: 0.1});
+	this.block = 
+		this.game.createBody(
+			{x: x, y: y}
+			, this.game.createShape("triangle", 
+					{width: gameplay.playerWidth, height: gameplay.playerHeight}
+				)
+			, {isPlayer: true} 
+		)
 }
 /**** }}} Player() ****/
 
@@ -1344,24 +1369,30 @@ exports.keyCodeFromName = function(name) {
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
 maps = {
-	bloxMap:  [
-		// bounding blocks
-		{x:  800, y:   5, w: 1600, h:  10, isStatic: true, fields: {}},
-		{x:  800, y: 895, w: 1600, h:  10, isStatic: true, fields: {}},
-		{x:    5, y: 450, w:   10, h: 900, isStatic: true, fields: {}},
-		{x: 1595, y: 450, w:   10, h: 900, isStatic: true, fields: {}},
+	bloxMap: {
+		dimensions: 
+			{ width: 1600, height: 800 }
+		, blocks: 	
+			[ 
+				// bounding blocks
+				{x:  800, y:   5, w: 1600, h:  10}
+				, {x:  800, y: 895, w: 1600, h:  10}
+				, {x:    5, y: 450, w:   10, h: 900}
+				, {x: 1595, y: 450, w:   10, h: 900}
 
-		{x: 290, y: 130, w: 40, h: 40, isStatic: true, fields: {}},
-		{x: 330, y: 210, w: 40, h: 40, isStatic: true, fields: {}},
-		{x: 670, y: 330, w: 40, h: 40, isStatic: true, fields: {}},
-		{x: 410, y: 230, w: 40, h: 40, isStatic: true, fields: {}},
-		{x: 550, y: 130, w: 40, h: 40, isStatic: true, fields: {}},
-		{x: 590, y: 240, w: 40, h: 40, isStatic: true, fields: {}},
-		{x: 590, y: 200, w: 20, h: 10, isStatic: true, fields: {}},
-		{x: 490, y: 280, w: 20, h: 10, isStatic: true, fields: {}},
-		{x: 630, y: 370, w: 40, h: 40, isStatic: true, fields: {}},
-		{x: 770, y: 400, w: 40, h: 40, isStatic: true, fields: {}}
-	]
+				// interesting blocks
+				, {x: 290, y: 130, w: 40, h: 40}
+				, {x: 330, y: 210, w: 40, h: 40}
+				, {x: 670, y: 330, w: 40, h: 40}
+				, {x: 410, y: 230, w: 40, h: 40}
+				, {x: 550, y: 130, w: 40, h: 40}
+				, {x: 590, y: 240, w: 40, h: 40}
+				, {x: 590, y: 200, w: 20, h: 10}
+				, {x: 490, y: 280, w: 20, h: 10}
+				, {x: 630, y: 370, w: 40, h: 40}
+				, {x: 770, y: 400, w: 40, h: 40}
+			]
+	}
 }
 
 module.exports = maps;

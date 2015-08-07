@@ -57,13 +57,13 @@ Vanilla.prototype.findPlayerById = function(id) {
 }
 
 Vanilla.prototype.loadMap = function (map) {
-	this.staticMap = map
+	this.mapData = map
 	this.map = []
-	map.forEach(
-		function(box) {
+	map.blocks.forEach(
+		function(block) {
 			var box = this.createBody(
-				{x: box.x, y: box.y}
-				, this.createShape("rectangle", {width: box.w, height: box.h})
+				{x: block.x, y: block.y}
+				, this.createShape("rectangle", {width: block.w, height: block.h})
 				, {isPlayer: false} 
 			)
 			this.map.push(box);
@@ -191,7 +191,7 @@ Vanilla.prototype.makeInitData = function(key) {
 
 Vanilla.prototype.describeState = function() {
 	return JSON.stringify({
-		map: this.staticMap
+		map: this.mapData
 		, players: this.players.map(
 			function(player) {
 				return {id: player.id, name: player.name}
