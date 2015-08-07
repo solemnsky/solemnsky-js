@@ -188,7 +188,7 @@ Game.prototype.acceptKey = function(key, state) {
 				if (key === "space")
 					this.chatBuffer = this.chatBuffer.concat(" ")
 				if (key === "back_space")
-					this.chatBuffer = this.chatBuffer.slice(0, this.chatBuffer.length - 2)
+					this.chatBuffer = this.chatBuffer.slice(0, this.chatBuffer.length - 1)
 			}
 		}
 		if (this.id !== null) 
@@ -201,9 +201,9 @@ Game.prototype.hasEnded = function() {
 /**** }}} ui control methods ****/
 
 /**** {{{ chat ****/
+var size = 25
 var style = {fill: 0xFFFFFF, font: size + "px arial"}
 var height = (new PIXI.Text("I", style)).height
-var size = 25
 var maxLines = 15
 var maxLinesNormal = 5 // max lines when not chatting
 var chatEntry = new PIXI.Text("", style)
@@ -218,7 +218,7 @@ Game.prototype.displayChat = function() {
 		}
 	)
 
-	this.chatStage.removeChildren
+	this.chatStage.removeChildren()
 
 	if (this.chatting) {
 	/**** {{{ when chatting ****/
