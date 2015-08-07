@@ -77,9 +77,9 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	var player = bodyA;
-	if (typeof bodyA.GetUserData() !== undefined)
-		player = bodyB;
+	var player = bodyB;
+	if (bodyA.GetUserData().isPlayer)
+		player = bodyA;
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -128,7 +128,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ default params****/
 	if (typeof props == "undefined") props = {}
 	if (typeof props.density == "undefined") props.density = 20
-	if (typeof props.friction == "undefined") props.friction = 1
+	if (typeof props.friction == "undefined") props.friction = 0.7
 	if (typeof props.restitution == "undefined") props.restitution = 0
 	if (typeof props.playerId == "undefined") props.playerId = null
 	/**** }}} default params ****/
@@ -140,7 +140,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.isPlayer) {
+	if (props.playerId !== null) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
@@ -151,7 +151,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ body definition ****/
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
-		(props.isPlayer ? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
+		((props.playerId !== null)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
 	bodyDef.position.x = pos.x / this.scale
 	bodyDef.position.y = pos.y / this.scale
 	/**** }}} body definition ****/

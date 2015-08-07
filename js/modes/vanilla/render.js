@@ -10,22 +10,22 @@ gameplay = require('./gameplay.js')
 module.exports = function(Vanilla) {
 
 /**** {{{ render map and players ****/
-Vanilla.prototype.renderMap = function(map) {
+Vanilla.prototype.renderMap = function(pan, map) {
 	map.clear()
 	map.beginFill(0xFFFFFF, 1)
 	
 	this.mapData.blocks.forEach(
 		function(block) {
 			map.drawRect(
-				block.x - (block.w / 2)
-				, block.y - (block.h / 2)
+				block.x - (block.w / 2) + pan.x
+				, block.y - (block.h / 2) + pan.y
 				, block.w, block.h
 			)
 		}
 	)
 }
 
-Vanilla.prototype.renderPlayers = function(delta, id, players) {
+Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 	players.removeChildren()
 
 	this.players.forEach(
@@ -63,18 +63,18 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			
 			/**** {{{ position player graphics ****/
 			function placePlayerSprite(sprite) {
-				sprite.position.set(pos.x, pos.y) 
+				sprite.position.set(pos.x + pan.x, pos.y + pan.y) 
 				sprite.rotation = rot
 			}
 
 			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite)
 			player.anim.thrustSprite.alpha = player.anim.thrustLevel
 
-			player.anim.nameText.position.set(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
+			player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
 
 			player.anim.barView.clear()
 			player.anim.barView.beginFill(0xFFFFFF, 0.5)
-			player.anim.barView.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
+			player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
 			/**** }}} position player graphics ****/
 
 			/**** {{{ add to players container ****/
@@ -99,7 +99,14 @@ Vanilla.prototype.initRender = function(stage) {
 }
 
 Vanilla.prototype.stepRender = function(id, stage, delta) {
-	this.renderMap(stage.children[0])
-	this.renderPlayers(delta, id, stage.children[1])
+	var player = this.findPlayerById(id)
+	var pan = {x: 0, y: 0}
+
+	if (player !== null) {
+		pan = {x: -player.position.x + 800, y: -player.position.y + 450}
+	} 
+
+	this.renderMap(pan, stage.children[0])
+	this.renderPlayers(pan, delta, id, stage.children[1])
 }
 }

@@ -48,7 +48,7 @@ function Player(game, id, x, y, name) {
 			, this.game.createShape("triangle", 
 					{width: gameplay.playerWidth, height: gameplay.playerHeight}
 				)
-			, {isPlayer: true} 
+			, {playerId: id} 
 		)
 }
 /**** }}} Player() ****/
@@ -179,8 +179,6 @@ Player.prototype.step = function(delta) {
 
 	if (this.respawning) {
 		this.position = Utils.jsonClone(this.spawnpoint)
-			// wtf why is this necessary.. oh well, spent too long with this
-			// part of the code for today
 		this.velocity = {x: 50, y: 0}
 		this.rotation = 0;	
 		this.rotationVel = 0;

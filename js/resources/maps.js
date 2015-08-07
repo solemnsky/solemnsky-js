@@ -4,14 +4,14 @@
 maps = {
 	bloxMap: {
 		dimensions: 
-			{ width: 1600, height: 800 }
+			{ width: 3200, height: 800 }
 		, blocks: 	
 			[ 
 				// bounding blocks
-				{x:  800, y:   5, w: 1600, h:  10}
-				, {x:  800, y: 895, w: 1600, h:  10}
+				{x:  1600, y:   5, w: 3200, h:  10}
+				, {x:  1600, y: 895, w: 3200, h:  10}
 				, {x:    5, y: 450, w:   10, h: 900}
-				, {x: 1595, y: 450, w:   10, h: 900}
+				, {x: 3195, y: 450, w:   10, h: 900}
 
 				// interesting blocks
 				, {x: 290, y: 130, w: 40, h: 40}

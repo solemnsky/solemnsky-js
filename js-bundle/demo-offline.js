@@ -780,9 +780,9 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	var player = bodyA;
-	if (typeof bodyA.GetUserData() !== undefined)
-		player = bodyB;
+	var player = bodyB;
+	if (bodyA.GetUserData().isPlayer)
+		player = bodyA;
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -831,7 +831,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ default params****/
 	if (typeof props == "undefined") props = {}
 	if (typeof props.density == "undefined") props.density = 20
-	if (typeof props.friction == "undefined") props.friction = 1
+	if (typeof props.friction == "undefined") props.friction = 0.7
 	if (typeof props.restitution == "undefined") props.restitution = 0
 	if (typeof props.playerId == "undefined") props.playerId = null
 	/**** }}} default params ****/
@@ -843,7 +843,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.isPlayer) {
+	if (props.playerId !== null) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
@@ -854,7 +854,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ body definition ****/
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
-		(props.isPlayer ? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
+		((props.playerId !== null)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
 	bodyDef.position.x = pos.x / this.scale
 	bodyDef.position.y = pos.y / this.scale
 	/**** }}} body definition ****/
@@ -1059,7 +1059,7 @@ function Player(game, id, x, y, name) {
 			, this.game.createShape("triangle", 
 					{width: gameplay.playerWidth, height: gameplay.playerHeight}
 				)
-			, {isPlayer: true} 
+			, {playerId: id} 
 		)
 }
 /**** }}} Player() ****/
@@ -1190,8 +1190,6 @@ Player.prototype.step = function(delta) {
 
 	if (this.respawning) {
 		this.position = Utils.jsonClone(this.spawnpoint)
-			// wtf why is this necessary.. oh well, spent too long with this
-			// part of the code for today
 		this.velocity = {x: 50, y: 0}
 		this.rotation = 0;	
 		this.rotationVel = 0;
@@ -1222,22 +1220,22 @@ gameplay = require('./gameplay.js')
 module.exports = function(Vanilla) {
 
 /**** {{{ render map and players ****/
-Vanilla.prototype.renderMap = function(map) {
+Vanilla.prototype.renderMap = function(pan, map) {
 	map.clear()
 	map.beginFill(0xFFFFFF, 1)
 	
 	this.mapData.blocks.forEach(
 		function(block) {
 			map.drawRect(
-				block.x - (block.w / 2)
-				, block.y - (block.h / 2)
+				block.x - (block.w / 2) + pan.x
+				, block.y - (block.h / 2) + pan.y
 				, block.w, block.h
 			)
 		}
 	)
 }
 
-Vanilla.prototype.renderPlayers = function(delta, id, players) {
+Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 	players.removeChildren()
 
 	this.players.forEach(
@@ -1275,18 +1273,18 @@ Vanilla.prototype.renderPlayers = function(delta, id, players) {
 			
 			/**** {{{ position player graphics ****/
 			function placePlayerSprite(sprite) {
-				sprite.position.set(pos.x, pos.y) 
+				sprite.position.set(pos.x + pan.x, pos.y + pan.y) 
 				sprite.rotation = rot
 			}
 
 			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite)
 			player.anim.thrustSprite.alpha = player.anim.thrustLevel
 
-			player.anim.nameText.position.set(pos.x - (player.anim.nameText.width / 2), (pos.y + gameplay.graphicsNameClear))
+			player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
 
 			player.anim.barView.clear()
 			player.anim.barView.beginFill(0xFFFFFF, 0.5)
-			player.anim.barView.drawRect((pos.x - (gameplay.graphicsBarWidth / 2)), (pos.y - gameplay.graphicsBarClear), (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
+			player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
 			/**** }}} position player graphics ****/
 
 			/**** {{{ add to players container ****/
@@ -1311,8 +1309,15 @@ Vanilla.prototype.initRender = function(stage) {
 }
 
 Vanilla.prototype.stepRender = function(id, stage, delta) {
-	this.renderMap(stage.children[0])
-	this.renderPlayers(delta, id, stage.children[1])
+	var player = this.findPlayerById(id)
+	var pan = {x: 0, y: 0}
+
+	if (player !== null) {
+		pan = {x: -player.position.x + 800, y: -player.position.y + 450}
+	} 
+
+	this.renderMap(pan, stage.children[0])
+	this.renderPlayers(pan, delta, id, stage.children[1])
 }
 }
 
@@ -1474,14 +1479,14 @@ exports.keyCodeFromName = function(name) {
 maps = {
 	bloxMap: {
 		dimensions: 
-			{ width: 1600, height: 800 }
+			{ width: 3200, height: 800 }
 		, blocks: 	
 			[ 
 				// bounding blocks
-				{x:  800, y:   5, w: 1600, h:  10}
-				, {x:  800, y: 895, w: 1600, h:  10}
+				{x:  1600, y:   5, w: 3200, h:  10}
+				, {x:  1600, y: 895, w: 3200, h:  10}
 				, {x:    5, y: 450, w:   10, h: 900}
-				, {x: 1595, y: 450, w:   10, h: 900}
+				, {x: 3195, y: 450, w:   10, h: 900}
 
 				// interesting blocks
 				, {x: 290, y: 130, w: 40, h: 40}
