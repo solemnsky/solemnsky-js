@@ -37,7 +37,7 @@ b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
 b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
 /**** }}} box2d synonyms ****/
 
-/**** {{{ methods ****/
+/**** {{{ internal utility methods ****/
 Vanilla.prototype.addPlayer = function(id, name) {
 	if (this.players.some(function(player) {return player.id == id})) {
 		return null
@@ -56,61 +56,6 @@ Vanilla.prototype.findPlayerById = function(id) {
 	return Utils.findElemById(this.players, id)
 }
 
-Vanilla.prototype.createBox = function(x, y, w, h, isStatic, isPlayer, fields) {
-	//Create a fixture definition for the box
-	var fixDef = new b2FixtureDef;
-	fixDef.density = 10;
-	fixDef.friction = 1;
-	fixDef.restitution = 0;
-	if (isPlayer) {
-		fixDef.filter.categoryBits = 0x0002
-		fixDef.filter.maskBits = 0x0001
-	} else {
-		fixDef.filter.categoryBits = 0x0001
-	}
-
-	//Create the body definition
-	var bodyDef = new b2BodyDef;
-
-	//Box type defined by the caller
-	bodyDef.type = (isStatic ? b2Body.b2_staticBody : b2Body.b2_dynamicBody);
-
-	//Read from the fields, if they exist
-	if (typeof fields !== "undefined") {
-		if (typeof fields.density !== "undefined") 
-			fixDef.density = fields.density;
-		if (typeof fields.friction !== "undefined") 
-			fixDef.friction = fields.friction;
-		if (typeof fields.restitution !== "undefined") 
-			fixDef.restitution = fields.restitution;
-	}
-	
-	//Positions the center of the object (not upper left!)
-	bodyDef.position.x = x / this.scale;
-	bodyDef.position.y = y / this.scale;
-	
-	fixDef.shape = new b2PolygonShape;
-	
-	if (isPlayer) {
-		fixDef.shape.SetAsArray([
-			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
-			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
-			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
-	} else {
-		fixDef.shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale);
-	}
-	box = this.world.CreateBody(bodyDef);
-	box.CreateFixture(fixDef);
-
-	box.life = 1;
-	if (typeof fields !== "undefined" && typeof fields.life !== "undefined") box.life = fields.life;
-
-	box.SetUserData(
-		{x: x, y: y, w: w, h: h, isStatic: isStatic, fields: fields});
-
-	return box;
-} 
-
 Vanilla.prototype.loadMap = function (map) {
 	this.staticMap = map
 	this.map = []
@@ -124,15 +69,15 @@ Vanilla.prototype.loadMap = function (map) {
 
 Vanilla.prototype.evaluateContact = function(contact) {
 	if (!contact.IsTouching()) {
-		//Not touching
+		//Not touching yet
 		return;
 	}
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	var player = bodyA;
-	if (bodyA.GetUserData().isStatic)
-		player = bodyB;
+	var player = bodyB;
+	if (bodyA.GetUserData().isPlayer)
+		player = bodyA;
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -147,7 +92,74 @@ Vanilla.prototype.evaluateContact = function(contact) {
 
 	player.GetUserData().health -= loss;
 }
-/**** }}} methods ***/
+/**** }}} internal utility methods ***/
+
+/**** {{{ physics interface methods ****/
+Vanilla.prototype.createShape = function(type, props) {
+	w = props.width; h = props.height
+	switch (type) {
+		case ("box"): {
+			shape = new b2PolygonShape
+			shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
+			return shape
+		}
+		case ("player"): {
+			shape = new b2PolygonShape
+			shape.SetAsArray([
+				new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
+				, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
+				, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+			return shape 
+		}
+	}
+}
+
+Vanilla.prototype.createBox = function(pos, shape, props, userData) {
+	/**** {{{ default params****/
+	if (typeof props == "undefined") props = {}
+	if (typeof props.density == "undefined") props.density = 0
+	if (typeof props.friction == "undefined") props.friction = 0
+	if (typeof props.restitution == "undefined") props.restitution = 1
+	if (typeof props.isPlayer == "undefined") props.isPlayer = false
+	if (typeof userData == "undefined") userData = {}
+	/**** }}} default params ****/
+
+	/**** {{{ fixture definition ****/
+	var fixDef = new b2FixtureDef
+	fixDef.density = fields.density
+	fixDef.friction = fields.friction
+	fixDef.restitution = fields.restitution
+	fixDef.shape = shape
+
+	if (props.isPlayer) {
+		fixDef.filter.categoryBits = 0x0002
+		fixDef.filter.maskBits = 0x0001
+	} else {
+		fixDef.filter.categoryBits = 0x0001
+	}
+	/**** }}} fixture definition ****/
+
+	/**** {{{ body definition ****/
+	var bodyDef = new b2BodyDef
+	bodyDef.type = 
+		(fields.isPlayer ? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
+	bodyDef.position.x = pos.x / this.scale
+	bodyDef.position.y = pos.y / this.scale
+	/**** }}} body definition ****/
+	
+	// enter box into world with body and fixture definitions
+	box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
+	box.SetUserData({userData: userData, isPlayer: props.isPlayer})
+
+	return box
+} 
+/**** }}} physics interface methods ****/
+
+/**** {{{ mode-facing methods ****/
+Vanilla.prototype.addProjectile = function(pos) {
+	this.projectiles.push(this.createBox(pos, this.createShape("box", 
+}
+/**** }}} mode-facing methods ****/
 
 /**** {{{ initialisation ****/
 Vanilla.prototype.init = function(data) {
