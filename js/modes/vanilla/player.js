@@ -42,7 +42,14 @@ function Player(game, id, x, y, name) {
 
 	// this value should *never* be accessed; instead, access
 	// the position, velocity, rotation, and rotationVel values above
-	this.block = this.game.createBox(x, y, gameplay.playerWidth, gameplay.playerHeight, false, true, {restitution: 0.1, friction: 0.1});
+	this.block = 
+		this.game.createBody(
+			{x: x, y: y}
+			, this.game.createShape("triangle", 
+					{width: gameplay.playerWidth, height: gameplay.playerHeight}
+				)
+			, {playerId: id} 
+		)
 }
 /**** }}} Player() ****/
 
@@ -56,7 +63,6 @@ Player.prototype.writeToBlock = function() {
 		, this.velocity.y / this.game.scale))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
-	this.block.GetUserData().health = this.health
 }
 
 Player.prototype.readFromBlock = function() {
@@ -69,8 +75,6 @@ Player.prototype.readFromBlock = function() {
 	this.position.y = pos.y * this.game.scale;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
-
-	this.health = this.block.GetUserData().health 
 }
 /**** }}} reading and writing between wrappers and box2d ****/
 
@@ -175,8 +179,6 @@ Player.prototype.step = function(delta) {
 
 	if (this.respawning) {
 		this.position = Utils.jsonClone(this.spawnpoint)
-			// wtf why is this necessary.. oh well, spent too long with this
-			// part of the code for today
 		this.velocity = {x: 50, y: 0}
 		this.rotation = 0;	
 		this.rotationVel = 0;

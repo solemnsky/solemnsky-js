@@ -8,8 +8,8 @@ Utils = require('../../resources/util.js')
 module.exports = function(Demo) {
 
 Demo.prototype.initRender = function(stage) { 
-	var title = new PIXI.Text("solemnsky development demo", {fill: 0xFFFFFF})
-	title.position = new PIXI.Point(800, 10)
+	var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
+	title.position = new PIXI.Point((800 - (title.width / 2)), 10)
 	stage.addChild(title)
 
 	this.vanillaStage = new PIXI.Container()
@@ -18,7 +18,7 @@ Demo.prototype.initRender = function(stage) {
 }
 
 Demo.prototype.stepRender = function(id, stage, delta) {
-	this.vanilla.stepRender(this.vanillaStage, delta)
+	this.vanilla.stepRender(id, this.vanillaStage, delta)
 }
 
 }
