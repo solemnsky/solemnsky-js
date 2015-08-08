@@ -16,6 +16,11 @@ snapshots = require('./snapshots.js')
 /**** {{{ constructor ****/
 function Vanilla() {
 	this.players = []
+
+	this.mapData = []
+	// some involved things about the map, like links to the box2d blocks
+	// and pixi container is stored in this.map, this.mapData is just
+	// the data from resources/maps.js
 	this.map = []
 	this.scale = gameplay.physicsScale
 

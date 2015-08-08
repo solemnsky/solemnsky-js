@@ -614,6 +614,11 @@ snapshots = require('./snapshots.js')
 /**** {{{ constructor ****/
 function Vanilla() {
 	this.players = []
+
+	this.mapData = []
+	// some involved things about the map, like links to the box2d blocks
+	// and pixi container is stored in this.map, this.mapData is just
+	// the data from resources/maps.js
 	this.map = []
 	this.scale = gameplay.physicsScale
 
@@ -1116,19 +1121,31 @@ module.exports = function(Vanilla) {
 
 /**** {{{ render map and players ****/
 Vanilla.prototype.renderMap = function(pan, map) {
-	map.clear()
-	map.beginFill(0xFFFFFF, 1)
+	map.removeChildren()
 	
-	this.mapData.blocks.forEach(
-		function(block) {
-			map.drawRect(
-				block.x - (block.w / 2) + pan.x
-				, block.y - (block.h / 2) + pan.y
-				, block.w, block.h
-			)
-		}
-	)
+	// if not set, initialise the map graphics
+	if (typeof this.map.anim == "undefined") {
+		this.map.anim = {}
+		var mapGraphics = new PIXI.Graphics
+		mapGraphics.clear()
+		mapGraphics.beginFill(0xFFFFFF, 1)
+		this.mapData.blocks.forEach(
+			function(block) {
+				mapGraphics.drawRect(
+					block.x - (block.w / 2) 
+					, block.y - (block.h / 2) 
+					, block.w, block.h
+				)
+			}
+		)
+		this.map.anim.mapGraphics = mapGraphics
+	}
+
+	// enter the map graphics into the map container
+	this.map.anim.mapGraphics.position.set(pan.x, pan.y)
+	map.addChild(this.map.anim.mapGraphics)
 }
+
 
 Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 	players.removeChildren()
@@ -1199,7 +1216,7 @@ Vanilla.prototype.initRender = function(stage) {
 	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
 	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
 
-	stage.addChild(new PIXI.Graphics)
+	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)
 }
 
