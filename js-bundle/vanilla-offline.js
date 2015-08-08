@@ -1281,7 +1281,8 @@ exports.applySnapshot = function(world, snapshot) {
 			if (player !== null) {
 				Object.keys(snapshot).forEach(
 					function(key) {
-						player[key] = Util.clone(snapshot[key])
+						if (key !== "priority")
+							player[key] = Util.clone(snapshot[key])
 					}	
 				, this)
 				player.writeToBlock();
