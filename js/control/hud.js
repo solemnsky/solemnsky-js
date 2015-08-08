@@ -1,9 +1,11 @@
 /*                  ******** client-arena.js ********                  //
-\\ Basic HUD to render an event log to a pixi container.               \\
+\\ Basic HUD to render an event log.                                   \\
 //                  ******** client-arena.js ********                  */
 
 PIXI = require('../../assets/pixi.min.js')
 
-module.exports = function(events, container) {
-	// render the events to a HUD container
+// TODO
+exports.initRender = function(stage) {
+}
+exports.stepRender(events, stage, delta, performance) {
 }

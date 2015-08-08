@@ -5,6 +5,7 @@
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
 renderHud = require('./hud.js')
+renderPerf = require('./perf.js')
 
 module.exports = function(mode, address, port, path) {
 
@@ -141,21 +142,20 @@ Game.prototype.initRender = function(stage) {
 	this.modeStage = new PIXI.Container()
 	stage.addChild(this.modeStage);
 
-	this.fpsText = new PIXI.Text("", {fill: 0xFFFFFF})
-	this.fpsText.position = new PIXI.Point(1400, 10)
-	stage.addChild(this.fpsText)
+	this.performance = new PIXI.Container()
+	renderPerf.initRender(this.performance)
 	
 	this.chatStage = new PIXI.Container()
 	stage.addChild(this.chatStage)
 }
-Game.prototype.stepRender = function(stage, delta, x, y) {
+Game.prototype.stepRender = function(stage, delta, performance) {
 	if (this.initialised) {
 		if (this.id !== null) {
 			mode.stepRender(this.id, this.modeStage, delta, x, y)
 		} else {
 			mode.stepRender(null, this.modeStage, delta, x, y)
 		}
-		this.fpsText.text = "render: " + x + "Hz\nengine: " + y + "Hz"
+		renderPerf.stepRender(this.performance, delta, performance)
 	}
 	this.displayChat()
 	

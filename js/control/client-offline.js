@@ -33,8 +33,8 @@ module.exports = function(mode) {
 		mode.initRender(this.modeStage)
 	}
 
-	Game.prototype.stepRender = function(stage, delta, tps, fps) {
-		this.fps.text = tps + "tps, " + fps + "fps"
+	Game.prototype.stepRender = function(stage, delta, performance) {
+		this.fps.text = performance.tps + "tps, " + performance.fps + "fps" + "\nrender delta: " + performance.renderTime
 		mode.stepRender(0, this.modeStage, delta) 
 		renderHud(this.eventLog, this.hudStage)
 	}

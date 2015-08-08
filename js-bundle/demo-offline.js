@@ -513,8 +513,8 @@ module.exports = function(mode) {
 		mode.initRender(this.modeStage)
 	}
 
-	Game.prototype.stepRender = function(stage, delta, tps, fps) {
-		this.fps.text = tps + "tps, " + fps + "fps"
+	Game.prototype.stepRender = function(stage, delta, performance) {
+		this.fps.text = performance.tps + "tps, " + performance.fps + "fps" + "\nrender delta: " + performance.renderTime
 		mode.stepRender(0, this.modeStage, delta) 
 		renderHud(this.eventLog, this.hudStage)
 	}
@@ -1864,12 +1864,14 @@ runWithStage = function(target, renderer, stage, object) {
 	object.init()
 
 	var blurred = false
-	// var blurTime = 0
 	var running = true
 
+	var accum = 0;
+
+	// performance data
 	var fps = 0; var fpsC = 0
 	var tps = 0; var tpsC = 0
-	var accum = 0;
+	var renderTime = 0;
 
 	resetFps = function() {
 		if (running) {
@@ -1893,8 +1895,6 @@ runWithStage = function(target, renderer, stage, object) {
 				requestAnimFrame(update) 
 			} else {
 				setTimeout(update, ((1/target) * 1000))
-				// if (blurTime > 10000) return
-				// blurTime += delta				
 			}
 
 			accum += delta
@@ -1908,8 +1908,15 @@ runWithStage = function(target, renderer, stage, object) {
 			}
 
 			if (needPaint) {
-				object.stepRender(stage, delta, tps, fps)
+				var performance = 
+					{ tps: tps
+					, fps: fps
+					, renderTime: renderTime }
+				var renderStart = Date.now()
+				object.stepRender(stage, delta, performance)
 				renderer.render(stage)
+				var renderEnd = Date.now()
+				renderTime = renderEnd - renderStart
 				fpsC++
 			}
 		} else {
