@@ -68,7 +68,7 @@ Vanilla.prototype.loadMap = function (map) {
 			var box = this.createBody(
 				{x: block.x, y: block.y}
 				, this.createShape("rectangle", {width: block.w, height: block.h})
-				, {isPlayer: false} 
+				, {isStatic: true, bodyType: "map"} 
 			)
 			this.map.push(box);
 		}, this)
@@ -83,7 +83,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
 	var player = bodyB;
-	if (bodyA.GetUserData().isPlayer)
+	if (bodyA.GetUserData().bodyType == "player")
 		player = bodyA;
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
@@ -103,7 +103,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var loss = Math.max(gameplay.minimumContactDamage, impact * gameplay.contactDamangeMultiplier);
 
 	// write the collision's effect to the player object
-	var playerData = this.findPlayerById(player.GetUserData().playerId)
+	var playerData = this.findPlayerById(player.GetUserData().bodyId)
 	if (playerData !== null)
 		playerData.health -= loss;
 }
@@ -135,7 +135,11 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	if (typeof props.density == "undefined") props.density = 20
 	if (typeof props.friction == "undefined") props.friction = 0.7
 	if (typeof props.restitution == "undefined") props.restitution = 0
+	if (typeof props.isStatic == "undefined") props.isStatic = true
+	
 	if (typeof props.playerId == "undefined") props.playerId = null
+	if (typeof props.bodyType == "undefined") props.bodyType = null
+	if (typeof props.bodyId == "undefined") props.bodyType = null
 	/**** }}} default params ****/
 
 	/**** {{{ fixture definition ****/
@@ -156,21 +160,21 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ body definition ****/
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
-		((props.playerId !== null)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
+		((!props.isStatic)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
 	bodyDef.position.x = pos.x / this.scale
 	bodyDef.position.y = pos.y / this.scale
 	/**** }}} body definition ****/
 	
 	// enter box into world with body and fixture definitions
 	box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
-	box.SetUserData({playerId: props.playerId, isPlayer: (props.playerId !== null)})
+	box.SetUserData({bodyType: props.bodyType, bodyId: props.bodyId})
 
 	return box
 } 
 /**** }}} physics interface methods ****/
 
 /**** {{{ mode-facing methods ****/
-Vanilla.prototype.addProjectile = function(pos) {
+Vanilla.prototype.addProjectile = function(id, type, pos) {
 }
 /**** }}} mode-facing methods ****/
 

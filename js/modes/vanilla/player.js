@@ -48,7 +48,7 @@ function Player(game, id, x, y, name) {
 			, this.game.createShape("triangle", 
 					{width: gameplay.playerWidth, height: gameplay.playerHeight}
 				)
-			, {playerId: id} 
+			, {isStatic: false, bodyType: "player", bodyId: id} 
 		)
 }
 /**** }}} Player() ****/
