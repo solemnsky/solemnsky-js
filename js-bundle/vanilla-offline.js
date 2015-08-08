@@ -1132,8 +1132,8 @@ Vanilla.prototype.renderMap = function(pan, map) {
 		this.mapData.blocks.forEach(
 			function(block) {
 				mapGraphics.drawRect(
-					block.x - (block.w / 2) + pan.x
-					, block.y - (block.h / 2) + pan.y
+					block.x - (block.w / 2) 
+					, block.y - (block.h / 2) 
 					, block.w, block.h
 				)
 			}
@@ -1143,7 +1143,7 @@ Vanilla.prototype.renderMap = function(pan, map) {
 
 	// enter the map graphics into the map container
 	this.map.anim.mapGraphics.position.set(pan.x, pan.y)
-	map.addChild(this.map.anim.graphics)
+	map.addChild(this.map.anim.mapGraphics)
 }
 
 
