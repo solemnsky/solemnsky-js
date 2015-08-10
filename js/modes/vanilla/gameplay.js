@@ -37,7 +37,7 @@ module.exports = {
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 100
 	, playerExitStallThreshold: 150
-	, playerGravityEffect: 50
+	, playerGravityEffect: 30
 			// the acceleration that gravity has on our player
 			// when not stalled
 
