@@ -23,7 +23,7 @@ module.exports = {
 	// the maximum linear velocity also does
 	, playerMaxVelocity: 200
 	, playerMaxVelocityStalled: 250
-	, playerAfterburner: 330 // speed with afterburner
+	, playerAfterburner: 250 // speed with afterburner
 	, playerAfterburnerStalled: 500 // acceleration of afterburner in a stall
 
 	// a lot of values in the game engine are 'damped out'
@@ -33,6 +33,8 @@ module.exports = {
 
 	// the gravity coasting mechanic
 	, playerGravityCoastMax: 130
+	, gravityCoastNaturalGain: 80
+	, gravityCoastThrusterGain: 70
 
 	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 
@@ -40,9 +42,6 @@ module.exports = {
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 100
 	, playerExitStallThreshold: 150
-	, playerGravityEffect: 30
-			// the acceleration that gravity has on our player
-			// when not stalled
 
 	, minimumContactDamage: 0.02
 	, contactDamangeMultiplier: 0.01

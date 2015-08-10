@@ -123,15 +123,15 @@ Player.prototype.step = function(delta) {
 	/**** {{{ motion when not stalled ****/
 	else {
 		// modify throttle
-		if (this.movement.forward && this.throttle < 1) {
+		if (this.movement.forward && this.throttle < 1) 
 			this.throttle += gameplay.playerThrottleSpeed * (delta / 1000)
-			// also get gravityCoast
-			this.gravityCoast = gameplay.playerGravityCoastMax
-		}
 		if (this.movement.backward && this.throttle > 0)
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
-		if (this.movement.forward && this.throttle === 1)
+		if (this.movement.forward && this.throttle === 1) {
 			this.afterburner = true;
+			// also get gravityCoast
+			this.gravityCoast += gameplay.gravityCoastThrusterGain * (delta / 1000)
+		}
 
 		if (this.throttle > 1) this.throttle = 1
 		if (this.throttle < 0) this.throttle = 0
@@ -140,7 +140,7 @@ Player.prototype.step = function(delta) {
 		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 
-		this.gravityCoast += Math.sin(this.rotation) * (delta / 1000) * gameplay.gravity * gameplay.physicsScale
+		this.gravityCoast += Math.sin(this.rotation) * (delta / 1000) * gameplay.gravityCoastNaturalGain 
 
 		this.gravityCoast = Math.min(this.gravityCoast, gameplay.playerGravityCoastMax)
 		this.gravityCoast = Math.max(this.gravityCoast, 0)
