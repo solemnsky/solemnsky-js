@@ -1168,7 +1168,7 @@ Player.prototype.step = function(delta) {
 
 		this.gravityCoast += Math.sin(this.rotation) * (delta / 1000) * gameplay.gravity * gameplay.physicsScale
 
-		this.gravityCoast = Math.min(this.gravityCoast, this.playerGravityCoastMax)
+		this.gravityCoast = Math.min(this.gravityCoast, gameplay.playerGravityCoastMax)
 		this.gravityCoast = Math.max(this.gravityCoast, 0)
 
 		// move in the direction of angle, taking in affect gravity and
