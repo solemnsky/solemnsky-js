@@ -119,7 +119,10 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 	var pan = {x: 0, y: 0}
 
 	if (player !== null) {
-		pan = {x: -player.position.x + 800, y: -player.position.y + 450}
+		comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
+		pan = 
+			{x: comOffset.x + -(player.position.x) + 800 
+			,y: comOffset.y + -(player.position.y) + 450}
 	} 
 
 	this.renderMap(pan, stage.children[0])
