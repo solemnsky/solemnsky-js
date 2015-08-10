@@ -4,8 +4,8 @@
 
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
-renderHud = require('./hud.js')
-renderPerf = require('./perf.js')
+
+renderPerf = require('./hud/performange.js')
 
 module.exports = function(mode, address, port, path) {
 

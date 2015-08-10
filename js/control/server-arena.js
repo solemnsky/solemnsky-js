@@ -2,10 +2,11 @@
 // An arena server where players may join and quit freely.             \\
 \\                  ******** server-arena.js ********                  */
 
-module.exports = function(port, mode, key) {
-//Sockets
-WebSocket = require("ws");
+WebSocket = require("ws")
 
+module.exports = function(port, mode, key) {
+
+/**** {{{ utility functions ****/
 function getClientAddress(client) {
 	return client._socket.remoteAddress + ":" + client._socket.remotePort;
 }
@@ -26,7 +27,9 @@ function openSocket(port) {
 		onClientConnected(client);
 	});
 }
+/**** }}} utility functions ****/
 
+/**** {{{ callbacks ****/
 function onClientConnected(client) {
 	//Bind the client's handlers
 	client.on("message", function(message) {
@@ -68,7 +71,9 @@ function onMessage(client, message) {
 			client.send("ECHO " + data)
 	}
 }
+/**** }}} callbacks ****/
 
+/**** {{{ simulation / broadcast ****/
 then = Date.now()
 function logicLoop() {
 	now = Date.now()
@@ -82,9 +87,10 @@ function snapBroadcast() {
 	broadcast("SNAP " + mode.serverAssert())	
 	setTimeout(snapBroadcast, 20)
 }
+/**** }}} simulation / broadcast ****/
 
-openSocket(port);
-mode.init(mode.makeInitData(key));
-snapBroadcast()
-logicLoop()
+openSocket(port) // initialise websocket
+mode.init(mode.makeInitData(key)) // initialise mode
+snapBroadcast() // snapshot broadcast loop
+logicLoop() // mode simulation loop
 }
