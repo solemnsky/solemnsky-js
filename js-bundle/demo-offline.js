@@ -1314,6 +1314,7 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 
 			player.anim.barView.clear()
 			player.anim.barView.beginFill(0xFFFFFF, 0.5)
+			player.anim.barView.drawCircle(pan.x + pos.x, pan.y + pos.y, 5)
 			player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
 			player.anim.barView.beginFill(0xFF0000, 0.5)
 			if (!player.stalled)
@@ -1321,11 +1322,11 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 			/**** }}} position player graphics ****/
 
 			/**** {{{ add to players container ****/
-			if (id == player.id) 
-				players.addChild(player.anim.barView)
 			players.addChild(player.anim.normalSprite)
 			players.addChild(player.anim.thrustSprite)
 			players.addChild(player.anim.nameText)
+			if (id == player.id) 
+				players.addChild(player.anim.barView)
 			/**** }}} add to players container ****/
 		}
 	, this)
