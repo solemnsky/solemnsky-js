@@ -485,7 +485,7 @@ ui.run(60, myClient)
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/index.js')
 
-renderPerf = require('./performance.js')
+renderPerf = require('./hud/performance.js')
 
 module.exports = function(mode) {
 	function Game() {
@@ -526,12 +526,12 @@ module.exports = function(mode) {
 	return new Game() 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":17,"./performance.js":5}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../ui/index.js":17,"./hud/performance.js":5}],5:[function(require,module,exports){
 /*                  ******** performance.js ********                   //
 \\ Performance data display in top right of screen.                    \\
 //                  ******** performance.js ********                   */
 
-PIXI = require('../../assets/pixi.min.js')
+PIXI = require('../../../assets/pixi.min.js')
 
 style = {fill: 0xFFFFFF}
 var fps = new PIXI.Text("fps", style)
@@ -540,10 +540,10 @@ exports.initRender = function(stage) {
 	stage.addChild(fps)	
 }
 exports.stepRender = function(stage, delta, performance) {
-
+	fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime
 }
 
-},{"../../assets/pixi.min.js":2}],6:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2}],6:[function(require,module,exports){
 /*                  ******** demo/index.js ********                   //
 \\ Development demo with fun features!                                \\
 //                  ******** demo/index.js ********                   */
@@ -1805,7 +1805,7 @@ exports.combineOverlay = function(overlay, object) {
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
 
-// object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities (exactly the same as in the mode specification)
+// object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities 
 
 Keys = require('../resources/keys.js')
 nameFromKeyCode = Keys.nameFromKeyCode
@@ -1875,7 +1875,8 @@ runWithStage = function(target, renderer, stage, object) {
 	// performance data
 	var fps = 0; var fpsC = 0
 	var tps = 0; var tpsC = 0
-	var renderTime = 0;
+	var processStart = 0 // used for getting delta times
+	var logicTime = 0; var renderTime = 0; var sleepTime = 0
 
 	resetFps = function() {
 		if (running) {
@@ -1901,8 +1902,11 @@ runWithStage = function(target, renderer, stage, object) {
 				setTimeout(update, ((1/target) * 1000))
 			}
 
+			sleepTime = Date.now() - processStart
+			
 			accum += delta
-
+			
+			processStart = Date.now() // start logic
 			var needPaint = false;
 			while (accum >= ((1 / target) * 1000)) {
 				object.step((1 / target) * 1000)
@@ -1910,19 +1914,23 @@ runWithStage = function(target, renderer, stage, object) {
 				needPaint = true
 				tpsC++
 			}
+			logicTime = Date.now() - processStart // end logic
 
 			if (needPaint) {
 				var performance = 
 					{ tps: tps
 					, fps: fps
-					, renderTime: renderTime }
-				var renderStart = Date.now()
+					, logicTime: logicTime
+					, renderTime: renderTime 
+					, sleepTime: sleepTime }
+				processStart = Date.now() // start render
 				object.stepRender(stage, delta, performance)
 				renderer.render(stage)
-				var renderEnd = Date.now()
-				renderTime = renderEnd - renderStart
+				renderTime = Date.now() - processStart // end render
 				fpsC++
 			}
+
+			processStart = Date.now() // start sleep
 		} else {
 			window.removeEventListener("keyup", acceptKeyUp)
 			window.removeEventListener("keydown", acceptKeyDown)

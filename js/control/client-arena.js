@@ -5,7 +5,7 @@
 PIXI = require('../../assets/pixi.min.js')
 ui = require('../ui/')
 
-renderPerf = require('./hud/performange.js')
+renderPerf = require('./hud/performance.js')
 
 module.exports = function(mode, address, port, path) {
 
@@ -55,11 +55,13 @@ Game = function() {
 	this.messageCue = []
 	this.processingCue = false;
 
-	this.stage = null
-
 	this.chatting = false
 	this.chatBuffer = ""
 	this.eventLog = []
+
+	this.modeStage = new PIXI.Container()
+	this.perfStage = new PIXI.Container()
+	this.chatStage = new PIXI.Container()
 }
 
 /**** {{{ processCue ****/
@@ -137,28 +139,23 @@ Game.prototype.step = function(delta) {
 		this.eventLog = this.eventLog.concat(mode.step(delta))
 }
 Game.prototype.initRender = function(stage) { 
-	this.stage = stage
-
-	this.modeStage = new PIXI.Container()
 	stage.addChild(this.modeStage);
-
-	this.performance = new PIXI.Container()
-	renderPerf.initRender(this.performance)
-	
-	this.chatStage = new PIXI.Container()
+	stage.addChild(this.perfStage)
 	stage.addChild(this.chatStage)
+
+	renderPerf.initRender(this.perfStage)
 }
 Game.prototype.stepRender = function(stage, delta, performance) {
 	if (this.initialised) {
 		if (this.id !== null) {
-			mode.stepRender(this.id, this.modeStage, delta, x, y)
+			mode.stepRender(this.id, this.modeStage, delta)
 		} else {
-			mode.stepRender(null, this.modeStage, delta, x, y)
+			mode.stepRender(null, this.modeStage, delta)
 		}
-		renderPerf.stepRender(this.performance, delta, performance)
+		this.displayChat()
 	}
-	this.displayChat()
-	
+
+	renderPerf.stepRender(this.perfStage, delta, performance)
 }
 Game.prototype.acceptKey = function(key, state) {
 	if (this.initialised) {

@@ -11,5 +11,5 @@ exports.initRender = function(stage) {
 	stage.addChild(fps)	
 }
 exports.stepRender = function(stage, delta, performance) {
-
+	fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime
 }
