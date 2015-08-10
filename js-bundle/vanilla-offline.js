@@ -533,12 +533,17 @@ PIXI = require('../../../assets/pixi.min.js')
 
 style = {fill: 0xFFFFFF}
 var fps = new PIXI.Text("fps", style)
+var counter = 0
 
 exports.initRender = function(stage) {
 	stage.addChild(fps)	
 }
 exports.stepRender = function(stage, delta, performance) {
-	fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime
+	counter += delta
+	if (counter > 500) {
+		fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime
+		counter -= 500
+	}
 }
 
 },{"../../../assets/pixi.min.js":2}],6:[function(require,module,exports){
@@ -1772,6 +1777,7 @@ runWithStage = function(target, renderer, stage, object) {
 	var tps = 0; var tpsC = 0
 	var processStart = 0 // used for getting delta times
 	var logicTime = 0; var renderTime = 0; var sleepTime = 0
+	// the cycle deltas 
 
 	resetFps = function() {
 		if (running) {
