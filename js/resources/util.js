@@ -97,8 +97,8 @@ Util.prototype.vecDeflation =
 */
 
 Util.prototype.vecDeflation = 
-	{ deflate: function(x){return x}
-	, inflate: function(x){return x} }
+	{ deflate: function(x){return {x: exports.floatDeflation.deflate(x.x), y: exports.floatDeflation.deflate(y.y)}}
+	, inflate: function(x){return {x: exports.floatDeflation.inflate(x.x), y: exports.floatDeflation.inflate(y.y)}} }
 
 Util.prototype.movementDeflation = 
 	{ deflate:
