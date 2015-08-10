@@ -691,10 +691,7 @@ module.exports = {
 	// velocity thresholds to enter and exit stalls
 	, playerEnterStallThreshold: 100
 	, playerExitStallThreshold: 150
-	, playerLeftoverVelDeacceleration: 5
-			// the acceleration with which the leftover velocity
-			// a stall ends with is deaccelerated
-	, playerGravityEffect: 1
+	, playerGravityEffect: 50
 			// the acceleration that gravity has on our player
 			// when not stalled
 
@@ -1169,8 +1166,8 @@ Player.prototype.step = function(delta) {
 		
 		// make some gravity
 		var gravityEffect = 
-			{x: Math.abs(gameplay.playerGravityEffect * Math.sin(this.rotation))
-			,y: Math.abs(gameplay.playerGravityEffect * Math.cos(this.rotation))}
+			{ x: gameplay.playerGravityEffect * Math.sin(this.rotation) * Math.cos(this.rotation)
+			, y: gameplay.playerGravityEffect * Math.sin(this.rotation) * Math.sin(this.rotation)}
 
 		// move in the direction of angle, taking in affect gravity and
 		// leftover velocity from the last stall recovery 

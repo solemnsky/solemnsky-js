@@ -140,8 +140,8 @@ Player.prototype.step = function(delta) {
 		
 		// make some gravity
 		var gravityEffect = 
-			{x: Math.abs(gameplay.playerGravityEffect * Math.sin(this.rotation))
-			,y: Math.abs(gameplay.playerGravityEffect * Math.cos(this.rotation))}
+			{ x: gameplay.playerGravityEffect * Math.sin(this.rotation) * Math.cos(this.rotation)
+			, y: gameplay.playerGravityEffect * Math.sin(this.rotation) * Math.sin(this.rotation)}
 
 		// move in the direction of angle, taking in affect gravity and
 		// leftover velocity from the last stall recovery 
