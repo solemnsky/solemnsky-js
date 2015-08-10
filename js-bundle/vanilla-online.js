@@ -855,7 +855,7 @@ module.exports = {
 	, playerLeftoverVelDamping: 0.10
 
 	// the gravity coasting mechanic
-	, playerGravityCoastMax: 10000
+	, playerGravityCoastMax: 100
 
 	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 
@@ -1335,7 +1335,7 @@ Player.prototype.step = function(delta) {
 		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 
-		this.gravityCoast += Math.sin(this.rotation) * (delta / 1000) * gameplay.gravity
+		this.gravityCoast += Math.sin(this.rotation) * (delta / 1000) * gameplay.gravity * gameplay.physicsScale
 
 		this.playerGravityCoastMax = Math.min(this.gravityCoast, this.playerGravityCoastMax)
 		this.playerGravityCoastMax = Math.max(this.gravityCoast, 0)

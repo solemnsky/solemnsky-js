@@ -32,7 +32,7 @@ module.exports = {
 	, playerLeftoverVelDamping: 0.10
 
 	// the gravity coasting mechanic
-	, playerGravityCoastMax: 10000
+	, playerGravityCoastMax: 100
 
 	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 
