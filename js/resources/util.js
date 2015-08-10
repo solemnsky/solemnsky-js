@@ -180,4 +180,10 @@ Util.prototype.removeElemById = function(elems, id) {
 		return null
 	elems.splice(index, 1)
 }
+
+Util.prototype.getQueryStringValue = function(key) {
+	//http://stackoverflow.com/a/9870540/214063
+	return unescape(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + escape(key).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"));
+}
+
 /**** }}} elem id operations ****/
