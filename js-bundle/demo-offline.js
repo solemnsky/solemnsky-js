@@ -685,6 +685,9 @@ module.exports = {
 	, playerStallDamping: 1.5 
 	, playerLeftoverVelDamping: 0.10
 
+	// the gravity coasting mechanic
+	, playerGravityCoastMax: 10000
+
 	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 
 
@@ -1055,6 +1058,7 @@ function Player(game, id, x, y, name) {
 	// flight mechanics
 	this.stalled = false;
 	this.leftoverVel = {x: 0, y: 0}
+	this.gravityCoast = 0
 	this.throttle = 1;
 	this.afterburner = false;
 
@@ -1161,23 +1165,24 @@ Player.prototype.step = function(delta) {
 		// pick away at leftover velocity
 		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
-		
-		// make some gravity
-		var gravityEffect = 
-			{ x: gameplay.playerGravityEffect * Math.sin(this.rotation) * Math.cos(this.rotation)
-			, y: gameplay.playerGravityEffect * Math.sin(this.rotation) * Math.sin(this.rotation)}
+
+		this.gravityCoast += Math.sin(this.rotation) * (delta / 1000) * gameplay.gravity
+
+		this.playerGravityCoastMax = Math.min(this.gravityCoast, this.playerGravityCoastMax)
+		this.playerGravityCoastMax = Math.max(this.gravityCoast, 0)
 
 		// move in the direction of angle, taking in affect gravity and
 		// leftover velocity from the last stall recovery 
 		if (this.afterburner) {
-			var targetSpeed = gameplay.playerAfterburner
+			var targetSpeed = gameplay.playerAfterburner + this.gravityCoast
 		} else {
-			var targetSpeed = this.throttle * gameplay.playerMaxVelocity
+			var targetSpeed = 
+				this.throttle * gameplay.playerMaxVelocity + this.gravityCoast
 		}
 
 		this.velocity = 
-			{x: this.leftoverVel.x + gravityEffect.x + Math.cos(this.rotation) * targetSpeed
-			,y: this.leftoverVel.y + gravityEffect.y + Math.sin(this.rotation) * targetSpeed}
+			{x: this.leftoverVel.x + Math.cos(this.rotation) * targetSpeed
+			,y: this.leftoverVel.y + Math.sin(this.rotation) * targetSpeed}
 	}
 	/**** }}} motion when not stalled ****/
 
@@ -1188,6 +1193,7 @@ Player.prototype.step = function(delta) {
 			this.stalled = false
 			this.leftoverVel = {x: this.velocity.x, y: this.velocity.y}
 			this.throttle = 0
+			this.gravityCoast = 0
 		}
 	} else {
 		if (forwardVelocity < gameplay.playerEnterStallThreshold) {
