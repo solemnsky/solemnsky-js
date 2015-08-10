@@ -1330,6 +1330,7 @@ deflationRules =
 	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
 	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
 	, { key: "velocity", shortKey: "v", deflation: Util.vecDeflation }
+	, { key: "gravityCoast", shortKey: "g", deflation: Util.floatDeflation }
 	]
 
 function deflatePair(pair) {
