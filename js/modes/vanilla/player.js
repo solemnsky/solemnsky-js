@@ -114,9 +114,7 @@ Player.prototype.step = function(delta) {
 		var excessVel = speed - gameplay.playerMaxVelocityStalled 
 		var dampingFactor = (gameplay.playerMaxVelocityStalled / speed)
 		if (excessVel > 0)
-			this.velocity = 
-				{ x: vel.x
-				, y: vel.y * dampingFactor * Math.pow(gameplay.playerStallDamping, (delta / 1000)) }
+			this.velocity.y = vel.y * dampingFactor * Math.pow(gameplay.playerStallDamping, (delta / 1000))
 		
 	}
 	/**** }}} motion when stalled ****/
