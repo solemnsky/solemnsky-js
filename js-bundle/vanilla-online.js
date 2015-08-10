@@ -469,14 +469,19 @@ VanillaRenderer = require('../modes/vanilla/render.js')
 VanillaRenderer(Vanilla)
 mode = new Vanilla()
 
+Util = require('../resources/util.js')
+
+var address = Util.getQueryStringValue("address")
+if (address === "")
+	address = "localhost";
+
 // use control method to turn mode into UI object
 clientOnline = require('../control/client-arena.js')
-// myClient = clientOnline(mode, "198.55.237.151", 50042, "/") 
-myClient = clientOnline(mode, "localhost", 50042, "/")
+myClient = clientOnline(mode, address, 50042, "/")
 
 ui.run(60, myClient)
 
-},{"../control/client-arena.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":15}],4:[function(require,module,exports){
+},{"../control/client-arena.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../resources/util.js":14,"../ui/index.js":15}],4:[function(require,module,exports){
 /*                  ******** client-arena.js ********                  //
 \\ Online arena client.                                                \\
 //                  ******** client-arena.js ********                  */
@@ -1892,6 +1897,12 @@ Util.prototype.removeElemById = function(elems, id) {
 		return null
 	elems.splice(index, 1)
 }
+
+Util.prototype.getQueryStringValue = function(key) {
+	//http://stackoverflow.com/a/9870540/214063
+	return unescape(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + escape(key).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"));
+}
+
 /**** }}} elem id operations ****/
 
 },{}],15:[function(require,module,exports){
