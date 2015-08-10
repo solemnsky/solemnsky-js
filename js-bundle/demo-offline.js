@@ -1419,7 +1419,7 @@ deflationRules =
   , { key: "priority", shortKey: "x", deflation: Util.noDeflation }
 	, { key: "respawning", shortKey: "n", deflation: Util.boolDeflation }
 	, { key: "rotation", shortKey: "r", deflation: Util.floatDeflation }
-	, { key: "rotationVel", shortKey: "j", deflation: Util.floatDeflation	}
+	, { key: "rotationVel", shortKey: "j", deflation: Util.floatDeflation }
 	, { key: "spawnpoint", shortKey: "s", deflation: Util.vecDeflation }
 	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
 	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
