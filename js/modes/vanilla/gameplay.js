@@ -21,7 +21,7 @@ module.exports = {
 	, playerMaxRotationStalled: Math.PI * 1.5
 
 	// the maximum linear velocity also does
-	, playerMaxVelocity: 300
+	, playerMaxVelocity: 200
 	, playerMaxVelocityStalled: 250
 	, playerAfterburner: 330 // speed with afterburner
 	, playerAfterburnerStalled: 500 // acceleration of afterburner in a stall
@@ -32,7 +32,7 @@ module.exports = {
 	, playerLeftoverVelDamping: 0.10
 
 	// the gravity coasting mechanic
-	, playerGravityCoastMax: 100
+	, playerGravityCoastMax: 130
 
 	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 

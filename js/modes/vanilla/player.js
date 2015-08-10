@@ -123,8 +123,11 @@ Player.prototype.step = function(delta) {
 	/**** {{{ motion when not stalled ****/
 	else {
 		// modify throttle
-		if (this.movement.forward && this.throttle < 1)
+		if (this.movement.forward && this.throttle < 1) {
 			this.throttle += gameplay.playerThrottleSpeed * (delta / 1000)
+			// also get gravityCoast
+			this.gravityCoast = gameplay.playerGravityCoastMax
+		}
 		if (this.movement.backward && this.throttle > 0)
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
 		if (this.movement.forward && this.throttle === 1)

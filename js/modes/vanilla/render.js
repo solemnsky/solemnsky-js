@@ -87,9 +87,12 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 			player.anim.barView.clear()
 			player.anim.barView.beginFill(0xFFFFFF, 0.5)
 			player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
-			player.anim.barView.beginFill(0xFF0000, 0.5)
-			if (!player.stalled)
+			if (!player.stalled) {
+				player.anim.barView.beginFill(0xFF0000, 0.5)
 				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
+				player.anim.barView.beginFill(0x00FF00, 0.5)
+				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.gravityCoast / gameplay.playerGravityCoastMax), gameplay.graphicsBarHeight)
+			}
 			/**** }}} position player graphics ****/
 
 			/**** {{{ add to players container ****/

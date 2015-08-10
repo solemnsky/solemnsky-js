@@ -675,7 +675,7 @@ module.exports = {
 	, playerMaxRotationStalled: Math.PI * 1.5
 
 	// the maximum linear velocity also does
-	, playerMaxVelocity: 300
+	, playerMaxVelocity: 200
 	, playerMaxVelocityStalled: 250
 	, playerAfterburner: 330 // speed with afterburner
 	, playerAfterburnerStalled: 500 // acceleration of afterburner in a stall
@@ -686,7 +686,7 @@ module.exports = {
 	, playerLeftoverVelDamping: 0.10
 
 	// the gravity coasting mechanic
-	, playerGravityCoastMax: 100
+	, playerGravityCoastMax: 130
 
 	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 
@@ -1152,8 +1152,11 @@ Player.prototype.step = function(delta) {
 	/**** {{{ motion when not stalled ****/
 	else {
 		// modify throttle
-		if (this.movement.forward && this.throttle < 1)
+		if (this.movement.forward && this.throttle < 1) {
 			this.throttle += gameplay.playerThrottleSpeed * (delta / 1000)
+			// also get gravityCoast
+			this.gravityCoast = gameplay.playerGravityCoastMax
+		}
 		if (this.movement.backward && this.throttle > 0)
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
 		if (this.movement.forward && this.throttle === 1)
@@ -1316,9 +1319,12 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 			player.anim.barView.clear()
 			player.anim.barView.beginFill(0xFFFFFF, 0.5)
 			player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
-			player.anim.barView.beginFill(0xFF0000, 0.5)
-			if (!player.stalled)
+			if (!player.stalled) {
+				player.anim.barView.beginFill(0xFF0000, 0.5)
 				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
+				player.anim.barView.beginFill(0x00FF00, 0.5)
+				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.gravityCoast / gameplay.playerGravityCoastMax), gameplay.graphicsBarHeight)
+			}
 			/**** }}} position player graphics ****/
 
 			/**** {{{ add to players container ****/
