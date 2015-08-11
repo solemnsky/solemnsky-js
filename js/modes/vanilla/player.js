@@ -137,9 +137,11 @@ Player.prototype.step = function(delta) {
 
 		// speed modifiers
 		this.speed += 
-			Math.sign((gameplay.playerThrottleInfluence * this.throttle) - this.speed) * gameplay.speedThrottleForce * (delta / 1000)
-		this.speed +=
+			Math.sign((gameplay.speedThrottleInfluence * this.throttle) - this.speed) * gameplay.speedThrottleForce * (delta / 1000)
+		this.speed += 
 			Math.sin(this.rotation) * gameplay.speedGravityForce * (delta / 1000)
+		if (this.afterburner) 
+			this.speed += gameplay.speedAfterburnForce * (delta / 1000)
 		this.speed = Math.min(this.speed, 1)
 		this.speed = Math.max(this.speed, 0)
 

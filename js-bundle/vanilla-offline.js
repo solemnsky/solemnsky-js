@@ -572,15 +572,15 @@ module.exports = {
 
 	// not stalled
 	, playerMaxRotation:  Math.PI * 1.2
-	, playerMaxSpeed: 200
-	, playerThrottleInfluence: 0.7 // max speed achievable with throttle
-	, speedThrottleForce: 0.5
+	, playerMaxSpeed: 300
+	, speedThrottleInfluence: 0.7 // max speed achievable with throttle
+	, speedThrottleForce: 0.3
 			// speed per second that throttle can influence
-	, speedGravityForce: 0.3
+	, speedGravityForce: 0.4
 			// speed per second that gravity can influence
+	, speedAfterburnForce: 0.3
 	
-	, playerAfterburner: 220
-	, playerEnterStallThreshold: -5
+	, playerEnterStallThreshold: 100
 
 	// misc values and damping
 	, playerAngularDamping: 1.05 
@@ -1066,9 +1066,11 @@ Player.prototype.step = function(delta) {
 
 		// speed modifiers
 		this.speed += 
-			Math.sign((gameplay.playerThrottleInfluence * this.throttle) - this.speed) * gameplay.speedThrottleForce * (delta / 1000)
-		this.speed +=
+			Math.sign((gameplay.speedThrottleInfluence * this.throttle) - this.speed) * gameplay.speedThrottleForce * (delta / 1000)
+		this.speed += 
 			Math.sin(this.rotation) * gameplay.speedGravityForce * (delta / 1000)
+		if (this.afterburner) 
+			this.speed += gameplay.speedAfterburnForce * (delta / 1000)
 		this.speed = Math.min(this.speed, 1)
 		this.speed = Math.max(this.speed, 0)
 

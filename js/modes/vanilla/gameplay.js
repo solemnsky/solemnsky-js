@@ -23,15 +23,15 @@ module.exports = {
 
 	// not stalled
 	, playerMaxRotation:  Math.PI * 1.2
-	, playerMaxSpeed: 200
-	, playerThrottleInfluence: 0.7 // max speed achievable with throttle
-	, speedThrottleForce: 0.5
+	, playerMaxSpeed: 300
+	, speedThrottleInfluence: 0.7 // max speed achievable with throttle
+	, speedThrottleForce: 0.3
 			// speed per second that throttle can influence
-	, speedGravityForce: 0.3
+	, speedGravityForce: 0.4
 			// speed per second that gravity can influence
+	, speedAfterburnForce: 0.3
 	
-	, playerAfterburner: 220
-	, playerEnterStallThreshold: -5
+	, playerEnterStallThreshold: 100
 
 	// misc values and damping
 	, playerAngularDamping: 1.05 
