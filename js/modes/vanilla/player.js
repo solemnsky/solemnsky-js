@@ -175,6 +175,7 @@ Player.prototype.step = function(delta) {
 		if (forwardVelocity < gameplay.playerEnterStallThreshold) {
 			this.stalled = true
 			this.throttle = 1;
+			this.speed = 0
 		}
 	}
 	/**** }}} stall singularities ****/

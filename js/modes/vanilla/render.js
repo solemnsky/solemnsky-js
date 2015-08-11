@@ -42,9 +42,9 @@ Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
 			pos = projectile.position
 			if (typeof projectile.anim === "undefined")  {
 				projectile.anim = {}	
-				projectile.anim.graphics = new PIXI.Graphics()
-				projectile.anim.graphics.beginFill(0xFFFFFF, 1)
-				projectile.anim.graphics.drawRect(new PIXI.Point(450, 450), 2.5, 2.5)
+				projectile.anim.graphics = new PIXI.Text("hey")
+				projectile.anim.graphics.alpha = 1
+				projectile.anim.position = new PIXI.Point(500, 500)
 			}
 			// projectile.anim.graphics.position.set(pan.x + pos.x, pan.y + pos.y)
 			stage.addChild(projectile.anim.graphics)
@@ -136,9 +136,9 @@ Vanilla.prototype.initRender = function(stage) {
 	this.textures.playerSpeed = 
 		new PIXI.Texture.fromImage(urls.playerSpeedSprite)
 
-	stage.addChild(new PIXI.Container)
-	stage.addChild(new PIXI.Container)
-	stage.addChild(new PIXI.Container)
+	stage.addChild(new PIXI.Container())
+	stage.addChild(new PIXI.Container())
+	stage.addChild(new PIXI.Container())
 }
 
 Vanilla.prototype.stepRender = function(id, stage, delta) {
