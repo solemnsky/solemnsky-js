@@ -119,7 +119,7 @@ Vanilla.prototype.writeProjectilesToBlock = function () {
 					projectile.position.x / this.scale
 					, projectile.position.y / this.scale)
 			)
-			projectiles.block.SetLinearVelocity(
+			projectile.block.SetLinearVelocity(
 				new b2Vec2(
 					projectile.velocity.x / this.scale
 					, projectile.velocity.y / this.scale)
@@ -130,8 +130,8 @@ Vanilla.prototype.writeProjectilesToBlock = function () {
 Vanilla.prototype.readProjectilesFromBlock = function () {
 	this.projectiles.forEach(
 		function(projectile) {
-			var vel = this.block.GetLinearVelocity()
-			var pos = this.block.GetPosition()
+			var vel = projectile.block.GetLinearVelocity()
+			var pos = projectile.block.GetPosition()
 
 			projectile.velocity.x = vel.x * this.scale
 			projectile.velocity.y = vel.y * this.scale

@@ -29,7 +29,7 @@ Demo.prototype.describeState = function() {
 /**** {{{ simulation****/
 Demo.prototype.acceptEvent = function(theEvent) {
 	if (theEvent.type === "control" && name === "f")
-		this.vanilla.addProjectile({x: 800, y: 450})
+		this.vanilla.addProjectile(null, null, {x: 800, y: 450})
 	this.vanilla.acceptEvent(theEvent)
 }
 

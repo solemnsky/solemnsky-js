@@ -145,9 +145,10 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 			,y: comOffset.y + -(player.position.y) + 450}
 	} 
 
-	this.anim = {}
+	this.map.anim = {}
 	this.renderMap(pan, stage.children[0])
-	this.renderPlayers(pan, delta, id, stage.children[1])
 	this.renderProjectiles(pan, delta, id, stage.children[2])
+
+	this.renderPlayers(pan, delta, id, stage.children[1])
 }
 }

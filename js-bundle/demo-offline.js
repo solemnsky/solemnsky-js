@@ -579,6 +579,8 @@ Demo.prototype.describeState = function() {
 
 /**** {{{ simulation****/
 Demo.prototype.acceptEvent = function(theEvent) {
+	if (theEvent.type === "control" && name === "f")
+		this.vanilla.addProjectile(null, null, {x: 800, y: 450})
 	this.vanilla.acceptEvent(theEvent)
 }
 
@@ -724,7 +726,7 @@ snapshots = require('./snapshots.js')
 /**** {{{ constructor ****/
 function Vanilla() {
 	this.players = []
-
+	this.projectiles = []
 	this.mapData = []
 	// some involved things about the map, like links to the box2d blocks
 	// and pixi container is stored in this.map, this.mapData is just
@@ -818,6 +820,36 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	if (playerData !== null)
 		playerData.health -= loss;
 }
+
+Vanilla.prototype.writeProjectilesToBlock = function () {
+	this.projectiles.forEach(
+		function(projectile) {
+			projectile.block.SetPosition(
+				new b2Vec2(
+					projectile.position.x / this.scale
+					, projectile.position.y / this.scale)
+			)
+			projectile.block.SetLinearVelocity(
+				new b2Vec2(
+					projectile.velocity.x / this.scale
+					, projectile.velocity.y / this.scale)
+			)
+		}
+	, this)
+}
+Vanilla.prototype.readProjectilesFromBlock = function () {
+	this.projectiles.forEach(
+		function(projectile) {
+			var vel = projectile.block.GetLinearVelocity()
+			var pos = projectile.block.GetPosition()
+
+			projectile.velocity.x = vel.x * this.scale
+			projectile.velocity.y = vel.y * this.scale
+			projectile.position.x = pos.x * this.scale
+			projectile.position.y = pos.y * this.scale
+		}
+	, this)
+}
 /**** }}} internal utility methods ***/
 
 /**** {{{ physics interface methods ****/
@@ -892,6 +924,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(id, type, pos) {
+	var shape = this.createShape("rectangle", {width: 5, height: 5})	
+	var block = this.createBody(pos, shape, {bodyType: "projectile", bodyId: id})
+	this.projectiles.push({id: id, type: type, position: pos, velocity: {x: 0, y: 0}, block: block})
 }
 /**** }}} mode-facing methods ****/
 
@@ -973,6 +1008,10 @@ Vanilla.prototype.step = function(delta) {
 	this.players.forEach(function each(player) {
 		 player.step(delta);
 	}, this);
+
+	this.readProjectilesFromBlock()
+	// some operation on projectiles
+	this.writeProjectilesToBlock()
 
 	return [] // event log, currently STUB
 }
@@ -1253,8 +1292,7 @@ Vanilla.prototype.renderMap = function(pan, map) {
 	map.removeChildren()
 	
 	// if not set, initialise the map graphics
-	if (typeof this.map.anim == "undefined") {
-		this.map.anim = {}
+	if (typeof this.map.anim.mapGraphics == "undefined") {
 		var mapGraphics = new PIXI.Graphics
 		mapGraphics.clear()
 		mapGraphics.beginFill(0xFFFFFF, 1)
@@ -1275,6 +1313,15 @@ Vanilla.prototype.renderMap = function(pan, map) {
 	map.addChild(this.map.anim.mapGraphics)
 }
 
+Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
+	this.projectiles.forEach(
+		function(projectile) {
+			if (typeof projectile.anim === "undefined")  {
+				projectile.anim = "graphics"
+			}
+		}
+	)
+}
 
 Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 	players.removeChildren()
@@ -1362,6 +1409,7 @@ Vanilla.prototype.initRender = function(stage) {
 
 	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)
+	stage.addChild(new PIXI.Container)
 }
 
 Vanilla.prototype.stepRender = function(id, stage, delta) {
@@ -1375,7 +1423,10 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 			,y: comOffset.y + -(player.position.y) + 450}
 	} 
 
+	this.map.anim = {}
 	this.renderMap(pan, stage.children[0])
+	this.renderProjectiles(pan, delta, id, stage.children[2])
+
 	this.renderPlayers(pan, delta, id, stage.children[1])
 }
 }
@@ -1452,7 +1503,7 @@ deflationRules =
 	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
 	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
 	, { key: "velocity", shortKey: "v", deflation: Util.vecDeflation }
-	, { key: "gravityCoast", shortKey: "g", deflation: Util.floatDeflation }
+	, { key: "speed", shortKey: "g", deflation: Util.floatDeflation }
 	]
 
 function deflatePair(pair) {
