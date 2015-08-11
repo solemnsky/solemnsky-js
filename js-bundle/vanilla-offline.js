@@ -579,6 +579,7 @@ module.exports = {
 	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
 	, speedAfterburnForce: 0.6
+	, playerInitialThrottle: 0.4
 	
 	, playerEnterStallThreshold: 100
 
