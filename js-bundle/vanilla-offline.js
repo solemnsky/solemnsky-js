@@ -576,7 +576,7 @@ module.exports = {
 	, speedThrottleInfluence: 0.7 // max speed achievable with throttle
 	, speedThrottleForce: 0.3
 			// speed per second that throttle can influence
-	, speedGravityForce: 0.4
+	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
 	, speedAfterburnForce: 0.3
 	
