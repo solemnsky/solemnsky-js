@@ -852,7 +852,7 @@ module.exports = {
 			// speed per second that throttle can influence
 	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
-	, speedAfterburnForce: 0.3
+	, speedAfterburnForce: 0.6
 	
 	, playerEnterStallThreshold: 100
 
@@ -1363,8 +1363,9 @@ Player.prototype.step = function(delta) {
 		if (forwardVelocity > gameplay.playerExitStallThreshold) {
 			this.stalled = false
 			this.leftoverVel = {x: this.velocity.x, y: this.velocity.y}
-			this.speed = 0
-			this.throttle = 0
+			this.speed = 
+				gameplay.speedThrottleInfluence * gameplay.playerInitialThrottle
+			this.throttle = gameplay.playerInitialThrottle
 		}
 	} else {
 		if (forwardVelocity < gameplay.playerEnterStallThreshold) {

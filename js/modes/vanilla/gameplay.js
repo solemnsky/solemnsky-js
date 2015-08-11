@@ -29,7 +29,7 @@ module.exports = {
 			// speed per second that throttle can influence
 	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
-	, speedAfterburnForce: 0.3
+	, speedAfterburnForce: 0.6
 	
 	, playerEnterStallThreshold: 100
 
