@@ -166,10 +166,10 @@ Player.prototype.step = function(delta) {
 	if (this.stalled) {
 		if (forwardVelocity > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.leftoverVel = {x: this.velocity.x, y: this.velocity.y}
+			this.leftoverVel = {x: this.velocity.x - (forwardVelocity * Math.cos(this.rotation)), y: this.velocity.y - (forwardVelocity * Math.sin(this.rotation))}
 			this.speed = 
-				gameplay.speedThrottleInfluence * gameplay.playerInitialThrottle
-			this.throttle = gameplay.playerInitialThrottle
+				forwardVelocity / gameplay.playerMaxSpeed
+			this.throttle = this.speed / gameplay.speedThrottleInfluence
 		}
 	} else {
 		if (forwardVelocity < gameplay.playerEnterStallThreshold) {

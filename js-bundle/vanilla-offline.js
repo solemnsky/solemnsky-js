@@ -566,8 +566,8 @@ module.exports = {
 
 	// stalled
 	, playerMaxRotationStalled: Math.PI * 1.5
-	, playerMaxVelocityStalled: 250
-	, playerAfterburnerStalled: 500 
+	, playerMaxVelocityStalled: 300
+	, playerAfterburnerStalled: 200
 	, playerExitStallThreshold: 130
 
 	// not stalled
@@ -580,8 +580,6 @@ module.exports = {
 	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
 	, speedAfterburnForce: 0.6
-	, playerInitialThrottle: 0.6
-	
 	, playerEnterStallThreshold: 100
 
 	// misc values and damping
@@ -1097,10 +1095,10 @@ Player.prototype.step = function(delta) {
 	if (this.stalled) {
 		if (forwardVelocity > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.leftoverVel = {x: this.velocity.x, y: this.velocity.y}
+			this.leftoverVel = {x: this.velocity.x - (forwardVelocity * Math.cos(this.rotation)), y: this.velocity.y - (forwardVelocity * Math.sin(this.rotation))}
 			this.speed = 
-				gameplay.speedThrottleInfluence * gameplay.playerInitialThrottle
-			this.throttle = gameplay.playerInitialThrottle
+				forwardVelocity / gameplay.playerMaxSpeed
+			this.throttle = this.speed / gameplay.speedThrottleInfluence
 		}
 	} else {
 		if (forwardVelocity < gameplay.playerEnterStallThreshold) {
