@@ -838,34 +838,28 @@ module.exports = {
 	// acceleration of gravity 
 	, gravity: 3 
 
-	// the maximum rotation velocity depends on 
-	// whether the player is stalled
-	, playerMaxRotation:  Math.PI * 1.2
+	// stalled
 	, playerMaxRotationStalled: Math.PI * 1.5
-
-	// the maximum linear velocity also does
-	, playerMaxVelocity: 200
 	, playerMaxVelocityStalled: 250
-	, playerAfterburner: 250 // speed with afterburner
-	, playerAfterburnerStalled: 500 // acceleration of afterburner in a stall
+	, playerAfterburnerStalled: 500 
+	, playerExitStallThreshold: 130
 
-	// a lot of values in the game engine are 'damped out'
+	// not stalled
+	, playerMaxRotation:  Math.PI * 1.2
+	, playerMaxVelocity: 120
+	, playerAfterburner: 160 
+	, playerGravityCoastMax: 200
+	, gravityCoastNaturalGain: 60
+	, gravityCoastThrusterGain: 70
+	, playerEnterStallThreshold: 118
+
+	// misc values and damping
 	, playerAngularDamping: 1.05 
 	, playerStallDamping: 1.5 
 	, playerLeftoverVelDamping: 0.10
-
-	// the gravity coasting mechanic
-	, playerGravityCoastMax: 130
-	, gravityCoastNaturalGain: 80
-	, gravityCoastThrusterGain: 70
-
-	// the amount of throttle that a player can change in a second
 	, playerThrottleSpeed: 1.5 
 
-	// velocity thresholds to enter and exit stalls
-	, playerEnterStallThreshold: 100
-	, playerExitStallThreshold: 150
-
+	// contact
 	, minimumContactDamage: 0.02
 	, contactDamangeMultiplier: 0.01
 
