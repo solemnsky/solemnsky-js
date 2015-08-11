@@ -1465,11 +1465,11 @@ module.exports = maps;
 },{}],13:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
-		"http://solemnsky.com/multimedia/player.png"
+		"http://solemnsky.github.io/multimedia/player.png"
 	, playerThrustSprite: 
-		"http://solemnsky.com/multimedia/player-thrust.png"
+		"http://solemnsky.github.io/multimedia/player-thrust.png"
 	, playerSpeedSprite:
-		"http://solemnsky.com/multimedia/player-speed.png"
+		"http://solemnsky.github.io/multimedia/player-speed.png"
 			
 }
 
