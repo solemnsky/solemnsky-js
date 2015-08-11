@@ -16,7 +16,7 @@ snapshots = require('./snapshots.js')
 /**** {{{ constructor ****/
 function Vanilla() {
 	this.players = []
-
+	this.projectiles = []
 	this.mapData = []
 	// some involved things about the map, like links to the box2d blocks
 	// and pixi container is stored in this.map, this.mapData is just
@@ -110,6 +110,36 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	if (playerData !== null)
 		playerData.health -= loss;
 }
+
+Vanilla.prototype.writeProjectilesToBlock = function () {
+	this.projectiles.forEach(
+		function(projectile) {
+			projectile.block.SetPosition(
+				new b2Vec2(
+					projectile.position.x / this.scale
+					, projectile.position.y / this.scale)
+			)
+			projectiles.block.SetLinearVelocity(
+				new b2Vec2(
+					projectile.velocity.x / this.scale
+					, projectile.velocity.y / this.scale)
+			)
+		}
+	, this)
+}
+Vanilla.prototype.readProjectilesFromBlock = function () {
+	this.projectiles.forEach(
+		function(projectile) {
+			var vel = this.block.GetLinearVelocity()
+			var pos = this.block.GetPosition()
+
+			projectile.velocity.x = vel.x * this.scale
+			projectile.velocity.y = vel.y * this.scale
+			projectile.position.x = pos.x * this.scale
+			projectile.position.y = pos.y * this.scale
+		}
+	, this)
+}
 /**** }}} internal utility methods ***/
 
 /**** {{{ physics interface methods ****/
@@ -184,6 +214,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(id, type, pos) {
+	var shape = this.createShape("rectangle", {width: 5, height: 5})	
+	var block = this.createBody(pos, shape, {bodyType: "projectile", bodyId: id})
+	this.projectiles.push({id: id, type: type, position: pos, velocity: {x: 0, y: 0}, block: block})
 }
 /**** }}} mode-facing methods ****/
 
@@ -265,6 +298,10 @@ Vanilla.prototype.step = function(delta) {
 	this.players.forEach(function each(player) {
 		 player.step(delta);
 	}, this);
+
+	this.readProjectilesFromBlock()
+	// some operation on projectiles
+	this.writeProjectilesToBlock()
 
 	return [] // event log, currently STUB
 }
