@@ -103,6 +103,7 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 			/**** {{{ add to players container ****/
 			players.addChild(player.anim.normalSprite)
 			players.addChild(player.anim.thrustSprite)
+			players.addChild(player.anim.speedSprite)
 			players.addChild(player.anim.nameText)
 			if (id == player.id) 
 				players.addChild(player.anim.barView)
