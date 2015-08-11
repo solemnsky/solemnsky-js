@@ -138,7 +138,7 @@ Player.prototype.step = function(delta) {
 			this.gravityCoast += 
 				gameplay.gravityCoastThrusterGain * (delta / 1000)
 		}
-		if (this.movement.backward && this.throttle === 0) {
+		if (this.movement.backward && this.throttle < gameplay.gravityCoastThrottleBreakValue) {
 			this.gravityCoast -= 
 				gameplay.gravityCoastThrusterGain * (delta / 1000)
 		}

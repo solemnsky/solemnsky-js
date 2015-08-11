@@ -682,6 +682,7 @@ module.exports = {
 	, playerGravityCoastMax: 200
 	, gravityCoastNaturalGain: 60
 	, gravityCoastThrusterGain: 70
+	, gravityCoastThrottleBreakValue: 0.3
 	, playerEnterStallThreshold: 118
 
 	// misc values and damping
@@ -1169,7 +1170,7 @@ Player.prototype.step = function(delta) {
 			this.gravityCoast += 
 				gameplay.gravityCoastThrusterGain * (delta / 1000)
 		}
-		if (this.movement.backward && this.throttle === 0) {
+		if (this.movement.backward && this.throttle < gameplay.gravityCoastThrottleBreakValue) {
 			this.gravityCoast -= 
 				gameplay.gravityCoastThrusterGain * (delta / 1000)
 		}

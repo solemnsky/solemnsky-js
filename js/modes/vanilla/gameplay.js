@@ -28,6 +28,7 @@ module.exports = {
 	, playerGravityCoastMax: 200
 	, gravityCoastNaturalGain: 60
 	, gravityCoastThrusterGain: 70
+	, gravityCoastThrottleBreakValue: 0.3
 	, playerEnterStallThreshold: 118
 
 	// misc values and damping
