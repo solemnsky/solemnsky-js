@@ -846,13 +846,15 @@ module.exports = {
 
 	// not stalled
 	, playerMaxRotation:  Math.PI * 1.2
-	, playerMaxVelocity: 120
-	, playerAfterburner: 160 
-	, playerGravityCoastMax: 200
-	, gravityCoastNaturalGain: 60
-	, gravityCoastThrusterGain: 70
-	, gravityCoastThrottleBreakValue: 0.3
-	, playerEnterStallThreshold: 118
+	, playerMaxSpeed: 200
+	, playerThrottleInfluence: 0.7 // max speed achievable with throttle
+	, speedThrottleForce: 0.5
+			// speed per second that throttle can influence
+	, speedGravityForce: 0.3
+			// speed per second that gravity can influence
+	
+	, playerAfterburner: 220
+	, playerEnterStallThreshold: -5
 
 	// misc values and damping
 	, playerAngularDamping: 1.05 
@@ -1230,8 +1232,8 @@ function Player(game, id, x, y, name) {
 	// flight mechanics
 	this.stalled = false;
 	this.leftoverVel = {x: 0, y: 0}
-	this.gravityCoast = 0
-	this.throttle = 1;
+	this.speed = 1
+	this.throttle = 1
 	this.afterburner = false;
 
 	// game mechanics
@@ -1323,48 +1325,28 @@ Player.prototype.step = function(delta) {
 
 	/**** {{{ motion when not stalled ****/
 	else {
-		// modify throttle
+		// modify throttle and afterburner according to controls
 		if (this.movement.forward && this.throttle < 1) 
 			this.throttle += gameplay.playerThrottleSpeed * (delta / 1000)
 		if (this.movement.backward && this.throttle > 0)
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
-
-		// clamp throttle to [0, 1]
 		this.throttle = Math.min(this.throttle, 1)
 		this.throttle = Math.max(this.throttle, 0)
-
-		// set afterburner and gravityCoast modifier on limits
-		if (this.movement.forward && this.throttle === 1) {
-			this.afterburner = true;
-			this.gravityCoast += 
-				gameplay.gravityCoastThrusterGain * (delta / 1000)
-		}
-		if (this.movement.backward && this.throttle < gameplay.gravityCoastThrottleBreakValue) {
-			this.gravityCoast -= 
-				gameplay.gravityCoastThrusterGain * (delta / 1000)
-		}
+		this.afterburner = (this.movement.forward && this.throttle === 1) 
 
 		// pick away at leftover velocity
 		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 
-		// modify gravityCoast according to the effective component of gravity
-		this.gravityCoast += 
-			Math.sin(this.rotation) * (delta / 1000) * gameplay.gravityCoastNaturalGain 
+		// speed modifiers
+		this.speed += 
+			Math.sign((gameplay.playerThrottleInfluence * this.throttle) - this.speed) * gameplay.speedThrottleForce * (delta / 1000)
+		this.speed +=
+			Math.sin(this.rotation) * gameplay.speedGravityForce * (delta / 1000)
+		this.speed = Math.min(this.speed, 1)
+		this.speed = Math.max(this.speed, 0)
 
-		
-		// clamp gravityCoast to [0, 1]
-		this.gravityCoast = 
-			Math.min(this.gravityCoast, gameplay.playerGravityCoastMax)
-		this.gravityCoast = Math.max(this.gravityCoast, 0)
-
-		// find the target speed
-		if (this.afterburner) {
-			var targetSpeed = gameplay.playerAfterburner + this.gravityCoast
-		} else {
-			var targetSpeed = 
-				this.throttle * gameplay.playerMaxVelocity + this.gravityCoast
-		}
+		var targetSpeed = this.speed * gameplay.playerMaxSpeed
 
 		// set velocity, according to target speed, rotation, and leftoverVel
 		this.velocity = 
@@ -1379,8 +1361,8 @@ Player.prototype.step = function(delta) {
 		if (forwardVelocity > gameplay.playerExitStallThreshold) {
 			this.stalled = false
 			this.leftoverVel = {x: this.velocity.x, y: this.velocity.y}
+			this.speed = 0
 			this.throttle = 0
-			this.gravityCoast = 0
 		}
 	} else {
 		if (forwardVelocity < gameplay.playerEnterStallThreshold) {
@@ -1507,7 +1489,7 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 				player.anim.barView.beginFill(0xFF0000, 0.5)
 				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
 				player.anim.barView.beginFill(0x00FF00, 0.5)
-				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.gravityCoast / gameplay.playerGravityCoastMax), gameplay.graphicsBarHeight)
+				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.speed), gameplay.graphicsBarHeight)
 			}
 			/**** }}} position player graphics ****/
 
