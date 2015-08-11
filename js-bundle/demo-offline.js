@@ -579,7 +579,7 @@ Demo.prototype.describeState = function() {
 
 /**** {{{ simulation****/
 Demo.prototype.acceptEvent = function(theEvent) {
-	if (theEvent.type === "control" && name === "f")
+	if (theEvent.type === "control" && theEvent.name === "f" && theEvent.state)
 		this.vanilla.addProjectile(null, null, {x: 800, y: 450})
 	this.vanilla.acceptEvent(theEvent)
 }
@@ -1314,13 +1314,20 @@ Vanilla.prototype.renderMap = function(pan, map) {
 }
 
 Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
+	stage.removeChildren()
 	this.projectiles.forEach(
 		function(projectile) {
+			pos = projectile.position
 			if (typeof projectile.anim === "undefined")  {
-				projectile.anim = "graphics"
+				projectile.anim = {}	
+				projectile.anim.graphics = new PIXI.Graphics()
+				projectile.anim.graphics.beginFill(0xFFFFFF, 1)
+				projectile.anim.graphics.drawRect(new PIXI.Point(450, 450), 2.5, 2.5)
 			}
+			// projectile.anim.graphics.position.set(pan.x + pos.x, pan.y + pos.y)
+			stage.addChild(projectile.anim.graphics)
 		}
-	)
+	, this)
 }
 
 Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
@@ -1425,9 +1432,9 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 
 	this.map.anim = {}
 	this.renderMap(pan, stage.children[0])
-	this.renderProjectiles(pan, delta, id, stage.children[2])
+	this.renderProjectiles(pan, delta, id, stage.children[1])
 
-	this.renderPlayers(pan, delta, id, stage.children[1])
+	this.renderPlayers(pan, delta, id, stage.children[2])
 }
 }
 
