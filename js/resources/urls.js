@@ -1,6 +1,9 @@
 module.exports = {
 	playerSprite: 
-		"http://solemnsky.github.io/multimedia/player.png"
+		"http://solemnsky.com/multimedia/player.png"
 	, playerThrustSprite: 
-		"http://solemnsky.github.io/multimedia/player-thrust.png"
+		"http://solemnsky.com/multimedia/player-thrust.png"
+	, playerSpeedSprite:
+		"http://solemnsky.com/multimedia/player-speed.png"
+			
 }

@@ -576,7 +576,7 @@ module.exports = {
 	, speedThrottleInfluence: 0.7 // max speed achievable with throttle
 	, speedThrottleForce: 0.3
 			// speed per second that throttle can influence
-	, speedThrottleDeaccForce: 0.8
+	, speedThrottleDeaccForce: 1.1
 	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
 	, speedAfterburnForce: 0.6
@@ -1187,6 +1187,10 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 			
 			if (typeof player.anim === "undefined")
 				player.anim = {thrustLevel: 0} 
+			if (typeof player.anim.speedSprite === "undefined") {
+				player.anim.speedSprite = new PIXI.Sprite(this.textures.playerSpeed)
+				setPlayerSprite(player.anim.speedSprite)
+			}
 			if (typeof player.anim.thrustSprite === "undefined") {
 				player.anim.thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
 				setPlayerSprite(player.anim.thrustSprite) }
@@ -1215,8 +1219,9 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 				sprite.rotation = rot
 			}
 
-			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite)
+			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite); placePlayerSprite(player.anim.speedSprite)
 			player.anim.thrustSprite.alpha = player.anim.thrustLevel
+			player.anim.speedSprite.alpha = player.speed
 
 			player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
 
@@ -1246,7 +1251,10 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 Vanilla.prototype.initRender = function(stage) {
 	this.textures = {}
 	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
-	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
+	this.textures.playerThrust = 
+		new PIXI.Texture.fromImage(urls.playerThrustSprite)
+	this.textures.playerSpeed = 
+		new PIXI.Texture.fromImage(urls.playerSpeedSprite)
 
 	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)
@@ -1457,9 +1465,12 @@ module.exports = maps;
 },{}],13:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
-		"http://solemnsky.github.io/multimedia/player.png"
+		"http://solemnsky.com/multimedia/player.png"
 	, playerThrustSprite: 
-		"http://solemnsky.github.io/multimedia/player-thrust.png"
+		"http://solemnsky.com/multimedia/player-thrust.png"
+	, playerSpeedSprite:
+		"http://solemnsky.com/multimedia/player-speed.png"
+			
 }
 
 },{}],14:[function(require,module,exports){
