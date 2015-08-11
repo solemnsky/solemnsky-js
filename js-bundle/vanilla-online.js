@@ -962,9 +962,12 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	var player = bodyB;
-	if (bodyA.GetUserData().bodyType == "player")
-		player = bodyA;
+	if (bodyA.GetUserData().bodyType == "player") {
+		var player = bodyA
+	} else {
+		if (bodyB.GetUserData().bodyType == "player")
+			player = bodyB
+	}
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -1011,14 +1014,20 @@ Vanilla.prototype.createShape = function(type, props) {
 
 Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ default params****/
+	// parameters used for the body definition
 	if (typeof props == "undefined") props = {}
 	if (typeof props.density == "undefined") props.density = 20
 	if (typeof props.friction == "undefined") props.friction = 0.7
 	if (typeof props.restitution == "undefined") props.restitution = 0
+	// if body is static, does not move
 	if (typeof props.isStatic == "undefined") props.isStatic = true
+	// if body is played, does not collide with other players
+	if (typeof props.isPlayer == "undefined") props.isPlayer = false
 	
-	if (typeof props.playerId == "undefined") props.playerId = null
+	// parameters passed to body userdata
+	// "player" or "map" for the time being
 	if (typeof props.bodyType == "undefined") props.bodyType = null
+	// for players, just the player ID, otherwise null
 	if (typeof props.bodyId == "undefined") props.bodyType = null
 	/**** }}} default params ****/
 
@@ -1029,7 +1038,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.playerId !== null) {
+	if (props.isPlayer) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
@@ -1324,26 +1333,37 @@ Player.prototype.step = function(delta) {
 			this.throttle += gameplay.playerThrottleSpeed * (delta / 1000)
 		if (this.movement.backward && this.throttle > 0)
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
+
+		// clamp throttle to [0, 1]
+		this.throttle = Math.min(this.throttle, 1)
+		this.throttle = Math.max(this.throttle, 0)
+
+		// set afterburner and gravityCoast modifier on limits
 		if (this.movement.forward && this.throttle === 1) {
 			this.afterburner = true;
-			// also get gravityCoast
-			this.gravityCoast += gameplay.gravityCoastThrusterGain * (delta / 1000)
+			this.gravityCoast += 
+				gameplay.gravityCoastThrusterGain * (delta / 1000)
 		}
-
-		if (this.throttle > 1) this.throttle = 1
-		if (this.throttle < 0) this.throttle = 0
+		if (this.movement.backward && this.throttle === 0) {
+			this.gravityCoast -= 
+				gameplay.gravityCoastThrusterGain * (delta / 1000)
+		}
 
 		// pick away at leftover velocity
 		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 
-		this.gravityCoast += Math.sin(this.rotation) * (delta / 1000) * gameplay.gravityCoastNaturalGain 
+		// modify gravityCoast according to the effective component of gravity
+		this.gravityCoast += 
+			Math.sin(this.rotation) * (delta / 1000) * gameplay.gravityCoastNaturalGain 
 
-		this.gravityCoast = Math.min(this.gravityCoast, gameplay.playerGravityCoastMax)
+		
+		// clamp gravityCoast to [0, 1]
+		this.gravityCoast = 
+			Math.min(this.gravityCoast, gameplay.playerGravityCoastMax)
 		this.gravityCoast = Math.max(this.gravityCoast, 0)
 
-		// move in the direction of angle, taking in affect gravity and
-		// leftover velocity from the last stall recovery 
+		// find the target speed
 		if (this.afterburner) {
 			var targetSpeed = gameplay.playerAfterburner + this.gravityCoast
 		} else {
@@ -1351,6 +1371,7 @@ Player.prototype.step = function(delta) {
 				this.throttle * gameplay.playerMaxVelocity + this.gravityCoast
 		}
 
+		// set velocity, according to target speed, rotation, and leftoverVel
 		this.velocity = 
 			{x: this.leftoverVel.x + Math.cos(this.rotation) * targetSpeed
 			,y: this.leftoverVel.y + Math.sin(this.rotation) * targetSpeed}

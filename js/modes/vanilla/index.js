@@ -82,9 +82,12 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	var player = bodyB;
-	if (bodyA.GetUserData().bodyType == "player")
-		player = bodyA;
+	if (bodyA.GetUserData().bodyType == "player") {
+		var player = bodyA
+	} else {
+		if (bodyB.GetUserData().bodyType == "player")
+			player = bodyB
+	}
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -131,14 +134,20 @@ Vanilla.prototype.createShape = function(type, props) {
 
 Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** {{{ default params****/
+	// parameters used for the body definition
 	if (typeof props == "undefined") props = {}
 	if (typeof props.density == "undefined") props.density = 20
 	if (typeof props.friction == "undefined") props.friction = 0.7
 	if (typeof props.restitution == "undefined") props.restitution = 0
+	// if body is static, does not move
 	if (typeof props.isStatic == "undefined") props.isStatic = true
+	// if body is played, does not collide with other players
+	if (typeof props.isPlayer == "undefined") props.isPlayer = false
 	
-	if (typeof props.playerId == "undefined") props.playerId = null
+	// parameters passed to body userdata
+	// "player" or "map" for the time being
 	if (typeof props.bodyType == "undefined") props.bodyType = null
+	// for players, just the player ID, otherwise null
 	if (typeof props.bodyId == "undefined") props.bodyType = null
 	/**** }}} default params ****/
 
@@ -149,7 +158,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.playerId !== null) {
+	if (props.isPlayer) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
