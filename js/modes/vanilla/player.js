@@ -136,8 +136,15 @@ Player.prototype.step = function(delta) {
 		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 
 		// speed modifiers
-		this.speed += 
-			Math.sign((gameplay.speedThrottleInfluence * this.throttle) - this.speed) * gameplay.speedThrottleForce * (delta / 1000)
+		if (this.speed > (this.throttle * gameplay.speedThrottleInfluence)) {
+			if (this.throttle < gameplay.speedThrottleInfluence) {
+				this.speed -= gameplay.speedThrottleDeaccForce * (delta / 1000)
+			} else {
+				this.speed -= gameplay.speedThrottleForce * (delta / 1000)
+			}
+		} else {
+			this.speed += gameplay.speedThrottleForce * (delta / 1000)
+		}
 		this.speed += 
 			Math.sin(this.rotation) * gameplay.speedGravityForce * (delta / 1000)
 		if (this.afterburner) 
