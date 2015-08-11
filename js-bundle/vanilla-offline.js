@@ -1221,7 +1221,7 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 
 			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite); placePlayerSprite(player.anim.speedSprite)
 			player.anim.thrustSprite.alpha = player.anim.thrustLevel
-			player.anim.speedSprite.alpha = player.speed
+			player.anim.speedSprite.alpha = Math.pow(player.speed, 3)
 
 			player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
 
