@@ -14,8 +14,7 @@ Vanilla.prototype.renderMap = function(pan, map) {
 	map.removeChildren()
 	
 	// if not set, initialise the map graphics
-	if (typeof this.map.anim == "undefined") {
-		this.map.anim = {}
+	if (typeof this.map.anim.mapGraphics == "undefined") {
 		var mapGraphics = new PIXI.Graphics
 		mapGraphics.clear()
 		mapGraphics.beginFill(0xFFFFFF, 1)
@@ -36,6 +35,15 @@ Vanilla.prototype.renderMap = function(pan, map) {
 	map.addChild(this.map.anim.mapGraphics)
 }
 
+Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
+	this.projectiles.forEach(
+		function(projectile) {
+			if (typeof projectile.anim === "undefined")  {
+				projectile.anim = "graphics"
+			}
+		}
+	)
+}
 
 Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 	players.removeChildren()
@@ -114,6 +122,7 @@ Vanilla.prototype.initRender = function(stage) {
 
 	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)
+	stage.addChild(new PIXI.Container)
 }
 
 Vanilla.prototype.stepRender = function(id, stage, delta) {
@@ -127,7 +136,9 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 			,y: comOffset.y + -(player.position.y) + 450}
 	} 
 
+	this.anim = {}
 	this.renderMap(pan, stage.children[0])
 	this.renderPlayers(pan, delta, id, stage.children[1])
+	this.renderProjectiles(pan, delta, id, stage.children[2])
 }
 }
