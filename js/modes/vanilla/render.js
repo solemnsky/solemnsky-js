@@ -59,6 +59,10 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 			
 			if (typeof player.anim === "undefined")
 				player.anim = {thrustLevel: 0} 
+			if (typeof player.anim.speedSprite === "undefined") {
+				player.anim.speedSprite = new PIXI.Sprite(this.textures.playerSpeed)
+				setPlayerSprite(player.anim.speedSprite)
+			}
 			if (typeof player.anim.thrustSprite === "undefined") {
 				player.anim.thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
 				setPlayerSprite(player.anim.thrustSprite) }
@@ -87,8 +91,9 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 				sprite.rotation = rot
 			}
 
-			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite)
+			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite); placePlayerSprite(player.anim.speedSprite)
 			player.anim.thrustSprite.alpha = player.anim.thrustLevel
+			player.anim.speedSprite.alpha = Math.pow(player.speed, 3)
 
 			player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
 
@@ -106,6 +111,7 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 			/**** {{{ add to players container ****/
 			players.addChild(player.anim.normalSprite)
 			players.addChild(player.anim.thrustSprite)
+			players.addChild(player.anim.speedSprite)
 			players.addChild(player.anim.nameText)
 			if (id == player.id) 
 				players.addChild(player.anim.barView)
@@ -118,7 +124,10 @@ Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 Vanilla.prototype.initRender = function(stage) {
 	this.textures = {}
 	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
-	this.textures.playerThrust = new PIXI.Texture.fromImage(urls.playerThrustSprite)
+	this.textures.playerThrust = 
+		new PIXI.Texture.fromImage(urls.playerThrustSprite)
+	this.textures.playerSpeed = 
+		new PIXI.Texture.fromImage(urls.playerSpeedSprite)
 
 	stage.addChild(new PIXI.Container)
 	stage.addChild(new PIXI.Container)

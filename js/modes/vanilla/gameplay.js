@@ -17,8 +17,8 @@ module.exports = {
 
 	// stalled
 	, playerMaxRotationStalled: Math.PI * 1.5
-	, playerMaxVelocityStalled: 250
-	, playerAfterburnerStalled: 500 
+	, playerMaxVelocityStalled: 300
+	, playerAfterburnerStalled: 200
 	, playerExitStallThreshold: 130
 
 	// not stalled
@@ -27,11 +27,10 @@ module.exports = {
 	, speedThrottleInfluence: 0.7 // max speed achievable with throttle
 	, speedThrottleForce: 0.3
 			// speed per second that throttle can influence
+	, speedThrottleDeaccForce: 1.1
 	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
 	, speedAfterburnForce: 0.6
-	, playerInitialThrottle: 0.6
-	
 	, playerEnterStallThreshold: 100
 
 	// misc values and damping

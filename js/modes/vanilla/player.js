@@ -136,8 +136,15 @@ Player.prototype.step = function(delta) {
 		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
 
 		// speed modifiers
-		this.speed += 
-			Math.sign((gameplay.speedThrottleInfluence * this.throttle) - this.speed) * gameplay.speedThrottleForce * (delta / 1000)
+		if (this.speed > (this.throttle * gameplay.speedThrottleInfluence)) {
+			if (this.throttle < gameplay.speedThrottleInfluence) {
+				this.speed -= gameplay.speedThrottleDeaccForce * (delta / 1000)
+			} else {
+				this.speed -= gameplay.speedThrottleForce * (delta / 1000)
+			}
+		} else {
+			this.speed += gameplay.speedThrottleForce * (delta / 1000)
+		}
 		this.speed += 
 			Math.sin(this.rotation) * gameplay.speedGravityForce * (delta / 1000)
 		if (this.afterburner) 
@@ -159,10 +166,10 @@ Player.prototype.step = function(delta) {
 	if (this.stalled) {
 		if (forwardVelocity > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.leftoverVel = {x: this.velocity.x, y: this.velocity.y}
+			this.leftoverVel = {x: this.velocity.x - (forwardVelocity * Math.cos(this.rotation)), y: this.velocity.y - (forwardVelocity * Math.sin(this.rotation))}
 			this.speed = 
-				gameplay.speedThrottleInfluence * gameplay.playerInitialThrottle
-			this.throttle = gameplay.playerInitialThrottle
+				forwardVelocity / gameplay.playerMaxSpeed
+			this.throttle = this.speed / gameplay.speedThrottleInfluence
 		}
 	} else {
 		if (forwardVelocity < gameplay.playerEnterStallThreshold) {
