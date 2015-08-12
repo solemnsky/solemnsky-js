@@ -1,4 +1,4 @@
-Util = require('../../resources/util.js')
+var Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
 	if (typeof priority == "undefined") priority = 0
@@ -19,11 +19,11 @@ function Snapshot(player, priority, defaultState, states) {
 
 exports.makePlayerSnapshot = 
 	function(world, id, priority, defaultState, states) {
-	var player = world.findPlayerById(id);
-	if (player !== null) {
-		return [new Snapshot(player, priority, defaultState, states)];
-	} else { return null }
-}
+		var player = world.findPlayerById(id);
+		if (player !== null) {
+			return [new Snapshot(player, priority, defaultState, states)];
+		} else { return null }
+	}
 
 exports.makeTotalSnapshot = function(world, priority) {
 	return world.players.reduce(function(list, player) {
@@ -54,7 +54,7 @@ exports.applySnapshot = function(world, snapshot) {
 		}, this)
 }
 
-deflationRules =
+var deflationRules =
 	[ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
 	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation } 
 	, { key: "health", shortKey: "h", deflation: Util.floatDeflation }
@@ -74,7 +74,7 @@ deflationRules =
 
 function deflatePair(pair) {
 	var matches = deflationRules.filter(
-		function(rule) { return rule.key == pair.key	} 
+		function(rule) { return rule.key === pair.key	} 
 	, pair)
 	if (matches.length > 0) {
 		var rule = matches[0]
@@ -84,7 +84,7 @@ function deflatePair(pair) {
 
 function inflatePair(pair) {
 	var matches = deflationRules.filter(
-		function(rule) { return rule.shortKey == pair.key	} 
+		function(rule) { return rule.shortKey === pair.key	} 
 	, pair)
 	if (matches.length > 0) {
 		var rule = matches[0]
@@ -93,7 +93,7 @@ function inflatePair(pair) {
 }
 
 exports.serialiseSnapshot = function(snap) {
-	result = []
+	var result = []
 	
 	snap.forEach(
 		function(inflated) {

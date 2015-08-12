@@ -1,17 +1,17 @@
-/*                  ******** vanilla/index.js ********                //
+/*									******** vanilla/index.js ********								//
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
-//                  ******** vanilla/index.js ********                */
+//									******** vanilla/index.js ********								*/
 
 module.exports = Vanilla
 
-Box2D = require('../../../assets/box2d.min.js')
+var Box2D = require('../../../assets/box2d.min.js')
 
-Utils = require('../../resources/util.js')
-maps = require('../../resources/maps.js')
+var Utils = require('../../resources/util.js')
+var maps = require('../../resources/maps.js')
 
-Player = require('./player.js')
-gameplay = require('./gameplay.js')
-snapshots = require('./snapshots.js')
+var Player = require('./player.js')
+var gameplay = require('./gameplay.js')
+var snapshots = require('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
@@ -30,21 +30,21 @@ function Vanilla() {
 /**** }}} constructor ****/
 
 /**** {{{ box2d synonyms ****/
-b2Vec2         = Box2D.Common.Math.b2Vec2
-b2BodyDef      = Box2D.Dynamics.b2BodyDef
-b2Body         = Box2D.Dynamics.b2Body
-b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
-b2Fixture      = Box2D.Dynamics.b2Fixture
-b2World        = Box2D.Dynamics.b2World
-b2MassData     = Box2D.Collision.Shapes.b2MassData
-b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
-b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+var b2Vec2				 = Box2D.Common.Math.b2Vec2
+var b2BodyDef			 = Box2D.Dynamics.b2BodyDef
+var b2Body				 = Box2D.Dynamics.b2Body
+var b2FixtureDef	 = Box2D.Dynamics.b2FixtureDef
+// var b2Fixture			= Box2D.Dynamics.b2Fixture
+var b2World				 = Box2D.Dynamics.b2World
+// var b2MassData			= Box2D.Collision.Shapes.b2MassData
+var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+// var b2CircleShape	= Box2D.Collision.Shapes.b2CircleShape
+// var b2DebugDraw		= Box2D.Dynamics.b2DebugDraw;
 /**** }}} box2d synonyms ****/
 
 /**** {{{ internal utility methods ****/
 Vanilla.prototype.addPlayer = function(id, name) {
-	if (this.players.some(function(player) {return player.id == id})) {
+	if (this.players.some(function(player) {return player.id === id})) {
 		return null
 	} else {
 		var player = new Player(this, id, 900, 450, name);
@@ -82,10 +82,10 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	if (bodyA.GetUserData().bodyType == "player") {
+	if (bodyA.GetUserData().bodyType === "player") {
 		var player = bodyA
 	} else {
-		if (bodyB.GetUserData().bodyType == "player")
+		if (bodyB.GetUserData().bodyType === "player")
 			player = bodyB
 	}
 
@@ -114,21 +114,20 @@ Vanilla.prototype.evaluateContact = function(contact) {
 
 /**** {{{ physics interface methods ****/
 Vanilla.prototype.createShape = function(type, props) {
-	w = props.width; h = props.height
+	var w = props.width; var h = props.height
+	var shape = new b2PolygonShape
 	switch (type) {
-		case ("rectangle"): {
-			shape = new b2PolygonShape
-			shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
-			return shape
-		}
-		case ("triangle"): {
-			shape = new b2PolygonShape
-			shape.SetAsArray([
-				new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
-				, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
-				, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
-			return shape 
-		}
+	case ("rectangle"): {
+		shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
+		return shape
+	}
+	case ("triangle"): {
+		shape.SetAsArray([
+			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
+			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
+			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+		return shape 
+	}
 	}
 }
 
@@ -175,7 +174,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** }}} body definition ****/
 	
 	// enter box into world with body and fixture definitions
-	box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
+	var box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
 	box.SetUserData({bodyType: props.bodyType, bodyId: props.bodyId})
 
 	return box
@@ -192,7 +191,7 @@ Vanilla.prototype.init = function(data) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
-		, true  //allow sleep
+		, true	//allow sleep
 	);
 	this.world.gravity = this.gravity;
 
@@ -223,15 +222,15 @@ Vanilla.prototype.describeState = function() {
 
 /**** {{{ simulation****/
 Vanilla.prototype.acceptEvent = function(theEvent) {
-	if (theEvent.type == "control") {
+	if (theEvent.type === "control") {
 		var player = this.findPlayerById(theEvent.id)
 		if (player !== null) {
-			state = theEvent.state
+			var state = theEvent.state
 			switch (theEvent.name) {
-				case ("up"): player.movement.forward = state; return true;
-				case ("down"): player.movement.backward = state; return true;
-				case ("left"): player.movement.left = state; return true;
-				case ("right"): player.movement.right = state; return true;
+			case ("up"): player.movement.forward = state; return true;
+			case ("down"): player.movement.backward = state; return true;
+			case ("left"): player.movement.left = state; return true;
+			case ("right"): player.movement.right = state; return true;
 			}
 		}
 	}
@@ -251,12 +250,12 @@ Vanilla.prototype.step = function(delta) {
 	
 	this.world.Step(
 		delta / 1000 //time delta
-	,   10       //velocity iterations
-	,   10       //position iterations
+	,		10			 //velocity iterations
+	,		10			 //position iterations
 	);
 	// glenn's magic contact listening, affects 'health' values of players
-	for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
-	  this.evaluateContact(contact);
+	for (var contact = this.world.GetContactList(); contact !== null; contact = contact.GetNext()) {
+		this.evaluateContact(contact);
 	}
 
 	this.players.forEach( function(player) { player.readFromBlock() } )
@@ -275,9 +274,9 @@ Vanilla.prototype.step = function(delta) {
 Vanilla.prototype.join = function(name, id) {
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
-		newId = Utils.findAvailableId(ids)
+		var newId = Utils.findAvailableId(ids)
 	} else {
-		newId = id
+		var newId = id
 	}
 	this.addPlayer(newId, name)
 	return newId
