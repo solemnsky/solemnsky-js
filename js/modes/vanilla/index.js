@@ -21,6 +21,10 @@ function Vanilla() {
 		// array of projectiles, with gane state, box2d, and pixi objects
 	this.players = []
 		// array of players, with game state, box2d, and pixi objects
+		
+		// all of these arrays have a 'block' and 'anim' element
+		// for their box2d body and pixi container respectively,
+		// along with other top-level values with game state
 
 	this.mapData = []
 		// cache of raw map data
@@ -79,7 +83,11 @@ Vanilla.prototype.loadMap = function (map) {
 				, this.createShape("rectangle", {width: block.w, height: block.h})
 				, {isStatic: true, bodyType: "map"} 
 			)
-			this.map.push(box);
+			this.map.push(
+				{ block: box
+				, position: {x: block.x, y: block.y} 
+				, dimensions: {w: block.w, h: block.h}}
+			)
 		}, this)
 }
 
@@ -91,12 +99,12 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	if (bodyA.GetUserData().bodyType === "player") {
-		var player = bodyA
-	} else {
-		if (bodyB.GetUserData().bodyType === "player")
-			player = bodyB
-	}
+	var player = null
+	if (bodyA.GetUserData().bodyType === "player") 
+		player = bodyA
+	if (bodyB.GetUserData().bodyType === "player")
+		player = bodyB
+	if (player === null) return 
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -225,8 +233,14 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(id, type, pos) {
 	var shape = this.createShape("rectangle", {width: 5, height: 5})	
-	var block = this.createBody(pos, shape, {bodyType: "projectile", bodyId: id})
-	this.projectiles.push({id: id, type: type, position: pos, velocity: {x: 0, y: 0}, block: block})
+	var block = this.createBody(pos, shape, {isStatic: false, isPlayer: false, bodyType: "projectile", bodyId: id})
+	this.projectiles.push(
+		{ id: id
+		, type: type
+		, position: pos
+		, dimensions: {w: 5, h: 5}
+		, velocity: {x: 0, y: 0}
+		, block: block})
 }
 /**** }}} mode-facing methods ****/
 
