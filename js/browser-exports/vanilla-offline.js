@@ -10,3 +10,6 @@ var clientOffline = require('../control/client-offline.js')
 var myClient = clientOffline(mode)
 
 ui.run(60, myClient)
+
+// debug pointer
+window.MODE = mode

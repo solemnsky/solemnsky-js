@@ -477,6 +477,9 @@ var myClient = clientOffline(mode)
 
 ui.run(60, myClient)
 
+// debug pointer
+window.MODE = mode
+
 },{"../control/client-offline.js":4,"../modes/demo/":6,"../modes/demo/render.js":7,"../modes/vanilla/":9,"../modes/vanilla/render.js":11,"../ui/index.js":17}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Offline demo client.                                                \\
@@ -1302,27 +1305,6 @@ var gameplay = require('./gameplay.js')
 module.exports = function(Vanilla) {
 
 /**** {{{ render map and players ****/
-<<<<<<< HEAD
-Vanilla.prototype.renderMap = function(pan, map) {
-	map.removeChildren()
-	
-	// if not set, initialise the map graphics
-	if (typeof this.map.anim.mapGraphics == "undefined") {
-		var mapGraphics = new PIXI.Graphics
-		mapGraphics.clear()
-		mapGraphics.beginFill(0xFFFFFF, 1)
-		this.mapData.blocks.forEach(
-			function(block) {
-				mapGraphics.drawRect(
-					block.x - (block.w / 2) 
-					, block.y - (block.h / 2) 
-					, block.w, block.h
-				)
-			}
-		)
-		this.map.anim.mapGraphics = mapGraphics
-	}
-=======
 	Vanilla.prototype.renderMap = function(pan, map) {
 		map.removeChildren()
 		
@@ -1343,29 +1325,12 @@ Vanilla.prototype.renderMap = function(pan, map) {
 			)
 			this.map.anim.mapGraphics = mapGraphics
 		}
->>>>>>> master
 
 		// enter the map graphics into the map container
 		this.map.anim.mapGraphics.position.set(pan.x, pan.y)
 		map.addChild(this.map.anim.mapGraphics)
 	}
 
-Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
-	stage.removeChildren()
-	this.projectiles.forEach(
-		function(projectile) {
-			pos = projectile.position
-			if (typeof projectile.anim === "undefined")  {
-				projectile.anim = {}	
-				projectile.anim.graphics = new PIXI.Text("hey")
-				projectile.anim.graphics.alpha = 1
-				projectile.anim.position = new PIXI.Point(500, 500)
-			}
-			// projectile.anim.graphics.position.set(pan.x + pos.x, pan.y + pos.y)
-			stage.addChild(projectile.anim.graphics)
-		}
-	, this)
-}
 
 	Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
 		players.removeChildren()
@@ -1453,36 +1418,14 @@ Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
 		this.textures.playerSpeed = 
 			new PIXI.Texture.fromImage(urls.playerSpeedSprite)
 
-<<<<<<< HEAD
-	stage.addChild(new PIXI.Container())
-	stage.addChild(new PIXI.Container())
-	stage.addChild(new PIXI.Container())
-}
-=======
 		stage.addChild(new PIXI.Container)
 		stage.addChild(new PIXI.Container)
 	}
->>>>>>> master
 
 	Vanilla.prototype.stepRender = function(id, stage, delta) {
 		var player = this.findPlayerById(id)
 		var pan = {x: 0, y: 0}
 
-<<<<<<< HEAD
-	if (player !== null) {
-		comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
-		pan = 
-			{x: comOffset.x + -(player.position.x) + 800 
-			,y: comOffset.y + -(player.position.y) + 450}
-	} 
-
-	this.map.anim = {}
-	this.renderMap(pan, stage.children[0])
-	this.renderProjectiles(pan, delta, id, stage.children[1])
-
-	this.renderPlayers(pan, delta, id, stage.children[2])
-}
-=======
 		if (player !== null) {
 			var comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
 			pan = 
@@ -1493,7 +1436,6 @@ Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
 		this.renderMap(pan, stage.children[0])
 		this.renderPlayers(pan, delta, id, stage.children[1])
 	}
->>>>>>> master
 }
 
 },{"../../../assets/pixi.min.js":2,"../../resources/urls.js":15,"./gameplay.js":8}],12:[function(require,module,exports){

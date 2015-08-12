@@ -16,3 +16,6 @@ var clientOnline = require('../control/client-arena.js')
 var myClient = clientOnline(mode, address, 50042, "/")
 
 ui.run(60, myClient)
+
+// debug pointer
+window.MODE = mode

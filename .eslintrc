@@ -3,7 +3,7 @@
   "rules": {
     // ** serious issues **
       "no-use-before-define": [2, "nofunc"],
-      "no-unused-vars": [2, {"vars": "all", "args": "none"}],
+      "no-unused-vars": [2, {"vars": "local", "args": "none"}],
       "no-undef": 2,
       "valid-typeof": 2,
       "use-isnan": 2,
