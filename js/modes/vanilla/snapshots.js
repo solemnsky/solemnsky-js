@@ -20,9 +20,10 @@ function Snapshot(player, priority, defaultState, states) {
 exports.makePlayerSnapshot = 
 	function(world, id, priority, defaultState, states) {
 		var player = world.findPlayerById(id);
-		if (player !== null) {
-			return [new Snapshot(player, priority, defaultState, states)];
-		} else { return null }
+		if (player !== null) 
+			return [new Snapshot(player, priority, defaultState, states)]
+
+		return null 
 	}
 
 exports.makeTotalSnapshot = function(world, priority) {
@@ -78,18 +79,27 @@ function deflatePair(pair) {
 	, pair)
 	if (matches.length > 0) {
 		var rule = matches[0]
-		return {key: rule.shortKey, value: rule.deflation.deflate(pair.value)}
-	} else { return pair }
+		return {
+			key: rule.shortKey
+			, value: rule.deflation.deflate(pair.value)
+		}
+	} 
+	return pair 
 }
 
 function inflatePair(pair) {
 	var matches = deflationRules.filter(
 		function(rule) { return rule.shortKey === pair.key	} 
-	, pair)
+		, pair
+	)
 	if (matches.length > 0) {
 		var rule = matches[0]
-		return {key: rule.key, value: rule.deflation.inflate(pair.value)}
-	} else { return pair }
+		return {
+			key: rule.key
+			, value: rule.deflation.inflate(pair.value)
+		}
+	} 
+	return pair 
 }
 
 exports.serialiseSnapshot = function(snap) {

@@ -44,16 +44,15 @@ var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
 
 /**** {{{ internal utility methods ****/
 Vanilla.prototype.addPlayer = function(id, name) {
-	if (this.players.some(function(player) {return player.id === id})) {
+	if (this.players.some(function(player) {return player.id === id})) 
 		return null
-	} else {
-		var player = new Player(this, id, 900, 450, name);
-		this.players.push(player);
-		player.block.SetSleepingAllowed(false);
-		player.block.SetBullet(true);
-		player.respawning = true;
-		return player.id;
-	}
+
+	var player = new Player(this, id, 900, 450, name);
+	this.players.push(player);
+	player.block.SetSleepingAllowed(false);
+	player.block.SetBullet(true);
+	player.respawning = true;
+	return player.id;
 }
 
 Vanilla.prototype.findPlayerById = function(id) {

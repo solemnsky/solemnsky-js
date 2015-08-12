@@ -31,11 +31,9 @@ Null.prototype.init = function(initdata) {
 }
 
 Null.prototype.makeInitData = function(key) {
-	if (key === 'red') {
+	if (key === 'red') 
 		return JSON.stringify({color: 0xFF0000, players: []})
-	} else {
-		return JSON.stringify({color: 0xFFFFFF, players: []})
-	}
+	return JSON.stringify({color: 0xFFFFFF, players: []})
 }
 
 Null.prototype.describeState = function() {
