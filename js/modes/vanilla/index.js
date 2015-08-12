@@ -308,11 +308,12 @@ Vanilla.prototype.step = function(delta) {
 
 /**** {{{ discrete networking ****/
 Vanilla.prototype.join = function(name, id) {
+	var newId
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
-		var newId = Utils.findAvailableId(ids)
+		newId = Utils.findAvailableId(ids)
 	} else {
-		var newId = id
+		newId = id
 	}
 	this.addPlayer(newId, name)
 	return newId

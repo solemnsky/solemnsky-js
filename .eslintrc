@@ -1,7 +1,11 @@
 {
   "parser": "babel-eslint",
   "rules": {
-    // ** serious issues **
+    // discouraging bugs
+			"comma-dangle": [2, "never"],
+			"no-cond-assign": 2,
+			"no-dupe-args": 2,
+			"no-dupe-keys": 2,
       "no-use-before-define": [2, "nofunc"],
       "no-unused-vars": [2, {"vars": "local", "args": "none"}],
       "no-undef": 2,
@@ -10,16 +14,21 @@
       "no-eq-null": 2,
       "no-unreachable": 2,
       "eqeqeq": [2, "smart"],
+			"no-redeclare": 2,
+			"no-octal": 2,
+    // discouraging bad practice
+			"no-inner-declarations": 1,
+			"no-func-assign": 1,
+			"no-fallthrough": 1,
       "consistent-return": 2,
 			"no-else-return": 2,
-    // ** style **
+			"no-delete-var": 2,
+		// sweeping up the dust
       "camelcase": 1,
       "dot-notation": 1,
       "no-extra-semi": 1,
 			"indent": [1, "tab"],
-    // ** ick what are you doing **
-			"no-func-assign": 1,
-			"no-fallthrough": 1      
+			"no-warning-comments": 1
   },
   env: {
     "browser": true,

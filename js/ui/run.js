@@ -23,13 +23,14 @@ module.exports = function(target, object) {
 	}
 
 	function smartResize() {
-		var w = window.innerWidth; var h = window.innerHeight;
+		var w = window.innerWidth; var h = window.innerHeight
+		var nw, nh
 		if ((w / h) > (16 / 9)) {
-			var nw = h * (16 / 9); var nh = h
+			nw = h * (16 / 9); nh = h
 			renderer.resize(nw, nh)
 			setMargins((w - nw) / 2, 0)
 		} else {
-			var nh = w * (9 / 16); var nw = w
+			nh = w * (9 / 16); nw = w
 			renderer.resize(nw, nh)
 			setMargins(0, (h - nh) / 2)
 		}
