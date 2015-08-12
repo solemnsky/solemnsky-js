@@ -645,7 +645,7 @@ var PIXI = require('../../../assets/pixi.min.js')
 module.exports = function(Demo) {
 
 	Demo.prototype.initRender = function(stage) { 
-		var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
+		var title = new PIXI.Text("solemnsky development demo", {fill: 0xFFFFFF})
 		title.position = new PIXI.Point(800 - title.width / 2, 10)
 		stage.addChild(title)
 
@@ -817,12 +817,18 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	}
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
+	var dataA = bodyA.GetUserData()
+	var dataB = bodyB.GetUserData()
+
+	// if any projectile is involved, we don't do the normal thing
+	if (dataA.bodyType === "projectile" || dataB.bodyType === "projectile")
+		return	
 	
 	// determine if a player is involved, if so, set it
 	var player = null
-	if (bodyA.GetUserData().bodyType === "player") 
+	if (dataA.bodyType === "player") 
 		player = bodyA
-	if (bodyB.GetUserData().bodyType === "player")
+	if (dataB.bodyType === "player")
 		player = bodyB
 	if (player === null) return 
 

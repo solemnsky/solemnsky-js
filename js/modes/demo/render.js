@@ -7,7 +7,7 @@ var PIXI = require('../../../assets/pixi.min.js')
 module.exports = function(Demo) {
 
 	Demo.prototype.initRender = function(stage) { 
-		var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
+		var title = new PIXI.Text("solemnsky development demo", {fill: 0xFFFFFF})
 		title.position = new PIXI.Point(800 - title.width / 2, 10)
 		stage.addChild(title)
 
