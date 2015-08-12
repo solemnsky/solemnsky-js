@@ -1,0 +1,29 @@
+{
+  "parser": "babel-eslint",
+  "rules": {
+    // ** serious issues **
+      "no-use-before-define": [2, "nofunc"],
+      "no-unused-vars": [2, {"vars": "all", "args": "none"}],
+      "no-undef": 2,
+      "valid-typeof": 2,
+      "use-isnan": 2,
+      "no-eq-null": 2,
+      "no-unreachable": 2,
+      "eqeqeq": [2, "smart"],
+      "consistent-return": 2,
+			"no-else-return": 2,
+    // ** style **
+      "camelcase": 1,
+      "dot-notation": 1,
+      "no-extra-semi": 1,
+			"indent": [1, "tab"],
+    // ** ick what are you doing **
+			"no-func-assign": 1,
+			"no-fallthrough": 1      
+  },
+  env: {
+    "browser": true,
+    "node": true
+  }
+}
+

@@ -2,8 +2,8 @@
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
 
-PIXI = require('../../assets/pixi.min.js')
-run = require('./run.js')
+var PIXI = require('../../assets/pixi.min.js')
+var run = require('./run.js')
 
 exports.run = run
 
@@ -32,7 +32,7 @@ exports.splash = function(texts, interval) {
 }
 
 exports.centerText = function(text) {
-	center = Object()
+	var center = Object()
 	center.init = function(){}
 	center.step = function(){}
 	center.initRender = function(stage) {

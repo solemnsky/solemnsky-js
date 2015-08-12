@@ -4,9 +4,10 @@
 
 // object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities 
 
-Keys = require('../resources/keys.js')
-nameFromKeyCode = Keys.nameFromKeyCode
-keyCodeFromName = Keys.keyCodeFromName
+var PIXI = require('../../assets/pixi.min.js')
+
+var Keys = require('../resources/keys.js')
+var nameFromKeyCode = Keys.nameFromKeyCode
 
 module.exports = function(target, object) {
 	var renderer =
@@ -22,13 +23,13 @@ module.exports = function(target, object) {
 	}
 
 	function smartResize() {
-		w = window.innerWidth; h = window.innerHeight;
+		var w = window.innerWidth; var h = window.innerHeight;
 		if ((w / h) > (16 / 9)) {
-			nw = h * (16 / 9); nh = h
+			var nw = h * (16 / 9); var nh = h
 			renderer.resize(nw, nh)
 			setMargins((w - nw) / 2, 0)
 		} else {
-			nh = w * (9 / 16); nw = w
+			var nh = w * (9 / 16); var nw = w
 			renderer.resize(nw, nh)
 			setMargins(0, (h - nh) / 2)
 		}
@@ -45,19 +46,19 @@ module.exports = function(target, object) {
 
 	/**** {{{ requestAnimFrame ****/
 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-	requestAnimFrame = (function() {
-		return window.requestAnimationFrame  || 
-			window.webkitRequestAnimationFrame || 
-			window.mozRequestAnimationFrame    || 
-			window.oRequestAnimationFrame      || 
-			window.msRequestAnimationFrame     || 
-			function(callback, /* DOMElement */ element){
-				window.setTimeout(callback, (1/target) * 1000);
-			};
-	})();
+var requestAnimFrame = (function(target) {
+	return window.requestAnimationFrame  || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame    || 
+		window.oRequestAnimationFrame      || 
+		window.msRequestAnimationFrame     || 
+		function(callback, /* DOMElement */ element){
+			window.setTimeout(callback, (1/target) * 1000);
+		};
+})();
 	/**** }}} requestAnimFrame ****/
 
-runWithStage = function(target, renderer, stage, object) {
+function runWithStage(target, renderer, stage, object) {
 	stage.removeChildren()
 	renderer.render(stage)
 
@@ -76,7 +77,7 @@ runWithStage = function(target, renderer, stage, object) {
 	var logicTime = 0; var renderTime = 0; var sleepTime = 0
 	// the cycle deltas 
 
-	resetFps = function() {
+	function resetFps() {
 		if (running) {
 			window.setTimeout(resetFps, 1000)
 			fps = fpsC; fpsC = 0
@@ -85,12 +86,12 @@ runWithStage = function(target, renderer, stage, object) {
 	}
 
 	/**** {{{ step ****/
-	then = Date.now()
+	var then = Date.now()
 	function update() {
 		running = (!object.hasEnded())
 
-		now = Date.now()
-		delta = now - then
+		var now = Date.now()
+		var delta = now - then
 		then = now
 
 		if (running) { 
@@ -144,20 +145,19 @@ runWithStage = function(target, renderer, stage, object) {
 	function acceptKeyUp(e) { acceptKey(e, false) }
 	function acceptKeyDown(e) { acceptKey(e, true) }
 	function acceptKey(e, state) {
-		name = nameFromKeyCode(e.keyCode)
+		const name = nameFromKeyCode(e.keyCode)
 		object.acceptKey(name, state)
 		// some keys have quite obnoxious default cases
 		// while others, such as the debug terminal, do not
 		switch (name) {
-			case ("back_space"): {
-				e.preventDefault(); break
-			}
-			default: break
+		case ("back_space"): 
+			e.preventDefault(); break
+		default: break
 		}
 	}	
 
-	function onBlur() { blurred = true; blurTime = 0 }
-	function onFocus() { blurred = false; blurTime = 0 }	
+	function onBlur() { blurred = true }
+	function onFocus() { blurred = false }	
 
 	window.addEventListener("keyup", acceptKeyUp)
 	window.addEventListener("keydown", acceptKeyDown)

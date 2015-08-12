@@ -1,1 +1,1 @@
-eslint $(find . -name *.js )
+eslint js

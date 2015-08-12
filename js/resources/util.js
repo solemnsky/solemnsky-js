@@ -26,7 +26,7 @@ Util.prototype.floatToInt = function(float_) {
 
 Util.prototype.intToChar = function(int_) {
 	//Because bitwise arithmetic doesn't go below 0
-	if (int_ == 0)
+	if (int_ === 0)
 		return '\0\0';
 
 	//If it's negative, we need to do 2s comp on it so we can make it positive.
@@ -80,7 +80,7 @@ Util.prototype.noDeflation =
 
 Util.prototype.boolDeflation =
 	{ deflate: function(bool) { return bool ? 1 : 0 }
-	, inflate: function(val) { return (val == 1) } }
+	, inflate: function(val) { return (val === 1) } }
 
 Util.prototype.floatDeflation =
 	{ deflate: function(f) { return exports.floatToChar(f) }
@@ -97,8 +97,8 @@ Util.prototype.vecDeflation =
 */
 
 Util.prototype.vecDeflation = 
-	{ deflate: function(x){return {x: exports.floatDeflation.deflate(x.x), y: exports.floatDeflation.deflate(y.y)}}
-	, inflate: function(x){return {x: exports.floatDeflation.inflate(x.x), y: exports.floatDeflation.inflate(y.y)}} }
+	{ deflate: function(x){return {x: exports.floatDeflation.deflate(x.x), y: exports.floatDeflation.deflate(x.y)}}
+	, inflate: function(x){return {x: exports.floatDeflation.inflate(x.x), y: exports.floatDeflation.inflate(x.y)}} }
 
 Util.prototype.movementDeflation = 
 	{ deflate:
@@ -108,8 +108,8 @@ Util.prototype.movementDeflation =
 			}
 	, inflate:
 			function(val) {
-				return {left: (val[0] == 1), right: (val[1] == 1)
-					, forward: (val[2] == 1), backward: (val[3] == 1)}
+				return {left: (val[0] === 1), right: (val[1] === 1)
+					, forward: (val[2] === 1), backward: (val[3] === 1)}
 			}
 	}
 /**** }}} deflation pairs ****/
@@ -130,12 +130,12 @@ Util.prototype.jsonClone = function(o) {
 }
 
 // https://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
-Util.prototype.clone = function(obj) { var copy; if (null == obj || "object" != typeof obj) return obj; if (obj instanceof Date) { copy = new Date(); copy.setTime(obj.getTime()); return copy; } if (obj instanceof Array) { copy = []; for (var i = 0, len = obj.length; i < len; i++) { copy[i] = this.clone(obj[i]); } return copy; } if (obj instanceof Object) { copy = {}; for (var attr in obj) { if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]); } return copy; } throw new Error("Unable to copy object."); }
+Util.prototype.clone = function(obj) { var copy; if (null === obj || "object" != typeof obj) return obj; if (obj instanceof Date) { copy = new Date(); copy.setTime(obj.getTime()); return copy; } if (obj instanceof Array) { copy = []; for (var i = 0, len = obj.length; i < len; i++) { copy[i] = this.clone(obj[i]); } return copy; } if (obj instanceof Object) { copy = {}; for (var attr in obj) { if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]); } return copy; } throw new Error("Unable to copy object."); }
 /**** }}} the absurd problem of cloning ****/
 
 /**** {{{ utility ****/
 Util.prototype.range = function(start, edge, step) {
-	if (arguments.length == 1) {
+	if (arguments.length === 1) {
 		edge = start;
 		start = 0;
 	}
@@ -150,9 +150,9 @@ Util.prototype.range = function(start, edge, step) {
 
 /**** {{{ elem id operations ****/
 Util.prototype.findAvailableId = function(xs) {
-	y = xs.length
-	for (i = 0; i <= xs.length; i++) {
-		if (xs[i] != i) {
+	var y = xs.length
+	for (var i = 0; i <= xs.length; i++) {
+		if (xs[i] !== i) {
 			y = i; break
 		}
 	}
@@ -160,8 +160,8 @@ Util.prototype.findAvailableId = function(xs) {
 }
 
 Util.prototype.findIndexById = function(elems, id) {
-	for (i = 0; i < elems.length; i++) {
-		if (elems[i].id == id) 
+	for (var i = 0; i < elems.length; i++) {
+		if (elems[i].id === id) 
 			return i
 	}	
 	return null

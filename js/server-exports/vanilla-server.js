@@ -1,7 +1,6 @@
-Vanilla = require("../modes/vanilla/")
-Utils = require('../resources/util.js')
-serverArena = require("../control/server-arena.js");
+var Vanilla = require("../modes/vanilla/")
+var serverArena = require("../control/server-arena.js");
 
-mode = new Vanilla()
+var mode = new Vanilla()
 
 serverArena(50042, mode, "default")

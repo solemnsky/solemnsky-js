@@ -1,7 +1,7 @@
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
-maps = {
+module.exports = {
 	bloxMap: {
 		dimensions: 
 			{ width: 3200, height: 800 }
@@ -27,5 +27,3 @@ maps = {
 			]
 	}
 }
-
-module.exports = maps;

@@ -9,7 +9,7 @@
 
 module.exports = Null
 
-Utils = require('../../resources/util.js')
+var Utils = require('../../resources/util.js')
 
 /**** {{{ constructor ****/
 function Null() {
@@ -31,11 +31,9 @@ Null.prototype.init = function(initdata) {
 }
 
 Null.prototype.makeInitData = function(key) {
-	if (key == 'red') {
+	if (key === 'red') 
 		return JSON.stringify({color: 0xFF0000, players: []})
-	} else {
-		return JSON.stringify({color: 0xFFFFFF, players: []})
-	}
+	return JSON.stringify({color: 0xFFFFFF, players: []})
 }
 
 Null.prototype.describeState = function() {
@@ -49,12 +47,12 @@ Null.prototype.acceptEvent = function(theEvent) {
 	// do nothing
 }
 
-Null.prototype.listPlayers = funciton() {
+Null.prototype.listPlayers = function() {
 	return this.players.map(
 		function(player) {
-			return { name: player.name, id: players.id }		
+			return { name: player.name, id: player.id }		
 		}
-	}
+	)
 }
 
 Null.prototype.step = function(delta) {
@@ -74,7 +72,7 @@ Null.prototype.hasEnded = function() {
 Null.prototype.join = function(name, id) {
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) { return player.id })
-		newId = Utils.findAvailableId(ids)	
+		var newId = Utils.findAvailableId(ids)	
 	} else { newId = id }
 
 	this.players.push({name: name, id: newId, timespent: 0})
@@ -99,8 +97,8 @@ Null.prototype.serverAssert = function() {
 Null.prototype.clientMerge = function(id, snap) {
 	// sync all the other players, but be sure to keep myself intact
 	var myself = this.findPlayerById(id)
-		this.players = JSON.parse(snap)
-		Utils.removeElemById(this.players, id)
+	this.players = JSON.parse(snap)
+	Utils.removeElemById(this.players, id)
 	if (myself !== null) 
 		this.players.push(myself)
 }
