@@ -15,17 +15,27 @@ var snapshots = require('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
-	this.players = []
-	this.projectiles = []
-	this.mapData = []
-	// some involved things about the map, like links to the box2d blocks
-	// and pixi container is stored in this.map, this.mapData is just
-	// the data from resources/maps.js
 	this.map = []
-	this.scale = gameplay.physicsScale
+		// array of map elements, with game state, box2d, and pixi objects
+	this.projectiles = []
+		// array of projectiles, with gane state, box2d, and pixi objects
+	this.players = []
+		// array of players, with game state, box2d, and pixi objects
 
-	// box2d world
+	this.mapData = []
+		// cache of raw map data
+
 	this.world = null
+		// box2d world
+
+	this.textures = null
+		// cache of textures
+	this.graphics = 
+		{ mapStage: null
+			, projectileStage: null
+			, playerStage: null }
+		// the three pixi stages, constructed with pixi data from the
+		// map, projectile and player arrays and updated each render tick
 }
 /**** }}} constructor ****/
 
@@ -115,13 +125,13 @@ Vanilla.prototype.writeProjectilesToBlock = function () {
 		function(projectile) {
 			projectile.block.SetPosition(
 				new b2Vec2(
-					projectile.position.x / this.scale
-					, projectile.position.y / this.scale)
+					projectile.position.x / gameplay.physicsScale 
+					, projectile.position.y / gameplay.physicsScale)
 			)
 			projectile.block.SetLinearVelocity(
 				new b2Vec2(
-					projectile.velocity.x / this.scale
-					, projectile.velocity.y / this.scale)
+					projectile.velocity.x / gameplay.physicsScale 
+					, projectile.velocity.y / gameplay.physicsScale)
 			)
 		}
 	, this)
@@ -132,10 +142,10 @@ Vanilla.prototype.readProjectilesFromBlock = function () {
 			var vel = projectile.block.GetLinearVelocity()
 			var pos = projectile.block.GetPosition()
 
-			projectile.velocity.x = vel.x * this.scale
-			projectile.velocity.y = vel.y * this.scale
-			projectile.position.x = pos.x * this.scale
-			projectile.position.y = pos.y * this.scale
+			projectile.velocity.x = vel.x * gameplay.physicsScale
+			projectile.velocity.y = vel.y * gameplay.physicsScale
+			projectile.position.x = pos.x * gameplay.physicsScale
+			projectile.position.y = pos.y * gameplay.physicsScale
 		}
 	, this)
 }
@@ -145,16 +155,17 @@ Vanilla.prototype.readProjectilesFromBlock = function () {
 Vanilla.prototype.createShape = function(type, props) {
 	var w = props.width; var h = props.height
 	var shape = new b2PolygonShape
+	var scale = gameplay.physicsScale
 	switch (type) {
 	case ("rectangle"): {
-		shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
+		shape.SetAsBox(w / 2 / scale, h / 2 / scale)
 		return shape
 	}
 	case ("triangle"): {
 		shape.SetAsArray([
-			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
-			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
-			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+			new b2Vec2.Make(-w/2 / scale, h/2 / scale)
+			, new b2Vec2.Make(-w/2 / scale, -h/2 / scale)
+			, new b2Vec2.Make(w/2 / scale, 0)], 3)
 		return shape 
 	}
 	}
@@ -195,11 +206,12 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** }}} fixture definition ****/
 
 	/**** {{{ body definition ****/
+	var scale = gameplay.physicsScale
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
 		((!props.isStatic)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
-	bodyDef.position.x = pos.x / this.scale
-	bodyDef.position.y = pos.y / this.scale
+	bodyDef.position.x = pos.x / scale
+	bodyDef.position.y = pos.y / scale
 	/**** }}} body definition ****/
 	
 	// enter box into world with body and fixture definitions
@@ -252,7 +264,7 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ simulation****/
+/**** {{{ simulation ****/
 Vanilla.prototype.acceptEvent = function(theEvent) {
 	if (theEvent.type === "control") {
 		var player = this.findPlayerById(theEvent.id)

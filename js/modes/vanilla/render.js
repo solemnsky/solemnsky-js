@@ -9,36 +9,36 @@ var gameplay = require('./gameplay.js')
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
 
-/**** {{{ render map and players ****/
-	Vanilla.prototype.renderMap = function(pan, map) {
-		map.removeChildren()
-		
-		// if not set, initialise the map graphics
-		if (typeof this.map.anim == "undefined") {
-			this.map.anim = {}
-			var mapGraphics = new PIXI.Graphics
-			mapGraphics.clear()
-			mapGraphics.beginFill(0xFFFFFF, 1)
-			this.mapData.blocks.forEach(
-				function(block) {
+/**** {{{ renderMap ****/
+	Vanilla.prototype.renderMap = function(pan, delta, id) {
+		this.graphics.mapStage.removeChildren()
+		this.map.forEach(
+			function(block) {
+				if (typeof block.anim == "undefined") {
+					var mapGraphics = new PIXI.Graphics()
+					mapGraphics.clear()
+					mapGraphics.beginFill(0xFFFFFF, 1)
 					mapGraphics.drawRect(
 						block.x - (block.w / 2) 
 						, block.y - (block.h / 2) 
-						, block.w, block.h
-					)
+						, block.w, block.h)
+					block.anim = mapGraphics
 				}
-			)
-			this.map.anim.mapGraphics = mapGraphics
-		}
-
-		// enter the map graphics into the map container
-		this.map.anim.mapGraphics.position.set(pan.x, pan.y)
-		map.addChild(this.map.anim.mapGraphics)
+				block.anim.position.set(pan.x, pan.y)
+				this.graphics.mapStage.addChild(block.anim)
+			}	
+		, this)
 	}
+/**** }}} renderMap ****/
 
+/**** {{{ renderProjectiles ****/
+	Vanilla.prototype.renderProjectiles = function(pan, delta, id) {
+	}
+/**** }}} renderProjectiles	
 
-	Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
-		players.removeChildren()
+/**** {{{ renderPlayers ****/
+	Vanilla.prototype.renderPlayers = function(pan, delta, id) {
+		this.graphics.playerStage.removeChildren()
 
 		this.players.forEach(
 			function(player) {
@@ -103,17 +103,21 @@ module.exports = function(Vanilla) {
 				/**** }}} position player graphics ****/
 
 				/**** {{{ add to players container ****/
-				players.addChild(player.anim.normalSprite)
-				players.addChild(player.anim.thrustSprite)
-				players.addChild(player.anim.speedSprite)
-				players.addChild(player.anim.nameText)
+				var wholePlayer = new PIXI.Container()
+				
+				wholePlayer.addChild(player.anim.normalSprite)
+				wholePlayer.addChild(player.anim.thrustSprite)
+				wholePlayer.addChild(player.anim.speedSprite)
+				wholePlayer.addChild(player.anim.nameText)
 				if (id === player.id) 
-					players.addChild(player.anim.barView)
+					wholePlayer.addChild(player.anim.barView)
+
+				this.graphics.playerStage.addChild(wholePlayer)							
 				/**** }}} add to players container ****/
 			}
 		, this)
 	}
-/**** }}} render map and players ****/
+/**** }}} renderPlayers ****/
 
 	Vanilla.prototype.initRender = function(stage) {
 		this.textures = {}
@@ -122,9 +126,14 @@ module.exports = function(Vanilla) {
 			new PIXI.Texture.fromImage(urls.playerThrustSprite)
 		this.textures.playerSpeed = 
 			new PIXI.Texture.fromImage(urls.playerSpeedSprite)
+		
+		this.graphics.mapStage = new PIXI.Container()
+		this.graphics.projectileStage = new PIXI.Container()
+		this.graphics.playerStage = new PIXI.Container()
 
-		stage.addChild(new PIXI.Container)
-		stage.addChild(new PIXI.Container)
+		stage.addChild(this.graphics.mapStage)
+		stage.addChild(this.graphics.projectileStage)
+		stage.addChild(this.graphics.playerStage)
 	}
 
 	Vanilla.prototype.stepRender = function(id, stage, delta) {
@@ -134,11 +143,12 @@ module.exports = function(Vanilla) {
 		if (player !== null) {
 			var comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
 			pan = 
-				{x: comOffset.x + -(player.position.x) + 800 
-				,y: comOffset.y + -(player.position.y) + 450}
+				{ x: comOffset.x + -(player.position.x) + 800 
+				, y: comOffset.y + -(player.position.y) + 450}
 		} 
 
-		this.renderMap(pan, stage.children[0])
-		this.renderPlayers(pan, delta, id, stage.children[1])
+		this.renderMap(pan, delta, id)
+		this.renderProjectiles(pan, delta, id)	
+		this.renderPlayers(pan, delta, id)
 	}
 }

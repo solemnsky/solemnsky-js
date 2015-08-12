@@ -467,6 +467,9 @@ var ui = require('../ui/index.js')
 var Vanilla = require("../modes/vanilla/")
 require("../modes/vanilla/render.js")(Vanilla)
 var mode = new Vanilla()
+	
+// debug pointer
+window.MODE = mode
 
 // use control method to turn mode into UI object
 var clientOffline = require('../control/client-offline.js')
@@ -474,8 +477,6 @@ var myClient = clientOffline(mode)
 
 ui.run(60, myClient)
 
-// debug pointer
-window.MODE = mode
 
 },{"../control/client-offline.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":15}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
@@ -619,17 +620,27 @@ var snapshots = require('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
-	this.players = []
-	this.projectiles = []
-	this.mapData = []
-	// some involved things about the map, like links to the box2d blocks
-	// and pixi container is stored in this.map, this.mapData is just
-	// the data from resources/maps.js
 	this.map = []
-	this.scale = gameplay.physicsScale
+		// array of map elements, with game state, box2d, and pixi objects
+	this.projectiles = []
+		// array of projectiles, with gane state, box2d, and pixi objects
+	this.players = []
+		// array of players, with game state, box2d, and pixi objects
 
-	// box2d world
+	this.mapData = []
+		// cache of raw map data
+
 	this.world = null
+		// box2d world
+
+	this.textures = null
+		// cache of textures
+	this.graphics = 
+		{ mapStage: null
+			, projectileStage: null
+			, playerStage: null }
+		// the three pixi stages, constructed with pixi data from the
+		// map, projectile and player arrays and updated each render tick
 }
 /**** }}} constructor ****/
 
@@ -719,13 +730,13 @@ Vanilla.prototype.writeProjectilesToBlock = function () {
 		function(projectile) {
 			projectile.block.SetPosition(
 				new b2Vec2(
-					projectile.position.x / this.scale
-					, projectile.position.y / this.scale)
+					projectile.position.x / gameplay.physicsScale 
+					, projectile.position.y / gameplay.physicsScale)
 			)
 			projectile.block.SetLinearVelocity(
 				new b2Vec2(
-					projectile.velocity.x / this.scale
-					, projectile.velocity.y / this.scale)
+					projectile.velocity.x / gameplay.physicsScale 
+					, projectile.velocity.y / gameplay.physicsScale)
 			)
 		}
 	, this)
@@ -736,10 +747,10 @@ Vanilla.prototype.readProjectilesFromBlock = function () {
 			var vel = projectile.block.GetLinearVelocity()
 			var pos = projectile.block.GetPosition()
 
-			projectile.velocity.x = vel.x * this.scale
-			projectile.velocity.y = vel.y * this.scale
-			projectile.position.x = pos.x * this.scale
-			projectile.position.y = pos.y * this.scale
+			projectile.velocity.x = vel.x * gameplay.physicsScale
+			projectile.velocity.y = vel.y * gameplay.physicsScale
+			projectile.position.x = pos.x * gameplay.physicsScale
+			projectile.position.y = pos.y * gameplay.physicsScale
 		}
 	, this)
 }
@@ -749,16 +760,17 @@ Vanilla.prototype.readProjectilesFromBlock = function () {
 Vanilla.prototype.createShape = function(type, props) {
 	var w = props.width; var h = props.height
 	var shape = new b2PolygonShape
+	var scale = gameplay.physicsScale
 	switch (type) {
 	case ("rectangle"): {
-		shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
+		shape.SetAsBox(w / 2 / scale, h / 2 / scale)
 		return shape
 	}
 	case ("triangle"): {
 		shape.SetAsArray([
-			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
-			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
-			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+			new b2Vec2.Make(-w/2 / scale, h/2 / scale)
+			, new b2Vec2.Make(-w/2 / scale, -h/2 / scale)
+			, new b2Vec2.Make(w/2 / scale, 0)], 3)
 		return shape 
 	}
 	}
@@ -799,11 +811,12 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** }}} fixture definition ****/
 
 	/**** {{{ body definition ****/
+	var scale = gameplay.physicsScale
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
 		((!props.isStatic)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
-	bodyDef.position.x = pos.x / this.scale
-	bodyDef.position.y = pos.y / this.scale
+	bodyDef.position.x = pos.x / scale
+	bodyDef.position.y = pos.y / scale
 	/**** }}} body definition ****/
 	
 	// enter box into world with body and fixture definitions
@@ -856,7 +869,7 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ simulation****/
+/**** {{{ simulation ****/
 Vanilla.prototype.acceptEvent = function(theEvent) {
 	if (theEvent.type === "control") {
 		var player = this.findPlayerById(theEvent.id)
@@ -912,11 +925,12 @@ Vanilla.prototype.step = function(delta) {
 
 /**** {{{ discrete networking ****/
 Vanilla.prototype.join = function(name, id) {
+	var newId
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
-		var newId = Utils.findAvailableId(ids)
+		newId = Utils.findAvailableId(ids)
 	} else {
-		var newId = id
+		newId = id
 	}
 	this.addPlayer(newId, name)
 	return newId
@@ -1041,11 +1055,11 @@ function Player(game, id, x, y, name) {
 /**** {{{ reading and writing between wrappers and box2d ****/
 Player.prototype.writeToBlock = function() {
 	this.block.SetPosition(new b2Vec2(
-		  this.position.x / this.game.scale
-		, this.position.y / this.game.scale))	
+		  this.position.x / gameplay.physicsScale
+		, this.position.y / gameplay.physicsScale))	
 	this.block.SetLinearVelocity(new b2Vec2(
-		  this.velocity.x / this.game.scale
-		, this.velocity.y / this.game.scale))
+		  this.velocity.x / gameplay.physicsScale
+		, this.velocity.y / gameplay.physicsScale))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
 }
@@ -1054,10 +1068,10 @@ Player.prototype.readFromBlock = function() {
 	var vel = this.block.GetLinearVelocity()
 	var pos = this.block.GetPosition()
 
-	this.velocity.x = vel.x * this.game.scale; 
-	this.velocity.y = vel.y * this.game.scale;
-	this.position.x = pos.x * this.game.scale; 
-	this.position.y = pos.y * this.game.scale;
+	this.velocity.x = vel.x * gameplay.physicsScale; 
+	this.velocity.y = vel.y * gameplay.physicsScale;
+	this.position.x = pos.x * gameplay.physicsScale; 
+	this.position.y = pos.y * gameplay.physicsScale;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
 }
@@ -1199,36 +1213,36 @@ var gameplay = require('./gameplay.js')
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
 
-/**** {{{ render map and players ****/
-	Vanilla.prototype.renderMap = function(pan, map) {
-		map.removeChildren()
-		
-		// if not set, initialise the map graphics
-		if (typeof this.map.anim == "undefined") {
-			this.map.anim = {}
-			var mapGraphics = new PIXI.Graphics
-			mapGraphics.clear()
-			mapGraphics.beginFill(0xFFFFFF, 1)
-			this.mapData.blocks.forEach(
-				function(block) {
+/**** {{{ renderMap ****/
+	Vanilla.prototype.renderMap = function(pan, delta, id) {
+		this.graphics.mapStage.removeChildren()
+		this.map.forEach(
+			function(block) {
+				if (typeof block.anim == "undefined") {
+					var mapGraphics = new PIXI.Graphics()
+					mapGraphics.clear()
+					mapGraphics.beginFill(0xFFFFFF, 1)
 					mapGraphics.drawRect(
 						block.x - (block.w / 2) 
 						, block.y - (block.h / 2) 
-						, block.w, block.h
-					)
+						, block.w, block.h)
+					block.anim = mapGraphics
 				}
-			)
-			this.map.anim.mapGraphics = mapGraphics
-		}
-
-		// enter the map graphics into the map container
-		this.map.anim.mapGraphics.position.set(pan.x, pan.y)
-		map.addChild(this.map.anim.mapGraphics)
+				block.anim.position.set(pan.x, pan.y)
+				this.graphics.mapStage.addChild(block.anim)
+			}	
+		, this)
 	}
+/**** }}} renderMap ****/
 
+/**** {{{ renderProjectiles ****/
+	Vanilla.prototype.renderProjectiles = function(pan, delta, id) {
+	}
+/**** }}} renderProjectiles	
 
-	Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
-		players.removeChildren()
+/**** {{{ renderPlayers ****/
+	Vanilla.prototype.renderPlayers = function(pan, delta, id) {
+		this.graphics.playerStage.removeChildren()
 
 		this.players.forEach(
 			function(player) {
@@ -1293,17 +1307,21 @@ module.exports = function(Vanilla) {
 				/**** }}} position player graphics ****/
 
 				/**** {{{ add to players container ****/
-				players.addChild(player.anim.normalSprite)
-				players.addChild(player.anim.thrustSprite)
-				players.addChild(player.anim.speedSprite)
-				players.addChild(player.anim.nameText)
+				var wholePlayer = new PIXI.Container()
+				
+				wholePlayer.addChild(player.anim.normalSprite)
+				wholePlayer.addChild(player.anim.thrustSprite)
+				wholePlayer.addChild(player.anim.speedSprite)
+				wholePlayer.addChild(player.anim.nameText)
 				if (id === player.id) 
-					players.addChild(player.anim.barView)
+					wholePlayer.addChild(player.anim.barView)
+
+				this.graphics.playerStage.addChild(wholePlayer)							
 				/**** }}} add to players container ****/
 			}
 		, this)
 	}
-/**** }}} render map and players ****/
+/**** }}} renderPlayers ****/
 
 	Vanilla.prototype.initRender = function(stage) {
 		this.textures = {}
@@ -1312,9 +1330,14 @@ module.exports = function(Vanilla) {
 			new PIXI.Texture.fromImage(urls.playerThrustSprite)
 		this.textures.playerSpeed = 
 			new PIXI.Texture.fromImage(urls.playerSpeedSprite)
+		
+		this.graphics.mapStage = new PIXI.Container()
+		this.graphics.projectileStage = new PIXI.Container()
+		this.graphics.playerStage = new PIXI.Container()
 
-		stage.addChild(new PIXI.Container)
-		stage.addChild(new PIXI.Container)
+		stage.addChild(this.graphics.mapStage)
+		stage.addChild(this.graphics.projectileStage)
+		stage.addChild(this.graphics.playerStage)
 	}
 
 	Vanilla.prototype.stepRender = function(id, stage, delta) {
@@ -1324,12 +1347,13 @@ module.exports = function(Vanilla) {
 		if (player !== null) {
 			var comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
 			pan = 
-				{x: comOffset.x + -(player.position.x) + 800 
-				,y: comOffset.y + -(player.position.y) + 450}
+				{ x: comOffset.x + -(player.position.x) + 800 
+				, y: comOffset.y + -(player.position.y) + 450}
 		} 
 
-		this.renderMap(pan, stage.children[0])
-		this.renderPlayers(pan, delta, id, stage.children[1])
+		this.renderMap(pan, delta, id)
+		this.renderProjectiles(pan, delta, id)	
+		this.renderPlayers(pan, delta, id)
 	}
 }
 
@@ -1831,13 +1855,14 @@ module.exports = function(target, object) {
 	}
 
 	function smartResize() {
-		var w = window.innerWidth; var h = window.innerHeight;
+		var w = window.innerWidth; var h = window.innerHeight
+		var nw, nh
 		if ((w / h) > (16 / 9)) {
-			var nw = h * (16 / 9); var nh = h
+			nw = h * (16 / 9); nh = h
 			renderer.resize(nw, nh)
 			setMargins((w - nw) / 2, 0)
 		} else {
-			var nh = w * (9 / 16); var nw = w
+			nh = w * (9 / 16); nw = w
 			renderer.resize(nw, nh)
 			setMargins(0, (h - nh) / 2)
 		}

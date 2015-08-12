@@ -76,11 +76,11 @@ function Player(game, id, x, y, name) {
 /**** {{{ reading and writing between wrappers and box2d ****/
 Player.prototype.writeToBlock = function() {
 	this.block.SetPosition(new b2Vec2(
-		  this.position.x / this.game.scale
-		, this.position.y / this.game.scale))	
+		  this.position.x / gameplay.physicsScale
+		, this.position.y / gameplay.physicsScale))	
 	this.block.SetLinearVelocity(new b2Vec2(
-		  this.velocity.x / this.game.scale
-		, this.velocity.y / this.game.scale))
+		  this.velocity.x / gameplay.physicsScale
+		, this.velocity.y / gameplay.physicsScale))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
 }
@@ -89,10 +89,10 @@ Player.prototype.readFromBlock = function() {
 	var vel = this.block.GetLinearVelocity()
 	var pos = this.block.GetPosition()
 
-	this.velocity.x = vel.x * this.game.scale; 
-	this.velocity.y = vel.y * this.game.scale;
-	this.position.x = pos.x * this.game.scale; 
-	this.position.y = pos.y * this.game.scale;
+	this.velocity.x = vel.x * gameplay.physicsScale; 
+	this.velocity.y = vel.y * gameplay.physicsScale;
+	this.position.x = pos.x * gameplay.physicsScale; 
+	this.position.y = pos.y * gameplay.physicsScale;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
 }
