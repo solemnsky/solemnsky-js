@@ -10,22 +10,38 @@ var Utils = require('../../resources/util.js')
 var maps = require('../../resources/maps.js')
 
 var Player = require('./player.js')
+var Projectile = require('./projectile.js')
+
 var gameplay = require('./gameplay.js')
 var snapshots = require('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
+	this.map = []
+		// array of map elements, with game state, box2d, and pixi objects
+	this.projectiles = []
+		// array of projectiles, with gane state, box2d, and pixi objects
 	this.players = []
+		// array of players, with game state, box2d, and pixi objects
+		
+		// all of these arrays have a 'block' and 'anim' element
+		// for their box2d body and pixi container respectively,
+		// along with other top-level values with game state
 
 	this.mapData = []
-	// some involved things about the map, like links to the box2d blocks
-	// and pixi container is stored in this.map, this.mapData is just
-	// the data from resources/maps.js
-	this.map = []
-	this.scale = gameplay.physicsScale
+		// cache of raw map data
 
-	// box2d world
 	this.world = null
+		// box2d world
+
+	this.textures = null
+		// cache of textures
+	this.graphics = 
+		{ mapStage: null
+			, projectileStage: null
+			, playerStage: null }
+		// the three pixi stages, constructed with pixi data from the
+		// map, projectile and player arrays and updated each render tick
 }
 /**** }}} constructor ****/
 
@@ -69,24 +85,35 @@ Vanilla.prototype.loadMap = function (map) {
 				, this.createShape("rectangle", {width: block.w, height: block.h})
 				, {isStatic: true, bodyType: "map"} 
 			)
-			this.map.push(box);
+			this.map.push(
+				{ block: box
+				, position: {x: block.x, y: block.y} 
+				, dimensions: {w: block.w, h: block.h}}
+			)
 		}, this)
 }
 
 Vanilla.prototype.evaluateContact = function(contact) {
 	if (!contact.IsTouching()) {
-		//Not touching yet
+		// their AABBs have intersected, but no contact has occured
 		return;
 	}
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
-	//Determine which is the player
-	if (bodyA.GetUserData().bodyType === "player") {
-		var player = bodyA
-	} else {
-		if (bodyB.GetUserData().bodyType === "player")
-			player = bodyB
-	}
+	var dataA = bodyA.GetUserData()
+	var dataB = bodyB.GetUserData()
+
+	// if any projectile is involved, we don't do the normal thing
+	if (dataA.bodyType === "projectile" || dataB.bodyType === "projectile")
+		return	
+	
+	// determine if a player is involved, if so, set it
+	var player = null
+	if (dataA.bodyType === "player") 
+		player = bodyA
+	if (dataB.bodyType === "player")
+		player = bodyB
+	if (player === null) return 
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -109,22 +136,27 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	if (playerData !== null)
 		playerData.health -= loss;
 }
+
+Vanilla.prototype.pointInMap = function(position) {
+	// brb
+}
 /**** }}} internal utility methods ***/
 
 /**** {{{ physics interface methods ****/
 Vanilla.prototype.createShape = function(type, props) {
 	var w = props.width; var h = props.height
 	var shape = new b2PolygonShape
+	var scale = gameplay.physicsScale
 	switch (type) {
-	case ("rectangle"): {
-		shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
+	case "rectangle": {
+		shape.SetAsBox(w / 2 / scale, h / 2 / scale)
 		return shape
 	}
-	case ("triangle"): {
+	case "triangle": {
 		shape.SetAsArray([
-			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
-			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
-			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+			new b2Vec2.Make(-w/2 / scale, h/2 / scale)
+			, new b2Vec2.Make(-w/2 / scale, -h/2 / scale)
+			, new b2Vec2.Make(w/2 / scale, 0)], 3)
 		return shape 
 	}
 	}
@@ -165,11 +197,12 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** }}} fixture definition ****/
 
 	/**** {{{ body definition ****/
+	var scale = gameplay.physicsScale
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
-		((!props.isStatic)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
-	bodyDef.position.x = pos.x / this.scale
-	bodyDef.position.y = pos.y / this.scale
+		!props.isStatic ? b2Body.b2_dynamicBody : b2Body.b2_staticBody
+	bodyDef.position.x = pos.x / scale
+	bodyDef.position.y = pos.y / scale
 	/**** }}} body definition ****/
 	
 	// enter box into world with body and fixture definitions
@@ -182,6 +215,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(id, type, pos) {
+	this.projectiles.push(
+		new Projectile(this, id, pos)
+	)
 }
 /**** }}} mode-facing methods ****/
 
@@ -219,17 +255,17 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ simulation****/
+/**** {{{ simulation ****/
 Vanilla.prototype.acceptEvent = function(theEvent) {
 	if (theEvent.type === "control") {
 		var player = this.findPlayerById(theEvent.id)
 		if (player !== null) {
 			var state = theEvent.state
 			switch (theEvent.name) {
-			case ("up"): player.movement.forward = state; return true;
-			case ("down"): player.movement.backward = state; return true;
-			case ("left"): player.movement.left = state; return true;
-			case ("right"): player.movement.right = state; return true;
+			case "up": player.movement.forward = state; return true;
+			case "down": player.movement.backward = state; return true;
+			case "left": player.movement.left = state; return true;
+			case "right": player.movement.right = state; return true;
 			}
 		}
 	}
@@ -244,25 +280,37 @@ Vanilla.prototype.listPlayers = function() {
 }
 
 Vanilla.prototype.step = function(delta) {
-	// use box2d to mutate the player's states
-	this.players.forEach( function(player) { player.writeToBlock() } )
+	// put the information in the box2d system
+	this.players.forEach( 
+		function(player) { player.writeToBlock() } )
+	this.projectiles.forEach( 
+		function(projectile) { projectile.writeToBlock() } )
 	
+	// step the box2d world forward
 	this.world.Step(
 		delta / 1000 //time delta
 	,		10			 //velocity iterations
 	,		10			 //position iterations
 	);
-	// glenn's magic contact listening, affects 'health' values of players
+
+	// evaluate contacts
 	for (var contact = this.world.GetContactList(); contact !== null; contact = contact.GetNext()) {
 		this.evaluateContact(contact);
 	}
 
-	this.players.forEach( function(player) { player.readFromBlock() } )
+	// step information back from the game world
+	this.players.forEach( 
+		function(player) { player.readFromBlock() } )
+	this.projectiles.forEach(
+		function(projectile) { projectile.readFromBlock() } )
 
-	// tick each player forward
-	this.players.forEach(function each(player) {
-		 player.step(delta);
-	}, this);
+	// step players and projectiles forward
+	this.players.forEach(function(player) {
+		player.step(delta)
+	}, this)
+	this.projectiles.forEach(function(projectile) {
+		projectile.step(delta)
+	}, this)
 
 	return [] // event log, currently STUB
 }
@@ -271,11 +319,12 @@ Vanilla.prototype.step = function(delta) {
 
 /**** {{{ discrete networking ****/
 Vanilla.prototype.join = function(name, id) {
+	var newId
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
-		var newId = Utils.findAvailableId(ids)
+		newId = Utils.findAvailableId(ids)
 	} else {
-		var newId = id
+		newId = id
 	}
 	this.addPlayer(newId, name)
 	return newId

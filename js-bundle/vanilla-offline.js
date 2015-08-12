@@ -467,6 +467,9 @@ var ui = require('../ui/index.js')
 var Vanilla = require("../modes/vanilla/")
 require("../modes/vanilla/render.js")(Vanilla)
 var mode = new Vanilla()
+	
+// debug pointer
+window.MODE = mode
 
 // use control method to turn mode into UI object
 var clientOffline = require('../control/client-offline.js')
@@ -474,7 +477,8 @@ var myClient = clientOffline(mode)
 
 ui.run(60, myClient)
 
-},{"../control/client-offline.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":15}],4:[function(require,module,exports){
+
+},{"../control/client-offline.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":10,"../ui/index.js":16}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
@@ -611,22 +615,38 @@ var Utils = require('../../resources/util.js')
 var maps = require('../../resources/maps.js')
 
 var Player = require('./player.js')
+var Projectile = require('./projectile.js')
+
 var gameplay = require('./gameplay.js')
 var snapshots = require('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
+	this.map = []
+		// array of map elements, with game state, box2d, and pixi objects
+	this.projectiles = []
+		// array of projectiles, with gane state, box2d, and pixi objects
 	this.players = []
+		// array of players, with game state, box2d, and pixi objects
+		
+		// all of these arrays have a 'block' and 'anim' element
+		// for their box2d body and pixi container respectively,
+		// along with other top-level values with game state
 
 	this.mapData = []
-	// some involved things about the map, like links to the box2d blocks
-	// and pixi container is stored in this.map, this.mapData is just
-	// the data from resources/maps.js
-	this.map = []
-	this.scale = gameplay.physicsScale
+		// cache of raw map data
 
-	// box2d world
 	this.world = null
+		// box2d world
+
+	this.textures = null
+		// cache of textures
+	this.graphics = 
+		{ mapStage: null
+			, projectileStage: null
+			, playerStage: null }
+		// the three pixi stages, constructed with pixi data from the
+		// map, projectile and player arrays and updated each render tick
 }
 /**** }}} constructor ****/
 
@@ -670,24 +690,35 @@ Vanilla.prototype.loadMap = function (map) {
 				, this.createShape("rectangle", {width: block.w, height: block.h})
 				, {isStatic: true, bodyType: "map"} 
 			)
-			this.map.push(box);
+			this.map.push(
+				{ block: box
+				, position: {x: block.x, y: block.y} 
+				, dimensions: {w: block.w, h: block.h}}
+			)
 		}, this)
 }
 
 Vanilla.prototype.evaluateContact = function(contact) {
 	if (!contact.IsTouching()) {
-		//Not touching yet
+		// their AABBs have intersected, but no contact has occured
 		return;
 	}
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
-	//Determine which is the player
-	if (bodyA.GetUserData().bodyType === "player") {
-		var player = bodyA
-	} else {
-		if (bodyB.GetUserData().bodyType === "player")
-			player = bodyB
-	}
+	var dataA = bodyA.GetUserData()
+	var dataB = bodyB.GetUserData()
+
+	// if any projectile is involved, we don't do the normal thing
+	if (dataA.bodyType === "projectile" || dataB.bodyType === "projectile")
+		return	
+	
+	// determine if a player is involved, if so, set it
+	var player = null
+	if (dataA.bodyType === "player") 
+		player = bodyA
+	if (dataB.bodyType === "player")
+		player = bodyB
+	if (player === null) return 
 
 	var worldManifold = new Box2D.Collision.b2WorldManifold;
 	contact.GetWorldManifold(worldManifold);
@@ -710,22 +741,27 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	if (playerData !== null)
 		playerData.health -= loss;
 }
+
+Vanilla.prototype.pointInMap = function(position) {
+	// brb
+}
 /**** }}} internal utility methods ***/
 
 /**** {{{ physics interface methods ****/
 Vanilla.prototype.createShape = function(type, props) {
 	var w = props.width; var h = props.height
 	var shape = new b2PolygonShape
+	var scale = gameplay.physicsScale
 	switch (type) {
-	case ("rectangle"): {
-		shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
+	case "rectangle": {
+		shape.SetAsBox(w / 2 / scale, h / 2 / scale)
 		return shape
 	}
-	case ("triangle"): {
+	case "triangle": {
 		shape.SetAsArray([
-			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
-			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
-			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+			new b2Vec2.Make(-w/2 / scale, h/2 / scale)
+			, new b2Vec2.Make(-w/2 / scale, -h/2 / scale)
+			, new b2Vec2.Make(w/2 / scale, 0)], 3)
 		return shape 
 	}
 	}
@@ -766,11 +802,12 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** }}} fixture definition ****/
 
 	/**** {{{ body definition ****/
+	var scale = gameplay.physicsScale
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
-		((!props.isStatic)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
-	bodyDef.position.x = pos.x / this.scale
-	bodyDef.position.y = pos.y / this.scale
+		!props.isStatic ? b2Body.b2_dynamicBody : b2Body.b2_staticBody
+	bodyDef.position.x = pos.x / scale
+	bodyDef.position.y = pos.y / scale
 	/**** }}} body definition ****/
 	
 	// enter box into world with body and fixture definitions
@@ -783,6 +820,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(id, type, pos) {
+	this.projectiles.push(
+		new Projectile(this, id, pos)
+	)
 }
 /**** }}} mode-facing methods ****/
 
@@ -820,17 +860,17 @@ Vanilla.prototype.describeState = function() {
 }
 /**** }}} initialisation ****/
 
-/**** {{{ simulation****/
+/**** {{{ simulation ****/
 Vanilla.prototype.acceptEvent = function(theEvent) {
 	if (theEvent.type === "control") {
 		var player = this.findPlayerById(theEvent.id)
 		if (player !== null) {
 			var state = theEvent.state
 			switch (theEvent.name) {
-			case ("up"): player.movement.forward = state; return true;
-			case ("down"): player.movement.backward = state; return true;
-			case ("left"): player.movement.left = state; return true;
-			case ("right"): player.movement.right = state; return true;
+			case "up": player.movement.forward = state; return true;
+			case "down": player.movement.backward = state; return true;
+			case "left": player.movement.left = state; return true;
+			case "right": player.movement.right = state; return true;
 			}
 		}
 	}
@@ -845,25 +885,37 @@ Vanilla.prototype.listPlayers = function() {
 }
 
 Vanilla.prototype.step = function(delta) {
-	// use box2d to mutate the player's states
-	this.players.forEach( function(player) { player.writeToBlock() } )
+	// put the information in the box2d system
+	this.players.forEach( 
+		function(player) { player.writeToBlock() } )
+	this.projectiles.forEach( 
+		function(projectile) { projectile.writeToBlock() } )
 	
+	// step the box2d world forward
 	this.world.Step(
 		delta / 1000 //time delta
 	,		10			 //velocity iterations
 	,		10			 //position iterations
 	);
-	// glenn's magic contact listening, affects 'health' values of players
+
+	// evaluate contacts
 	for (var contact = this.world.GetContactList(); contact !== null; contact = contact.GetNext()) {
 		this.evaluateContact(contact);
 	}
 
-	this.players.forEach( function(player) { player.readFromBlock() } )
+	// step information back from the game world
+	this.players.forEach( 
+		function(player) { player.readFromBlock() } )
+	this.projectiles.forEach(
+		function(projectile) { projectile.readFromBlock() } )
 
-	// tick each player forward
-	this.players.forEach(function each(player) {
-		 player.step(delta);
-	}, this);
+	// step players and projectiles forward
+	this.players.forEach(function(player) {
+		player.step(delta)
+	}, this)
+	this.projectiles.forEach(function(projectile) {
+		projectile.step(delta)
+	}, this)
 
 	return [] // event log, currently STUB
 }
@@ -872,11 +924,12 @@ Vanilla.prototype.step = function(delta) {
 
 /**** {{{ discrete networking ****/
 Vanilla.prototype.join = function(name, id) {
+	var newId
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
-		var newId = Utils.findAvailableId(ids)
+		newId = Utils.findAvailableId(ids)
 	} else {
-		var newId = id
+		newId = id
 	}
 	this.addPlayer(newId, name)
 	return newId
@@ -922,18 +975,16 @@ Vanilla.prototype.hasEnded = function() { return false }
 
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":14,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":13,"../../resources/util.js":15,"./gameplay.js":6,"./player.js":8,"./projectile.js":9,"./snapshots.js":11}],8:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
-\\ A lot of by-player game mechanics here.                         \\
+\\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
 
 module.exports = Player
 
 var Utils = require('../../resources/util.js')
-
-var Box2D = require('../../../assets/box2d.min.js')
-
 var gameplay = require('./gameplay.js')
+var Box2D = require('../../../assets/box2d.min.js')
 
 /**** {{{ box2d synonyms ****/
 var b2Vec2         = Box2D.Common.Math.b2Vec2
@@ -998,14 +1049,14 @@ function Player(game, id, x, y, name) {
 }
 /**** }}} Player() ****/
 
-/**** {{{ reading and writing between wrappers and box2d ****/
+/**** {{{ box2d interface ****/
 Player.prototype.writeToBlock = function() {
 	this.block.SetPosition(new b2Vec2(
-		  this.position.x / this.game.scale
-		, this.position.y / this.game.scale))	
+		  this.position.x / gameplay.physicsScale
+		, this.position.y / gameplay.physicsScale))	
 	this.block.SetLinearVelocity(new b2Vec2(
-		  this.velocity.x / this.game.scale
-		, this.velocity.y / this.game.scale))
+		  this.velocity.x / gameplay.physicsScale
+		, this.velocity.y / gameplay.physicsScale))
 	this.block.SetAngle(this.rotation)
 	this.block.SetAngularVelocity(this.rotationVel)
 }
@@ -1014,26 +1065,27 @@ Player.prototype.readFromBlock = function() {
 	var vel = this.block.GetLinearVelocity()
 	var pos = this.block.GetPosition()
 
-	this.velocity.x = vel.x * this.game.scale; 
-	this.velocity.y = vel.y * this.game.scale;
-	this.position.x = pos.x * this.game.scale; 
-	this.position.y = pos.y * this.game.scale;
+	this.velocity.x = vel.x * gameplay.physicsScale; 
+	this.velocity.y = vel.y * gameplay.physicsScale;
+	this.position.x = pos.x * gameplay.physicsScale; 
+	this.position.y = pos.y * gameplay.physicsScale;
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
 }
-/**** }}} reading and writing between wrappers and box2d ****/
+/**** }}} box2d interface ****/
 
 Player.prototype.step = function(delta) {
 	/**** {{{ synonyms ****/
 	var forwardVelocity = 
-		Utils.getLength(this.velocity) * Math.cos(this.rotation - (Utils.getAngle(this.velocity)))
+		Utils.getLength(this.velocity) * Math.cos(this.rotation - Utils.getAngle(this.velocity))
 	var vel = this.velocity
 	var speed = Utils.getLength(vel)
 	/**** }}} synonyms ****/
 
 	/**** {{{ rotation ****/
 	var maxRotation = 
-		(this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
+		this.stalled ? gameplay.playerMaxRotationStalled 
+			: gameplay.playerMaxRotation
 	var targetRotVel = 0
 	if (this.movement.left) targetRotVel = -maxRotation
 	if (this.movement.right) targetRotVel += maxRotation
@@ -1051,16 +1103,17 @@ Player.prototype.step = function(delta) {
 		if (this.movement.forward) {
 			this.afterburner = true;
 			this.velocity = 
-				{x: vel.x + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.cos(this.rotation)
-				,y: vel.y + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.sin(this.rotation)}
+				{x: vel.x + delta / 1000 * gameplay.playerAfterburnerStalled * Math.cos(this.rotation)
+				,y: vel.y + delta / 1000 * gameplay.playerAfterburnerStalled * Math.sin(this.rotation)}
 		}
 
 		// apply damping when over playerMaxVelocityStalled
 		var excessVel = speed - gameplay.playerMaxVelocityStalled 
-		var dampingFactor = (gameplay.playerMaxVelocityStalled / speed)
+		var dampingFactor = gameplay.playerMaxVelocityStalled / speed
 		if (excessVel > 0)
-			this.velocity.y = vel.y * dampingFactor * Math.pow(gameplay.playerStallDamping, (delta / 1000))
-		
+			this.velocity.y = 
+				vel.y * dampingFactor 
+					* Math.pow(gameplay.playerStallDamping, delta / 1000)
 	}
 	/**** }}} motion when stalled ****/
 
@@ -1073,14 +1126,14 @@ Player.prototype.step = function(delta) {
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
 		this.throttle = Math.min(this.throttle, 1)
 		this.throttle = Math.max(this.throttle, 0)
-		this.afterburner = (this.movement.forward && this.throttle === 1) 
+		this.afterburner = this.movement.forward && this.throttle === 1 
 
 		// pick away at leftover velocity
-		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
-		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
+		this.leftoverVel.x = this.leftoverVel.x * Math.pow(gameplay.playerLeftoverVelDamping, delta / 1000)
+		this.leftoverVel.y = this.leftoverVel.y * Math.pow(gameplay.playerLeftoverVelDamping, delta / 1000)
 
 		// speed modifiers
-		if (this.speed > (this.throttle * gameplay.speedThrottleInfluence)) {
+		if (this.speed > this.throttle * gameplay.speedThrottleInfluence) {
 			if (this.throttle < gameplay.speedThrottleInfluence) {
 				this.speed -= gameplay.speedThrottleDeaccForce * (delta / 1000)
 			} else {
@@ -1110,7 +1163,7 @@ Player.prototype.step = function(delta) {
 	if (this.stalled) {
 		if (forwardVelocity > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.leftoverVel = {x: this.velocity.x - (forwardVelocity * Math.cos(this.rotation)), y: this.velocity.y - (forwardVelocity * Math.sin(this.rotation))}
+			this.leftoverVel = {x: this.velocity.x - forwardVelocity * Math.cos(this.rotation), y: this.velocity.y - forwardVelocity * Math.sin(this.rotation)}
 			this.speed = 
 				forwardVelocity / gameplay.playerMaxSpeed
 			this.throttle = this.speed / gameplay.speedThrottleInfluence
@@ -1119,6 +1172,7 @@ Player.prototype.step = function(delta) {
 		if (forwardVelocity < gameplay.playerEnterStallThreshold) {
 			this.stalled = true
 			this.throttle = 1;
+			this.speed = 0
 		}
 	}
 	/**** }}} stall singularities ****/
@@ -1146,10 +1200,78 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{"../../../assets/box2d.min.js":1,"../../resources/util.js":14,"./gameplay.js":6}],9:[function(require,module,exports){
-/*          ******** vanilla/render.js ********       //
-\\ Client-sided renderer for the vanilla game mode.   \\
-//          ******** vanilla/render.js ********       */
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":15,"./gameplay.js":6}],9:[function(require,module,exports){
+/*                  ******** vanilla/projectile.js ********        //
+\\ Projectile objective, with box2d interface and gameplay mechanics. \\
+//                  ******** vanilla/projectile.js ********        */
+
+module.exports = Projectile
+
+// var Utils = require('../../resources/util.js')
+var gameplay = require('./gameplay.js')
+var Box2D = require('../../../assets/box2d.min.js')
+
+/**** {{{ box2d synonyms ****/
+var b2Vec2         = Box2D.Common.Math.b2Vec2
+// var b2BodyDef      = Box2D.Dynamics.b2BodyDef
+// var b2Body         = Box2D.Dynamics.b2Body
+// var b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
+// var b2Fixture      = Box2D.Dynamics.b2Fixture // var b2World        = Box2D.Dynamics.b2World
+// var b2MassData     = Box2D.Collision.Shapes.b2MassData
+// var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+// var b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
+// var b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+/**** }}} box2d synonyms ****/
+
+/**** {{{ Projectile() ****/
+function Projectile(game, id, pos) {
+	// TODO: expand definition
+	// this is just a placeholder, projectiles should be
+	// freely parameterized and definable through outer modes
+
+	this.game = game
+	this.id = id
+
+	this.position = pos
+	this.dimensions = {w: 5, h: 5}
+
+	this.shape = 
+		game.createShape("rectangle" , {width: 5, height: 5})
+	this.block = game.createBody( this.position, this.shape, 
+		{
+			isStatic: false
+			, isPlayer: false
+			, bodyType: "projectile"
+			, bodyId: id
+		}
+	) 
+}
+/**** }}} Projectile() ****/
+
+/**** {{{ box2d interface ****/
+Projectile.prototype.writeToBlock = function() {
+	this.block.SetPosition(new b2Vec2(
+		this.position.x / gameplay.physicsScale
+		, this.position.y / gameplay.physicsScale
+	))
+}
+
+Projectile.prototype.readFromBlock = function() {
+	var pos = this.block.GetPosition()
+
+	this.position.x = pos.x * gameplay.physicsScale
+	this.position.y = pos.y * gameplay.physicsScale
+}
+/**** }}} box2d interface ****/
+
+Projectile.prototype.step = function(delta) {
+	// for example, it could fade out
+}
+
+},{"../../../assets/box2d.min.js":1,"./gameplay.js":6}],10:[function(require,module,exports){
+/*					******** vanilla/render.js ********				//
+\\ Client-sided renderer for the vanilla game mode.		\\
+//					******** vanilla/render.js ********				*/
 
 var PIXI = require('../../../assets/pixi.min.js')
 var urls = require('../../resources/urls.js')
@@ -1158,111 +1280,164 @@ var gameplay = require('./gameplay.js')
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
 
-/**** {{{ render map and players ****/
-	Vanilla.prototype.renderMap = function(pan, map) {
-		map.removeChildren()
-		
-		// if not set, initialise the map graphics
-		if (typeof this.map.anim == "undefined") {
-			this.map.anim = {}
-			var mapGraphics = new PIXI.Graphics
-			mapGraphics.clear()
-			mapGraphics.beginFill(0xFFFFFF, 1)
-			this.mapData.blocks.forEach(
-				function(block) {
+/**** {{{ renderMap ****/
+	Vanilla.prototype.renderMap = function(pan, delta, id) {
+		// clear mapStage
+		this.graphics.mapStage.removeChildren()
+
+		// add anim elements back to mapStage
+		this.map.forEach(
+			function(block) {
+				var pos = block.position
+				var dim = block.dimensions
+
+				// initialise anim object once
+				if (typeof block.anim == "undefined") {
+					var mapGraphics = new PIXI.Graphics()
+					mapGraphics.clear()
+					mapGraphics.beginFill(0xFFFFFF, 1)
 					mapGraphics.drawRect(
-						block.x - (block.w / 2) 
-						, block.y - (block.h / 2) 
-						, block.w, block.h
-					)
+						pos.x - dim.w / 2 
+						, pos.y - dim.h / 2 
+						, dim.w, dim.h)
+					block.anim = mapGraphics
 				}
-			)
-			this.map.anim.mapGraphics = mapGraphics
-		}
-
-		// enter the map graphics into the map container
-		this.map.anim.mapGraphics.position.set(pan.x, pan.y)
-		map.addChild(this.map.anim.mapGraphics)
+				block.anim.position.set(pan.x, pan.y)
+				this.graphics.mapStage.addChild(block.anim)
+			}	
+		, this)
 	}
+/**** }}} renderMap ****/
 
+/**** {{{ renderProjectiles ****/
+	Vanilla.prototype.renderProjectiles = function(pan, delta, id) {
+		// clear projectileStage
+		this.graphics.projectileStage.removeChildren()
 
-	Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
-		players.removeChildren()
+		// add anim elements back to projectileStage		
+		this.projectiles.forEach(
+			function(elem) {
+				var pos = elem.position
+				var dim = elem.dimensions
+				
+				// initialise anim object once
+				if (typeof elem.anim == "undefined" )
+					elem.anim = new PIXI.Graphics()
+				elem.anim.clear()
+				elem.anim.beginFill(0xFFFFFF, 1)
+				elem.anim.drawRect(
+					pos.x - dim.w / 2 
+					, pos.y - dim.h / 2 
+					, dim.w, dim.h)
+				elem.anim.position.set(pan.x, pan.y)
+				this.graphics.mapStage.addChild(elem.anim)
+			}	
+		, this)
+	}
+/**** }}} renderProjectiles	
 
+/**** {{{ renderPlayers ****/
+	Vanilla.prototype.renderPlayers = function(pan, delta, id) {
+		// clear playerStage
+		this.graphics.playerStage.removeChildren()
+
+		// add anim elements back to playerStage		
 		this.players.forEach(
 			function(player) {
 				var pos = player.position; var rot = player.rotation
 				/**** {{{ initialise anim object ****/
 				function setPlayerSprite(sprite) {
 					sprite.anchor.set(0.5, 0.5)
-					sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
+					sprite.scale = new PIXI.Point(gameplay.playerWidth / 400, gameplay.playerHeight / 200)
 				}
 				
-				if (typeof player.anim === "undefined")
+				if (typeof player.anim === "undefined") {
 					player.anim = {thrustLevel: 0} 
-				if (typeof player.anim.speedSprite === "undefined") {
-					player.anim.speedSprite = new PIXI.Sprite(this.textures.playerSpeed)
+					player.anim.speedSprite = 
+						new PIXI.Sprite(this.textures.playerSpeed)
+					player.anim.thrustSprite = 
+						new PIXI.Sprite(this.textures.playerThrust)
+					player.anim.normalSprite = 
+						new PIXI.Sprite(this.textures.player)
+					player.anim.nameText = 
+						new PIXI.Text(player.name
+								, {font: "15px arial", fill: 0x003060})
+					player.anim.barView = new PIXI.Graphics()
+
+					setPlayerSprite(player.anim.normalSprite) 
+					setPlayerSprite(player.anim.thrustSprite) 
 					setPlayerSprite(player.anim.speedSprite)
 				}
-				if (typeof player.anim.thrustSprite === "undefined") {
-					player.anim.thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
-					setPlayerSprite(player.anim.thrustSprite) 
-				}
-				if (typeof player.anim.normalSprite === "undefined") {
-					player.anim.normalSprite = new PIXI.Sprite(this.textures.player)
-					setPlayerSprite(player.anim.normalSprite) 
-				}
-				if (typeof player.anim.nameText === "undefined")
-					player.anim.nameText = new PIXI.Text(player.name, {font: "15px arial", fill: 0x003060})
-				if (typeof player.anim.barView === "undefined")
-					player.anim.barView = new PIXI.Graphics()
 				/**** }}} initialise anim object ****/
 				
 				/**** {{{ afterburner animation  ****/
 				if (player.afterburner) {
-					player.anim.thrustLevel += (delta / 1000) * gameplay.graphicsThrustFade
+					player.anim.thrustLevel += delta / 1000 * gameplay.graphicsThrustFade
 				} else {
-					player.anim.thrustLevel -= (delta / 1000) * gameplay.graphicsThrustFade	
+					player.anim.thrustLevel -= delta / 1000 * gameplay.graphicsThrustFade	
 				}
 				if (player.anim.thrustLevel < 0) player.anim.thrustLevel = 0
 				if (player.anim.thrustLevel > 1) player.anim.thrustLevel = 1
 				/**** }}} afterburner animation  ****/
 				
-				/**** {{{ position player graphics ****/
+				/**** {{{ refresh ****/
 				function placePlayerSprite(sprite) {
 					sprite.position.set(pos.x + pan.x, pos.y + pan.y) 
 					sprite.rotation = rot
 				}
 
-				placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite); placePlayerSprite(player.anim.speedSprite)
+				// place player sprites
+				placePlayerSprite(player.anim.thrustSprite) 
+				placePlayerSprite(player.anim.normalSprite)
+				placePlayerSprite(player.anim.speedSprite)
+
+				// adjust alphas
 				player.anim.thrustSprite.alpha = player.anim.thrustLevel
 				player.anim.speedSprite.alpha = Math.pow(player.speed, 3)
 
-				player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
+				// place player label
+				player.anim.nameText.position.set(pan.x + pos.x - player.anim.nameText.width / 2, pan.y + pos.y + gameplay.graphicsNameClear)
 
-				player.anim.barView.clear()
-				player.anim.barView.beginFill(0xFFFFFF, 0.5)
-				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
-				if (!player.stalled) {
-					player.anim.barView.beginFill(0xFF0000, 0.5)
-					player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
-					player.anim.barView.beginFill(0x00FF00, 0.5)
-					player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.speed), gameplay.graphicsBarHeight)
+				function drawBar(i, v) {
+					player.anim.barView.drawRect(
+						pan.x + pos.x - gameplay.graphicsBarWidth / 2
+						, pan.y + pos.y - gameplay.graphicsBarClear
+								 - i * gameplay.graphicsBarHeight
+						, gameplay.graphicsBarWidth * v
+						, gameplay.graphicsBarHeight)
 				}
-				/**** }}} position player graphics ****/
+
+				// draw bar
+				if (id === player.id) {
+					player.anim.barView.clear()
+					player.anim.barView.beginFill(0xFFFFFF, 0.5)
+					drawBar(0, player.health)
+					if (!player.stalled) {
+						player.anim.barView.beginFill(0xFF0000, 0.5)
+						drawBar(1, player.throttle)
+						player.anim.barView.beginFill(0x00FF00, 0.5)
+						drawBar(2, player.speed)
+					}
+				}
+
+				/**** }}} refresh ****/
 
 				/**** {{{ add to players container ****/
-				players.addChild(player.anim.normalSprite)
-				players.addChild(player.anim.thrustSprite)
-				players.addChild(player.anim.speedSprite)
-				players.addChild(player.anim.nameText)
+				var wholePlayer = new PIXI.Container()
+				
+				wholePlayer.addChild(player.anim.normalSprite)
+				wholePlayer.addChild(player.anim.thrustSprite)
+				wholePlayer.addChild(player.anim.speedSprite)
+				wholePlayer.addChild(player.anim.nameText)
 				if (id === player.id) 
-					players.addChild(player.anim.barView)
+					wholePlayer.addChild(player.anim.barView)
+
+				this.graphics.playerStage.addChild(wholePlayer)
 				/**** }}} add to players container ****/
 			}
 		, this)
 	}
-/**** }}} render map and players ****/
+/**** }}} renderPlayers ****/
 
 	Vanilla.prototype.initRender = function(stage) {
 		this.textures = {}
@@ -1271,9 +1446,14 @@ module.exports = function(Vanilla) {
 			new PIXI.Texture.fromImage(urls.playerThrustSprite)
 		this.textures.playerSpeed = 
 			new PIXI.Texture.fromImage(urls.playerSpeedSprite)
+		
+		this.graphics.mapStage = new PIXI.Container()
+		this.graphics.projectileStage = new PIXI.Container()
+		this.graphics.playerStage = new PIXI.Container()
 
-		stage.addChild(new PIXI.Container)
-		stage.addChild(new PIXI.Container)
+		stage.addChild(this.graphics.mapStage)
+		stage.addChild(this.graphics.projectileStage)
+		stage.addChild(this.graphics.playerStage)
 	}
 
 	Vanilla.prototype.stepRender = function(id, stage, delta) {
@@ -1281,18 +1461,19 @@ module.exports = function(Vanilla) {
 		var pan = {x: 0, y: 0}
 
 		if (player !== null) {
-			var comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
+			var comOffset = {x: 1/6 * gameplay.playerWidth * Math.cos(player.rotation), y: 1/6 * gameplay.playerWidth * Math.sin(player.rotation)}
 			pan = 
-				{x: comOffset.x + -(player.position.x) + 800 
-				,y: comOffset.y + -(player.position.y) + 450}
+				{ x: comOffset.x + -player.position.x + 800 
+				, y: comOffset.y + -player.position.y + 450}
 		} 
 
-		this.renderMap(pan, stage.children[0])
-		this.renderPlayers(pan, delta, id, stage.children[1])
+		this.renderMap(pan, delta, id)
+		this.renderProjectiles(pan, delta, id)	
+		this.renderPlayers(pan, delta, id)
 	}
 }
 
-},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":13,"./gameplay.js":6}],10:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":14,"./gameplay.js":6}],11:[function(require,module,exports){
 var Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1327,15 +1508,15 @@ exports.makeTotalSnapshot = function(world, priority) {
 	}, []);
 }
 
-exports.applySnapshot = function(world, snapshot) {
+exports.applySnapshot = function(world, snapshots) {
 	//Don't try to use invalid snapshots.
-	if (typeof(snapshot) === "undefined" || snapshot === null)
+	if (typeof snapshot === "undefined" || snapshots === null)
 		return;
 
 	var compare = function(snapshot1, snapshot2) {
 		snapshot1.priority - snapshot2.priority
 	}
-	snapshot.sort(compare).forEach(
+	snapshots.sort(compare).forEach(
 		function(snapshot) {
 			var player = world.findPlayerById(snapshot.id);
 			if (player !== null) {
@@ -1365,7 +1546,7 @@ var deflationRules =
 	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
 	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
 	, { key: "velocity", shortKey: "v", deflation: Util.vecDeflation }
-	, { key: "gravityCoast", shortKey: "g", deflation: Util.floatDeflation }
+	, { key: "speed", shortKey: "g", deflation: Util.floatDeflation }
 	]
 
 function deflatePair(pair) {
@@ -1441,7 +1622,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":14}],11:[function(require,module,exports){
+},{"../../resources/util.js":15}],12:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1455,7 +1636,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1486,7 +1667,7 @@ module.exports = {
 	}
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
 		"http://solemnsky.github.io/multimedia/player.png"
@@ -1497,10 +1678,10 @@ module.exports = {
 			
 }
 
-},{}],14:[function(require,module,exports){
-/*                  ******** util.js ********                      //
-\\ This file has a bunch of misc utility functions.                \\
-//                  ******** util.js ********                      */
+},{}],15:[function(require,module,exports){
+/*									******** util.js ********											 //
+\\ This file has a bunch of misc utility functions.								 \\
+//									******** util.js ********											 */
 
 function Util() {}
 
@@ -1564,7 +1745,7 @@ Util.prototype.charToFloat = function(char_) {
 }
 
 Util.prototype.vecToStr = function(vec) {
-	return (this.floatToChar(vec.x) + this.floatToChar(vec.y))
+	return this.floatToChar(vec.x) + this.floatToChar(vec.y)
 }
 
 Util.prototype.strToVec = function(str) {
@@ -1580,7 +1761,7 @@ Util.prototype.noDeflation =
 
 Util.prototype.boolDeflation =
 	{ deflate: function(bool) { return bool ? 1 : 0 }
-	, inflate: function(val) { return (val === 1) } }
+	, inflate: function(val) { return val === 1 } }
 
 Util.prototype.floatDeflation =
 	{ deflate: function(f) { return exports.floatToChar(f) }
@@ -1597,8 +1778,21 @@ Util.prototype.vecDeflation =
 */
 
 Util.prototype.vecDeflation = 
-	{ deflate: function(x){return {x: exports.floatDeflation.deflate(x.x), y: exports.floatDeflation.deflate(x.y)}}
-	, inflate: function(x){return {x: exports.floatDeflation.inflate(x.x), y: exports.floatDeflation.inflate(x.y)}} }
+	{ deflate: 
+			function(x) {
+				return {
+					x: exports.floatDeflation.deflate(x.x)
+					, y: exports.floatDeflation.deflate(x.y)
+				}
+			}
+	, inflate: 
+			function(x){
+				return {
+					x: exports.floatDeflation.inflate(x.x)
+					, y: exports.floatDeflation.inflate(x.y)
+				}
+			} 
+	}
 
 Util.prototype.movementDeflation = 
 	{ deflate:
@@ -1608,8 +1802,8 @@ Util.prototype.movementDeflation =
 			}
 	, inflate:
 			function(val) {
-				return {left: (val[0] === 1), right: (val[1] === 1)
-					, forward: (val[2] === 1), backward: (val[3] === 1)}
+				return {left: val[0] === 1, right: val[1] === 1
+					, forward: val[2] === 1, backward: val[3] === 1}
 			}
 	}
 /**** }}} deflation pairs ****/
@@ -1688,7 +1882,7 @@ Util.prototype.getQueryStringValue = function(key) {
 
 /**** }}} elem id operations ****/
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1764,7 +1958,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":16}],16:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":17}],17:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -1790,13 +1984,14 @@ module.exports = function(target, object) {
 	}
 
 	function smartResize() {
-		var w = window.innerWidth; var h = window.innerHeight;
-		if ((w / h) > (16 / 9)) {
-			var nw = h * (16 / 9); var nh = h
+		var w = window.innerWidth; var h = window.innerHeight
+		var nw, nh
+		if (w / h > 16 / 9) {
+			nw = h * (16 / 9); nh = h
 			renderer.resize(nw, nh)
 			setMargins((w - nw) / 2, 0)
 		} else {
-			var nh = w * (9 / 16); var nw = w
+			nh = w * (9 / 16); nw = w
 			renderer.resize(nw, nh)
 			setMargins(0, (h - nh) / 2)
 		}
@@ -1820,7 +2015,7 @@ var requestAnimFrame = (function(target) {
 		window.oRequestAnimationFrame      || 
 		window.msRequestAnimationFrame     || 
 		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, (1/target) * 1000);
+			window.setTimeout(callback, 1/target * 1000);
 		};
 })();
 	/**** }}} requestAnimFrame ****/
@@ -1853,9 +2048,10 @@ function runWithStage(target, renderer, stage, object) {
 	}
 
 	/**** {{{ step ****/
+	var interval = 1 / target * 1000
 	var then = Date.now()
 	function update() {
-		running = (!object.hasEnded())
+		running = !object.hasEnded()
 
 		var now = Date.now()
 		var delta = now - then
@@ -1865,7 +2061,7 @@ function runWithStage(target, renderer, stage, object) {
 			if (!blurred) {
 				requestAnimFrame(update) 
 			} else {
-				setTimeout(update, ((1/target) * 1000))
+				setTimeout(update, 1000 / target)
 			}
 
 			sleepTime = Date.now() - processStart
@@ -1874,9 +2070,9 @@ function runWithStage(target, renderer, stage, object) {
 			
 			processStart = Date.now() // start logic
 			var needPaint = false;
-			while (accum >= ((1 / target) * 1000)) {
-				object.step((1 / target) * 1000)
-				accum -= ((1 / target) * 1000)
+			while (accum >= interval) {
+				object.step(interval)
+				accum -= interval
 				needPaint = true
 				tpsC++
 			}
@@ -1917,7 +2113,7 @@ function runWithStage(target, renderer, stage, object) {
 		// some keys have quite obnoxious default cases
 		// while others, such as the debug terminal, do not
 		switch (name) {
-		case ("back_space"): 
+		case "back_space": 
 			e.preventDefault(); break
 		default: break
 		}
@@ -1935,4 +2131,4 @@ function runWithStage(target, renderer, stage, object) {
 	update()
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/keys.js":11}]},{},[3]);
+},{"../../assets/pixi.min.js":2,"../resources/keys.js":12}]},{},[3]);
