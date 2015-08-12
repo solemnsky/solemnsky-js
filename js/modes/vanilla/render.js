@@ -50,16 +50,14 @@ module.exports = function(Vanilla) {
 				var dim = elem.dimensions
 				
 				// initialise anim object once
-				if (typeof elem.anim == "undefined" ) {
-					var graphics = new PIXI.Graphics()
-					graphics.clear()
-					graphics.beginFill(0xFFFFFF, 1)
-					graphics.drawRect(
-						pos.x - dim.w / 2 
-						, pos.y - dim.h / 2 
-						, dim.w, dim.h)
-					elem.anim = graphics
-				}
+				if (typeof elem.anim == "undefined" )
+					elem.anim = new PIXI.Graphics()
+				elem.anim.clear()
+				elem.anim.beginFill(0xFFFFFF, 1)
+				elem.anim.drawRect(
+					pos.x - dim.w / 2 
+					, pos.y - dim.h / 2 
+					, dim.w, dim.h)
 				elem.anim.position.set(pan.x, pan.y)
 				this.graphics.mapStage.addChild(elem.anim)
 			}	

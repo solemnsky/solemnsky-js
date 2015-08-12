@@ -71,7 +71,7 @@ function Player(game, id, x, y, name) {
 }
 /**** }}} Player() ****/
 
-/**** {{{ reading and writing between wrappers and box2d ****/
+/**** {{{ box2d interface ****/
 Player.prototype.writeToBlock = function() {
 	this.block.SetPosition(new b2Vec2(
 		  this.position.x / gameplay.physicsScale
@@ -94,7 +94,7 @@ Player.prototype.readFromBlock = function() {
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
 }
-/**** }}} reading and writing between wrappers and box2d ****/
+/**** }}} box2d interface ****/
 
 Player.prototype.step = function(delta) {
 	/**** {{{ synonyms ****/

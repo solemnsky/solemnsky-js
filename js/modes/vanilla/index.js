@@ -10,6 +10,8 @@ var Utils = require('../../resources/util.js')
 var maps = require('../../resources/maps.js')
 
 var Player = require('./player.js')
+var Projectile = require('./projectile.js')
+
 var gameplay = require('./gameplay.js')
 var snapshots = require('./snapshots.js')
 
@@ -93,12 +95,13 @@ Vanilla.prototype.loadMap = function (map) {
 
 Vanilla.prototype.evaluateContact = function(contact) {
 	if (!contact.IsTouching()) {
-		//Not touching yet
+		// their AABBs have intersected, but no contact has occured
 		return;
 	}
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
-	//Determine which is the player
+	
+	// determine if a player is involved, if so, set it
 	var player = null
 	if (bodyA.GetUserData().bodyType === "player") 
 		player = bodyA
@@ -128,34 +131,8 @@ Vanilla.prototype.evaluateContact = function(contact) {
 		playerData.health -= loss;
 }
 
-Vanilla.prototype.writeProjectilesToBlock = function () {
-	this.projectiles.forEach(
-		function(projectile) {
-			projectile.block.SetPosition(
-				new b2Vec2(
-					projectile.position.x / gameplay.physicsScale 
-					, projectile.position.y / gameplay.physicsScale)
-			)
-			projectile.block.SetLinearVelocity(
-				new b2Vec2(
-					projectile.velocity.x / gameplay.physicsScale 
-					, projectile.velocity.y / gameplay.physicsScale)
-			)
-		}
-	, this)
-}
-Vanilla.prototype.readProjectilesFromBlock = function () {
-	this.projectiles.forEach(
-		function(projectile) {
-			var vel = projectile.block.GetLinearVelocity()
-			var pos = projectile.block.GetPosition()
-
-			projectile.velocity.x = vel.x * gameplay.physicsScale
-			projectile.velocity.y = vel.y * gameplay.physicsScale
-			projectile.position.x = pos.x * gameplay.physicsScale
-			projectile.position.y = pos.y * gameplay.physicsScale
-		}
-	, this)
+Vanilla.prototype.pointInMap = function(position) {
+	// brb
 }
 /**** }}} internal utility methods ***/
 
@@ -232,15 +209,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(id, type, pos) {
-	var shape = this.createShape("rectangle", {width: 5, height: 5})	
-	var block = this.createBody(pos, shape, {isStatic: false, isPlayer: false, bodyType: "projectile", bodyId: id})
 	this.projectiles.push(
-		{ id: id
-		, type: type
-		, position: pos
-		, dimensions: {w: 5, h: 5}
-		, velocity: {x: 0, y: 0}
-		, block: block})
+		new Projectile(this, id, pos)
+	)
 }
 /**** }}} mode-facing methods ****/
 
@@ -303,29 +274,37 @@ Vanilla.prototype.listPlayers = function() {
 }
 
 Vanilla.prototype.step = function(delta) {
-	// use box2d to mutate the player's states
-	this.players.forEach( function(player) { player.writeToBlock() } )
+	// put the information in the box2d system
+	this.players.forEach( 
+		function(player) { player.writeToBlock() } )
+	this.projectiles.forEach( 
+		function(projectile) { projectile.writeToBlock() } )
 	
+	// step the box2d world forward
 	this.world.Step(
 		delta / 1000 //time delta
 	,		10			 //velocity iterations
 	,		10			 //position iterations
 	);
-	// glenn's magic contact listening, affects 'health' values of players
+
+	// evaluate contacts
 	for (var contact = this.world.GetContactList(); contact !== null; contact = contact.GetNext()) {
 		this.evaluateContact(contact);
 	}
 
-	this.players.forEach( function(player) { player.readFromBlock() } )
+	// step information back from the game world
+	this.players.forEach( 
+		function(player) { player.readFromBlock() } )
+	this.projectiles.forEach(
+		function(projectile) { projectile.readFromBlock() } )
 
-	// tick each player forward
-	this.players.forEach(function each(player) {
-		 player.step(delta);
-	}, this);
-
-	this.readProjectilesFromBlock()
-	// some operation on projectiles
-	this.writeProjectilesToBlock()
+	// step players and projectiles forward
+	this.players.forEach(function(player) {
+		player.step(delta)
+	}, this)
+	this.projectiles.forEach(function(projectile) {
+		projectile.step(delta)
+	}, this)
 
 	return [] // event log, currently STUB
 }

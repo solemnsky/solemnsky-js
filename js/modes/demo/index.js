@@ -26,8 +26,15 @@ Demo.prototype.describeState = function() {
 
 /**** {{{ simulation****/
 Demo.prototype.acceptEvent = function(theEvent) {
-	if (theEvent.type === "control" && theEvent.name === "f" && theEvent.state)
-		this.vanilla.addProjectile(null, null, {x: 800, y: 450})
+	if (theEvent.type === "control" 
+		&& theEvent.name === "f" && theEvent.state) {
+		// somebody's fired a bullet
+		var player = this.vanilla.findPlayerById(theEvent.id)	
+		if (player !== null) 
+			this.vanilla.addProjectile(
+				theEvent.id, null
+				, {x: player.position.x, y: player.position.y + 50})
+	}
 	this.vanilla.acceptEvent(theEvent)
 }
 

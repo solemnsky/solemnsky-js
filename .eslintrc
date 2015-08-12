@@ -35,9 +35,9 @@
       "no-extra-semi": 1,
 			"no-extra-parens": 1,
 			"indent": [1, "tab"],
-			"no-warning-comments": 1,
 			"no-constant-condition": 1,
-			"no-irregular-whitespace": 1
+			"no-irregular-whitespace": 1,
+			"no-warning-comments": 0 // remove in production code
   },
   env: {
     "browser": true,

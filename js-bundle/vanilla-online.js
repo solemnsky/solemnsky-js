@@ -484,7 +484,7 @@ var myClient = clientOnline(mode, address, 50042, "/")
 ui.run(60, myClient)
 
 
-},{"../control/client-arena.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../resources/util.js":14,"../ui/index.js":15}],4:[function(require,module,exports){
+},{"../control/client-arena.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":10,"../resources/util.js":15,"../ui/index.js":16}],4:[function(require,module,exports){
 /*									******** client-arena.js ********									 //
 \\ Online arena client.																								 \\
 //									******** client-arena.js ********									 */
@@ -779,7 +779,7 @@ module.exports = function(mode, address, port, path) {
 	return new ConnectUI
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/util.js":14,"./hud/performance.js":5}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"../resources/util.js":15,"./hud/performance.js":5}],5:[function(require,module,exports){
 /*                  ******** performance.js ********                   //
 \\ Performance data display in top right of screen.                    \\
 //                  ******** performance.js ********                   */
@@ -868,6 +868,8 @@ var Utils = require('../../resources/util.js')
 var maps = require('../../resources/maps.js')
 
 var Player = require('./player.js')
+var Projectile = require('./projectile.js')
+
 var gameplay = require('./gameplay.js')
 var snapshots = require('./snapshots.js')
 
@@ -951,12 +953,13 @@ Vanilla.prototype.loadMap = function (map) {
 
 Vanilla.prototype.evaluateContact = function(contact) {
 	if (!contact.IsTouching()) {
-		//Not touching yet
+		// their AABBs have intersected, but no contact has occured
 		return;
 	}
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
-	//Determine which is the player
+	
+	// determine if a player is involved, if so, set it
 	var player = null
 	if (bodyA.GetUserData().bodyType === "player") 
 		player = bodyA
@@ -986,34 +989,8 @@ Vanilla.prototype.evaluateContact = function(contact) {
 		playerData.health -= loss;
 }
 
-Vanilla.prototype.writeProjectilesToBlock = function () {
-	this.projectiles.forEach(
-		function(projectile) {
-			projectile.block.SetPosition(
-				new b2Vec2(
-					projectile.position.x / gameplay.physicsScale 
-					, projectile.position.y / gameplay.physicsScale)
-			)
-			projectile.block.SetLinearVelocity(
-				new b2Vec2(
-					projectile.velocity.x / gameplay.physicsScale 
-					, projectile.velocity.y / gameplay.physicsScale)
-			)
-		}
-	, this)
-}
-Vanilla.prototype.readProjectilesFromBlock = function () {
-	this.projectiles.forEach(
-		function(projectile) {
-			var vel = projectile.block.GetLinearVelocity()
-			var pos = projectile.block.GetPosition()
-
-			projectile.velocity.x = vel.x * gameplay.physicsScale
-			projectile.velocity.y = vel.y * gameplay.physicsScale
-			projectile.position.x = pos.x * gameplay.physicsScale
-			projectile.position.y = pos.y * gameplay.physicsScale
-		}
-	, this)
+Vanilla.prototype.pointInMap = function(position) {
+	// brb
 }
 /**** }}} internal utility methods ***/
 
@@ -1090,15 +1067,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(id, type, pos) {
-	var shape = this.createShape("rectangle", {width: 5, height: 5})	
-	var block = this.createBody(pos, shape, {isStatic: false, isPlayer: false, bodyType: "projectile", bodyId: id})
 	this.projectiles.push(
-		{ id: id
-		, type: type
-		, position: pos
-		, dimensions: {w: 5, h: 5}
-		, velocity: {x: 0, y: 0}
-		, block: block})
+		new Projectile(this, id, pos)
+	)
 }
 /**** }}} mode-facing methods ****/
 
@@ -1161,29 +1132,37 @@ Vanilla.prototype.listPlayers = function() {
 }
 
 Vanilla.prototype.step = function(delta) {
-	// use box2d to mutate the player's states
-	this.players.forEach( function(player) { player.writeToBlock() } )
+	// put the information in the box2d system
+	this.players.forEach( 
+		function(player) { player.writeToBlock() } )
+	this.projectiles.forEach( 
+		function(projectile) { projectile.writeToBlock() } )
 	
+	// step the box2d world forward
 	this.world.Step(
 		delta / 1000 //time delta
 	,		10			 //velocity iterations
 	,		10			 //position iterations
 	);
-	// glenn's magic contact listening, affects 'health' values of players
+
+	// evaluate contacts
 	for (var contact = this.world.GetContactList(); contact !== null; contact = contact.GetNext()) {
 		this.evaluateContact(contact);
 	}
 
-	this.players.forEach( function(player) { player.readFromBlock() } )
+	// step information back from the game world
+	this.players.forEach( 
+		function(player) { player.readFromBlock() } )
+	this.projectiles.forEach(
+		function(projectile) { projectile.readFromBlock() } )
 
-	// tick each player forward
-	this.players.forEach(function each(player) {
-		 player.step(delta);
-	}, this);
-
-	this.readProjectilesFromBlock()
-	// some operation on projectiles
-	this.writeProjectilesToBlock()
+	// step players and projectiles forward
+	this.players.forEach(function(player) {
+		player.step(delta)
+	}, this)
+	this.projectiles.forEach(function(projectile) {
+		projectile.step(delta)
+	}, this)
 
 	return [] // event log, currently STUB
 }
@@ -1243,18 +1222,16 @@ Vanilla.prototype.hasEnded = function() { return false }
 
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":14,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":13,"../../resources/util.js":15,"./gameplay.js":6,"./player.js":8,"./projectile.js":9,"./snapshots.js":11}],8:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
-\\ A lot of by-player game mechanics here.                         \\
+\\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
 
 module.exports = Player
 
 var Utils = require('../../resources/util.js')
-
-var Box2D = require('../../../assets/box2d.min.js')
-
 var gameplay = require('./gameplay.js')
+var Box2D = require('../../../assets/box2d.min.js')
 
 /**** {{{ box2d synonyms ****/
 var b2Vec2         = Box2D.Common.Math.b2Vec2
@@ -1319,7 +1296,7 @@ function Player(game, id, x, y, name) {
 }
 /**** }}} Player() ****/
 
-/**** {{{ reading and writing between wrappers and box2d ****/
+/**** {{{ box2d interface ****/
 Player.prototype.writeToBlock = function() {
 	this.block.SetPosition(new b2Vec2(
 		  this.position.x / gameplay.physicsScale
@@ -1342,7 +1319,7 @@ Player.prototype.readFromBlock = function() {
 	this.rotation = this.block.GetAngle()
 	this.rotationVel = this.block.GetAngularVelocity()
 }
-/**** }}} reading and writing between wrappers and box2d ****/
+/**** }}} box2d interface ****/
 
 Player.prototype.step = function(delta) {
 	/**** {{{ synonyms ****/
@@ -1470,7 +1447,75 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{"../../../assets/box2d.min.js":1,"../../resources/util.js":14,"./gameplay.js":6}],9:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":15,"./gameplay.js":6}],9:[function(require,module,exports){
+/*                  ******** vanilla/projectile.js ********        //
+\\ Projectile objective, with box2d interface and gameplay mechanics. \\
+//                  ******** vanilla/projectile.js ********        */
+
+module.exports = Projectile
+
+// var Utils = require('../../resources/util.js')
+var gameplay = require('./gameplay.js')
+var Box2D = require('../../../assets/box2d.min.js')
+
+/**** {{{ box2d synonyms ****/
+var b2Vec2         = Box2D.Common.Math.b2Vec2
+// var b2BodyDef      = Box2D.Dynamics.b2BodyDef
+// var b2Body         = Box2D.Dynamics.b2Body
+// var b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
+// var b2Fixture      = Box2D.Dynamics.b2Fixture // var b2World        = Box2D.Dynamics.b2World
+// var b2MassData     = Box2D.Collision.Shapes.b2MassData
+// var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+// var b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
+// var b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+/**** }}} box2d synonyms ****/
+
+/**** {{{ Projectile() ****/
+function Projectile(game, id, pos) {
+	// TODO: expand definition
+	// this is just a placeholder, projectiles should be
+	// freely parameterized and definable through outer modes
+
+	this.game = game
+	this.id = id
+
+	this.position = pos
+	this.dimensions = {w: 5, h: 5}
+
+	this.shape = 
+		game.createShape("rectangle" , {width: 5, height: 5})
+	this.block = game.createBody( this.position, this.shape, 
+		{
+			isStatic: false
+			, isPlayer: false
+			, bodyType: "projectile"
+			, bodyId: id
+		}
+	) 
+}
+/**** }}} Projectile() ****/
+
+/**** {{{ box2d interface ****/
+Projectile.prototype.writeToBlock = function() {
+	this.block.SetPosition(new b2Vec2(
+		this.position.x / gameplay.physicsScale
+		, this.position.y / gameplay.physicsScale
+	))
+}
+
+Projectile.prototype.readFromBlock = function() {
+	var pos = this.block.GetPosition()
+
+	this.position.x = pos.x * gameplay.physicsScale
+	this.position.y = pos.y * gameplay.physicsScale
+}
+/**** }}} box2d interface ****/
+
+Projectile.prototype.step = function(delta) {
+	// for example, it could fade out
+}
+
+},{"../../../assets/box2d.min.js":1,"./gameplay.js":6}],10:[function(require,module,exports){
 /*					******** vanilla/render.js ********				//
 \\ Client-sided renderer for the vanilla game mode.		\\
 //					******** vanilla/render.js ********				*/
@@ -1523,16 +1568,14 @@ module.exports = function(Vanilla) {
 				var dim = elem.dimensions
 				
 				// initialise anim object once
-				if (typeof elem.anim == "undefined" ) {
-					var graphics = new PIXI.Graphics()
-					graphics.clear()
-					graphics.beginFill(0xFFFFFF, 1)
-					graphics.drawRect(
-						pos.x - dim.w / 2 
-						, pos.y - dim.h / 2 
-						, dim.w, dim.h)
-					elem.anim = graphics
-				}
+				if (typeof elem.anim == "undefined" )
+					elem.anim = new PIXI.Graphics()
+				elem.anim.clear()
+				elem.anim.beginFill(0xFFFFFF, 1)
+				elem.anim.drawRect(
+					pos.x - dim.w / 2 
+					, pos.y - dim.h / 2 
+					, dim.w, dim.h)
 				elem.anim.position.set(pan.x, pan.y)
 				this.graphics.mapStage.addChild(elem.anim)
 			}	
@@ -1677,7 +1720,7 @@ module.exports = function(Vanilla) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":13,"./gameplay.js":6}],10:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":14,"./gameplay.js":6}],11:[function(require,module,exports){
 var Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1826,7 +1869,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":14}],11:[function(require,module,exports){
+},{"../../resources/util.js":15}],12:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1840,7 +1883,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1871,7 +1914,7 @@ module.exports = {
 	}
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
 		"http://solemnsky.github.io/multimedia/player.png"
@@ -1882,7 +1925,7 @@ module.exports = {
 			
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*									******** util.js ********											 //
 \\ This file has a bunch of misc utility functions.								 \\
 //									******** util.js ********											 */
@@ -2086,7 +2129,7 @@ Util.prototype.getQueryStringValue = function(key) {
 
 /**** }}} elem id operations ****/
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -2162,7 +2205,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":16}],16:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":17}],17:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -2335,4 +2378,4 @@ function runWithStage(target, renderer, stage, object) {
 	update()
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/keys.js":11}]},{},[3]);
+},{"../../assets/pixi.min.js":2,"../resources/keys.js":12}]},{},[3]);
