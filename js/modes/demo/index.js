@@ -4,8 +4,6 @@
 
 module.exports = Demo
 
-Utils = require('../../resources/util.js')
-
 /**** {{{ constructor ****/
 function Demo(vanilla) {
 	this.vanilla = vanilla

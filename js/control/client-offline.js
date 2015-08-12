@@ -2,10 +2,9 @@
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
 
-PIXI = require('../../assets/pixi.min.js')
-ui = require('../ui/index.js')
+var PIXI = require('../../assets/pixi.min.js')
 
-renderPerf = require('./hud/performance.js')
+var renderPerf = require('./hud/performance.js')
 
 module.exports = function(mode) {
 	function Game() {
@@ -16,8 +15,8 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.init = function() { 
-		mode.init(mode.makeInitData(""))
-		mode.join("offline player")
+		mode.init(mode.makeInitData(''))
+		mode.join('offline player')
 	}
 
 	Game.prototype.step = function(delta) {
@@ -40,7 +39,7 @@ module.exports = function(mode) {
 	Game.prototype.hasEnded = function() { return false }
 
 	Game.prototype.acceptKey = function(key, state) {
-		mode.acceptEvent({id: 0, type: "control", name: key, state: state})
+		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
 	}
 
 	return new Game() 

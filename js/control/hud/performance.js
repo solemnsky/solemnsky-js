@@ -2,9 +2,9 @@
 \\ Performance data display in top right of screen.                    \\
 //                  ******** performance.js ********                   */
 
-PIXI = require('../../../assets/pixi.min.js')
+var PIXI = require('../../../assets/pixi.min.js')
 
-style = {fill: 0xFFFFFF}
+var style = {fill: 0xFFFFFF}
 var fps = new PIXI.Text("fps", style)
 var counter = 0
 

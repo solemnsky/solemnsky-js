@@ -93,3 +93,7 @@ This loop runs approximately every 20 ms.
 - QUIT: issued by server when a player quits
 - SNAP: issued by servers and clients with respective assertion data
 - CHAT: issued by servers and clients; when issued by the server, has an id variable with the id of the player who sent the message to start with.
+
+## code style
+
+There is a .eslintrc in the root directory of this project. It's suggested you have eslint running in your editor, or at the very least running bin/lint.sh from the root directory before pushing commits. 

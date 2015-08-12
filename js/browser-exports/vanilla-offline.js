@@ -1,13 +1,12 @@
-ui = require('../ui/index.js')
+var ui = require('../ui/index.js')
 
 // make mode
-Vanilla = require("../modes/vanilla/")
-VanillaRenderer = require("../modes/vanilla/render.js");
-VanillaRenderer(Vanilla)
-mode = new Vanilla()
+var Vanilla = require("../modes/vanilla/")
+require("../modes/vanilla/render.js")(Vanilla)
+var mode = new Vanilla()
 
 // use control method to turn mode into UI object
-clientOffline = require('../control/client-offline.js')
-myClient = clientOffline(mode)
+var clientOffline = require('../control/client-offline.js')
+var myClient = clientOffline(mode)
 
 ui.run(60, myClient)

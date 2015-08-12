@@ -2,23 +2,22 @@
 \\ Rendering for the demo.                                            \\
 //                  ******** demo/render.js ********                  */
 
-PIXI = require('../../../assets/pixi.min.js')
-Utils = require('../../resources/util.js')
+var PIXI = require('../../../assets/pixi.min.js')
 
 module.exports = function(Demo) {
 
-Demo.prototype.initRender = function(stage) { 
-	var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
-	title.position = new PIXI.Point((800 - (title.width / 2)), 10)
-	stage.addChild(title)
+	Demo.prototype.initRender = function(stage) { 
+		var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
+		title.position = new PIXI.Point((800 - (title.width / 2)), 10)
+		stage.addChild(title)
 
-	this.vanillaStage = new PIXI.Container()
-	stage.addChild(this.vanillaStage)
-	this.vanilla.initRender(this.vanillaStage)
-}
+		this.vanillaStage = new PIXI.Container()
+		stage.addChild(this.vanillaStage)
+		this.vanilla.initRender(this.vanillaStage)
+	}
 
-Demo.prototype.stepRender = function(id, stage, delta) {
-	this.vanilla.stepRender(id, this.vanillaStage, delta)
-}
+	Demo.prototype.stepRender = function(id, stage, delta) {
+		this.vanilla.stepRender(id, this.vanillaStage, delta)
+	}
 
 }

@@ -461,19 +461,19 @@ this._font.tint="number"==typeof t&&t>=0?t:16777215,this.dirty=!0}},align:{get:f
 this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMouseUp,!0),this.eventsAdded=!1)},i.prototype.update=function(t){if(this._deltaTime+=t,!(this._deltaTime<this.interactionFrequency)&&(this._deltaTime=0,this.interactionDOMElement)){if(this.didMove)return void(this.didMove=!1);this.cursor="inherit",this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseOverOut,!0),this.currentCursorStyle!==this.cursor&&(this.currentCursorStyle=this.cursor,this.interactionDOMElement.style.cursor=this.cursor)}},i.prototype.dispatchEvent=function(t,e,r){r.stopped||(r.target=t,r.type=e,t.emit(e,r),t[e]&&t[e](r))},i.prototype.mapPositionToPoint=function(t,e,r){var i=this.interactionDOMElement.getBoundingClientRect();t.x=(e-i.left)*(this.interactionDOMElement.width/i.width)/this.resolution,t.y=(r-i.top)*(this.interactionDOMElement.height/i.height)/this.resolution},i.prototype.processInteractive=function(t,e,r,i,n){if(!e.visible)return!1;var o=e.children,s=!1;if(n=n||e.interactive,e.interactiveChildren)for(var a=o.length-1;a>=0;a--)!s&&i?s=this.processInteractive(t,o[a],r,!0,n):this.processInteractive(t,o[a],r,!1,!1);return n&&(i&&(e.hitArea?(e.worldTransform.applyInverse(t,this._tempPoint),s=e.hitArea.contains(this._tempPoint.x,this._tempPoint.y)):e.containsPoint&&(s=e.containsPoint(t))),e.interactive&&r(e,s)),s},i.prototype.onMouseDown=function(t){this.mouse.originalEvent=t,this.eventData.data=this.mouse,this.eventData.stopped=!1,this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.autoPreventDefault&&this.mouse.originalEvent.preventDefault(),this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseDown,!0)},i.prototype.processMouseDown=function(t,e){var r=this.mouse.originalEvent,i=2===r.button||3===r.which;e&&(t[i?"_isRightDown":"_isLeftDown"]=!0,this.dispatchEvent(t,i?"rightdown":"mousedown",this.eventData))},i.prototype.onMouseUp=function(t){this.mouse.originalEvent=t,this.eventData.data=this.mouse,this.eventData.stopped=!1,this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseUp,!0)},i.prototype.processMouseUp=function(t,e){var r=this.mouse.originalEvent,i=2===r.button||3===r.which,n=i?"_isRightDown":"_isLeftDown";e?(this.dispatchEvent(t,i?"rightup":"mouseup",this.eventData),t[n]&&(t[n]=!1,this.dispatchEvent(t,i?"rightclick":"click",this.eventData))):t[n]&&(t[n]=!1,this.dispatchEvent(t,i?"rightupoutside":"mouseupoutside",this.eventData))},i.prototype.onMouseMove=function(t){this.mouse.originalEvent=t,this.eventData.data=this.mouse,this.eventData.stopped=!1,this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.didMove=!0,this.cursor="inherit",this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseMove,!0),this.currentCursorStyle!==this.cursor&&(this.currentCursorStyle=this.cursor,this.interactionDOMElement.style.cursor=this.cursor)},i.prototype.processMouseMove=function(t,e){this.dispatchEvent(t,"mousemove",this.eventData),this.processMouseOverOut(t,e)},i.prototype.onMouseOut=function(t){this.mouse.originalEvent=t,this.eventData.stopped=!1,this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.interactionDOMElement.style.cursor="inherit",this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseOverOut,!1)},i.prototype.processMouseOverOut=function(t,e){e?(t._over||(t._over=!0,this.dispatchEvent(t,"mouseover",this.eventData)),t.buttonMode&&(this.cursor=t.defaultCursor)):t._over&&(t._over=!1,this.dispatchEvent(t,"mouseout",this.eventData))},i.prototype.onTouchStart=function(t){this.autoPreventDefault&&t.preventDefault();for(var e=t.changedTouches,r=e.length,i=0;r>i;i++){var n=e[i],o=this.getTouchData(n);o.originalEvent=t,this.eventData.data=o,this.eventData.stopped=!1,this.processInteractive(o.global,this.renderer._lastObjectRendered,this.processTouchStart,!0),this.returnTouchData(o)}},i.prototype.processTouchStart=function(t,e){e&&(t._touchDown=!0,this.dispatchEvent(t,"touchstart",this.eventData))},i.prototype.onTouchEnd=function(t){this.autoPreventDefault&&t.preventDefault();for(var e=t.changedTouches,r=e.length,i=0;r>i;i++){var n=e[i],o=this.getTouchData(n);o.originalEvent=t,this.eventData.data=o,this.eventData.stopped=!1,this.processInteractive(o.global,this.renderer._lastObjectRendered,this.processTouchEnd,!0),this.returnTouchData(o)}},i.prototype.processTouchEnd=function(t,e){e?(this.dispatchEvent(t,"touchend",this.eventData),t._touchDown&&(t._touchDown=!1,this.dispatchEvent(t,"tap",this.eventData))):t._touchDown&&(t._touchDown=!1,this.dispatchEvent(t,"touchendoutside",this.eventData))},i.prototype.onTouchMove=function(t){this.autoPreventDefault&&t.preventDefault();for(var e=t.changedTouches,r=e.length,i=0;r>i;i++){var n=e[i],o=this.getTouchData(n);o.originalEvent=t,this.eventData.data=o,this.eventData.stopped=!1,this.processInteractive(o.global,this.renderer._lastObjectRendered,this.processTouchMove,!1),this.returnTouchData(o)}},i.prototype.processTouchMove=function(t,e){e=e,this.dispatchEvent(t,"touchmove",this.eventData)},i.prototype.getTouchData=function(t){var e=this.interactiveDataPool.pop();return e||(e=new o),e.identifier=t.identifier,this.mapPositionToPoint(e.global,t.clientX,t.clientY),navigator.isCocoonJS&&(e.global.x=e.global.x/this.resolution,e.global.y=e.global.y/this.resolution),t.globalX=e.global.x,t.globalY=e.global.y,e},i.prototype.returnTouchData=function(t){this.interactiveDataPool.push(t)},i.prototype.destroy=function(){this.removeEvents(),this.renderer=null,this.mouse=null,this.eventData=null,this.interactiveDataPool=null,this.interactionDOMElement=null,this.onMouseUp=null,this.processMouseUp=null,this.onMouseDown=null,this.processMouseDown=null,this.onMouseMove=null,this.processMouseMove=null,this.onMouseOut=null,this.processMouseOverOut=null,this.onTouchStart=null,this.processTouchStart=null,this.onTouchEnd=null,this.processTouchEnd=null,this.onTouchMove=null,this.processTouchMove=null,this._tempPoint=null},n.WebGLRenderer.registerPlugin("interaction",i),n.CanvasRenderer.registerPlugin("interaction",i)},{"../core":29,"./InteractionData":115,"./interactiveTarget":118}],117:[function(t,e,r){e.exports={InteractionData:t("./InteractionData"),InteractionManager:t("./InteractionManager"),interactiveTarget:t("./interactiveTarget")}},{"./InteractionData":115,"./InteractionManager":116,"./interactiveTarget":118}],118:[function(t,e,r){var i={interactive:!1,buttonMode:!1,interactiveChildren:!0,defaultCursor:"pointer",_over:!1,_touchDown:!1};e.exports=i},{}],119:[function(t,e,r){function i(t,e){var r={},i=t.data.getElementsByTagName("info")[0],n=t.data.getElementsByTagName("common")[0];r.font=i.getAttribute("face"),r.size=parseInt(i.getAttribute("size"),10),r.lineHeight=parseInt(n.getAttribute("lineHeight"),10),r.chars={};for(var a=t.data.getElementsByTagName("char"),h=0;h<a.length;h++){var l=parseInt(a[h].getAttribute("id"),10),u=new o.Rectangle(parseInt(a[h].getAttribute("x"),10)+e.frame.x,parseInt(a[h].getAttribute("y"),10)+e.frame.y,parseInt(a[h].getAttribute("width"),10),parseInt(a[h].getAttribute("height"),10));r.chars[l]={xOffset:parseInt(a[h].getAttribute("xoffset"),10),yOffset:parseInt(a[h].getAttribute("yoffset"),10),xAdvance:parseInt(a[h].getAttribute("xadvance"),10),kerning:{},texture:new o.Texture(e.baseTexture,u)}}var c=t.data.getElementsByTagName("kerning");for(h=0;h<c.length;h++){var p=parseInt(c[h].getAttribute("first"),10),d=parseInt(c[h].getAttribute("second"),10),f=parseInt(c[h].getAttribute("amount"),10);r.chars[d].kerning[p]=f}t.bitmapFont=r,s.BitmapText.fonts[r.font]=r}var n=t("resource-loader").Resource,o=t("../core"),s=t("../extras"),a=t("path");e.exports=function(){return function(t,e){if(!t.data||!t.isXml)return e();if(0===t.data.getElementsByTagName("page").length||0===t.data.getElementsByTagName("info").length||null===t.data.getElementsByTagName("info")[0].getAttribute("face"))return e();var r=a.dirname(t.url);"."===r&&(r=""),this.baseUrl&&r&&("/"===this.baseUrl.charAt(this.baseUrl.length-1)&&(r+="/"),r=r.replace(this.baseUrl,"")),r&&"/"!==r.charAt(r.length-1)&&(r+="/");var s=r+t.data.getElementsByTagName("page")[0].getAttribute("file");if(o.utils.TextureCache[s])i(t,o.utils.TextureCache[s]),e();else{var h={crossOrigin:t.crossOrigin,loadType:n.LOAD_TYPE.IMAGE};this.add(t.name+"_image",s,h,function(r){i(t,r.texture),e()})}}}},{"../core":29,"../extras":85,path:3,"resource-loader":18}],120:[function(t,e,r){e.exports={Loader:t("./loader"),bitmapFontParser:t("./bitmapFontParser"),spritesheetParser:t("./spritesheetParser"),textureParser:t("./textureParser"),Resource:t("resource-loader").Resource}},{"./bitmapFontParser":119,"./loader":121,"./spritesheetParser":122,"./textureParser":123,"resource-loader":18}],121:[function(t,e,r){function i(t,e){n.call(this,t,e);for(var r=0;r<i._pixiMiddleware.length;++r)this.use(i._pixiMiddleware[r]())}var n=t("resource-loader"),o=t("./textureParser"),s=t("./spritesheetParser"),a=t("./bitmapFontParser");i.prototype=Object.create(n.prototype),i.prototype.constructor=i,e.exports=i,i._pixiMiddleware=[n.middleware.parsing.blob,o,s,a],i.addPixiMiddleware=function(t){i._pixiMiddleware.push(t)};var h=n.Resource;h.setExtensionXhrType("fnt",h.XHR_RESPONSE_TYPE.DOCUMENT)},{"./bitmapFontParser":119,"./spritesheetParser":122,"./textureParser":123,"resource-loader":18}],122:[function(t,e,r){var i=t("resource-loader").Resource,n=t("path"),o=t("../core");e.exports=function(){return function(t,e){if(!t.data||!t.isJson||!t.data.frames)return e();var r={crossOrigin:t.crossOrigin,loadType:i.LOAD_TYPE.IMAGE},s=n.dirname(t.url.replace(this.baseUrl,"")),a=o.utils.getResolutionOfUrl(t.url);this.add(t.name+"_image",s+"/"+t.data.meta.image,r,function(r){t.textures={};var i=t.data.frames;for(var n in i){var s=i[n].frame;if(s){var h=null,l=null;if(h=i[n].rotated?new o.Rectangle(s.x,s.y,s.h,s.w):new o.Rectangle(s.x,s.y,s.w,s.h),i[n].trimmed&&(l=new o.Rectangle(i[n].spriteSourceSize.x/a,i[n].spriteSourceSize.y/a,i[n].sourceSize.w/a,i[n].sourceSize.h/a)),i[n].rotated){var u=h.width;h.width=h.height,h.height=u}h.x/=a,h.y/=a,h.width/=a,h.height/=a,t.textures[n]=new o.Texture(r.texture.baseTexture,h,h.clone(),l,i[n].rotated),o.utils.TextureCache[n]=t.textures[n]}}e()})}}},{"../core":29,path:3,"resource-loader":18}],123:[function(t,e,r){var i=t("../core");e.exports=function(){return function(t,e){t.data&&t.isImage&&(t.texture=new i.Texture(new i.BaseTexture(t.data,null,i.utils.getResolutionOfUrl(t.url))),i.utils.TextureCache[t.url]=t.texture),e()}}},{"../core":29}],124:[function(t,e,r){function i(t,e,r,o,s){n.Container.call(this),this._texture=null,this.uvs=r||new Float32Array([0,1,1,1,1,0,0,1]),this.vertices=e||new Float32Array([0,0,100,0,100,100,0,100]),this.indices=o||new Uint16Array([0,1,2,3]),this.dirty=!0,this.blendMode=n.BLEND_MODES.NORMAL,this.canvasPadding=0,this.drawMode=s||i.DRAW_MODES.TRIANGLE_MESH,this.texture=t}var n=t("../core"),o=new n.Point,s=new n.Polygon;i.prototype=Object.create(n.Container.prototype),i.prototype.constructor=i,e.exports=i,Object.defineProperties(i.prototype,{texture:{get:function(){return this._texture},set:function(t){this._texture!==t&&(this._texture=t,t&&(t.baseTexture.hasLoaded?this._onTextureUpdate():t.once("update",this._onTextureUpdate,this)))}}}),i.prototype._renderWebGL=function(t){t.setObjectRenderer(t.plugins.mesh),t.plugins.mesh.render(this)},i.prototype._renderCanvas=function(t){var e=t.context,r=this.worldTransform;t.roundPixels?e.setTransform(r.a,r.b,r.c,r.d,0|r.tx,0|r.ty):e.setTransform(r.a,r.b,r.c,r.d,r.tx,r.ty),this.drawMode===i.DRAW_MODES.TRIANGLE_MESH?this._renderCanvasTriangleMesh(e):this._renderCanvasTriangles(e)},i.prototype._renderCanvasTriangleMesh=function(t){for(var e=this.vertices,r=this.uvs,i=e.length/2,n=0;i-2>n;n++){var o=2*n;this._renderCanvasDrawTriangle(t,e,r,o,o+2,o+4)}},i.prototype._renderCanvasTriangles=function(t){for(var e=this.vertices,r=this.uvs,i=this.indices,n=i.length,o=0;n>o;o+=3){var s=2*i[o],a=2*i[o+1],h=2*i[o+2];this._renderCanvasDrawTriangle(t,e,r,s,a,h)}},i.prototype._renderCanvasDrawTriangle=function(t,e,r,i,n,o){var s=this._texture.baseTexture.source,a=this._texture.baseTexture.width,h=this._texture.baseTexture.height,l=e[i],u=e[n],c=e[o],p=e[i+1],d=e[n+1],f=e[o+1],v=r[i]*a,g=r[n]*a,m=r[o]*a,y=r[i+1]*h,x=r[n+1]*h,b=r[o+1]*h;if(this.canvasPadding>0){var _=this.canvasPadding/this.worldTransform.a,T=this.canvasPadding/this.worldTransform.d,E=(l+u+c)/3,S=(p+d+f)/3,A=l-E,w=p-S,C=Math.sqrt(A*A+w*w);l=E+A/C*(C+_),p=S+w/C*(C+T),A=u-E,w=d-S,C=Math.sqrt(A*A+w*w),u=E+A/C*(C+_),d=S+w/C*(C+T),A=c-E,w=f-S,C=Math.sqrt(A*A+w*w),c=E+A/C*(C+_),f=S+w/C*(C+T)}t.save(),t.beginPath(),t.moveTo(l,p),t.lineTo(u,d),t.lineTo(c,f),t.closePath(),t.clip();var M=v*x+y*m+g*b-x*m-y*g-v*b,R=l*x+y*c+u*b-x*c-y*u-l*b,D=v*u+l*m+g*c-u*m-l*g-v*c,F=v*x*c+y*u*m+l*g*b-l*x*m-y*g*c-v*u*b,P=p*x+y*f+d*b-x*f-y*d-p*b,O=v*d+p*m+g*f-d*m-p*g-v*f,B=v*x*f+y*d*m+p*g*b-p*x*m-y*g*f-v*d*b;t.transform(R/M,P/M,D/M,O/M,F/M,B/M),t.drawImage(s,0,0),t.restore()},i.prototype.renderMeshFlat=function(t){var e=this.context,r=t.vertices,i=r.length/2;e.beginPath();for(var n=1;i-2>n;n++){var o=2*n,s=r[o],a=r[o+2],h=r[o+4],l=r[o+1],u=r[o+3],c=r[o+5];e.moveTo(s,l),e.lineTo(a,u),e.lineTo(h,c)}e.fillStyle="#FF0000",e.fill(),e.closePath()},i.prototype._onTextureUpdate=function(){this.updateFrame=!0},i.prototype.getBounds=function(t){if(!this._currentBounds){for(var e=t||this.worldTransform,r=e.a,i=e.b,o=e.c,s=e.d,a=e.tx,h=e.ty,l=-(1/0),u=-(1/0),c=1/0,p=1/0,d=this.vertices,f=0,v=d.length;v>f;f+=2){var g=d[f],m=d[f+1],y=r*g+o*m+a,x=s*m+i*g+h;c=c>y?y:c,p=p>x?x:p,l=y>l?y:l,u=x>u?x:u}if(c===-(1/0)||u===1/0)return n.Rectangle.EMPTY;var b=this._bounds;b.x=c,b.width=l-c,b.y=p,b.height=u-p,this._currentBounds=b}return this._currentBounds},i.prototype.containsPoint=function(t){if(!this.getBounds().contains(t.x,t.y))return!1;this.worldTransform.applyInverse(t,o);var e,r,n=this.vertices,a=s.points;if(this.drawMode===i.DRAW_MODES.TRIANGLES){var h=this.indices;for(r=this.indices.length,e=0;r>e;e+=3){var l=2*h[e],u=2*h[e+1],c=2*h[e+2];if(a[0]=n[l],a[1]=n[l+1],a[2]=n[u],a[3]=n[u+1],a[4]=n[c],a[5]=n[c+1],s.contains(o.x,o.y))return!0}}else for(r=n.length,e=0;r>e;e+=6)if(a[0]=n[e],a[1]=n[e+1],a[2]=n[e+2],a[3]=n[e+3],a[4]=n[e+4],a[5]=n[e+5],s.contains(o.x,o.y))return!0;return!1},i.DRAW_MODES={TRIANGLE_MESH:0,TRIANGLES:1}},{"../core":29}],125:[function(t,e,r){function i(t,e){n.call(this,t),this.points=e,this.vertices=new Float32Array(4*e.length),this.uvs=new Float32Array(4*e.length),this.colors=new Float32Array(2*e.length),this.indices=new Uint16Array(2*e.length),this._ready=!0,this.refresh()}var n=t("./Mesh"),o=t("../core");i.prototype=Object.create(n.prototype),i.prototype.constructor=i,e.exports=i,i.prototype.refresh=function(){var t=this.points;if(!(t.length<1)&&this._texture._uvs){var e=this.uvs,r=this.indices,i=this.colors,n=this._texture._uvs,s=new o.Point(n.x0,n.y0),a=new o.Point(n.x2-n.x0,n.y2-n.y0);e[0]=0+s.x,e[1]=0+s.y,e[2]=0+s.x,e[3]=1*a.y+s.y,i[0]=1,i[1]=1,r[0]=0,r[1]=1;for(var h,l,u,c=t.length,p=1;c>p;p++)h=t[p],l=4*p,u=p/(c-1),e[l]=u*a.x+s.x,e[l+1]=0+s.y,e[l+2]=u*a.x+s.x,e[l+3]=1*a.y+s.y,l=2*p,i[l]=1,i[l+1]=1,l=2*p,r[l]=l,r[l+1]=l+1;this.dirty=!0}},i.prototype._onTextureUpdate=function(){n.prototype._onTextureUpdate.call(this),this._ready&&this.refresh()},i.prototype.updateTransform=function(){var t=this.points;if(!(t.length<1)){for(var e,r,i,n,o,s,a=t[0],h=0,l=0,u=this.vertices,c=t.length,p=0;c>p;p++)r=t[p],i=4*p,e=p<t.length-1?t[p+1]:r,l=-(e.x-a.x),h=e.y-a.y,n=10*(1-p/(c-1)),n>1&&(n=1),o=Math.sqrt(h*h+l*l),s=this._texture.height/2,h/=o,l/=o,h*=s,l*=s,u[i]=r.x+h,u[i+1]=r.y+l,u[i+2]=r.x-h,u[i+3]=r.y-l,a=r;this.containerUpdateTransform()}}},{"../core":29,"./Mesh":124}],126:[function(t,e,r){e.exports={Mesh:t("./Mesh"),Rope:t("./Rope"),MeshRenderer:t("./webgl/MeshRenderer"),MeshShader:t("./webgl/MeshShader")}},{"./Mesh":124,"./Rope":125,"./webgl/MeshRenderer":127,"./webgl/MeshShader":128}],127:[function(t,e,r){function i(t){n.ObjectRenderer.call(this,t),this.indices=new Uint16Array(15e3);for(var e=0,r=0;15e3>e;e+=6,r+=4)this.indices[e+0]=r+0,this.indices[e+1]=r+1,this.indices[e+2]=r+2,this.indices[e+3]=r+0,this.indices[e+4]=r+2,this.indices[e+5]=r+3}var n=t("../../core"),o=t("../Mesh");i.prototype=Object.create(n.ObjectRenderer.prototype),i.prototype.constructor=i,e.exports=i,n.WebGLRenderer.registerPlugin("mesh",i),i.prototype.onContextChange=function(){},i.prototype.render=function(t){t._vertexBuffer||this._initWebGL(t);var e=this.renderer,r=e.gl,i=t._texture.baseTexture,n=e.shaderManager.plugins.meshShader,s=t.drawMode===o.DRAW_MODES.TRIANGLE_MESH?r.TRIANGLE_STRIP:r.TRIANGLES;e.blendModeManager.setBlendMode(t.blendMode),r.uniformMatrix3fv(n.uniforms.translationMatrix._location,!1,t.worldTransform.toArray(!0)),r.uniformMatrix3fv(n.uniforms.projectionMatrix._location,!1,e.currentRenderTarget.projectionMatrix.toArray(!0)),r.uniform1f(n.uniforms.alpha._location,t.worldAlpha),t.dirty?(t.dirty=!1,r.bindBuffer(r.ARRAY_BUFFER,t._vertexBuffer),r.bufferData(r.ARRAY_BUFFER,t.vertices,r.STATIC_DRAW),r.vertexAttribPointer(n.attributes.aVertexPosition,2,r.FLOAT,!1,0,0),r.bindBuffer(r.ARRAY_BUFFER,t._uvBuffer),r.bufferData(r.ARRAY_BUFFER,t.uvs,r.STATIC_DRAW),r.vertexAttribPointer(n.attributes.aTextureCoord,2,r.FLOAT,!1,0,0),r.activeTexture(r.TEXTURE0),i._glTextures[r.id]?r.bindTexture(r.TEXTURE_2D,i._glTextures[r.id]):this.renderer.updateTexture(i),r.bindBuffer(r.ELEMENT_ARRAY_BUFFER,t._indexBuffer),r.bufferData(r.ELEMENT_ARRAY_BUFFER,t.indices,r.STATIC_DRAW)):(r.bindBuffer(r.ARRAY_BUFFER,t._vertexBuffer),r.bufferSubData(r.ARRAY_BUFFER,0,t.vertices),r.vertexAttribPointer(n.attributes.aVertexPosition,2,r.FLOAT,!1,0,0),r.bindBuffer(r.ARRAY_BUFFER,t._uvBuffer),r.vertexAttribPointer(n.attributes.aTextureCoord,2,r.FLOAT,!1,0,0),r.activeTexture(r.TEXTURE0),i._glTextures[r.id]?r.bindTexture(r.TEXTURE_2D,i._glTextures[r.id]):this.renderer.updateTexture(i),r.bindBuffer(r.ELEMENT_ARRAY_BUFFER,t._indexBuffer),r.bufferSubData(r.ELEMENT_ARRAY_BUFFER,0,t.indices)),r.drawElements(s,t.indices.length,r.UNSIGNED_SHORT,0)},i.prototype._initWebGL=function(t){var e=this.renderer.gl;t._vertexBuffer=e.createBuffer(),t._indexBuffer=e.createBuffer(),t._uvBuffer=e.createBuffer(),e.bindBuffer(e.ARRAY_BUFFER,t._vertexBuffer),e.bufferData(e.ARRAY_BUFFER,t.vertices,e.DYNAMIC_DRAW),e.bindBuffer(e.ARRAY_BUFFER,t._uvBuffer),e.bufferData(e.ARRAY_BUFFER,t.uvs,e.STATIC_DRAW),t.colors&&(t._colorBuffer=e.createBuffer(),e.bindBuffer(e.ARRAY_BUFFER,t._colorBuffer),e.bufferData(e.ARRAY_BUFFER,t.colors,e.STATIC_DRAW)),e.bindBuffer(e.ELEMENT_ARRAY_BUFFER,t._indexBuffer),e.bufferData(e.ELEMENT_ARRAY_BUFFER,t.indices,e.STATIC_DRAW)},i.prototype.flush=function(){},i.prototype.start=function(){var t=this.renderer.shaderManager.plugins.meshShader;this.renderer.shaderManager.setShader(t)},i.prototype.destroy=function(){}},{"../../core":29,"../Mesh":124}],128:[function(t,e,r){function i(t){n.Shader.call(this,t,["precision lowp float;","attribute vec2 aVertexPosition;","attribute vec2 aTextureCoord;","uniform mat3 translationMatrix;","uniform mat3 projectionMatrix;","varying vec2 vTextureCoord;","void main(void){","   gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);","   vTextureCoord = aTextureCoord;","}"].join("\n"),["precision lowp float;","varying vec2 vTextureCoord;","uniform float alpha;","uniform sampler2D uSampler;","void main(void){","   gl_FragColor = texture2D(uSampler, vTextureCoord) * alpha ;","}"].join("\n"),{alpha:{type:"1f",value:0},translationMatrix:{type:"mat3",value:new Float32Array(9)},projectionMatrix:{type:"mat3",value:new Float32Array(9)}},{aVertexPosition:0,aTextureCoord:0})}var n=t("../../core");i.prototype=Object.create(n.Shader.prototype),i.prototype.constructor=i,e.exports=i,n.ShaderManager.registerPlugin("meshShader",i)},{"../../core":29}],129:[function(t,e,r){Object.assign||(Object.assign=t("object-assign"))},{"object-assign":12}],130:[function(t,e,r){t("./Object.assign"),t("./requestAnimationFrame")},{"./Object.assign":129,"./requestAnimationFrame":131}],131:[function(t,e,r){(function(t){if(Date.now&&Date.prototype.getTime||(Date.now=function(){return(new Date).getTime()}),!t.performance||!t.performance.now){var e=Date.now();t.performance||(t.performance={}),t.performance.now=function(){return Date.now()-e}}for(var r=Date.now(),i=["ms","moz","webkit","o"],n=0;n<i.length&&!t.requestAnimationFrame;++n)t.requestAnimationFrame=t[i[n]+"RequestAnimationFrame"],t.cancelAnimationFrame=t[i[n]+"CancelAnimationFrame"]||t[i[n]+"CancelRequestAnimationFrame"];t.requestAnimationFrame||(t.requestAnimationFrame=function(t){if("function"!=typeof t)throw new TypeError(t+"is not a function");var e=Date.now(),i=16+r-e;return 0>i&&(i=0),r=e,setTimeout(function(){r=Date.now(),t(performance.now())},i)}),t.cancelAnimationFrame||(t.cancelAnimationFrame=function(t){clearTimeout(t)})}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{}]},{},[1])(1)});
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],3:[function(require,module,exports){
-ui = require('../ui/index.js')
+var ui = require('../ui/index.js')
 
-Vanilla = require('../modes/vanilla/')
+var Vanilla = require('../modes/vanilla/')
 require('../modes/vanilla/render.js')(Vanilla)
 
 // make mode
-Demo = require('../modes/demo/')
+var Demo = require('../modes/demo/')
 require('../modes/demo/render.js')(Demo)
-mode = new Demo(new Vanilla())
+var mode = new Demo(new Vanilla())
 
 // use control method to turn mode into UI object
-clientOffline = require('../control/client-offline.js')
-myClient = clientOffline(mode) 
+var clientOffline = require('../control/client-offline.js')
+var myClient = clientOffline(mode) 
 
 ui.run(60, myClient)
 
@@ -482,10 +482,9 @@ ui.run(60, myClient)
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
 
-PIXI = require('../../assets/pixi.min.js')
-ui = require('../ui/index.js')
+var PIXI = require('../../assets/pixi.min.js')
 
-renderPerf = require('./hud/performance.js')
+var renderPerf = require('./hud/performance.js')
 
 module.exports = function(mode) {
 	function Game() {
@@ -496,8 +495,8 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.init = function() { 
-		mode.init(mode.makeInitData(""))
-		mode.join("offline player")
+		mode.init(mode.makeInitData(''))
+		mode.join('offline player')
 	}
 
 	Game.prototype.step = function(delta) {
@@ -520,20 +519,20 @@ module.exports = function(mode) {
 	Game.prototype.hasEnded = function() { return false }
 
 	Game.prototype.acceptKey = function(key, state) {
-		mode.acceptEvent({id: 0, type: "control", name: key, state: state})
+		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
 	}
 
 	return new Game() 
 }
 
-},{"../../assets/pixi.min.js":2,"../ui/index.js":17,"./hud/performance.js":5}],5:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./hud/performance.js":5}],5:[function(require,module,exports){
 /*                  ******** performance.js ********                   //
 \\ Performance data display in top right of screen.                    \\
 //                  ******** performance.js ********                   */
 
-PIXI = require('../../../assets/pixi.min.js')
+var PIXI = require('../../../assets/pixi.min.js')
 
-style = {fill: 0xFFFFFF}
+var style = {fill: 0xFFFFFF}
 var fps = new PIXI.Text("fps", style)
 var counter = 0
 
@@ -554,8 +553,6 @@ exports.stepRender = function(stage, delta, performance) {
 //                  ******** demo/index.js ********                   */
 
 module.exports = Demo
-
-Utils = require('../../resources/util.js')
 
 /**** {{{ constructor ****/
 function Demo(vanilla) {
@@ -627,33 +624,32 @@ Demo.prototype.serverMerge = function(id, snap) {
 
 Demo.prototype.modeId = "demo dev"
 
-},{"../../resources/util.js":16}],7:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*                  ******** demo/render.js ********                  //
 \\ Rendering for the demo.                                            \\
 //                  ******** demo/render.js ********                  */
 
-PIXI = require('../../../assets/pixi.min.js')
-Utils = require('../../resources/util.js')
+var PIXI = require('../../../assets/pixi.min.js')
 
 module.exports = function(Demo) {
 
-Demo.prototype.initRender = function(stage) { 
-	var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
-	title.position = new PIXI.Point((800 - (title.width / 2)), 10)
-	stage.addChild(title)
+	Demo.prototype.initRender = function(stage) { 
+		var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
+		title.position = new PIXI.Point((800 - (title.width / 2)), 10)
+		stage.addChild(title)
 
-	this.vanillaStage = new PIXI.Container()
-	stage.addChild(this.vanillaStage)
-	this.vanilla.initRender(this.vanillaStage)
+		this.vanillaStage = new PIXI.Container()
+		stage.addChild(this.vanillaStage)
+		this.vanilla.initRender(this.vanillaStage)
+	}
+
+	Demo.prototype.stepRender = function(id, stage, delta) {
+		this.vanilla.stepRender(id, this.vanillaStage, delta)
+	}
+
 }
 
-Demo.prototype.stepRender = function(id, stage, delta) {
-	this.vanilla.stepRender(id, this.vanillaStage, delta)
-}
-
-}
-
-},{"../../../assets/pixi.min.js":2,"../../resources/util.js":16}],8:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":2}],8:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -708,20 +704,20 @@ module.exports = {
 }
 
 },{}],9:[function(require,module,exports){
-/*                  ******** vanilla/index.js ********                //
+/*									******** vanilla/index.js ********								//
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
-//                  ******** vanilla/index.js ********                */
+//									******** vanilla/index.js ********								*/
 
 module.exports = Vanilla
 
-Box2D = require('../../../assets/box2d.min.js')
+var Box2D = require('../../../assets/box2d.min.js')
 
-Utils = require('../../resources/util.js')
-maps = require('../../resources/maps.js')
+var Utils = require('../../resources/util.js')
+var maps = require('../../resources/maps.js')
 
-Player = require('./player.js')
-gameplay = require('./gameplay.js')
-snapshots = require('./snapshots.js')
+var Player = require('./player.js')
+var gameplay = require('./gameplay.js')
+var snapshots = require('./snapshots.js')
 
 /**** {{{ constructor ****/
 function Vanilla() {
@@ -740,30 +736,29 @@ function Vanilla() {
 /**** }}} constructor ****/
 
 /**** {{{ box2d synonyms ****/
-b2Vec2         = Box2D.Common.Math.b2Vec2
-b2BodyDef      = Box2D.Dynamics.b2BodyDef
-b2Body         = Box2D.Dynamics.b2Body
-b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
-b2Fixture      = Box2D.Dynamics.b2Fixture
-b2World        = Box2D.Dynamics.b2World
-b2MassData     = Box2D.Collision.Shapes.b2MassData
-b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
-b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+var b2Vec2				 = Box2D.Common.Math.b2Vec2
+var b2BodyDef			 = Box2D.Dynamics.b2BodyDef
+var b2Body				 = Box2D.Dynamics.b2Body
+var b2FixtureDef	 = Box2D.Dynamics.b2FixtureDef
+// var b2Fixture			= Box2D.Dynamics.b2Fixture
+var b2World				 = Box2D.Dynamics.b2World
+// var b2MassData			= Box2D.Collision.Shapes.b2MassData
+var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+// var b2CircleShape	= Box2D.Collision.Shapes.b2CircleShape
+// var b2DebugDraw		= Box2D.Dynamics.b2DebugDraw;
 /**** }}} box2d synonyms ****/
 
 /**** {{{ internal utility methods ****/
 Vanilla.prototype.addPlayer = function(id, name) {
-	if (this.players.some(function(player) {return player.id == id})) {
+	if (this.players.some(function(player) {return player.id === id})) 
 		return null
-	} else {
-		var player = new Player(this, id, 900, 450, name);
-		this.players.push(player);
-		player.block.SetSleepingAllowed(false);
-		player.block.SetBullet(true);
-		player.respawning = true;
-		return player.id;
-	}
+
+	var player = new Player(this, id, 900, 450, name);
+	this.players.push(player);
+	player.block.SetSleepingAllowed(false);
+	player.block.SetBullet(true);
+	player.respawning = true;
+	return player.id;
 }
 
 Vanilla.prototype.findPlayerById = function(id) {
@@ -792,10 +787,10 @@ Vanilla.prototype.evaluateContact = function(contact) {
 	var bodyA = contact.GetFixtureA().GetBody();
 	var bodyB = contact.GetFixtureB().GetBody();
 	//Determine which is the player
-	if (bodyA.GetUserData().bodyType == "player") {
+	if (bodyA.GetUserData().bodyType === "player") {
 		var player = bodyA
 	} else {
-		if (bodyB.GetUserData().bodyType == "player")
+		if (bodyB.GetUserData().bodyType === "player")
 			player = bodyB
 	}
 
@@ -854,21 +849,20 @@ Vanilla.prototype.readProjectilesFromBlock = function () {
 
 /**** {{{ physics interface methods ****/
 Vanilla.prototype.createShape = function(type, props) {
-	w = props.width; h = props.height
+	var w = props.width; var h = props.height
+	var shape = new b2PolygonShape
 	switch (type) {
-		case ("rectangle"): {
-			shape = new b2PolygonShape
-			shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
-			return shape
-		}
-		case ("triangle"): {
-			shape = new b2PolygonShape
-			shape.SetAsArray([
-				new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
-				, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
-				, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
-			return shape 
-		}
+	case ("rectangle"): {
+		shape.SetAsBox(w / 2 / this.scale, h / 2 / this.scale)
+		return shape
+	}
+	case ("triangle"): {
+		shape.SetAsArray([
+			new b2Vec2.Make(-w/2 / this.scale, h/2 / this.scale)
+			, new b2Vec2.Make(-w/2 / this.scale, -h/2 / this.scale)
+			, new b2Vec2.Make(w/2 / this.scale, 0)], 3)
+		return shape 
+	}
 	}
 }
 
@@ -915,7 +909,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	/**** }}} body definition ****/
 	
 	// enter box into world with body and fixture definitions
-	box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
+	var box = this.world.CreateBody(bodyDef); box.CreateFixture(fixDef)
 	box.SetUserData({bodyType: props.bodyType, bodyId: props.bodyId})
 
 	return box
@@ -935,7 +929,7 @@ Vanilla.prototype.init = function(data) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
-		, true  //allow sleep
+		, true	//allow sleep
 	);
 	this.world.gravity = this.gravity;
 
@@ -966,15 +960,15 @@ Vanilla.prototype.describeState = function() {
 
 /**** {{{ simulation****/
 Vanilla.prototype.acceptEvent = function(theEvent) {
-	if (theEvent.type == "control") {
+	if (theEvent.type === "control") {
 		var player = this.findPlayerById(theEvent.id)
 		if (player !== null) {
-			state = theEvent.state
+			var state = theEvent.state
 			switch (theEvent.name) {
-				case ("up"): player.movement.forward = state; return true;
-				case ("down"): player.movement.backward = state; return true;
-				case ("left"): player.movement.left = state; return true;
-				case ("right"): player.movement.right = state; return true;
+			case ("up"): player.movement.forward = state; return true;
+			case ("down"): player.movement.backward = state; return true;
+			case ("left"): player.movement.left = state; return true;
+			case ("right"): player.movement.right = state; return true;
 			}
 		}
 	}
@@ -994,12 +988,12 @@ Vanilla.prototype.step = function(delta) {
 	
 	this.world.Step(
 		delta / 1000 //time delta
-	,   10       //velocity iterations
-	,   10       //position iterations
+	,		10			 //velocity iterations
+	,		10			 //position iterations
 	);
 	// glenn's magic contact listening, affects 'health' values of players
-	for (var contact = this.world.GetContactList(); contact != null; contact = contact.GetNext()) {
-	  this.evaluateContact(contact);
+	for (var contact = this.world.GetContactList(); contact !== null; contact = contact.GetNext()) {
+		this.evaluateContact(contact);
 	}
 
 	this.players.forEach( function(player) { player.readFromBlock() } )
@@ -1022,9 +1016,9 @@ Vanilla.prototype.step = function(delta) {
 Vanilla.prototype.join = function(name, id) {
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
-		newId = Utils.findAvailableId(ids)
+		var newId = Utils.findAvailableId(ids)
 	} else {
-		newId = id
+		var newId = id
 	}
 	this.addPlayer(newId, name)
 	return newId
@@ -1076,6 +1070,25 @@ Vanilla.prototype.hasEnded = function() { return false }
 //                  ******** vanilla/player.js ********            */
 
 module.exports = Player
+
+var Utils = require('../../resources/util.js')
+
+var Box2D = require('../../../assets/box2d.min.js')
+
+var gameplay = require('./gameplay.js')
+
+/**** {{{ box2d synonyms ****/
+var b2Vec2         = Box2D.Common.Math.b2Vec2
+// var b2BodyDef      = Box2D.Dynamics.b2BodyDef
+// var b2Body         = Box2D.Dynamics.b2Body
+// var b2FixtureDef   = Box2D.Dynamics.b2FixtureDef
+// var b2Fixture      = Box2D.Dynamics.b2Fixture
+// var b2World        = Box2D.Dynamics.b2World
+// var b2MassData     = Box2D.Collision.Shapes.b2MassData
+// var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+// var b2CircleShape  = Box2D.Collision.Shapes.b2CircleShape
+// var b2DebugDraw    = Box2D.Dynamics.b2DebugDraw;
+/**** }}} box2d synonyms ****/
 
 /**** {{{ Player() ****/
 function Player(game, id, x, y, name) {
@@ -1276,19 +1289,20 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{}],11:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":16,"./gameplay.js":8}],11:[function(require,module,exports){
 /*          ******** vanilla/render.js ********       //
 \\ Client-sided renderer for the vanilla game mode.   \\
 //          ******** vanilla/render.js ********       */
 
-PIXI = require('../../../assets/pixi.min.js')
-urls = require('../../resources/urls.js')
-gameplay = require('./gameplay.js')
+var PIXI = require('../../../assets/pixi.min.js')
+var urls = require('../../resources/urls.js')
+var gameplay = require('./gameplay.js')
 
 //Extend the original vanilla object to contain the renderer
 module.exports = function(Vanilla) {
 
 /**** {{{ render map and players ****/
+<<<<<<< HEAD
 Vanilla.prototype.renderMap = function(pan, map) {
 	map.removeChildren()
 	
@@ -1308,11 +1322,33 @@ Vanilla.prototype.renderMap = function(pan, map) {
 		)
 		this.map.anim.mapGraphics = mapGraphics
 	}
+=======
+	Vanilla.prototype.renderMap = function(pan, map) {
+		map.removeChildren()
+		
+		// if not set, initialise the map graphics
+		if (typeof this.map.anim == "undefined") {
+			this.map.anim = {}
+			var mapGraphics = new PIXI.Graphics
+			mapGraphics.clear()
+			mapGraphics.beginFill(0xFFFFFF, 1)
+			this.mapData.blocks.forEach(
+				function(block) {
+					mapGraphics.drawRect(
+						block.x - (block.w / 2) 
+						, block.y - (block.h / 2) 
+						, block.w, block.h
+					)
+				}
+			)
+			this.map.anim.mapGraphics = mapGraphics
+		}
+>>>>>>> master
 
-	// enter the map graphics into the map container
-	this.map.anim.mapGraphics.position.set(pan.x, pan.y)
-	map.addChild(this.map.anim.mapGraphics)
-}
+		// enter the map graphics into the map container
+		this.map.anim.mapGraphics.position.set(pan.x, pan.y)
+		map.addChild(this.map.anim.mapGraphics)
+	}
 
 Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
 	stage.removeChildren()
@@ -1331,99 +1367,108 @@ Vanilla.prototype.renderProjectiles = function(pan, delta, id, stage) {
 	, this)
 }
 
-Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
-	players.removeChildren()
+	Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
+		players.removeChildren()
 
-	this.players.forEach(
-		function(player) {
-			var pos = player.position; var rot = player.rotation
-			/**** {{{ initialise anim object ****/
-			function setPlayerSprite(sprite) {
-				sprite.anchor.set(0.5, 0.5)
-				sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
-			}
-			
-			if (typeof player.anim === "undefined")
-				player.anim = {thrustLevel: 0} 
-			if (typeof player.anim.speedSprite === "undefined") {
-				player.anim.speedSprite = new PIXI.Sprite(this.textures.playerSpeed)
-				setPlayerSprite(player.anim.speedSprite)
-			}
-			if (typeof player.anim.thrustSprite === "undefined") {
-				player.anim.thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
-				setPlayerSprite(player.anim.thrustSprite) }
-			if (typeof player.anim.normalSprite === "undefined") {
-				player.anim.normalSprite = new PIXI.Sprite(this.textures.player)
-				setPlayerSprite(player.anim.normalSprite) }
-			if (typeof player.anim.nameText === "undefined")
-				player.anim.nameText = new PIXI.Text(player.name, {font: "15px arial", fill: 0x003060})
-			if (typeof player.anim.barView === "undefined")
-				player.anim.barView = new PIXI.Graphics()
-			/**** }}} initialise anim object ****/
-			
-			/**** {{{ afterburner animation  ****/
-			if (player.afterburner) {
-				player.anim.thrustLevel += (delta / 1000) * gameplay.graphicsThrustFade
-			} else {
-				player.anim.thrustLevel -= (delta / 1000) * gameplay.graphicsThrustFade	
-			}
-			if (player.anim.thrustLevel < 0) player.anim.thrustLevel = 0
-			if (player.anim.thrustLevel > 1) player.anim.thrustLevel = 1
-			/**** }}} afterburner animation  ****/
-			
-			/**** {{{ position player graphics ****/
-			function placePlayerSprite(sprite) {
-				sprite.position.set(pos.x + pan.x, pos.y + pan.y) 
-				sprite.rotation = rot
-			}
+		this.players.forEach(
+			function(player) {
+				var pos = player.position; var rot = player.rotation
+				/**** {{{ initialise anim object ****/
+				function setPlayerSprite(sprite) {
+					sprite.anchor.set(0.5, 0.5)
+					sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
+				}
+				
+				if (typeof player.anim === "undefined")
+					player.anim = {thrustLevel: 0} 
+				if (typeof player.anim.speedSprite === "undefined") {
+					player.anim.speedSprite = new PIXI.Sprite(this.textures.playerSpeed)
+					setPlayerSprite(player.anim.speedSprite)
+				}
+				if (typeof player.anim.thrustSprite === "undefined") {
+					player.anim.thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
+					setPlayerSprite(player.anim.thrustSprite) 
+				}
+				if (typeof player.anim.normalSprite === "undefined") {
+					player.anim.normalSprite = new PIXI.Sprite(this.textures.player)
+					setPlayerSprite(player.anim.normalSprite) 
+				}
+				if (typeof player.anim.nameText === "undefined")
+					player.anim.nameText = new PIXI.Text(player.name, {font: "15px arial", fill: 0x003060})
+				if (typeof player.anim.barView === "undefined")
+					player.anim.barView = new PIXI.Graphics()
+				/**** }}} initialise anim object ****/
+				
+				/**** {{{ afterburner animation  ****/
+				if (player.afterburner) {
+					player.anim.thrustLevel += (delta / 1000) * gameplay.graphicsThrustFade
+				} else {
+					player.anim.thrustLevel -= (delta / 1000) * gameplay.graphicsThrustFade	
+				}
+				if (player.anim.thrustLevel < 0) player.anim.thrustLevel = 0
+				if (player.anim.thrustLevel > 1) player.anim.thrustLevel = 1
+				/**** }}} afterburner animation  ****/
+				
+				/**** {{{ position player graphics ****/
+				function placePlayerSprite(sprite) {
+					sprite.position.set(pos.x + pan.x, pos.y + pan.y) 
+					sprite.rotation = rot
+				}
 
-			placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite); placePlayerSprite(player.anim.speedSprite)
-			player.anim.thrustSprite.alpha = player.anim.thrustLevel
-			player.anim.speedSprite.alpha = Math.pow(player.speed, 3)
+				placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite); placePlayerSprite(player.anim.speedSprite)
+				player.anim.thrustSprite.alpha = player.anim.thrustLevel
+				player.anim.speedSprite.alpha = Math.pow(player.speed, 3)
 
-			player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
+				player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
 
-			player.anim.barView.clear()
-			player.anim.barView.beginFill(0xFFFFFF, 0.5)
-			player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
-			if (!player.stalled) {
-				player.anim.barView.beginFill(0xFF0000, 0.5)
-				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
-				player.anim.barView.beginFill(0x00FF00, 0.5)
-				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.speed), gameplay.graphicsBarHeight)
+				player.anim.barView.clear()
+				player.anim.barView.beginFill(0xFFFFFF, 0.5)
+				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
+				if (!player.stalled) {
+					player.anim.barView.beginFill(0xFF0000, 0.5)
+					player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
+					player.anim.barView.beginFill(0x00FF00, 0.5)
+					player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.speed), gameplay.graphicsBarHeight)
+				}
+				/**** }}} position player graphics ****/
+
+				/**** {{{ add to players container ****/
+				players.addChild(player.anim.normalSprite)
+				players.addChild(player.anim.thrustSprite)
+				players.addChild(player.anim.speedSprite)
+				players.addChild(player.anim.nameText)
+				if (id === player.id) 
+					players.addChild(player.anim.barView)
+				/**** }}} add to players container ****/
 			}
-			/**** }}} position player graphics ****/
-
-			/**** {{{ add to players container ****/
-			players.addChild(player.anim.normalSprite)
-			players.addChild(player.anim.thrustSprite)
-			players.addChild(player.anim.speedSprite)
-			players.addChild(player.anim.nameText)
-			if (id == player.id) 
-				players.addChild(player.anim.barView)
-			/**** }}} add to players container ****/
-		}
-	, this)
-}
+		, this)
+	}
 /**** }}} render map and players ****/
 
-Vanilla.prototype.initRender = function(stage) {
-	this.textures = {}
-	this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
-	this.textures.playerThrust = 
-		new PIXI.Texture.fromImage(urls.playerThrustSprite)
-	this.textures.playerSpeed = 
-		new PIXI.Texture.fromImage(urls.playerSpeedSprite)
+	Vanilla.prototype.initRender = function(stage) {
+		this.textures = {}
+		this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
+		this.textures.playerThrust = 
+			new PIXI.Texture.fromImage(urls.playerThrustSprite)
+		this.textures.playerSpeed = 
+			new PIXI.Texture.fromImage(urls.playerSpeedSprite)
 
+<<<<<<< HEAD
 	stage.addChild(new PIXI.Container())
 	stage.addChild(new PIXI.Container())
 	stage.addChild(new PIXI.Container())
 }
+=======
+		stage.addChild(new PIXI.Container)
+		stage.addChild(new PIXI.Container)
+	}
+>>>>>>> master
 
-Vanilla.prototype.stepRender = function(id, stage, delta) {
-	var player = this.findPlayerById(id)
-	var pan = {x: 0, y: 0}
+	Vanilla.prototype.stepRender = function(id, stage, delta) {
+		var player = this.findPlayerById(id)
+		var pan = {x: 0, y: 0}
 
+<<<<<<< HEAD
 	if (player !== null) {
 		comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
 		pan = 
@@ -1437,10 +1482,22 @@ Vanilla.prototype.stepRender = function(id, stage, delta) {
 
 	this.renderPlayers(pan, delta, id, stage.children[2])
 }
+=======
+		if (player !== null) {
+			var comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
+			pan = 
+				{x: comOffset.x + -(player.position.x) + 800 
+				,y: comOffset.y + -(player.position.y) + 450}
+		} 
+
+		this.renderMap(pan, stage.children[0])
+		this.renderPlayers(pan, delta, id, stage.children[1])
+	}
+>>>>>>> master
 }
 
 },{"../../../assets/pixi.min.js":2,"../../resources/urls.js":15,"./gameplay.js":8}],12:[function(require,module,exports){
-Util = require('../../resources/util.js')
+var Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
 	if (typeof priority == "undefined") priority = 0
@@ -1461,11 +1518,12 @@ function Snapshot(player, priority, defaultState, states) {
 
 exports.makePlayerSnapshot = 
 	function(world, id, priority, defaultState, states) {
-	var player = world.findPlayerById(id);
-	if (player !== null) {
-		return [new Snapshot(player, priority, defaultState, states)];
-	} else { return null }
-}
+		var player = world.findPlayerById(id);
+		if (player !== null) 
+			return [new Snapshot(player, priority, defaultState, states)]
+
+		return null 
+	}
 
 exports.makeTotalSnapshot = function(world, priority) {
 	return world.players.reduce(function(list, player) {
@@ -1496,7 +1554,7 @@ exports.applySnapshot = function(world, snapshot) {
 		}, this)
 }
 
-deflationRules =
+var deflationRules =
 	[ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
 	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation } 
 	, { key: "health", shortKey: "h", deflation: Util.floatDeflation }
@@ -1516,26 +1574,35 @@ deflationRules =
 
 function deflatePair(pair) {
 	var matches = deflationRules.filter(
-		function(rule) { return rule.key == pair.key	} 
+		function(rule) { return rule.key === pair.key	} 
 	, pair)
 	if (matches.length > 0) {
 		var rule = matches[0]
-		return {key: rule.shortKey, value: rule.deflation.deflate(pair.value)}
-	} else { return pair }
+		return {
+			key: rule.shortKey
+			, value: rule.deflation.deflate(pair.value)
+		}
+	} 
+	return pair 
 }
 
 function inflatePair(pair) {
 	var matches = deflationRules.filter(
-		function(rule) { return rule.shortKey == pair.key	} 
-	, pair)
+		function(rule) { return rule.shortKey === pair.key	} 
+		, pair
+	)
 	if (matches.length > 0) {
 		var rule = matches[0]
-		return {key: rule.key, value: rule.deflation.inflate(pair.value)}
-	} else { return pair }
+		return {
+			key: rule.key
+			, value: rule.deflation.inflate(pair.value)
+		}
+	} 
+	return pair 
 }
 
 exports.serialiseSnapshot = function(snap) {
-	result = []
+	var result = []
 	
 	snap.forEach(
 		function(inflated) {
@@ -1596,7 +1663,7 @@ exports.keyCodeFromName = function(name) {
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
-maps = {
+module.exports = {
 	bloxMap: {
 		dimensions: 
 			{ width: 3200, height: 800 }
@@ -1622,8 +1689,6 @@ maps = {
 			]
 	}
 }
-
-module.exports = maps;
 
 },{}],15:[function(require,module,exports){
 module.exports = {
@@ -1665,7 +1730,7 @@ Util.prototype.floatToInt = function(float_) {
 
 Util.prototype.intToChar = function(int_) {
 	//Because bitwise arithmetic doesn't go below 0
-	if (int_ == 0)
+	if (int_ === 0)
 		return '\0\0';
 
 	//If it's negative, we need to do 2s comp on it so we can make it positive.
@@ -1719,7 +1784,7 @@ Util.prototype.noDeflation =
 
 Util.prototype.boolDeflation =
 	{ deflate: function(bool) { return bool ? 1 : 0 }
-	, inflate: function(val) { return (val == 1) } }
+	, inflate: function(val) { return (val === 1) } }
 
 Util.prototype.floatDeflation =
 	{ deflate: function(f) { return exports.floatToChar(f) }
@@ -1736,8 +1801,8 @@ Util.prototype.vecDeflation =
 */
 
 Util.prototype.vecDeflation = 
-	{ deflate: function(x){return {x: exports.floatDeflation.deflate(x.x), y: exports.floatDeflation.deflate(y.y)}}
-	, inflate: function(x){return {x: exports.floatDeflation.inflate(x.x), y: exports.floatDeflation.inflate(y.y)}} }
+	{ deflate: function(x){return {x: exports.floatDeflation.deflate(x.x), y: exports.floatDeflation.deflate(x.y)}}
+	, inflate: function(x){return {x: exports.floatDeflation.inflate(x.x), y: exports.floatDeflation.inflate(x.y)}} }
 
 Util.prototype.movementDeflation = 
 	{ deflate:
@@ -1747,8 +1812,8 @@ Util.prototype.movementDeflation =
 			}
 	, inflate:
 			function(val) {
-				return {left: (val[0] == 1), right: (val[1] == 1)
-					, forward: (val[2] == 1), backward: (val[3] == 1)}
+				return {left: (val[0] === 1), right: (val[1] === 1)
+					, forward: (val[2] === 1), backward: (val[3] === 1)}
 			}
 	}
 /**** }}} deflation pairs ****/
@@ -1769,12 +1834,12 @@ Util.prototype.jsonClone = function(o) {
 }
 
 // https://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
-Util.prototype.clone = function(obj) { var copy; if (null == obj || "object" != typeof obj) return obj; if (obj instanceof Date) { copy = new Date(); copy.setTime(obj.getTime()); return copy; } if (obj instanceof Array) { copy = []; for (var i = 0, len = obj.length; i < len; i++) { copy[i] = this.clone(obj[i]); } return copy; } if (obj instanceof Object) { copy = {}; for (var attr in obj) { if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]); } return copy; } throw new Error("Unable to copy object."); }
+Util.prototype.clone = function(obj) { var copy; if (null === obj || "object" != typeof obj) return obj; if (obj instanceof Date) { copy = new Date(); copy.setTime(obj.getTime()); return copy; } if (obj instanceof Array) { copy = []; for (var i = 0, len = obj.length; i < len; i++) { copy[i] = this.clone(obj[i]); } return copy; } if (obj instanceof Object) { copy = {}; for (var attr in obj) { if (obj.hasOwnProperty(attr)) copy[attr] = this.clone(obj[attr]); } return copy; } throw new Error("Unable to copy object."); }
 /**** }}} the absurd problem of cloning ****/
 
 /**** {{{ utility ****/
 Util.prototype.range = function(start, edge, step) {
-	if (arguments.length == 1) {
+	if (arguments.length === 1) {
 		edge = start;
 		start = 0;
 	}
@@ -1789,9 +1854,9 @@ Util.prototype.range = function(start, edge, step) {
 
 /**** {{{ elem id operations ****/
 Util.prototype.findAvailableId = function(xs) {
-	y = xs.length
-	for (i = 0; i <= xs.length; i++) {
-		if (xs[i] != i) {
+	var y = xs.length
+	for (var i = 0; i <= xs.length; i++) {
+		if (xs[i] !== i) {
 			y = i; break
 		}
 	}
@@ -1799,8 +1864,8 @@ Util.prototype.findAvailableId = function(xs) {
 }
 
 Util.prototype.findIndexById = function(elems, id) {
-	for (i = 0; i < elems.length; i++) {
-		if (elems[i].id == id) 
+	for (var i = 0; i < elems.length; i++) {
+		if (elems[i].id === id) 
 			return i
 	}	
 	return null
@@ -1832,8 +1897,8 @@ Util.prototype.getQueryStringValue = function(key) {
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
 
-PIXI = require('../../assets/pixi.min.js')
-run = require('./run.js')
+var PIXI = require('../../assets/pixi.min.js')
+var run = require('./run.js')
 
 exports.run = run
 
@@ -1862,7 +1927,7 @@ exports.splash = function(texts, interval) {
 }
 
 exports.centerText = function(text) {
-	center = Object()
+	var center = Object()
 	center.init = function(){}
 	center.step = function(){}
 	center.initRender = function(stage) {
@@ -1910,9 +1975,10 @@ exports.combineOverlay = function(overlay, object) {
 
 // object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities 
 
-Keys = require('../resources/keys.js')
-nameFromKeyCode = Keys.nameFromKeyCode
-keyCodeFromName = Keys.keyCodeFromName
+var PIXI = require('../../assets/pixi.min.js')
+
+var Keys = require('../resources/keys.js')
+var nameFromKeyCode = Keys.nameFromKeyCode
 
 module.exports = function(target, object) {
 	var renderer =
@@ -1928,13 +1994,13 @@ module.exports = function(target, object) {
 	}
 
 	function smartResize() {
-		w = window.innerWidth; h = window.innerHeight;
+		var w = window.innerWidth; var h = window.innerHeight;
 		if ((w / h) > (16 / 9)) {
-			nw = h * (16 / 9); nh = h
+			var nw = h * (16 / 9); var nh = h
 			renderer.resize(nw, nh)
 			setMargins((w - nw) / 2, 0)
 		} else {
-			nh = w * (9 / 16); nw = w
+			var nh = w * (9 / 16); var nw = w
 			renderer.resize(nw, nh)
 			setMargins(0, (h - nh) / 2)
 		}
@@ -1951,19 +2017,19 @@ module.exports = function(target, object) {
 
 	/**** {{{ requestAnimFrame ****/
 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-	requestAnimFrame = (function() {
-		return window.requestAnimationFrame  || 
-			window.webkitRequestAnimationFrame || 
-			window.mozRequestAnimationFrame    || 
-			window.oRequestAnimationFrame      || 
-			window.msRequestAnimationFrame     || 
-			function(callback, /* DOMElement */ element){
-				window.setTimeout(callback, (1/target) * 1000);
-			};
-	})();
+var requestAnimFrame = (function(target) {
+	return window.requestAnimationFrame  || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame    || 
+		window.oRequestAnimationFrame      || 
+		window.msRequestAnimationFrame     || 
+		function(callback, /* DOMElement */ element){
+			window.setTimeout(callback, (1/target) * 1000);
+		};
+})();
 	/**** }}} requestAnimFrame ****/
 
-runWithStage = function(target, renderer, stage, object) {
+function runWithStage(target, renderer, stage, object) {
 	stage.removeChildren()
 	renderer.render(stage)
 
@@ -1982,7 +2048,7 @@ runWithStage = function(target, renderer, stage, object) {
 	var logicTime = 0; var renderTime = 0; var sleepTime = 0
 	// the cycle deltas 
 
-	resetFps = function() {
+	function resetFps() {
 		if (running) {
 			window.setTimeout(resetFps, 1000)
 			fps = fpsC; fpsC = 0
@@ -1991,12 +2057,12 @@ runWithStage = function(target, renderer, stage, object) {
 	}
 
 	/**** {{{ step ****/
-	then = Date.now()
+	var then = Date.now()
 	function update() {
 		running = (!object.hasEnded())
 
-		now = Date.now()
-		delta = now - then
+		var now = Date.now()
+		var delta = now - then
 		then = now
 
 		if (running) { 
@@ -2050,20 +2116,19 @@ runWithStage = function(target, renderer, stage, object) {
 	function acceptKeyUp(e) { acceptKey(e, false) }
 	function acceptKeyDown(e) { acceptKey(e, true) }
 	function acceptKey(e, state) {
-		name = nameFromKeyCode(e.keyCode)
+		const name = nameFromKeyCode(e.keyCode)
 		object.acceptKey(name, state)
 		// some keys have quite obnoxious default cases
 		// while others, such as the debug terminal, do not
 		switch (name) {
-			case ("back_space"): {
-				e.preventDefault(); break
-			}
-			default: break
+		case ("back_space"): 
+			e.preventDefault(); break
+		default: break
 		}
 	}	
 
-	function onBlur() { blurred = true; blurTime = 0 }
-	function onFocus() { blurred = false; blurTime = 0 }	
+	function onBlur() { blurred = true }
+	function onFocus() { blurred = false }	
 
 	window.addEventListener("keyup", acceptKeyUp)
 	window.addEventListener("keydown", acceptKeyDown)
@@ -2074,4 +2139,4 @@ runWithStage = function(target, renderer, stage, object) {
 	update()
 }
 
-},{"../resources/keys.js":13}]},{},[3]);
+},{"../../assets/pixi.min.js":2,"../resources/keys.js":13}]},{},[3]);
