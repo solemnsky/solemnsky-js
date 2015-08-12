@@ -18,7 +18,7 @@ module.exports = function(mode, address, port, path) {
 	}
 	ConnectUI.prototype.step = function(delta) {
 		if (this.entered) 
-			this.countdown -= (delta / 1000)
+			this.countdown -= delta / 1000
 	}
 	ConnectUI.prototype.initRender = function(stage) {
 		this.text = 
@@ -31,14 +31,14 @@ module.exports = function(mode, address, port, path) {
 	ConnectUI.prototype.stepRender = function() { 
 		if (this.entered) {
 			this.text.position = 
-				new PIXI.Point(800, (550 * this.countdown - 100))
+				new PIXI.Point(800, 550 * this.countdown - 100)
 		} 
 	}
 	ConnectUI.prototype.acceptKey = function(key, state) {
 		if (state && key === 'enter') this.entered = true 
 	}
 	ConnectUI.prototype.hasEnded = function() {
-		return (this.countdown < 0)
+		return this.countdown < 0
 	}
 /**** }}} ConnectUI ****/
 
@@ -192,7 +192,7 @@ module.exports = function(mode, address, port, path) {
 		}
 	}
 	Game.prototype.hasEnded = function() {
-		return (this.disconnected)
+		return this.disconnected
 	}
 /**** }}} ui control methods ****/
 
@@ -208,7 +208,7 @@ module.exports = function(mode, address, port, path) {
 		
 		var chatLog = this.eventLog.filter(
 			function(event) {
-				return (event.type === "chat")
+				return event.type === "chat"
 			}
 		)
 
@@ -221,21 +221,21 @@ module.exports = function(mode, address, port, path) {
 		if (this.chatting) {
 		/**** {{{ when chatting ****/
 			backlog.text = chatLines
-			backlog.position.set(15, (880 - height) - backlog.height)
+			backlog.position.set(15, 880 - height - backlog.height)
 			this.chatStage.addChild(backlog)
 
 			chatEntry.text = ">>" + this.chatBuffer + "|"
-			chatEntry.position.set(15, (880 - height))
+			chatEntry.position.set(15, 880 - height)
 			this.chatStage.addChild(chatEntry)
 		/**** }}} when chatting ****/
 		} else {
 		/**** {{{ when not chatting ****/
 			backlog.text = chatLines
-			backlog.position.set(15, (880 - height) - backlog.height)
+			backlog.position.set(15, 880 - height - backlog.height)
 			backlog.alpha = 0.5
 			this.chatStage.addChild(backlog)
 
-			chatPrompt.position.set(15, (880 - height))
+			chatPrompt.position.set(15, 880 - height)
 			chatPrompt.alpha = 0.3
 			this.chatStage.addChild(chatPrompt)
 		/**** }}} when not chatting ****/

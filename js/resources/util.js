@@ -1,6 +1,6 @@
-/*                  ******** util.js ********                      //
-\\ This file has a bunch of misc utility functions.                \\
-//                  ******** util.js ********                      */
+/*									******** util.js ********											 //
+\\ This file has a bunch of misc utility functions.								 \\
+//									******** util.js ********											 */
 
 function Util() {}
 
@@ -64,7 +64,7 @@ Util.prototype.charToFloat = function(char_) {
 }
 
 Util.prototype.vecToStr = function(vec) {
-	return (this.floatToChar(vec.x) + this.floatToChar(vec.y))
+	return this.floatToChar(vec.x) + this.floatToChar(vec.y)
 }
 
 Util.prototype.strToVec = function(str) {
@@ -80,7 +80,7 @@ Util.prototype.noDeflation =
 
 Util.prototype.boolDeflation =
 	{ deflate: function(bool) { return bool ? 1 : 0 }
-	, inflate: function(val) { return (val === 1) } }
+	, inflate: function(val) { return val === 1 } }
 
 Util.prototype.floatDeflation =
 	{ deflate: function(f) { return exports.floatToChar(f) }
@@ -97,8 +97,21 @@ Util.prototype.vecDeflation =
 */
 
 Util.prototype.vecDeflation = 
-	{ deflate: function(x){return {x: exports.floatDeflation.deflate(x.x), y: exports.floatDeflation.deflate(x.y)}}
-	, inflate: function(x){return {x: exports.floatDeflation.inflate(x.x), y: exports.floatDeflation.inflate(x.y)}} }
+	{ deflate: 
+			function(x) {
+				return {
+					x: exports.floatDeflation.deflate(x.x)
+					, y: exports.floatDeflation.deflate(x.y)
+				}
+			}
+	, inflate: 
+			function(x){
+				return {
+					x: exports.floatDeflation.inflate(x.x)
+					, y: exports.floatDeflation.inflate(x.y)
+				}
+			} 
+	}
 
 Util.prototype.movementDeflation = 
 	{ deflate:
@@ -108,8 +121,8 @@ Util.prototype.movementDeflation =
 			}
 	, inflate:
 			function(val) {
-				return {left: (val[0] === 1), right: (val[1] === 1)
-					, forward: (val[2] === 1), backward: (val[3] === 1)}
+				return {left: val[0] === 1, right: val[1] === 1
+					, forward: val[2] === 1, backward: val[3] === 1}
 			}
 	}
 /**** }}} deflation pairs ****/

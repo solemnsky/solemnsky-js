@@ -165,11 +165,11 @@ Vanilla.prototype.createShape = function(type, props) {
 	var shape = new b2PolygonShape
 	var scale = gameplay.physicsScale
 	switch (type) {
-	case ("rectangle"): {
+	case "rectangle": {
 		shape.SetAsBox(w / 2 / scale, h / 2 / scale)
 		return shape
 	}
-	case ("triangle"): {
+	case "triangle": {
 		shape.SetAsArray([
 			new b2Vec2.Make(-w/2 / scale, h/2 / scale)
 			, new b2Vec2.Make(-w/2 / scale, -h/2 / scale)
@@ -217,7 +217,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	var scale = gameplay.physicsScale
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
-		((!props.isStatic)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
+		!props.isStatic ? b2Body.b2_dynamicBody : b2Body.b2_staticBody
 	bodyDef.position.x = pos.x / scale
 	bodyDef.position.y = pos.y / scale
 	/**** }}} body definition ****/
@@ -285,10 +285,10 @@ Vanilla.prototype.acceptEvent = function(theEvent) {
 		if (player !== null) {
 			var state = theEvent.state
 			switch (theEvent.name) {
-			case ("up"): player.movement.forward = state; return true;
-			case ("down"): player.movement.backward = state; return true;
-			case ("left"): player.movement.left = state; return true;
-			case ("right"): player.movement.right = state; return true;
+			case "up": player.movement.forward = state; return true;
+			case "down": player.movement.backward = state; return true;
+			case "left": player.movement.left = state; return true;
+			case "right": player.movement.right = state; return true;
 			}
 		}
 	}

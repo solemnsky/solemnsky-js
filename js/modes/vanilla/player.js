@@ -1,14 +1,12 @@
 /*                  ******** vanilla/player.js ********            //
-\\ A lot of by-player game mechanics here.                         \\
+\\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
 
 module.exports = Player
 
 var Utils = require('../../resources/util.js')
-
-var Box2D = require('../../../assets/box2d.min.js')
-
 var gameplay = require('./gameplay.js')
+var Box2D = require('../../../assets/box2d.min.js')
 
 /**** {{{ box2d synonyms ****/
 var b2Vec2         = Box2D.Common.Math.b2Vec2
@@ -101,14 +99,15 @@ Player.prototype.readFromBlock = function() {
 Player.prototype.step = function(delta) {
 	/**** {{{ synonyms ****/
 	var forwardVelocity = 
-		Utils.getLength(this.velocity) * Math.cos(this.rotation - (Utils.getAngle(this.velocity)))
+		Utils.getLength(this.velocity) * Math.cos(this.rotation - Utils.getAngle(this.velocity))
 	var vel = this.velocity
 	var speed = Utils.getLength(vel)
 	/**** }}} synonyms ****/
 
 	/**** {{{ rotation ****/
 	var maxRotation = 
-		(this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
+		this.stalled ? gameplay.playerMaxRotationStalled 
+			: gameplay.playerMaxRotation
 	var targetRotVel = 0
 	if (this.movement.left) targetRotVel = -maxRotation
 	if (this.movement.right) targetRotVel += maxRotation
@@ -126,16 +125,17 @@ Player.prototype.step = function(delta) {
 		if (this.movement.forward) {
 			this.afterburner = true;
 			this.velocity = 
-				{x: vel.x + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.cos(this.rotation)
-				,y: vel.y + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.sin(this.rotation)}
+				{x: vel.x + delta / 1000 * gameplay.playerAfterburnerStalled * Math.cos(this.rotation)
+				,y: vel.y + delta / 1000 * gameplay.playerAfterburnerStalled * Math.sin(this.rotation)}
 		}
 
 		// apply damping when over playerMaxVelocityStalled
 		var excessVel = speed - gameplay.playerMaxVelocityStalled 
-		var dampingFactor = (gameplay.playerMaxVelocityStalled / speed)
+		var dampingFactor = gameplay.playerMaxVelocityStalled / speed
 		if (excessVel > 0)
-			this.velocity.y = vel.y * dampingFactor * Math.pow(gameplay.playerStallDamping, (delta / 1000))
-		
+			this.velocity.y = 
+				vel.y * dampingFactor 
+					* Math.pow(gameplay.playerStallDamping, delta / 1000)
 	}
 	/**** }}} motion when stalled ****/
 
@@ -148,14 +148,14 @@ Player.prototype.step = function(delta) {
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
 		this.throttle = Math.min(this.throttle, 1)
 		this.throttle = Math.max(this.throttle, 0)
-		this.afterburner = (this.movement.forward && this.throttle === 1) 
+		this.afterburner = this.movement.forward && this.throttle === 1 
 
 		// pick away at leftover velocity
-		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
-		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
+		this.leftoverVel.x = this.leftoverVel.x * Math.pow(gameplay.playerLeftoverVelDamping, delta / 1000)
+		this.leftoverVel.y = this.leftoverVel.y * Math.pow(gameplay.playerLeftoverVelDamping, delta / 1000)
 
 		// speed modifiers
-		if (this.speed > (this.throttle * gameplay.speedThrottleInfluence)) {
+		if (this.speed > this.throttle * gameplay.speedThrottleInfluence) {
 			if (this.throttle < gameplay.speedThrottleInfluence) {
 				this.speed -= gameplay.speedThrottleDeaccForce * (delta / 1000)
 			} else {
@@ -185,7 +185,7 @@ Player.prototype.step = function(delta) {
 	if (this.stalled) {
 		if (forwardVelocity > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.leftoverVel = {x: this.velocity.x - (forwardVelocity * Math.cos(this.rotation)), y: this.velocity.y - (forwardVelocity * Math.sin(this.rotation))}
+			this.leftoverVel = {x: this.velocity.x - forwardVelocity * Math.cos(this.rotation), y: this.velocity.y - forwardVelocity * Math.sin(this.rotation)}
 			this.speed = 
 				forwardVelocity / gameplay.playerMaxSpeed
 			this.throttle = this.speed / gameplay.speedThrottleInfluence

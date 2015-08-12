@@ -639,7 +639,7 @@ module.exports = function(Demo) {
 
 	Demo.prototype.initRender = function(stage) { 
 		var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
-		title.position = new PIXI.Point((800 - (title.width / 2)), 10)
+		title.position = new PIXI.Point(800 - title.width / 2, 10)
 		stage.addChild(title)
 
 		this.vanillaStage = new PIXI.Container()
@@ -875,11 +875,11 @@ Vanilla.prototype.createShape = function(type, props) {
 	var shape = new b2PolygonShape
 	var scale = gameplay.physicsScale
 	switch (type) {
-	case ("rectangle"): {
+	case "rectangle": {
 		shape.SetAsBox(w / 2 / scale, h / 2 / scale)
 		return shape
 	}
-	case ("triangle"): {
+	case "triangle": {
 		shape.SetAsArray([
 			new b2Vec2.Make(-w/2 / scale, h/2 / scale)
 			, new b2Vec2.Make(-w/2 / scale, -h/2 / scale)
@@ -927,7 +927,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	var scale = gameplay.physicsScale
 	var bodyDef = new b2BodyDef
 	bodyDef.type = 
-		((!props.isStatic)? b2Body.b2_dynamicBody : b2Body.b2_staticBody)
+		!props.isStatic ? b2Body.b2_dynamicBody : b2Body.b2_staticBody
 	bodyDef.position.x = pos.x / scale
 	bodyDef.position.y = pos.y / scale
 	/**** }}} body definition ****/
@@ -995,10 +995,10 @@ Vanilla.prototype.acceptEvent = function(theEvent) {
 		if (player !== null) {
 			var state = theEvent.state
 			switch (theEvent.name) {
-			case ("up"): player.movement.forward = state; return true;
-			case ("down"): player.movement.backward = state; return true;
-			case ("left"): player.movement.left = state; return true;
-			case ("right"): player.movement.right = state; return true;
+			case "up": player.movement.forward = state; return true;
+			case "down": player.movement.backward = state; return true;
+			case "left": player.movement.left = state; return true;
+			case "right": player.movement.right = state; return true;
 			}
 		}
 	}
@@ -1199,14 +1199,15 @@ Player.prototype.readFromBlock = function() {
 Player.prototype.step = function(delta) {
 	/**** {{{ synonyms ****/
 	var forwardVelocity = 
-		Utils.getLength(this.velocity) * Math.cos(this.rotation - (Utils.getAngle(this.velocity)))
+		Utils.getLength(this.velocity) * Math.cos(this.rotation - Utils.getAngle(this.velocity))
 	var vel = this.velocity
 	var speed = Utils.getLength(vel)
 	/**** }}} synonyms ****/
 
 	/**** {{{ rotation ****/
 	var maxRotation = 
-		(this.stalled) ? gameplay.playerMaxRotationStalled : gameplay.playerMaxRotation
+		this.stalled ? gameplay.playerMaxRotationStalled 
+			: gameplay.playerMaxRotation
 	var targetRotVel = 0
 	if (this.movement.left) targetRotVel = -maxRotation
 	if (this.movement.right) targetRotVel += maxRotation
@@ -1224,16 +1225,17 @@ Player.prototype.step = function(delta) {
 		if (this.movement.forward) {
 			this.afterburner = true;
 			this.velocity = 
-				{x: vel.x + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.cos(this.rotation)
-				,y: vel.y + (delta / 1000) * gameplay.playerAfterburnerStalled * Math.sin(this.rotation)}
+				{x: vel.x + delta / 1000 * gameplay.playerAfterburnerStalled * Math.cos(this.rotation)
+				,y: vel.y + delta / 1000 * gameplay.playerAfterburnerStalled * Math.sin(this.rotation)}
 		}
 
 		// apply damping when over playerMaxVelocityStalled
 		var excessVel = speed - gameplay.playerMaxVelocityStalled 
-		var dampingFactor = (gameplay.playerMaxVelocityStalled / speed)
+		var dampingFactor = gameplay.playerMaxVelocityStalled / speed
 		if (excessVel > 0)
-			this.velocity.y = vel.y * dampingFactor * Math.pow(gameplay.playerStallDamping, (delta / 1000))
-		
+			this.velocity.y = 
+				vel.y * dampingFactor 
+					* Math.pow(gameplay.playerStallDamping, delta / 1000)
 	}
 	/**** }}} motion when stalled ****/
 
@@ -1246,14 +1248,14 @@ Player.prototype.step = function(delta) {
 			this.throttle -= gameplay.playerThrottleSpeed * (delta / 1000)
 		this.throttle = Math.min(this.throttle, 1)
 		this.throttle = Math.max(this.throttle, 0)
-		this.afterburner = (this.movement.forward && this.throttle === 1) 
+		this.afterburner = this.movement.forward && this.throttle === 1 
 
 		// pick away at leftover velocity
-		this.leftoverVel.x = this.leftoverVel.x * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
-		this.leftoverVel.y = this.leftoverVel.y * (Math.pow(gameplay.playerLeftoverVelDamping, (delta / 1000)))
+		this.leftoverVel.x = this.leftoverVel.x * Math.pow(gameplay.playerLeftoverVelDamping, delta / 1000)
+		this.leftoverVel.y = this.leftoverVel.y * Math.pow(gameplay.playerLeftoverVelDamping, delta / 1000)
 
 		// speed modifiers
-		if (this.speed > (this.throttle * gameplay.speedThrottleInfluence)) {
+		if (this.speed > this.throttle * gameplay.speedThrottleInfluence) {
 			if (this.throttle < gameplay.speedThrottleInfluence) {
 				this.speed -= gameplay.speedThrottleDeaccForce * (delta / 1000)
 			} else {
@@ -1283,7 +1285,7 @@ Player.prototype.step = function(delta) {
 	if (this.stalled) {
 		if (forwardVelocity > gameplay.playerExitStallThreshold) {
 			this.stalled = false
-			this.leftoverVel = {x: this.velocity.x - (forwardVelocity * Math.cos(this.rotation)), y: this.velocity.y - (forwardVelocity * Math.sin(this.rotation))}
+			this.leftoverVel = {x: this.velocity.x - forwardVelocity * Math.cos(this.rotation), y: this.velocity.y - forwardVelocity * Math.sin(this.rotation)}
 			this.speed = 
 				forwardVelocity / gameplay.playerMaxSpeed
 			this.throttle = this.speed / gameplay.speedThrottleInfluence
@@ -1349,8 +1351,8 @@ module.exports = function(Vanilla) {
 					mapGraphics.clear()
 					mapGraphics.beginFill(0xFFFFFF, 1)
 					mapGraphics.drawRect(
-						pos.x - (dim.w / 2) 
-						, pos.y - (dim.h / 2) 
+						pos.x - dim.w / 2 
+						, pos.y - dim.h / 2 
 						, dim.w, dim.h)
 					block.anim = mapGraphics
 				}
@@ -1378,8 +1380,8 @@ module.exports = function(Vanilla) {
 					graphics.clear()
 					graphics.beginFill(0xFFFFFF, 1)
 					graphics.drawRect(
-						pos.x - (dim.w / 2) 
-						, pos.y - (dim.h / 2) 
+						pos.x - dim.w / 2 
+						, pos.y - dim.h / 2 
 						, dim.w, dim.h)
 					elem.anim = graphics
 				}
@@ -1402,7 +1404,7 @@ module.exports = function(Vanilla) {
 				/**** {{{ initialise anim object ****/
 				function setPlayerSprite(sprite) {
 					sprite.anchor.set(0.5, 0.5)
-					sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
+					sprite.scale = new PIXI.Point(gameplay.playerWidth / 400, gameplay.playerHeight / 200)
 				}
 				
 				if (typeof player.anim === "undefined") {
@@ -1426,9 +1428,9 @@ module.exports = function(Vanilla) {
 				
 				/**** {{{ afterburner animation  ****/
 				if (player.afterburner) {
-					player.anim.thrustLevel += (delta / 1000) * gameplay.graphicsThrustFade
+					player.anim.thrustLevel += delta / 1000 * gameplay.graphicsThrustFade
 				} else {
-					player.anim.thrustLevel -= (delta / 1000) * gameplay.graphicsThrustFade	
+					player.anim.thrustLevel -= delta / 1000 * gameplay.graphicsThrustFade	
 				}
 				if (player.anim.thrustLevel < 0) player.anim.thrustLevel = 0
 				if (player.anim.thrustLevel > 1) player.anim.thrustLevel = 1
@@ -1450,18 +1452,27 @@ module.exports = function(Vanilla) {
 				player.anim.speedSprite.alpha = Math.pow(player.speed, 3)
 
 				// place player label
-				player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
+				player.anim.nameText.position.set(pan.x + pos.x - player.anim.nameText.width / 2, pan.y + pos.y + gameplay.graphicsNameClear)
+
+				function drawBar(i, v) {
+					player.anim.barView.drawRect(
+						pan.x + pos.x - gameplay.graphicsBarWidth / 2
+						, pan.y + pos.y - gameplay.graphicsBarClear
+								 - i * gameplay.graphicsBarHeight
+						, gameplay.graphicsBarWidth * v
+						, gameplay.graphicsBarHeight)
+				}
 
 				// draw bar
 				if (id === player.id) {
 					player.anim.barView.clear()
 					player.anim.barView.beginFill(0xFFFFFF, 0.5)
-					player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
+					drawBar(0, player.health)
 					if (!player.stalled) {
 						player.anim.barView.beginFill(0xFF0000, 0.5)
-						player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
+						drawBar(1, player.throttle)
 						player.anim.barView.beginFill(0x00FF00, 0.5)
-						player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.speed), gameplay.graphicsBarHeight)
+						drawBar(2, player.speed)
 					}
 				}
 
@@ -1506,10 +1517,10 @@ module.exports = function(Vanilla) {
 		var pan = {x: 0, y: 0}
 
 		if (player !== null) {
-			var comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
+			var comOffset = {x: 1/6 * gameplay.playerWidth * Math.cos(player.rotation), y: 1/6 * gameplay.playerWidth * Math.sin(player.rotation)}
 			pan = 
-				{ x: comOffset.x + -(player.position.x) + 800 
-				, y: comOffset.y + -(player.position.y) + 450}
+				{ x: comOffset.x + -player.position.x + 800 
+				, y: comOffset.y + -player.position.y + 450}
 		} 
 
 		this.renderMap(pan, delta, id)
@@ -1553,15 +1564,15 @@ exports.makeTotalSnapshot = function(world, priority) {
 	}, []);
 }
 
-exports.applySnapshot = function(world, snapshot) {
+exports.applySnapshot = function(world, snapshots) {
 	//Don't try to use invalid snapshots.
-	if (typeof(snapshot) === "undefined" || snapshot === null)
+	if (typeof snapshot === "undefined" || snapshots === null)
 		return;
 
 	var compare = function(snapshot1, snapshot2) {
 		snapshot1.priority - snapshot2.priority
 	}
-	snapshot.sort(compare).forEach(
+	snapshots.sort(compare).forEach(
 		function(snapshot) {
 			var player = world.findPlayerById(snapshot.id);
 			if (player !== null) {
@@ -1724,9 +1735,9 @@ module.exports = {
 }
 
 },{}],16:[function(require,module,exports){
-/*                  ******** util.js ********                      //
-\\ This file has a bunch of misc utility functions.                \\
-//                  ******** util.js ********                      */
+/*									******** util.js ********											 //
+\\ This file has a bunch of misc utility functions.								 \\
+//									******** util.js ********											 */
 
 function Util() {}
 
@@ -1790,7 +1801,7 @@ Util.prototype.charToFloat = function(char_) {
 }
 
 Util.prototype.vecToStr = function(vec) {
-	return (this.floatToChar(vec.x) + this.floatToChar(vec.y))
+	return this.floatToChar(vec.x) + this.floatToChar(vec.y)
 }
 
 Util.prototype.strToVec = function(str) {
@@ -1806,7 +1817,7 @@ Util.prototype.noDeflation =
 
 Util.prototype.boolDeflation =
 	{ deflate: function(bool) { return bool ? 1 : 0 }
-	, inflate: function(val) { return (val === 1) } }
+	, inflate: function(val) { return val === 1 } }
 
 Util.prototype.floatDeflation =
 	{ deflate: function(f) { return exports.floatToChar(f) }
@@ -1823,8 +1834,21 @@ Util.prototype.vecDeflation =
 */
 
 Util.prototype.vecDeflation = 
-	{ deflate: function(x){return {x: exports.floatDeflation.deflate(x.x), y: exports.floatDeflation.deflate(x.y)}}
-	, inflate: function(x){return {x: exports.floatDeflation.inflate(x.x), y: exports.floatDeflation.inflate(x.y)}} }
+	{ deflate: 
+			function(x) {
+				return {
+					x: exports.floatDeflation.deflate(x.x)
+					, y: exports.floatDeflation.deflate(x.y)
+				}
+			}
+	, inflate: 
+			function(x){
+				return {
+					x: exports.floatDeflation.inflate(x.x)
+					, y: exports.floatDeflation.inflate(x.y)
+				}
+			} 
+	}
 
 Util.prototype.movementDeflation = 
 	{ deflate:
@@ -1834,8 +1858,8 @@ Util.prototype.movementDeflation =
 			}
 	, inflate:
 			function(val) {
-				return {left: (val[0] === 1), right: (val[1] === 1)
-					, forward: (val[2] === 1), backward: (val[3] === 1)}
+				return {left: val[0] === 1, right: val[1] === 1
+					, forward: val[2] === 1, backward: val[3] === 1}
 			}
 	}
 /**** }}} deflation pairs ****/
@@ -2018,7 +2042,7 @@ module.exports = function(target, object) {
 	function smartResize() {
 		var w = window.innerWidth; var h = window.innerHeight
 		var nw, nh
-		if ((w / h) > (16 / 9)) {
+		if (w / h > 16 / 9) {
 			nw = h * (16 / 9); nh = h
 			renderer.resize(nw, nh)
 			setMargins((w - nw) / 2, 0)
@@ -2047,7 +2071,7 @@ var requestAnimFrame = (function(target) {
 		window.oRequestAnimationFrame      || 
 		window.msRequestAnimationFrame     || 
 		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, (1/target) * 1000);
+			window.setTimeout(callback, 1/target * 1000);
 		};
 })();
 	/**** }}} requestAnimFrame ****/
@@ -2080,9 +2104,10 @@ function runWithStage(target, renderer, stage, object) {
 	}
 
 	/**** {{{ step ****/
+	var interval = 1 / target * 1000
 	var then = Date.now()
 	function update() {
-		running = (!object.hasEnded())
+		running = !object.hasEnded()
 
 		var now = Date.now()
 		var delta = now - then
@@ -2092,7 +2117,7 @@ function runWithStage(target, renderer, stage, object) {
 			if (!blurred) {
 				requestAnimFrame(update) 
 			} else {
-				setTimeout(update, ((1/target) * 1000))
+				setTimeout(update, 1000 / target)
 			}
 
 			sleepTime = Date.now() - processStart
@@ -2101,9 +2126,9 @@ function runWithStage(target, renderer, stage, object) {
 			
 			processStart = Date.now() // start logic
 			var needPaint = false;
-			while (accum >= ((1 / target) * 1000)) {
-				object.step((1 / target) * 1000)
-				accum -= ((1 / target) * 1000)
+			while (accum >= interval) {
+				object.step(interval)
+				accum -= interval
 				needPaint = true
 				tpsC++
 			}
@@ -2144,7 +2169,7 @@ function runWithStage(target, renderer, stage, object) {
 		// some keys have quite obnoxious default cases
 		// while others, such as the debug terminal, do not
 		switch (name) {
-		case ("back_space"): 
+		case "back_space": 
 			e.preventDefault(); break
 		default: break
 		}

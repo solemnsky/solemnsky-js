@@ -25,7 +25,7 @@ module.exports = function(target, object) {
 	function smartResize() {
 		var w = window.innerWidth; var h = window.innerHeight
 		var nw, nh
-		if ((w / h) > (16 / 9)) {
+		if (w / h > 16 / 9) {
 			nw = h * (16 / 9); nh = h
 			renderer.resize(nw, nh)
 			setMargins((w - nw) / 2, 0)
@@ -54,7 +54,7 @@ var requestAnimFrame = (function(target) {
 		window.oRequestAnimationFrame      || 
 		window.msRequestAnimationFrame     || 
 		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, (1/target) * 1000);
+			window.setTimeout(callback, 1/target * 1000);
 		};
 })();
 	/**** }}} requestAnimFrame ****/
@@ -87,9 +87,10 @@ function runWithStage(target, renderer, stage, object) {
 	}
 
 	/**** {{{ step ****/
+	var interval = 1 / target * 1000
 	var then = Date.now()
 	function update() {
-		running = (!object.hasEnded())
+		running = !object.hasEnded()
 
 		var now = Date.now()
 		var delta = now - then
@@ -99,7 +100,7 @@ function runWithStage(target, renderer, stage, object) {
 			if (!blurred) {
 				requestAnimFrame(update) 
 			} else {
-				setTimeout(update, ((1/target) * 1000))
+				setTimeout(update, 1000 / target)
 			}
 
 			sleepTime = Date.now() - processStart
@@ -108,9 +109,9 @@ function runWithStage(target, renderer, stage, object) {
 			
 			processStart = Date.now() // start logic
 			var needPaint = false;
-			while (accum >= ((1 / target) * 1000)) {
-				object.step((1 / target) * 1000)
-				accum -= ((1 / target) * 1000)
+			while (accum >= interval) {
+				object.step(interval)
+				accum -= interval
 				needPaint = true
 				tpsC++
 			}
@@ -151,7 +152,7 @@ function runWithStage(target, renderer, stage, object) {
 		// some keys have quite obnoxious default cases
 		// while others, such as the debug terminal, do not
 		switch (name) {
-		case ("back_space"): 
+		case "back_space": 
 			e.preventDefault(); break
 		default: break
 		}

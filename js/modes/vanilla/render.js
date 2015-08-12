@@ -26,8 +26,8 @@ module.exports = function(Vanilla) {
 					mapGraphics.clear()
 					mapGraphics.beginFill(0xFFFFFF, 1)
 					mapGraphics.drawRect(
-						pos.x - (dim.w / 2) 
-						, pos.y - (dim.h / 2) 
+						pos.x - dim.w / 2 
+						, pos.y - dim.h / 2 
 						, dim.w, dim.h)
 					block.anim = mapGraphics
 				}
@@ -55,8 +55,8 @@ module.exports = function(Vanilla) {
 					graphics.clear()
 					graphics.beginFill(0xFFFFFF, 1)
 					graphics.drawRect(
-						pos.x - (dim.w / 2) 
-						, pos.y - (dim.h / 2) 
+						pos.x - dim.w / 2 
+						, pos.y - dim.h / 2 
 						, dim.w, dim.h)
 					elem.anim = graphics
 				}
@@ -79,7 +79,7 @@ module.exports = function(Vanilla) {
 				/**** {{{ initialise anim object ****/
 				function setPlayerSprite(sprite) {
 					sprite.anchor.set(0.5, 0.5)
-					sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
+					sprite.scale = new PIXI.Point(gameplay.playerWidth / 400, gameplay.playerHeight / 200)
 				}
 				
 				if (typeof player.anim === "undefined") {
@@ -103,9 +103,9 @@ module.exports = function(Vanilla) {
 				
 				/**** {{{ afterburner animation  ****/
 				if (player.afterburner) {
-					player.anim.thrustLevel += (delta / 1000) * gameplay.graphicsThrustFade
+					player.anim.thrustLevel += delta / 1000 * gameplay.graphicsThrustFade
 				} else {
-					player.anim.thrustLevel -= (delta / 1000) * gameplay.graphicsThrustFade	
+					player.anim.thrustLevel -= delta / 1000 * gameplay.graphicsThrustFade	
 				}
 				if (player.anim.thrustLevel < 0) player.anim.thrustLevel = 0
 				if (player.anim.thrustLevel > 1) player.anim.thrustLevel = 1
@@ -127,18 +127,27 @@ module.exports = function(Vanilla) {
 				player.anim.speedSprite.alpha = Math.pow(player.speed, 3)
 
 				// place player label
-				player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
+				player.anim.nameText.position.set(pan.x + pos.x - player.anim.nameText.width / 2, pan.y + pos.y + gameplay.graphicsNameClear)
+
+				function drawBar(i, v) {
+					player.anim.barView.drawRect(
+						pan.x + pos.x - gameplay.graphicsBarWidth / 2
+						, pan.y + pos.y - gameplay.graphicsBarClear
+								 - i * gameplay.graphicsBarHeight
+						, gameplay.graphicsBarWidth * v
+						, gameplay.graphicsBarHeight)
+				}
 
 				// draw bar
 				if (id === player.id) {
 					player.anim.barView.clear()
 					player.anim.barView.beginFill(0xFFFFFF, 0.5)
-					player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
+					drawBar(0, player.health)
 					if (!player.stalled) {
 						player.anim.barView.beginFill(0xFF0000, 0.5)
-						player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
+						drawBar(1, player.throttle)
 						player.anim.barView.beginFill(0x00FF00, 0.5)
-						player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.speed), gameplay.graphicsBarHeight)
+						drawBar(2, player.speed)
 					}
 				}
 
@@ -183,10 +192,10 @@ module.exports = function(Vanilla) {
 		var pan = {x: 0, y: 0}
 
 		if (player !== null) {
-			var comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
+			var comOffset = {x: 1/6 * gameplay.playerWidth * Math.cos(player.rotation), y: 1/6 * gameplay.playerWidth * Math.sin(player.rotation)}
 			pan = 
-				{ x: comOffset.x + -(player.position.x) + 800 
-				, y: comOffset.y + -(player.position.y) + 450}
+				{ x: comOffset.x + -player.position.x + 800 
+				, y: comOffset.y + -player.position.y + 450}
 		} 
 
 		this.renderMap(pan, delta, id)

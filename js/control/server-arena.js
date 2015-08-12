@@ -13,17 +13,19 @@ module.exports = function(port, mode, key) {
 	}
 
 	function broadcast(message) {
-		wss.clients.forEach(function(client) {
-			try {
-				client.send(message);
-			} catch (e) {
-				//Disconnected... just ignore this
+		wss.clients.forEach(
+			function(client) {
+				try {
+					client.send(message)
+				} finally {
+					//Disconnected... just ignore this
+				}
 			}
-		});
+		)
 	}
 
-	function openSocket(port) {
-		wss = new WebSocket.Server({port: port});
+	function openSocket(aport) {
+		wss = new WebSocket.Server({port: aport});
 		wss.on("connection", function(client) {
 			onClientConnected(client);
 		});
@@ -81,7 +83,7 @@ module.exports = function(port, mode, key) {
 		now = Date.now()
 		mode.step(now - then)
 		then = now
-		setTimeout(logicLoop, (1/60))
+		setTimeout(logicLoop, 1/60)
 	}
 
 	function snapBroadcast() {

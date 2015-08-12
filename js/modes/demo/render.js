@@ -8,7 +8,7 @@ module.exports = function(Demo) {
 
 	Demo.prototype.initRender = function(stage) { 
 		var title = new PIXI.Text("welcome to the the first solemnsky development demo", {fill: 0xFFFFFF})
-		title.position = new PIXI.Point((800 - (title.width / 2)), 10)
+		title.position = new PIXI.Point(800 - title.width / 2, 10)
 		stage.addChild(title)
 
 		this.vanillaStage = new PIXI.Container()

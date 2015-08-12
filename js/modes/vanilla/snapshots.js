@@ -32,15 +32,15 @@ exports.makeTotalSnapshot = function(world, priority) {
 	}, []);
 }
 
-exports.applySnapshot = function(world, snapshot) {
+exports.applySnapshot = function(world, snapshots) {
 	//Don't try to use invalid snapshots.
-	if (typeof(snapshot) === "undefined" || snapshot === null)
+	if (typeof snapshot === "undefined" || snapshots === null)
 		return;
 
 	var compare = function(snapshot1, snapshot2) {
 		snapshot1.priority - snapshot2.priority
 	}
-	snapshot.sort(compare).forEach(
+	snapshots.sort(compare).forEach(
 		function(snapshot) {
 			var player = world.findPlayerById(snapshot.id);
 			if (player !== null) {
