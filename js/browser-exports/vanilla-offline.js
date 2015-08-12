@@ -2,7 +2,7 @@ var ui = require('../ui/index.js')
 
 // make mode
 var Vanilla = require("../modes/vanilla/")
-("../modes/vanilla/render.js")(Vanilla)
+require("../modes/vanilla/render.js")(Vanilla)
 var mode = new Vanilla()
 
 // use control method to turn mode into UI object

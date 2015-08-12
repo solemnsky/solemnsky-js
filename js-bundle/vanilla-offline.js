@@ -465,7 +465,7 @@ var ui = require('../ui/index.js')
 
 // make mode
 var Vanilla = require("../modes/vanilla/")
-("../modes/vanilla/render.js")(Vanilla)
+require("../modes/vanilla/render.js")(Vanilla)
 var mode = new Vanilla()
 
 // use control method to turn mode into UI object
@@ -474,7 +474,7 @@ var myClient = clientOffline(mode)
 
 ui.run(60, myClient)
 
-},{"../control/client-offline.js":4,"../modes/vanilla/":7,"../ui/index.js":13}],4:[function(require,module,exports){
+},{"../control/client-offline.js":4,"../modes/vanilla/":7,"../modes/vanilla/render.js":9,"../ui/index.js":15}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
@@ -922,7 +922,7 @@ Vanilla.prototype.hasEnded = function() { return false }
 
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":11,"../../resources/util.js":12,"./gameplay.js":6,"./player.js":8,"./snapshots.js":9}],8:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":12,"../../resources/util.js":14,"./gameplay.js":6,"./player.js":8,"./snapshots.js":10}],8:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ A lot of by-player game mechanics here.                         \\
 //                  ******** vanilla/player.js ********            */
@@ -1146,7 +1146,153 @@ Player.prototype.step = function(delta) {
 }
 
 
-},{"../../../assets/box2d.min.js":1,"../../resources/util.js":12,"./gameplay.js":6}],9:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":14,"./gameplay.js":6}],9:[function(require,module,exports){
+/*          ******** vanilla/render.js ********       //
+\\ Client-sided renderer for the vanilla game mode.   \\
+//          ******** vanilla/render.js ********       */
+
+var PIXI = require('../../../assets/pixi.min.js')
+var urls = require('../../resources/urls.js')
+var gameplay = require('./gameplay.js')
+
+//Extend the original vanilla object to contain the renderer
+module.exports = function(Vanilla) {
+
+/**** {{{ render map and players ****/
+	Vanilla.prototype.renderMap = function(pan, map) {
+		map.removeChildren()
+		
+		// if not set, initialise the map graphics
+		if (typeof this.map.anim == "undefined") {
+			this.map.anim = {}
+			var mapGraphics = new PIXI.Graphics
+			mapGraphics.clear()
+			mapGraphics.beginFill(0xFFFFFF, 1)
+			this.mapData.blocks.forEach(
+				function(block) {
+					mapGraphics.drawRect(
+						block.x - (block.w / 2) 
+						, block.y - (block.h / 2) 
+						, block.w, block.h
+					)
+				}
+			)
+			this.map.anim.mapGraphics = mapGraphics
+		}
+
+		// enter the map graphics into the map container
+		this.map.anim.mapGraphics.position.set(pan.x, pan.y)
+		map.addChild(this.map.anim.mapGraphics)
+	}
+
+
+	Vanilla.prototype.renderPlayers = function(pan, delta, id, players) {
+		players.removeChildren()
+
+		this.players.forEach(
+			function(player) {
+				var pos = player.position; var rot = player.rotation
+				/**** {{{ initialise anim object ****/
+				function setPlayerSprite(sprite) {
+					sprite.anchor.set(0.5, 0.5)
+					sprite.scale = new PIXI.Point((gameplay.playerWidth / 400), (gameplay.playerHeight / 200))
+				}
+				
+				if (typeof player.anim === "undefined")
+					player.anim = {thrustLevel: 0} 
+				if (typeof player.anim.speedSprite === "undefined") {
+					player.anim.speedSprite = new PIXI.Sprite(this.textures.playerSpeed)
+					setPlayerSprite(player.anim.speedSprite)
+				}
+				if (typeof player.anim.thrustSprite === "undefined") {
+					player.anim.thrustSprite = new PIXI.Sprite(this.textures.playerThrust)
+					setPlayerSprite(player.anim.thrustSprite) 
+				}
+				if (typeof player.anim.normalSprite === "undefined") {
+					player.anim.normalSprite = new PIXI.Sprite(this.textures.player)
+					setPlayerSprite(player.anim.normalSprite) 
+				}
+				if (typeof player.anim.nameText === "undefined")
+					player.anim.nameText = new PIXI.Text(player.name, {font: "15px arial", fill: 0x003060})
+				if (typeof player.anim.barView === "undefined")
+					player.anim.barView = new PIXI.Graphics()
+				/**** }}} initialise anim object ****/
+				
+				/**** {{{ afterburner animation  ****/
+				if (player.afterburner) {
+					player.anim.thrustLevel += (delta / 1000) * gameplay.graphicsThrustFade
+				} else {
+					player.anim.thrustLevel -= (delta / 1000) * gameplay.graphicsThrustFade	
+				}
+				if (player.anim.thrustLevel < 0) player.anim.thrustLevel = 0
+				if (player.anim.thrustLevel > 1) player.anim.thrustLevel = 1
+				/**** }}} afterburner animation  ****/
+				
+				/**** {{{ position player graphics ****/
+				function placePlayerSprite(sprite) {
+					sprite.position.set(pos.x + pan.x, pos.y + pan.y) 
+					sprite.rotation = rot
+				}
+
+				placePlayerSprite(player.anim.thrustSprite); placePlayerSprite(player.anim.normalSprite); placePlayerSprite(player.anim.speedSprite)
+				player.anim.thrustSprite.alpha = player.anim.thrustLevel
+				player.anim.speedSprite.alpha = Math.pow(player.speed, 3)
+
+				player.anim.nameText.position.set(pan.x + pos.x - (player.anim.nameText.width / 2), pan.y + pos.y + gameplay.graphicsNameClear)
+
+				player.anim.barView.clear()
+				player.anim.barView.beginFill(0xFFFFFF, 0.5)
+				player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.health), gameplay.graphicsBarHeight)
+				if (!player.stalled) {
+					player.anim.barView.beginFill(0xFF0000, 0.5)
+					player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - gameplay.graphicsBarHeight + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.throttle), gameplay.graphicsBarHeight)
+					player.anim.barView.beginFill(0x00FF00, 0.5)
+					player.anim.barView.drawRect(pan.x + pos.x - (gameplay.graphicsBarWidth / 2), pan.y - (2 * gameplay.graphicsBarHeight) + pos.y - gameplay.graphicsBarClear, (gameplay.graphicsBarWidth * player.speed), gameplay.graphicsBarHeight)
+				}
+				/**** }}} position player graphics ****/
+
+				/**** {{{ add to players container ****/
+				players.addChild(player.anim.normalSprite)
+				players.addChild(player.anim.thrustSprite)
+				players.addChild(player.anim.speedSprite)
+				players.addChild(player.anim.nameText)
+				if (id === player.id) 
+					players.addChild(player.anim.barView)
+				/**** }}} add to players container ****/
+			}
+		, this)
+	}
+/**** }}} render map and players ****/
+
+	Vanilla.prototype.initRender = function(stage) {
+		this.textures = {}
+		this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
+		this.textures.playerThrust = 
+			new PIXI.Texture.fromImage(urls.playerThrustSprite)
+		this.textures.playerSpeed = 
+			new PIXI.Texture.fromImage(urls.playerSpeedSprite)
+
+		stage.addChild(new PIXI.Container)
+		stage.addChild(new PIXI.Container)
+	}
+
+	Vanilla.prototype.stepRender = function(id, stage, delta) {
+		var player = this.findPlayerById(id)
+		var pan = {x: 0, y: 0}
+
+		if (player !== null) {
+			var comOffset = {x: (1/6) * gameplay.playerWidth * Math.cos(player.rotation), y: (1/6) * gameplay.playerWidth * Math.sin(player.rotation)}
+			pan = 
+				{x: comOffset.x + -(player.position.x) + 800 
+				,y: comOffset.y + -(player.position.y) + 450}
+		} 
+
+		this.renderMap(pan, stage.children[0])
+		this.renderPlayers(pan, delta, id, stage.children[1])
+	}
+}
+
+},{"../../../assets/pixi.min.js":2,"../../resources/urls.js":13,"./gameplay.js":6}],10:[function(require,module,exports){
 var Util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1295,7 +1441,7 @@ exports.readSnapshot = function(string) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":12}],10:[function(require,module,exports){
+},{"../../resources/util.js":14}],11:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1309,7 +1455,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1340,7 +1486,18 @@ module.exports = {
 	}
 }
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
+module.exports = {
+	playerSprite: 
+		"http://solemnsky.github.io/multimedia/player.png"
+	, playerThrustSprite: 
+		"http://solemnsky.github.io/multimedia/player-thrust.png"
+	, playerSpeedSprite:
+		"http://solemnsky.github.io/multimedia/player-speed.png"
+			
+}
+
+},{}],14:[function(require,module,exports){
 /*                  ******** util.js ********                      //
 \\ This file has a bunch of misc utility functions.                \\
 //                  ******** util.js ********                      */
@@ -1531,7 +1688,7 @@ Util.prototype.getQueryStringValue = function(key) {
 
 /**** }}} elem id operations ****/
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -1607,7 +1764,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":2,"./run.js":14}],14:[function(require,module,exports){
+},{"../../assets/pixi.min.js":2,"./run.js":16}],16:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -1778,4 +1935,4 @@ function runWithStage(target, renderer, stage, object) {
 	update()
 }
 
-},{"../../assets/pixi.min.js":2,"../resources/keys.js":10}]},{},[3]);
+},{"../../assets/pixi.min.js":2,"../resources/keys.js":11}]},{},[3]);
