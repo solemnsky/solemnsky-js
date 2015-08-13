@@ -156,7 +156,7 @@ function inflatePair(deflationRules, pair) {
 	return pair 
 }
 
-Util.prototype.serialiseObject = function(deflationRules, object) {
+Util.prototype.deflateObject = function(deflationRules, object) {
 	var result = []
 	
 	object.forEach(
@@ -172,30 +172,26 @@ Util.prototype.serialiseObject = function(deflationRules, object) {
 		}
 	, result)
 
-	return JSON.stringify(result)
+	return result
 }
 
-Util.prototype.readObject = function(deflationRules, string) {
-	try {
-		var snap = JSON.parse(string)
-		var result = []
-		snap.forEach(
-			function(deflated) {
-				var inflated = {}
-				Object.keys(deflated).forEach(
-					function(key) {
-						var pair = inflatePair({key: key, value: deflated[key]})
-						inflated[pair.key] = pair.value
-					}
-				)
-				result.push(inflated)
-			}
-		, result)
-		return result
-	} catch (e) {
-		//Could not read snapshot; but don't let the Syntax Error break the loop
-		return null
-	}
+Util.prototype.inflateObject = function(deflationRules, object) {
+	var result = []
+
+	object.forEach(
+		function(deflated) {
+			var inflated = {}
+			Object.keys(deflated).forEach(
+				function(key) {
+					var pair = inflatePair({key: key, value: deflated[key]})
+					inflated[pair.key] = pair.value
+				}
+			)
+			result.push(inflated)
+		}
+	, result)
+	
+	return result
 }
 /**** }}} serialising objects ****/ 
 

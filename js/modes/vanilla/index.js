@@ -229,6 +229,10 @@ Vanilla.prototype.addProjectile = function(id, type, pos) {
 /**** }}} mode-facing methods ****/
 
 /**** {{{ initialisation ****/
+Vanilla.prototype.createState = function(key) {
+	return {map: "bloxMap", players: []}
+}
+
 Vanilla.prototype.init = function(data) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
@@ -246,23 +250,19 @@ Vanilla.prototype.init = function(data) {
 	, this)
 }
 
-Vanilla.prototype.makeInitData = function(key) {
-	return JSON.stringify({map: "bloxMap", players: []})
+Vanilla.prototype.describeAssets = function() {
+	return {map: ""}
 }
 
 Vanilla.prototype.describeState = function() {
-	return JSON.stringify({
+	return {
 		map: this.mapData
 		, players: this.players.map(
 			function(player) {
 				return {id: player.id, name: player.name}
 			}
 		)
-	})
-}
-
-Vanilla.prototype.describeAssets = function() {
-	return ""
+	}
 }
 /**** }}} initialisation ****/
 

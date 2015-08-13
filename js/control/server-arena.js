@@ -52,11 +52,12 @@ module.exports = function(port, mode, key) {
 	}
 
 	function onMessage(client, message) {
-		// console.log("recieved from " + getClientAddress(client) + ": " + message);
 		var type = message.split(" ")[0]
 		var data = message.split(" ").splice(1).join(" ")
 
 		switch (type) {
+		case "PING":
+			client.send("PONG"); break
 		case "WHO":
 			client.send("WHO " + mode.modeId); break
 		case "CONNECT":

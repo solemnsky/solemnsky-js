@@ -11,13 +11,17 @@ function Demo(vanilla) {
 /**** }}} constructor ****/
 
 /**** {{{ initialisation ****/ 
+Demo.prototype.createState = function(key) {
+	return this.vanilla.makeInitData(key)
+}
+
 Demo.prototype.init = function(initdata) {
 	this.vanilla.init(initdata)
 }
 
-Demo.prototype.makeInitData = function(key) {
-	return this.vanilla.makeInitData(key)
-}
+Demo.prototype.describeAssets = function() {
+	return this.vanilla.describeAssets()
+}	
 
 Demo.prototype.describeState = function() {
 	return this.vanilla.describeState()

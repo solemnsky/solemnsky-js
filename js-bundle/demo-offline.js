@@ -562,13 +562,17 @@ function Demo(vanilla) {
 /**** }}} constructor ****/
 
 /**** {{{ initialisation ****/ 
+Demo.prototype.createState = function(key) {
+	return this.vanilla.makeInitData(key)
+}
+
 Demo.prototype.init = function(initdata) {
 	this.vanilla.init(initdata)
 }
 
-Demo.prototype.makeInitData = function(key) {
-	return this.vanilla.makeInitData(key)
-}
+Demo.prototype.describeAssets = function() {
+	return this.vanilla.describeAssets()
+}	
 
 Demo.prototype.describeState = function() {
 	return this.vanilla.describeState()
@@ -640,6 +644,10 @@ Demo.prototype.modeId = "demo dev"
 var PIXI = require('../../../assets/pixi.min.js')
 
 module.exports = function(Demo) {
+
+	Demo.prototype.loadAssets = function(key, onProgress) {
+		this.vanilla.loadAssets(key, onProgress)
+	}
 
 	Demo.prototype.initRender = function(stage) { 
 		var title = new PIXI.Text("solemnsky development demo", {fill: 0xFFFFFF})
@@ -853,7 +861,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 }
 
 Vanilla.prototype.pointInMap = function(position) {
-	// brb
+	
 }
 /**** }}} internal utility methods ***/
 
@@ -945,6 +953,10 @@ Vanilla.prototype.addProjectile = function(id, type, pos) {
 /**** }}} mode-facing methods ****/
 
 /**** {{{ initialisation ****/
+Vanilla.prototype.createState = function(key) {
+	return {map: "bloxMap", players: []}
+}
+
 Vanilla.prototype.init = function(data) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
@@ -954,7 +966,7 @@ Vanilla.prototype.init = function(data) {
 	this.world.gravity = this.gravity;
 
 	var initdata = JSON.parse(data)
-	this.loadMap(initdata.map)
+	this.loadMap(maps[initdata.map])
 	initdata.players.forEach(
 		function(player) {
 			this.addPlayer(player.id, player.name)
@@ -962,19 +974,19 @@ Vanilla.prototype.init = function(data) {
 	, this)
 }
 
-Vanilla.prototype.makeInitData = function(key) {
-	return JSON.stringify({map: maps.bloxMap, players: []})
+Vanilla.prototype.describeAssets = function() {
+	return {map: ""}
 }
 
 Vanilla.prototype.describeState = function() {
-	return JSON.stringify({
+	return {
 		map: this.mapData
 		, players: this.players.map(
 			function(player) {
 				return {id: player.id, name: player.name}
 			}
 		)
-	})
+	}
 }
 /**** }}} initialisation ****/
 
@@ -1889,7 +1901,7 @@ function inflatePair(deflationRules, pair) {
 	return pair 
 }
 
-Util.prototype.serialiseObject = function(deflationRules, object) {
+Util.prototype.deflateObject = function(deflationRules, object) {
 	var result = []
 	
 	object.forEach(
@@ -1905,30 +1917,26 @@ Util.prototype.serialiseObject = function(deflationRules, object) {
 		}
 	, result)
 
-	return JSON.stringify(result)
+	return result
 }
 
-Util.prototype.readObject = function(deflationRules, string) {
-	try {
-		var snap = JSON.parse(string)
-		var result = []
-		snap.forEach(
-			function(deflated) {
-				var inflated = {}
-				Object.keys(deflated).forEach(
-					function(key) {
-						var pair = inflatePair({key: key, value: deflated[key]})
-						inflated[pair.key] = pair.value
-					}
-				)
-				result.push(inflated)
-			}
-		, result)
-		return result
-	} catch (e) {
-		//Could not read snapshot; but don't let the Syntax Error break the loop
-		return null
-	}
+Util.prototype.inflateObject = function(deflationRules, object) {
+	var result = []
+
+	object.forEach(
+		function(deflated) {
+			var inflated = {}
+			Object.keys(deflated).forEach(
+				function(key) {
+					var pair = inflatePair({key: key, value: deflated[key]})
+					inflated[pair.key] = pair.value
+				}
+			)
+			result.push(inflated)
+		}
+	, result)
+	
+	return result
 }
 /**** }}} serialising objects ****/ 
 
@@ -2016,44 +2024,6 @@ var PIXI = require('../../assets/pixi.min.js')
 var run = require('./run.js')
 
 exports.run = run
-
-exports.splash = function(texts, interval) {
-	function Splash() {
-		this.time = 0
-		this.text = new PIXI.Text("", {fill: 0xFFFFFF})
-	}
-
-	Splash.prototype.init = function() {}
-	Splash.prototype.step = function(delta) { 
-		this.time += delta 
-	}
-	Splash.prototype.initRender = function(stage) { 
-		stage.addChild(this.text) 
-	}
-	Splash.prototype.stepRender = function(stage, delta) {
-		this.text.text = "asdf"
-	}
-	Splash.prototype.hasEnded = function() {
-		return false
-	}
-	Splash.prototype.acceptKey = function(){}
-
-	return new Splash()
-}
-
-exports.centerText = function(text) {
-	var center = Object()
-	center.init = function(){}
-	center.step = function(){}
-	center.initRender = function(stage) {
-		this.text = new PIXI.Text(text, {fill: 0xFFFFFF})
-		stage.addChild(text)
-	}
-	center.stepRender = function(){}
-	center.acceptKey = function(){}
-	center.hasEnded = function(){return false}
-	return center
-}
 
 exports.combineOverlay = function(overlay, object) {
 	function Result() { 
