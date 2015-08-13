@@ -15,7 +15,7 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.init = function() { 
-		mode.init(mode.makeInitData(''))
+		mode.init(mode.createState(''))
 		mode.join('offline player')
 	}
 

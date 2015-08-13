@@ -496,7 +496,7 @@ module.exports = function(mode) {
 	}
 
 	Game.prototype.init = function() { 
-		mode.init(mode.makeInitData(''))
+		mode.init(mode.createState(''))
 		mode.join('offline player')
 	}
 
@@ -563,7 +563,7 @@ function Demo(vanilla) {
 
 /**** {{{ initialisation ****/ 
 Demo.prototype.createState = function(key) {
-	return this.vanilla.makeInitData(key)
+	return this.vanilla.createState(key)
 }
 
 Demo.prototype.init = function(initdata) {

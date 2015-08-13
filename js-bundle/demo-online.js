@@ -816,7 +816,7 @@ function Demo(vanilla) {
 
 /**** {{{ initialisation ****/ 
 Demo.prototype.createState = function(key) {
-	return this.vanilla.makeInitData(key)
+	return this.vanilla.createState(key)
 }
 
 Demo.prototype.init = function(initdata) {
