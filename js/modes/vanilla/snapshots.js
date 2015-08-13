@@ -38,7 +38,7 @@ exports.applySnapshot = function(world, snapshots) {
 		return;
 
 	var compare = function(snapshot1, snapshot2) {
-		snapshot1.priority - snapshot2.priority
+		return snapshot1.priority - snapshot2.priority
 	}
 	snapshots.sort(compare).forEach(
 		function(snapshot) {
