@@ -1,4 +1,4 @@
-var Util = require('../../resources/util.js')
+var util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
 	if (typeof priority == "undefined") priority = 0
@@ -12,7 +12,7 @@ function Snapshot(player, priority, defaultState, states) {
 		function(key) {
 			if (["game", "block", "name", "anim"].indexOf(key) === -1)
 				if (states[key] || defaultState)
-					this[key] = Util.clone(player[key])
+					this[key] = util.clone(player[key])
 		}
 	, this)
 }
@@ -47,7 +47,7 @@ exports.applySnapshot = function(world, snapshots) {
 				Object.keys(snapshot).forEach(
 					function(key) {
 						if (key !== "priority")
-							player[key] = Util.clone(snapshot[key])
+							player[key] = util.clone(snapshot[key])
 					}	
 				, this)
 				player.writeToBlock();
@@ -56,92 +56,29 @@ exports.applySnapshot = function(world, snapshots) {
 }
 
 var deflationRules =
-	[ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
-	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation } 
-	, { key: "health", shortKey: "h", deflation: Util.floatDeflation }
-	, { key: "leftoverVel", shortKey: "l", deflation: Util.vecDeflation }
-	, { key: "movement", shortKey: "m", deflation: Util.movementDeflation }
-	, { key: "position", shortKey: "p", deflation: Util.vecDeflation }
-  , { key: "priority", shortKey: "x", deflation: Util.noDeflation }
-	, { key: "respawning", shortKey: "n", deflation: Util.boolDeflation }
-	, { key: "rotation", shortKey: "r", deflation: Util.floatDeflation }
-	, { key: "rotationVel", shortKey: "j", deflation: Util.floatDeflation }
-	, { key: "spawnpoint", shortKey: "s", deflation: Util.vecDeflation }
-	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
-	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
-	, { key: "velocity", shortKey: "v", deflation: Util.vecDeflation }
-	, { key: "speed", shortKey: "g", deflation: Util.floatDeflation }
+	[ { key: "afterburner", shortKey: "a", deflation: util.boolDeflation }
+	, { key: "energy", shortKey: "e", deflation: util.floatDeflation } 
+	, { key: "health", shortKey: "h", deflation: util.floatDeflation }
+	, { key: "leftoverVel", shortKey: "l", deflation: util.vecDeflation }
+	, { key: "movement", shortKey: "m", deflation: util.movementDeflation }
+	, { key: "position", shortKey: "p", deflation: util.vecDeflation }
+  , { key: "priority", shortKey: "x", deflation: util.noDeflation }
+	, { key: "respawning", shortKey: "n", deflation: util.boolDeflation }
+	, { key: "rotation", shortKey: "r", deflation: util.floatDeflation }
+	, { key: "rotationVel", shortKey: "j", deflation: util.floatDeflation }
+	, { key: "spawnpoint", shortKey: "s", deflation: util.vecDeflation }
+	, { key: "stalled", shortKey: "f", deflation: util.boolDeflation }
+	, { key: "throttle", shortKey: "t", deflation: util.floatDeflation }
+	, { key: "velocity", shortKey: "v", deflation: util.vecDeflation }
+	, { key: "speed", shortKey: "g", deflation: util.floatDeflation }
 	]
 
-function deflatePair(pair) {
-	var matches = deflationRules.filter(
-		function(rule) { return rule.key === pair.key	} 
-	, pair)
-	if (matches.length > 0) {
-		var rule = matches[0]
-		return {
-			key: rule.shortKey
-			, value: rule.deflation.deflate(pair.value)
-		}
-	} 
-	return pair 
-}
-
-function inflatePair(pair) {
-	var matches = deflationRules.filter(
-		function(rule) { return rule.shortKey === pair.key	} 
-		, pair
-	)
-	if (matches.length > 0) {
-		var rule = matches[0]
-		return {
-			key: rule.key
-			, value: rule.deflation.inflate(pair.value)
-		}
-	} 
-	return pair 
-}
-
 exports.serialiseSnapshot = function(snap) {
-	var result = []
-	
-	snap.forEach(
-		function(inflated) {
-			var deflated = {}
-			Object.keys(inflated).forEach(
-				function(key) {
-					var pair = deflatePair({key: key, value: inflated[key]})
-					deflated[pair.key] = pair.value	
-				}
-			, deflated)
-			result.push(deflated)
-		}
-	, result)
-
-	return JSON.stringify(result)
+	return util.serialiseObject(deflationRules, snap)
 }
 
-exports.readSnapshot = function(string) {
-	try {
-		var snap = JSON.parse(string)
-		var result = []
-		snap.forEach(
-			function(deflated) {
-				var inflated = {}
-				Object.keys(deflated).forEach(
-					function(key) {
-						var pair = inflatePair({key: key, value: deflated[key]})
-						inflated[pair.key] = pair.value
-					}
-				)
-				result.push(inflated)
-			}
-		, result)
-		return result
-	} catch (e) {
-		//Could not read snapshot; but don't let the Syntax Error break the loop
-		return null
-	}
+exports.readSnapshot = function(snap) {
+	return util.readObject(deflationRules, snap)
 }
 
 exports.Snapshot = Snapshot

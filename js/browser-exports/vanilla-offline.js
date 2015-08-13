@@ -1,16 +1,14 @@
 var ui = require('../ui/index.js')
 
-// make mode
+// allocate mode
 var Vanilla = require("../modes/vanilla/")
 require("../modes/vanilla/render.js")(Vanilla)
 var mode = new Vanilla()
 	
-// debug pointer
+// write debug pointer
 window.MODE = mode
 
-// use control method to turn mode into UI object
-var clientOffline = require('../control/client-offline.js')
-var myClient = clientOffline(mode)
+// allocate control object
+var client = require('../control/client-offline.js')(mode)
 
-ui.run(60, myClient)
-
+ui.run(60, client)

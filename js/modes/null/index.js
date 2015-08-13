@@ -9,7 +9,7 @@
 
 module.exports = Null
 
-var Utils = require('../../resources/util.js')
+var util = require('../../resources/util.js')
 
 /**** {{{ constructor ****/
 function Null() {
@@ -19,7 +19,7 @@ function Null() {
 
 /**** {{{ methods ****/
 Null.prototype.findPlayerById = function(id) {
-	return Utils.findElemById(this.players, id)
+	return util.findElemById(this.players, id)
 }
 /**** }}} methods ****/
 
@@ -72,7 +72,7 @@ Null.prototype.hasEnded = function() {
 Null.prototype.join = function(name, id) {
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) { return player.id })
-		var newId = Utils.findAvailableId(ids)	
+		var newId = util.findAvailableId(ids)	
 	} else { newId = id }
 
 	this.players.push({name: name, id: newId, timespent: 0})
@@ -80,7 +80,7 @@ Null.prototype.join = function(name, id) {
 }
 
 Null.prototype.quit = function(id) {
-	Utils.removeElemById(this.players, id)
+	util.removeElemById(this.players, id)
 }
 /**** }}} join() and quit() ****/
 
@@ -98,7 +98,7 @@ Null.prototype.clientMerge = function(id, snap) {
 	// sync all the other players, but be sure to keep myself intact
 	var myself = this.findPlayerById(id)
 	this.players = JSON.parse(snap)
-	Utils.removeElemById(this.players, id)
+	util.removeElemById(this.players, id)
 	if (myself !== null) 
 		this.players.push(myself)
 }

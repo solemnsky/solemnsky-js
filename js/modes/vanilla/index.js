@@ -6,7 +6,7 @@ module.exports = Vanilla
 
 var Box2D = require('../../../assets/box2d.min.js')
 
-var Utils = require('../../resources/util.js')
+var util = require('../../resources/util.js')
 var maps = require('../../resources/maps.js')
 
 var Player = require('./player.js')
@@ -72,7 +72,7 @@ Vanilla.prototype.addPlayer = function(id, name) {
 }
 
 Vanilla.prototype.findPlayerById = function(id) {
-	return Utils.findElemById(this.players, id)
+	return util.findElemById(this.players, id)
 }
 
 Vanilla.prototype.loadMap = function (map) {
@@ -322,7 +322,7 @@ Vanilla.prototype.join = function(name, id) {
 	var newId
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
-		newId = Utils.findAvailableId(ids)
+		newId = util.findAvailableId(ids)
 	} else {
 		newId = id
 	}
@@ -331,7 +331,7 @@ Vanilla.prototype.join = function(name, id) {
 }
 
 Vanilla.prototype.quit = function(id) {
-	Utils.removeElemById(this.players, id)
+	util.removeElemById(this.players, id)
 }
 /**** }}}} discrete networking ****/
 

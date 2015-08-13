@@ -1,22 +1,20 @@
 var ui = require('../ui/index.js')
-var Util = require('../resources/util.js')
+var util = require('../resources/util.js')
 
-// make mode
+// allocate mode
 var Vanilla = require('../modes/vanilla/')
 require('../modes/vanilla/render.js')(Vanilla)
 var mode = new Vanilla()
-
 	
-// debug pointer
+// write debug pointer
 window.MODE = mode
 
-var address = Util.getQueryStringValue("address")
+// read address from url
+var address = util.getQueryStringValue("address")
 if (address === "")
 	address = "localhost"
 
-// use control method to turn mode into UI object
-var clientOnline = require('../control/client-arena.js')
-var myClient = clientOnline(mode, address, 50042, "/")
+// allocate control object
+var client = require('../control/client-arena.js')(mode, address, 50042, "/")
 
-ui.run(60, myClient)
-
+ui.run(60, client)

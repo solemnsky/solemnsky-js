@@ -127,6 +127,78 @@ Util.prototype.movementDeflation =
 	}
 /**** }}} deflation pairs ****/
 
+/**** {{{ serialising objects ****/ 
+function deflatePair(deflationRules, pair) {
+	var matches = deflationRules.filter(
+		function(rule) { return rule.key === pair.key	} 
+	, pair)
+	if (matches.length > 0) {
+		var rule = matches[0]
+		return {
+			key: rule.shortKey
+			, value: rule.deflation.deflate(pair.value)
+		}
+	} 
+	return pair 
+}
+
+function inflatePair(deflationRules, pair) {
+	var matches = deflationRules.filter(
+		function(rule) { return rule.shortKey === pair.key	} 
+		, pair)
+	if (matches.length > 0) {
+		var rule = matches[0]
+		return {
+			key: rule.key
+			, value: rule.deflation.inflate(pair.value)
+		}
+	} 
+	return pair 
+}
+
+Util.prototype.serialiseObject = function(deflationRules, object) {
+	var result = []
+	
+	object.forEach(
+		function(inflated) {
+			var deflated = {}
+			Object.keys(inflated).forEach(
+				function(key) {
+					var pair = deflatePair({key: key, value: inflated[key]})
+					deflated[pair.key] = pair.value	
+				}
+			, deflated)
+			result.push(deflated)
+		}
+	, result)
+
+	return JSON.stringify(result)
+}
+
+Util.prototype.readObject = function(deflationRules, string) {
+	try {
+		var snap = JSON.parse(string)
+		var result = []
+		snap.forEach(
+			function(deflated) {
+				var inflated = {}
+				Object.keys(deflated).forEach(
+					function(key) {
+						var pair = inflatePair({key: key, value: deflated[key]})
+						inflated[pair.key] = pair.value
+					}
+				)
+				result.push(inflated)
+			}
+		, result)
+		return result
+	} catch (e) {
+		//Could not read snapshot; but don't let the Syntax Error break the loop
+		return null
+	}
+}
+/**** }}} serialising objects ****/ 
+
 /**** {{{ vector math ****/
 Util.prototype.getAngle = function(vec) {
 	return Math.atan2(vec.y, vec.x);

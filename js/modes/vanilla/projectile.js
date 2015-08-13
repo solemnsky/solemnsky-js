@@ -4,7 +4,7 @@
 
 module.exports = Projectile
 
-// var Utils = require('../../resources/util.js')
+// var utils = require('../../resources/util.js')
 var gameplay = require('./gameplay.js')
 var Box2D = require('../../../assets/box2d.min.js')
 

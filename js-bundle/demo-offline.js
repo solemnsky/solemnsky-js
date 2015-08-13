@@ -463,23 +463,20 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 },{}],3:[function(require,module,exports){
 var ui = require('../ui/index.js')
 
+// allocate mode
 var Vanilla = require('../modes/vanilla/')
 require('../modes/vanilla/render.js')(Vanilla)
-
-// make mode
 var Demo = require('../modes/demo/')
 require('../modes/demo/render.js')(Demo)
 var mode = new Demo(new Vanilla())
 	
-// debug pointer
+// write debug pointer
 window.MODE = mode
 
-// use control method to turn mode into UI object
-var clientOffline = require('../control/client-offline.js')
-var myClient = clientOffline(mode) 
+// allocate control object
+var client = require('../control/client-offline.js')(mode) 
 
-ui.run(60, myClient)
-
+ui.run(60, client)
 
 },{"../control/client-offline.js":4,"../modes/demo/":6,"../modes/demo/render.js":7,"../modes/vanilla/":9,"../modes/vanilla/render.js":12,"../ui/index.js":18}],4:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
@@ -691,6 +688,8 @@ module.exports = {
 	, speedThrottleForce: 0.3
 			// speed per second that throttle can influence
 	, speedThrottleDeaccForce: 1.1
+			// speed per second that the throttle can take away
+			// when the speed is higher than the throttle
 	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
 	, speedAfterburnForce: 0.6
@@ -723,7 +722,7 @@ module.exports = Vanilla
 
 var Box2D = require('../../../assets/box2d.min.js')
 
-var Utils = require('../../resources/util.js')
+var util = require('../../resources/util.js')
 var maps = require('../../resources/maps.js')
 
 var Player = require('./player.js')
@@ -789,7 +788,7 @@ Vanilla.prototype.addPlayer = function(id, name) {
 }
 
 Vanilla.prototype.findPlayerById = function(id) {
-	return Utils.findElemById(this.players, id)
+	return util.findElemById(this.players, id)
 }
 
 Vanilla.prototype.loadMap = function (map) {
@@ -1039,7 +1038,7 @@ Vanilla.prototype.join = function(name, id) {
 	var newId
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) {return player.id})
-		newId = Utils.findAvailableId(ids)
+		newId = util.findAvailableId(ids)
 	} else {
 		newId = id
 	}
@@ -1048,7 +1047,7 @@ Vanilla.prototype.join = function(name, id) {
 }
 
 Vanilla.prototype.quit = function(id) {
-	Utils.removeElemById(this.players, id)
+	util.removeElemById(this.players, id)
 }
 /**** }}}} discrete networking ****/
 
@@ -1094,7 +1093,7 @@ Vanilla.prototype.hasEnded = function() { return false }
 
 module.exports = Player
 
-var Utils = require('../../resources/util.js')
+var util = require('../../resources/util.js')
 var gameplay = require('./gameplay.js')
 var Box2D = require('../../../assets/box2d.min.js')
 
@@ -1189,9 +1188,9 @@ Player.prototype.readFromBlock = function() {
 Player.prototype.step = function(delta) {
 	/**** {{{ synonyms ****/
 	var forwardVelocity = 
-		Utils.getLength(this.velocity) * Math.cos(this.rotation - Utils.getAngle(this.velocity))
+		util.getLength(this.velocity) * Math.cos(this.rotation - util.getAngle(this.velocity))
 	var vel = this.velocity
-	var speed = Utils.getLength(vel)
+	var speed = util.getLength(vel)
 	/**** }}} synonyms ****/
 
 	/**** {{{ rotation ****/
@@ -1294,7 +1293,7 @@ Player.prototype.step = function(delta) {
 		this.respawning = true;
 
 	if (this.respawning) {
-		this.position = Utils.jsonClone(this.spawnpoint)
+		this.position = util.jsonClone(this.spawnpoint)
 		this.velocity = {x: 50, y: 0}
 		this.rotation = 0;	
 		this.rotationVel = 0;
@@ -1319,7 +1318,7 @@ Player.prototype.step = function(delta) {
 
 module.exports = Projectile
 
-// var Utils = require('../../resources/util.js')
+// var utils = require('../../resources/util.js')
 var gameplay = require('./gameplay.js')
 var Box2D = require('../../../assets/box2d.min.js')
 
@@ -1433,15 +1432,13 @@ module.exports = function(Vanilla) {
 				var dim = elem.dimensions
 				
 				// initialise anim object once
-				if (typeof elem.anim == "undefined" )
+				if (typeof elem.anim == "undefined" ) {
 					elem.anim = new PIXI.Graphics()
-				elem.anim.clear()
-				elem.anim.beginFill(0xFFFFFF, 1)
-				elem.anim.drawRect(
-					pos.x - dim.w / 2 
-					, pos.y - dim.h / 2 
-					, dim.w, dim.h)
-				elem.anim.position.set(pan.x, pan.y)
+					elem.anim.clear()
+					elem.anim.beginFill(0xFFFFFF, 1)
+					elem.anim.drawRect(-dim.w / 2 , -dim.h / 2 , dim.w, dim.h)
+				}
+				elem.anim.position.set(pan.x + pos.x, pan.y + pos.y)
 				this.graphics.mapStage.addChild(elem.anim)
 			}	
 		, this)
@@ -1586,7 +1583,7 @@ module.exports = function(Vanilla) {
 }
 
 },{"../../../assets/pixi.min.js":2,"../../resources/urls.js":16,"./gameplay.js":8}],13:[function(require,module,exports){
-var Util = require('../../resources/util.js')
+var util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
 	if (typeof priority == "undefined") priority = 0
@@ -1600,7 +1597,7 @@ function Snapshot(player, priority, defaultState, states) {
 		function(key) {
 			if (["game", "block", "name", "anim"].indexOf(key) === -1)
 				if (states[key] || defaultState)
-					this[key] = Util.clone(player[key])
+					this[key] = util.clone(player[key])
 		}
 	, this)
 }
@@ -1635,7 +1632,7 @@ exports.applySnapshot = function(world, snapshots) {
 				Object.keys(snapshot).forEach(
 					function(key) {
 						if (key !== "priority")
-							player[key] = Util.clone(snapshot[key])
+							player[key] = util.clone(snapshot[key])
 					}	
 				, this)
 				player.writeToBlock();
@@ -1644,92 +1641,29 @@ exports.applySnapshot = function(world, snapshots) {
 }
 
 var deflationRules =
-	[ { key: "afterburner", shortKey: "a", deflation: Util.boolDeflation }
-	, { key: "energy", shortKey: "e", deflation: Util.floatDeflation } 
-	, { key: "health", shortKey: "h", deflation: Util.floatDeflation }
-	, { key: "leftoverVel", shortKey: "l", deflation: Util.vecDeflation }
-	, { key: "movement", shortKey: "m", deflation: Util.movementDeflation }
-	, { key: "position", shortKey: "p", deflation: Util.vecDeflation }
-  , { key: "priority", shortKey: "x", deflation: Util.noDeflation }
-	, { key: "respawning", shortKey: "n", deflation: Util.boolDeflation }
-	, { key: "rotation", shortKey: "r", deflation: Util.floatDeflation }
-	, { key: "rotationVel", shortKey: "j", deflation: Util.floatDeflation }
-	, { key: "spawnpoint", shortKey: "s", deflation: Util.vecDeflation }
-	, { key: "stalled", shortKey: "f", deflation: Util.boolDeflation }
-	, { key: "throttle", shortKey: "t", deflation: Util.floatDeflation }
-	, { key: "velocity", shortKey: "v", deflation: Util.vecDeflation }
-	, { key: "speed", shortKey: "g", deflation: Util.floatDeflation }
+	[ { key: "afterburner", shortKey: "a", deflation: util.boolDeflation }
+	, { key: "energy", shortKey: "e", deflation: util.floatDeflation } 
+	, { key: "health", shortKey: "h", deflation: util.floatDeflation }
+	, { key: "leftoverVel", shortKey: "l", deflation: util.vecDeflation }
+	, { key: "movement", shortKey: "m", deflation: util.movementDeflation }
+	, { key: "position", shortKey: "p", deflation: util.vecDeflation }
+  , { key: "priority", shortKey: "x", deflation: util.noDeflation }
+	, { key: "respawning", shortKey: "n", deflation: util.boolDeflation }
+	, { key: "rotation", shortKey: "r", deflation: util.floatDeflation }
+	, { key: "rotationVel", shortKey: "j", deflation: util.floatDeflation }
+	, { key: "spawnpoint", shortKey: "s", deflation: util.vecDeflation }
+	, { key: "stalled", shortKey: "f", deflation: util.boolDeflation }
+	, { key: "throttle", shortKey: "t", deflation: util.floatDeflation }
+	, { key: "velocity", shortKey: "v", deflation: util.vecDeflation }
+	, { key: "speed", shortKey: "g", deflation: util.floatDeflation }
 	]
 
-function deflatePair(pair) {
-	var matches = deflationRules.filter(
-		function(rule) { return rule.key === pair.key	} 
-	, pair)
-	if (matches.length > 0) {
-		var rule = matches[0]
-		return {
-			key: rule.shortKey
-			, value: rule.deflation.deflate(pair.value)
-		}
-	} 
-	return pair 
-}
-
-function inflatePair(pair) {
-	var matches = deflationRules.filter(
-		function(rule) { return rule.shortKey === pair.key	} 
-		, pair
-	)
-	if (matches.length > 0) {
-		var rule = matches[0]
-		return {
-			key: rule.key
-			, value: rule.deflation.inflate(pair.value)
-		}
-	} 
-	return pair 
-}
-
 exports.serialiseSnapshot = function(snap) {
-	var result = []
-	
-	snap.forEach(
-		function(inflated) {
-			var deflated = {}
-			Object.keys(inflated).forEach(
-				function(key) {
-					var pair = deflatePair({key: key, value: inflated[key]})
-					deflated[pair.key] = pair.value	
-				}
-			, deflated)
-			result.push(deflated)
-		}
-	, result)
-
-	return JSON.stringify(result)
+	return util.serialiseObject(deflationRules, snap)
 }
 
-exports.readSnapshot = function(string) {
-	try {
-		var snap = JSON.parse(string)
-		var result = []
-		snap.forEach(
-			function(deflated) {
-				var inflated = {}
-				Object.keys(deflated).forEach(
-					function(key) {
-						var pair = inflatePair({key: key, value: deflated[key]})
-						inflated[pair.key] = pair.value
-					}
-				)
-				result.push(inflated)
-			}
-		, result)
-		return result
-	} catch (e) {
-		//Could not read snapshot; but don't let the Syntax Error break the loop
-		return null
-	}
+exports.readSnapshot = function(snap) {
+	return util.readObject(deflationRules, snap)
 }
 
 exports.Snapshot = Snapshot
@@ -1919,6 +1853,78 @@ Util.prototype.movementDeflation =
 			}
 	}
 /**** }}} deflation pairs ****/
+
+/**** {{{ serialising objects ****/ 
+function deflatePair(deflationRules, pair) {
+	var matches = deflationRules.filter(
+		function(rule) { return rule.key === pair.key	} 
+	, pair)
+	if (matches.length > 0) {
+		var rule = matches[0]
+		return {
+			key: rule.shortKey
+			, value: rule.deflation.deflate(pair.value)
+		}
+	} 
+	return pair 
+}
+
+function inflatePair(deflationRules, pair) {
+	var matches = deflationRules.filter(
+		function(rule) { return rule.shortKey === pair.key	} 
+		, pair)
+	if (matches.length > 0) {
+		var rule = matches[0]
+		return {
+			key: rule.key
+			, value: rule.deflation.inflate(pair.value)
+		}
+	} 
+	return pair 
+}
+
+Util.prototype.serialiseObject = function(deflationRules, object) {
+	var result = []
+	
+	object.forEach(
+		function(inflated) {
+			var deflated = {}
+			Object.keys(inflated).forEach(
+				function(key) {
+					var pair = deflatePair({key: key, value: inflated[key]})
+					deflated[pair.key] = pair.value	
+				}
+			, deflated)
+			result.push(deflated)
+		}
+	, result)
+
+	return JSON.stringify(result)
+}
+
+Util.prototype.readObject = function(deflationRules, string) {
+	try {
+		var snap = JSON.parse(string)
+		var result = []
+		snap.forEach(
+			function(deflated) {
+				var inflated = {}
+				Object.keys(deflated).forEach(
+					function(key) {
+						var pair = inflatePair({key: key, value: deflated[key]})
+						inflated[pair.key] = pair.value
+					}
+				)
+				result.push(inflated)
+			}
+		, result)
+		return result
+	} catch (e) {
+		//Could not read snapshot; but don't let the Syntax Error break the loop
+		return null
+	}
+}
+/**** }}} serialising objects ****/ 
 
 /**** {{{ vector math ****/
 Util.prototype.getAngle = function(vec) {

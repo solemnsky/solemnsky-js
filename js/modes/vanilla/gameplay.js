@@ -28,6 +28,8 @@ module.exports = {
 	, speedThrottleForce: 0.3
 			// speed per second that throttle can influence
 	, speedThrottleDeaccForce: 1.1
+			// speed per second that the throttle can take away
+			// when the speed is higher than the throttle
 	, speedGravityForce: 0.5
 			// speed per second that gravity can influence
 	, speedAfterburnForce: 0.6

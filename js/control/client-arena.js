@@ -3,7 +3,7 @@
 //									******** client-arena.js ********									 */
 
 var PIXI = require('../../assets/pixi.min.js')
-var Utils = require('../resources/util.js')
+var util = require('../resources/util.js')
 var renderPerf = require('./hud/performance.js')
 
 module.exports = function(mode, address, port, path) {
@@ -105,7 +105,7 @@ module.exports = function(mode, address, port, path) {
 						mode.quit(data); break
 					case "CHAT":
 						var id = split[0]
-						var player = Utils.findElemById(mode.listPlayers(), id)
+						var player = util.findElemById(mode.listPlayers(), id)
 						if (player !== null)	
 							this.eventLog.push(
 								{ type: "chat"

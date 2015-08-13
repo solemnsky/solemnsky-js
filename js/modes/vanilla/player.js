@@ -4,7 +4,7 @@
 
 module.exports = Player
 
-var Utils = require('../../resources/util.js')
+var util = require('../../resources/util.js')
 var gameplay = require('./gameplay.js')
 var Box2D = require('../../../assets/box2d.min.js')
 
@@ -99,9 +99,9 @@ Player.prototype.readFromBlock = function() {
 Player.prototype.step = function(delta) {
 	/**** {{{ synonyms ****/
 	var forwardVelocity = 
-		Utils.getLength(this.velocity) * Math.cos(this.rotation - Utils.getAngle(this.velocity))
+		util.getLength(this.velocity) * Math.cos(this.rotation - util.getAngle(this.velocity))
 	var vel = this.velocity
-	var speed = Utils.getLength(vel)
+	var speed = util.getLength(vel)
 	/**** }}} synonyms ****/
 
 	/**** {{{ rotation ****/
@@ -204,7 +204,7 @@ Player.prototype.step = function(delta) {
 		this.respawning = true;
 
 	if (this.respawning) {
-		this.position = Utils.jsonClone(this.spawnpoint)
+		this.position = util.jsonClone(this.spawnpoint)
 		this.velocity = {x: 50, y: 0}
 		this.rotation = 0;	
 		this.rotationVel = 0;
