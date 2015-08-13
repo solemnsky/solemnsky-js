@@ -40,6 +40,9 @@ Null.prototype.describeState = function() {
 	return JSON.stringify({color: this.color, players: this.players})
 }
 
+Null.prototype.describeAssets = function() {
+	return ""
+}
 /**** }}} initialisation ****/
 
 /**** {{{ simulation****/

@@ -14,6 +14,7 @@ To define a mode, a constructor must be exported along with the following protot
 
 - init(initdata): called exactly once at the beginning of the game, with an 'initdata', a state descriptor (for instance, players already in the game and the map being used)
 - makeInitData(key): this provides an initial initdata, given a key, to be used when the game starts up from nothing
+- describeAssets(): what asset key initAssets should be passed to a client intending to join the game (see render callbacks)
 - describeState(): forms an initdata describing the state of the game in context
 
 ### simulation
@@ -41,6 +42,7 @@ To define a mode, a constructor must be exported along with the following protot
 
 ### rendering (defined in seperate file, only for clients)
 
+- loadAssets(key, onProgress): called exactly once at the beginning of the game with an assets key that describes the assets (textures for example) that need to be loaded, and has an onProgress callback parameterized on the completion of the asset loading as a value from 0 to 1 (loading assets can take a while).
 - initRender(renderer): called exactly once at the beginning of a game, with a PIXI renderer
 - stepRenderer(id, delta): called at ~60Hz, with the function of rendering the game world to the renderer with PIXI and the id of the active player, null if not applicable
 

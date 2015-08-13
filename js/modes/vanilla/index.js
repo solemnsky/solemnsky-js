@@ -137,7 +137,7 @@ Vanilla.prototype.evaluateContact = function(contact) {
 }
 
 Vanilla.prototype.pointInMap = function(position) {
-	// brb
+	
 }
 /**** }}} internal utility methods ***/
 
@@ -238,7 +238,7 @@ Vanilla.prototype.init = function(data) {
 	this.world.gravity = this.gravity;
 
 	var initdata = JSON.parse(data)
-	this.loadMap(initdata.map)
+	this.loadMap(maps[initdata.map])
 	initdata.players.forEach(
 		function(player) {
 			this.addPlayer(player.id, player.name)
@@ -247,7 +247,7 @@ Vanilla.prototype.init = function(data) {
 }
 
 Vanilla.prototype.makeInitData = function(key) {
-	return JSON.stringify({map: maps.bloxMap, players: []})
+	return JSON.stringify({map: "bloxMap", players: []})
 }
 
 Vanilla.prototype.describeState = function() {
@@ -259,6 +259,10 @@ Vanilla.prototype.describeState = function() {
 			}
 		)
 	})
+}
+
+Vanilla.prototype.describeAssets = function() {
+	return ""
 }
 /**** }}} initialisation ****/
 

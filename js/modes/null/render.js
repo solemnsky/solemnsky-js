@@ -6,6 +6,10 @@ var PIXI = require('../../../assets/pixi.min.js')
 
 module.exports = function(Null) {
 
+	Null.prototype.loadAssets = function(key, onProgress) {
+		// TODO
+	}
+
 	Null.prototype.initRender = function(stage) { 
 		stage.addChild(new PIXI.Text("", {fill: 0xFFFFFF}))
 	}

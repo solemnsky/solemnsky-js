@@ -6,6 +6,10 @@ var PIXI = require('../../../assets/pixi.min.js')
 
 module.exports = function(Demo) {
 
+	Demo.prototype.loadAssets = function(key, onProgress) {
+		this.vanilla.loadAssets(key, onProgress)
+	}
+
 	Demo.prototype.initRender = function(stage) { 
 		var title = new PIXI.Text("solemnsky development demo", {fill: 0xFFFFFF})
 		title.position = new PIXI.Point(800 - title.width / 2, 10)
