@@ -1,35 +1,45 @@
 {
-	"parser": "babel-eslint",
 	"rules": {
-		// discouraging bugs
+		// ** discouraging bugs **
+		// typos, dead code, brainfarts, and things that don't quite
+		// do what you might think they do
 			"comma-dangle": [2, "never"],
 			"no-cond-assign": 2,
 			"no-dupe-args": 2,
 			"no-dupe-keys": 2,
 			"valid-typeof": 2,
-			"use-isnan": 2,
-			"no-eq-null": 2,
-			"eqeqeq": [2, "smart"],
 			"no-octal": 2,
 			"no-unreachable": 2,
+			"no-unused-expressions": 2,
 			"no-sparse-arrays": 2,
 			"no-redeclare": 2,
 			"no-self-compare": 2, 
 			"no-duplicate-case": 2,
-		// discouraging variable trouble
-			"no-use-before-define": [2, "nofunc"],
-			"no-unused-vars": [2, {"vars": "local", "args": "none"}],
-			"no-undef": 2,
+			"no-obj-calls": 2,
+		// ** discouraging variable trouble **
+		// using variables correctly makes GC and scoping actually work
+		// which is generally considered to be a good thing
+			"block-scoped-var": 2,
+			"no-delete-var": 2,
+			"no-label-var": 2,
 			"no-shadow-restricted-names": 2,
 			"no-shadow": 2,
-		// discouraging bad practice
+			"no-undef": 2,
+			"no-unused-vars": [2, {"vars": "all", "args": "none"}],
+			"no-use-before-define": [2, "nofunc"],
+		// ** discouraging bad practice **
+		// where the line between mistakes and really clever mistakes blurs
 			"no-inner-declarations": 1,
 			"no-func-assign": 1,
 			"no-fallthrough": 1,
 			"consistent-return": 1,
 			"no-else-return": 1,
-			"no-delete-var": 1,
-		// sweeping up the dust
+			"no-extra-boolean-cast": 2,
+			"no-eq-null": 2,
+			"eqeqeq": [2, "smart"],
+			"use-isnan": 2,
+		// ** sweeping up the dust **
+		// what your code looks like matters too, you know
 			"camelcase": 1,
 			"dot-notation": 1,
 			"no-extra-semi": 1,
@@ -37,7 +47,6 @@
 			"indent": [1, "tab"],
 			"no-constant-condition": 1,
 			"no-irregular-whitespace": 1,
-			"no-warning-comments": 0 // remove in production code
 	},
 	env: {
 		"browser": true,

@@ -220,4 +220,3 @@ Player.prototype.step = function(delta) {
 	}
 	/**** }}} respawning ****/
 }
-

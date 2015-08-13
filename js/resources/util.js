@@ -226,7 +226,8 @@ Util.prototype.range = function(start, edge, step) {
 	}
 	edge = edge || 0;
 	step = step || 1;
-	for (var ret = []; (edge - start) * step > 0; start += step) {
+	var ret 
+	for (ret = []; (edge - start) * step > 0; start += step) {
 		ret.push(start);
 	}
 	return ret;

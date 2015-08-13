@@ -54,8 +54,7 @@ var b2FixtureDef	 = Box2D.Dynamics.b2FixtureDef
 var b2World				 = Box2D.Dynamics.b2World
 // var b2MassData			= Box2D.Collision.Shapes.b2MassData
 var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-// var b2CircleShape	= Box2D.Collision.Shapes.b2CircleShape
-// var b2DebugDraw		= Box2D.Dynamics.b2DebugDraw;
+var b2CircleShape	= Box2D.Collision.Shapes.b2CircleShape
 /**** }}} box2d synonyms ****/
 
 /**** {{{ internal utility methods ****/
@@ -144,21 +143,29 @@ Vanilla.prototype.pointInMap = function(position) {
 
 /**** {{{ physics interface methods ****/
 Vanilla.prototype.createShape = function(type, props) {
-	var w = props.width; var h = props.height
-	var shape = new b2PolygonShape
 	var scale = gameplay.physicsScale
+	var shape, w, h 
+
 	switch (type) {
 	case "rectangle": {
+		w = props.width; h = props.height
+		shape = new b2PolygonShape
 		shape.SetAsBox(w / 2 / scale, h / 2 / scale)
 		return shape
 	}
 	case "triangle": {
+		w = props.width; h = props.height
+		shape = new b2PolygonShape
 		shape.SetAsArray([
 			new b2Vec2.Make(-w/2 / scale, h/2 / scale)
 			, new b2Vec2.Make(-w/2 / scale, -h/2 / scale)
 			, new b2Vec2.Make(w/2 / scale, 0)], 3)
 		return shape 
 	}
+	case "circle": {
+		shape = new b2CircleShape(props.radius)
+		return shape
+	}	
 	}
 }
 

@@ -770,8 +770,7 @@ var b2FixtureDef	 = Box2D.Dynamics.b2FixtureDef
 var b2World				 = Box2D.Dynamics.b2World
 // var b2MassData			= Box2D.Collision.Shapes.b2MassData
 var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-// var b2CircleShape	= Box2D.Collision.Shapes.b2CircleShape
-// var b2DebugDraw		= Box2D.Dynamics.b2DebugDraw;
+var b2CircleShape	= Box2D.Collision.Shapes.b2CircleShape
 /**** }}} box2d synonyms ****/
 
 /**** {{{ internal utility methods ****/
@@ -860,21 +859,29 @@ Vanilla.prototype.pointInMap = function(position) {
 
 /**** {{{ physics interface methods ****/
 Vanilla.prototype.createShape = function(type, props) {
-	var w = props.width; var h = props.height
-	var shape = new b2PolygonShape
 	var scale = gameplay.physicsScale
+	var shape, w, h 
+
 	switch (type) {
 	case "rectangle": {
+		w = props.width; h = props.height
+		shape = new b2PolygonShape
 		shape.SetAsBox(w / 2 / scale, h / 2 / scale)
 		return shape
 	}
 	case "triangle": {
+		w = props.width; h = props.height
+		shape = new b2PolygonShape
 		shape.SetAsArray([
 			new b2Vec2.Make(-w/2 / scale, h/2 / scale)
 			, new b2Vec2.Make(-w/2 / scale, -h/2 / scale)
 			, new b2Vec2.Make(w/2 / scale, 0)], 3)
 		return shape 
 	}
+	case "circle": {
+		shape = new b2CircleShape(props.radius)
+		return shape
+	}	
 	}
 }
 
@@ -1310,7 +1317,6 @@ Player.prototype.step = function(delta) {
 	/**** }}} respawning ****/
 }
 
-
 },{"../../../assets/box2d.min.js":1,"../../resources/util.js":17,"./gameplay.js":8}],11:[function(require,module,exports){
 /*                  ******** vanilla/projectile.js ********        //
 \\ Projectile objective, with box2d interface and gameplay mechanics. \\
@@ -1623,7 +1629,7 @@ exports.applySnapshot = function(world, snapshots) {
 		return;
 
 	var compare = function(snapshot1, snapshot2) {
-		snapshot1.priority - snapshot2.priority
+		return snapshot1.priority - snapshot2.priority
 	}
 	snapshots.sort(compare).forEach(
 		function(snapshot) {
@@ -1953,7 +1959,8 @@ Util.prototype.range = function(start, edge, step) {
 	}
 	edge = edge || 0;
 	step = step || 1;
-	for (var ret = []; (edge - start) * step > 0; start += step) {
+	var ret 
+	for (ret = []; (edge - start) * step > 0; start += step) {
 		ret.push(start);
 	}
 	return ret;
@@ -2226,7 +2233,7 @@ function runWithStage(target, renderer, stage, object) {
 	function acceptKeyUp(e) { acceptKey(e, false) }
 	function acceptKeyDown(e) { acceptKey(e, true) }
 	function acceptKey(e, state) {
-		const name = nameFromKeyCode(e.keyCode)
+		var name = nameFromKeyCode(e.keyCode)
 		object.acceptKey(name, state)
 		// some keys have quite obnoxious default cases
 		// while others, such as the debug terminal, do not

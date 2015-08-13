@@ -70,9 +70,10 @@ Null.prototype.hasEnded = function() {
 
 /**** {{{ discrete networking ****/
 Null.prototype.join = function(name, id) {
+	var newId
 	if (typeof id !== undefined) {
 		var ids = this.players.map(function(player) { return player.id })
-		var newId = util.findAvailableId(ids)	
+		newId = util.findAvailableId(ids)	
 	} else { newId = id }
 
 	this.players.push({name: name, id: newId, timespent: 0})

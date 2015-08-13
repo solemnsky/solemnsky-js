@@ -147,7 +147,7 @@ function runWithStage(target, renderer, stage, object) {
 	function acceptKeyUp(e) { acceptKey(e, false) }
 	function acceptKeyDown(e) { acceptKey(e, true) }
 	function acceptKey(e, state) {
-		const name = nameFromKeyCode(e.keyCode)
+		var name = nameFromKeyCode(e.keyCode)
 		object.acceptKey(name, state)
 		// some keys have quite obnoxious default cases
 		// while others, such as the debug terminal, do not
