@@ -233,7 +233,7 @@ Vanilla.prototype.createState = function(key) {
 	return {map: "bloxMap", players: []}
 }
 
-Vanilla.prototype.init = function(data) {
+Vanilla.prototype.init = function(state) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
 	this.world = new b2World(
 		this.gravity //gravity
@@ -241,9 +241,8 @@ Vanilla.prototype.init = function(data) {
 	);
 	this.world.gravity = this.gravity;
 
-	var initdata = JSON.parse(data)
-	this.loadMap(maps[initdata.map])
-	initdata.players.forEach(
+	this.loadMap(maps[state.map])
+	state.players.forEach(
 		function(player) {
 			this.addPlayer(player.id, player.name)
 		}
