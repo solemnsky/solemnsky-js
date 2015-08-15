@@ -1085,8 +1085,10 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 
 /**** {{{ mode-facing methods ****/
 Vanilla.prototype.addProjectile = function(owner, type, pos) {
+	var ids = this.projectiles.map(function(projectile) {return projectile.id})
+	var newId = util.findAvailableId(ids)
 	this.projectiles.push(
-		new Projectile(this, owner, pos)
+		new Projectile(this, newId, owner, pos)
 	)
 }
 /**** }}} mode-facing methods ****/
