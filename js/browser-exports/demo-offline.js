@@ -10,10 +10,12 @@ var mode = new Demo(new Vanilla())
 // write debug pointers
 window.MODE = mode
 
+// effects
+var splash = require('../control/effects/splash.js')
+var fade = require('../control/effects/fade.js')
+
 // allocate control object
 var Client = require('../control/client-offline.js')(mode) 
-var Splash = require('../control/effects/splash.js')
-Splash.prototype.next = function(){return new Client()}
-var ctrl = new Splash()
+var ctrl = splash(fade(new Client(), 250), 1500)
 
 ui.run(60, ctrl)

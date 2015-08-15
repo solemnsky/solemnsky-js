@@ -2,43 +2,47 @@
 \\ Branding splash screen.                                       \\
 //									******** splash.js ********									 */
 
-module.exports = Splash
-
 var PIXI = require('../../../assets/pixi.min.js')
 
-function Splash() {
-	this.time = 0
-}
+module.exports = function(ctrl, scale) {
+	var third = scale / 3
 
-Splash.prototype.init = function() {
-}
+	function Splash() {
+		this.time = 0
+	}
 
-Splash.prototype.initRender = function(stage) {
-	this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
-	this.text.position.set(800, 450)
-	stage.addChild(this.text)
-}
+	Splash.prototype.init = function() { } 
 
-Splash.prototype.step = function(delta) {
-	this.time += delta
-}
+	Splash.prototype.initRender = function(stage) {
+		this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
+		this.text.position.set(800, 450)
+		stage.addChild(this.text)
+	}
 
-var scale = 2000
-var third = scale / 3
+	Splash.prototype.step = function(delta) {
+		this.time += delta
+	}
 
-Splash.prototype.stepRender = function() {
+	Splash.prototype.stepRender = function() {
 
-	if (this.time < third) {
-		this.text.alpha = this.time / third
-	} else {
-		if (this.time < third * 2) {
-			this.text.alpha = 1
+		if (this.time < third) {
+			this.text.alpha = this.time / third
 		} else {
-			this.text.alpha = (scale - this.time) / third
+			if (this.time < third * 2) {
+				this.text.alpha = 1
+			} else {
+				this.text.alpha = (scale - this.time) / third
+			}
 		}
 	}
-}
 
-Splash.prototype.hasEnded = function() {
-	return this.time > scale + third
+	Splash.prototype.acceptKey = function() {}
+
+	Splash.prototype.hasEnded = function() {
+		return this.time > scale 
+	}
+
+	Splash.prototype.next = function() {return ctrl}
+
+	return new Splash()
 }

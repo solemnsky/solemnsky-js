@@ -57,18 +57,13 @@ Top-level control structures do not define freeform functions, but rather ui con
 
 ### ui object required methods 
 
-These are equal to the mode methods:
-
-- init
-- initRender
-- step
-- stepRender
-- hasEnded
-
-These are not:
-
-- acceptKey(key, state): accepts a key to position state, a boolean
-- next: the next ui control object to run (when hasEnded returns true)
+- init()
+- initRender(stage)
+- step(delta)
+- stepRender(stage, delta, performance)
+- hasEnded()
+- acceptKey(key, state)
+- next() (optional)
 
 ## events
 

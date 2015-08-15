@@ -489,15 +489,17 @@ var mode = new Demo(new Vanilla())
 // write debug pointers
 window.MODE = mode
 
+// effects
+var splash = require('../control/effects/splash.js')
+var fade = require('../control/effects/fade.js')
+
 // allocate control object
 var Client = require('../control/client-offline.js')(mode) 
-var Splash = require('../control/effects/splash.js')
-Splash.prototype.next = function(){return new Client()}
-var ctrl = new Splash()
+var ctrl = splash(fade(new Client(), 250), 1500)
 
 ui.run(60, ctrl)
 
-},{"../control/client-offline.js":5,"../control/effects/splash.js":6,"../modes/demo/":8,"../modes/demo/render.js":9,"../modes/vanilla/":11,"../modes/vanilla/render.js":14,"../ui/index.js":20}],5:[function(require,module,exports){
+},{"../control/client-offline.js":5,"../control/effects/fade.js":6,"../control/effects/splash.js":7,"../modes/demo/":9,"../modes/demo/render.js":10,"../modes/vanilla/":12,"../modes/vanilla/render.js":15,"../ui/index.js":21}],5:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
@@ -545,53 +547,111 @@ module.exports = function(mode) {
 	return Game
 }
 
-},{"../../assets/pixi.min.js":3,"./ui/performance.js":7}],6:[function(require,module,exports){
+},{"../../assets/pixi.min.js":3,"./ui/performance.js":8}],6:[function(require,module,exports){
+/*									******** fade.js ********									   //
+\\ Fades the graphics in, good for entry transitions.            \\
+//									******** fade.js ********									   */
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+
+module.exports = function(ctrl, scale) {
+	function Fade() {
+		this.time = 0
+		this.fading = true
+	}
+
+	Fade.prototype.init = function() {
+		ctrl.init()
+	}
+
+	Fade.prototype.initRender = function(stage) {
+		this.ctrlStage = new PIXI.Container
+		ctrl.initRender(this.ctrlStage)
+
+		stage.addChild(this.ctrlStage)
+		this.ctrlStage.alpha = 0
+	}
+
+	Fade.prototype.step = function(delta) {
+		ctrl.step(delta)
+		if (this.fading)
+			this.time += delta
+		this.fading = this.time < scale
+	}
+	
+	Fade.prototype.stepRender = function(stage, delta, performance) {
+		ctrl.stepRender(this.ctrlStage, delta, performance)
+		if (this.fading) 
+			this.ctrlStage.alpha = this.time / scale
+		else 
+			this.ctrlStage.alpha = 1
+	}
+
+	Fade.prototype.hasEnded = function() {
+		return ctrl.hasEnded()
+	}
+
+	Fade.prototype.acceptKey = function(key, state) {
+		ctrl.acceptKey(key, state)
+	}
+
+	Fade.prototype.next = ctrl.next
+
+	return new Fade()
+}
+
+},{"../../../assets/pixi.min.js":3}],7:[function(require,module,exports){
 /*									******** splash.js ********									 //
 \\ Branding splash screen.                                       \\
 //									******** splash.js ********									 */
 
-module.exports = Splash
-
 var PIXI = require('../../../assets/pixi.min.js')
 
-function Splash() {
-	this.time = 0
-}
+module.exports = function(ctrl, scale) {
+	var third = scale / 3
 
-Splash.prototype.init = function() {
-}
+	function Splash() {
+		this.time = 0
+	}
 
-Splash.prototype.initRender = function(stage) {
-	this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
-	this.text.position.set(800, 450)
-	stage.addChild(this.text)
-}
+	Splash.prototype.init = function() { } 
 
-Splash.prototype.step = function(delta) {
-	this.time += delta
-}
+	Splash.prototype.initRender = function(stage) {
+		this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
+		this.text.position.set(800, 450)
+		stage.addChild(this.text)
+	}
 
-var scale = 2000
-var third = scale / 3
+	Splash.prototype.step = function(delta) {
+		this.time += delta
+	}
 
-Splash.prototype.stepRender = function() {
+	Splash.prototype.stepRender = function() {
 
-	if (this.time < third) {
-		this.text.alpha = this.time / third
-	} else {
-		if (this.time < third * 2) {
-			this.text.alpha = 1
+		if (this.time < third) {
+			this.text.alpha = this.time / third
 		} else {
-			this.text.alpha = (scale - this.time) / third
+			if (this.time < third * 2) {
+				this.text.alpha = 1
+			} else {
+				this.text.alpha = (scale - this.time) / third
+			}
 		}
 	}
+
+	Splash.prototype.acceptKey = function() {}
+
+	Splash.prototype.hasEnded = function() {
+		return this.time > scale 
+	}
+
+	Splash.prototype.next = function() {return ctrl}
+
+	return new Splash()
 }
 
-Splash.prototype.hasEnded = function() {
-	return this.time > scale + third
-}
-
-},{"../../../assets/pixi.min.js":3}],7:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],8:[function(require,module,exports){
 /*                  ******** performance.js ********                   //
 \\ Performance data display in top right of screen.                    \\
 //                  ******** performance.js ********                   */
@@ -615,7 +675,7 @@ exports.stepRender = function(stage, delta, performance) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":3}],8:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],9:[function(require,module,exports){
 /*                  ******** demo/index.js ********                   //
 \\ Development demo with fun features!                                \\
 //                  ******** demo/index.js ********                   */
@@ -711,7 +771,7 @@ Demo.prototype.readAssertion = function(str) {
 
 Demo.prototype.modeId = "demo dev"
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*                  ******** demo/render.js ********                  //
 \\ Rendering for the demo.                                            \\
 //                  ******** demo/render.js ********                  */
@@ -740,7 +800,7 @@ module.exports = function(Demo) {
 
 }
 
-},{"../../../assets/pixi.min.js":3}],10:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],11:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -796,7 +856,7 @@ module.exports = {
 	, graphicsNameClear: 35
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*									******** vanilla/index.js ********								//
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //									******** vanilla/index.js ********								*/
@@ -1178,7 +1238,7 @@ Vanilla.prototype.modeId = "vanilla engine"
 Vanilla.prototype.hasEnded = function() { return false }
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":17,"../../resources/util.js":19,"./gameplay.js":10,"./player.js":12,"./projectile.js":13,"./snapshots.js":15}],12:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":18,"../../resources/util.js":20,"./gameplay.js":11,"./player.js":13,"./projectile.js":14,"./snapshots.js":16}],13:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
@@ -1402,7 +1462,7 @@ Player.prototype.step = function(delta) {
 	/**** }}} respawning ****/
 }
 
-},{"../../../assets/box2d.min.js":1,"../../resources/util.js":19,"./gameplay.js":10}],13:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":20,"./gameplay.js":11}],14:[function(require,module,exports){
 /*                  ******** vanilla/projectile.js ********        //
 \\ Projectile objective, with box2d interface and gameplay mechanics. \\
 //                  ******** vanilla/projectile.js ********        */
@@ -1470,7 +1530,7 @@ Projectile.prototype.step = function(delta) {
 	// for example, it could fade out
 }
 
-},{"../../../assets/box2d.min.js":1,"./gameplay.js":10}],14:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"./gameplay.js":11}],15:[function(require,module,exports){
 /*					******** vanilla/render.js ********				//
 \\ Client-sided renderer for the vanilla game mode.		\\
 //					******** vanilla/render.js ********				*/
@@ -1673,7 +1733,7 @@ module.exports = function(Vanilla) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":18,"./gameplay.js":10}],15:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":19,"./gameplay.js":11}],16:[function(require,module,exports){
 var util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1759,7 +1819,7 @@ exports.inflateSnapshot = function(snap) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":19}],16:[function(require,module,exports){
+},{"../../resources/util.js":20}],17:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1773,7 +1833,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1804,7 +1864,7 @@ module.exports = {
 	}
 }
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
 		"http://solemnsky.github.io/multimedia/player.png"
@@ -1815,7 +1875,7 @@ module.exports = {
 			
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*									******** util.js ********											 //
 \\ This file has a bunch of misc utility functions.								 \\
 //									******** util.js ********											 */
@@ -2088,7 +2148,7 @@ Util.prototype.getQueryStringValue = function(key) {
 
 /**** }}} elem id operations ****/
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -2126,7 +2186,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":3,"./run.js":21}],21:[function(require,module,exports){
+},{"../../assets/pixi.min.js":3,"./run.js":22}],22:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -2299,4 +2359,4 @@ function runWithStage(target, renderer, stage, object) {
 	update()
 }
 
-},{"../../assets/pixi.min.js":3,"../resources/keys.js":16}]},{},[4]);
+},{"../../assets/pixi.min.js":3,"../resources/keys.js":17}]},{},[4]);
