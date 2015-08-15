@@ -4,12 +4,12 @@
 
 var PIXI = require('../../assets/pixi.min.js')
 var util = require('../resources/util.js')
-var renderPerf = require('./hud/performance.js')
+var renderPerf = require('./ui/performance.js')
 
 module.exports = function(mode, address, port, path) {
 
 /**** {{{ ConnectUI ****/
-	var ConnectUI = function() {
+	function ConnectUI() {
 		this.entered = false
 		this.countdown = 1
 	}
@@ -43,7 +43,7 @@ module.exports = function(mode, address, port, path) {
 /**** }}} ConnectUI ****/
 
 /**** {{{ Game ****/
-	var Game = function() {
+	function Game() {
 		this.id = null;
 		this.disconnected = false;
 		this.initialised = false;
@@ -96,7 +96,7 @@ module.exports = function(mode, address, port, path) {
 						break;
 					case "SNAP":
 						if (this.id !== null)
-							mode.clientMerge(this.id, data); 
+							mode.clientMerge(this.id, mode.readAssertion(data)); 
 						break
 					case "JOIN":
 						mode.join(split[1], split[0]); 
@@ -146,6 +146,7 @@ module.exports = function(mode, address, port, path) {
 
 		renderPerf.initRender(this.perfStage)
 	}
+	var now, diff
 	Game.prototype.stepRender = function(stage, delta, performance) {
 		if (this.initialised) {
 			if (this.id !== null) {
@@ -156,6 +157,11 @@ module.exports = function(mode, address, port, path) {
 			this.displayChat()
 		}
 
+		now = Date.now()
+		this.processCue()
+		diff = Date.now() - now
+
+		performance.cueTime = diff
 		renderPerf.stepRender(this.perfStage, delta, performance)
 	}
 	Game.prototype.acceptKey = function(key, state) {
@@ -275,19 +281,18 @@ module.exports = function(mode, address, port, path) {
 		if (message.data.split(" ")[0] !== "SNAP") 
 			console.log("<<<" + message.data)
 		this.messageCue.push(message.data)
-		this.processCue()
 	}
 	Game.prototype.broadcastLoop = function() {
 		setTimeout(this.broadcastLoop.bind(this), 20)
 
 		//Don't send snapshots if we don't have an id yet
 		if (this.id !== null)
-			this.send("SNAP " + mode.clientAssert(this.id))
+			this.send("SNAP " + mode.serialiseAssertion(mode.clientAssert(this.id)))
 	}
 /**** }}} network control ****/
 /**** }}} Game ****/
 
 	ConnectUI.prototype.next = function() {return new Game()}
 	Game.prototype.next = function() {return new ConnectUI()}
-	return new ConnectUI
+	return ConnectUI
 }

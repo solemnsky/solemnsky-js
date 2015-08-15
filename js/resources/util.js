@@ -86,16 +86,6 @@ Util.prototype.floatDeflation =
 	{ deflate: function(f) { return exports.floatToChar(f) }
 	, inflate: function(val) { return exports.charToFloat(val) } }
 
-/*
-Util.prototype.vecDeflation =
-	{ deflate: function(vec) { 
-			return exports.floatToChar(vec.x) + exports.floatToChar(vec.y)
-		}
-	, inflate: function(val) { 
-			return {x: exports.charToFloat(val[0]), y: exports.charToFloat(val[2])}
-		} }
-*/
-
 Util.prototype.vecDeflation = 
 	{ deflate: 
 			function(x) {
@@ -164,7 +154,7 @@ Util.prototype.deflateObject = function(deflationRules, object) {
 			var deflated = {}
 			Object.keys(inflated).forEach(
 				function(key) {
-					var pair = deflatePair({key: key, value: inflated[key]})
+					var pair = deflatePair(deflationRules, {key: key, value: inflated[key]})
 					deflated[pair.key] = pair.value	
 				}
 			, deflated)
@@ -183,7 +173,7 @@ Util.prototype.inflateObject = function(deflationRules, object) {
 			var inflated = {}
 			Object.keys(deflated).forEach(
 				function(key) {
-					var pair = inflatePair({key: key, value: deflated[key]})
+					var pair = inflatePair(deflationRules, {key: key, value: deflated[key]})
 					inflated[pair.key] = pair.value
 				}
 			)

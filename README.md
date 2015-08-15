@@ -8,8 +8,6 @@ Modes are objects that represent the essential game logic of a game mode, i.e. t
 
 The seperation of modes and control structures (see the relevant section later in this readme) seperate boilerplate and things not directly related to game mechanics design (chatting, HUDs, networking) from the game mode definition, making the latter easy to understand and modify without fear of breaking other elements of the whole game experience.
 
-All network functions in modes return and expect native javascript types, (they are not required to serialise them), but internally should use the util.deflateObject and util.inflateObject methods to minify their attribute labels and assure that the values use their space efficently. 
-
 To define a mode, a constructor must be exported along with the following prototypical methods:
 
 ### initialisation
@@ -38,6 +36,9 @@ To define a mode, a constructor must be exported along with the following protot
 - clientMerge(id, snap): merge an assertion sent from the server to a client (runs at ~50Hz)
 - serverMerge(id, snap): merge an assertion sent from a client to the server (runs at ~50Hz)
 
+- serialiseAssertion(snap): assertion -> string
+- readAssertion(str): string -> assertion
+
 ### modeId
 
 - modeId: the id of the mode, to check if a client and a server are compatible
@@ -53,6 +54,16 @@ To define a mode, a constructor must be exported along with the following protot
 Top-level control structure deal with making game modes playable. control/offline.js, for example, makes a game mode playable by a single offline player, and control/client-arena.js and control/server-arena.js respectively form a client-server pair where players can join and quit freely during a game. 
 
 Top-level control structures do not define freeform functions, but rather ui control objects which are executed with the run method exported from the project's ui module. Similar to how the boilerplate of controls, UI, and networking is abstracted from mode objects, the boilerplate of running the rAF loop with render and simulation functions, reporting performance information, and managing transfer of control between ui objects (with the 'next' attribute) is abstracted from ui objects. 
+
+### ui object required methods 
+
+- init()
+- initRender(stage)
+- step(delta)
+- stepRender(stage, delta, performance)
+- hasEnded()
+- acceptKey(key, state)
+- next() (optional)
 
 ## events
 

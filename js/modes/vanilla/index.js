@@ -4,6 +4,7 @@
 
 module.exports = Vanilla
 
+var msgpack = require('../../../assets/msgpack.min.js')
 var Box2D = require('../../../assets/box2d.min.js')
 
 var util = require('../../resources/util.js')
@@ -62,7 +63,7 @@ Vanilla.prototype.addPlayer = function(id, name) {
 	if (this.players.some(function(player) {return player.id === id})) 
 		return null
 
-	var player = new Player(this, id, 900, 450, name);
+	var player = new Player(this, id, {x: 900, y: 450}, name);
 	this.players.push(player);
 	player.block.SetSleepingAllowed(false);
 	player.block.SetBullet(true);
@@ -137,7 +138,10 @@ Vanilla.prototype.evaluateContact = function(contact) {
 }
 
 Vanilla.prototype.pointInMap = function(position) {
-	
+	var x = position.x, y = position.y 
+	var X = this.mapData.dimensions.width, Y = this.mapData.dimensions.height
+
+	return x > 0 && y > 0 && x < X && y < Y
 }
 /**** }}} internal utility methods ***/
 
@@ -221,9 +225,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 /**** }}} physics interface methods ****/
 
 /**** {{{ mode-facing methods ****/
-Vanilla.prototype.addProjectile = function(id, type, pos) {
+Vanilla.prototype.addProjectile = function(owner, type, pos) {
 	this.projectiles.push(
-		new Projectile(this, id, pos)
+		new Projectile(this, owner, pos)
 	)
 }
 /**** }}} mode-facing methods ****/
@@ -313,6 +317,12 @@ Vanilla.prototype.step = function(delta) {
 		function(player) { player.readFromBlock() } )
 	this.projectiles.forEach(
 		function(projectile) { projectile.readFromBlock() } )
+	this.projectiles = 
+		this.projectiles.filter(
+			function(projectile) {
+				return this.pointInMap(projectile.position)
+			}
+	, this)
 
 	// step players and projectiles forward
 	this.players.forEach(function(player) {
@@ -347,28 +357,28 @@ Vanilla.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Vanilla.prototype.clientAssert = function(id) {
-	return snapshots.serialiseSnapshot(
-		snapshots.makePlayerSnapshot(this, id, 1, true, {})
-	)
+	return snapshots.makePlayerSnapshot(this, id, 1, true, {})
 }
 
 Vanilla.prototype.serverAssert = function() {
-	return snapshots.serialiseSnapshot(
-		snapshots.makeTotalSnapshot(this, 0)
-	)
+	return snapshots.makeTotalSnapshot(this, 0)
 }
 
-Vanilla.prototype.clientMerge = function(id, data) {
-	var snap = snapshots.readSnapshot(data)		
-	var mysnap = snapshots.readSnapshot(this.clientAssert(id))
-	if (snap !== null)
-		snapshots.applySnapshot(this, snap.concat(mysnap))
+Vanilla.prototype.clientMerge = function(id, snap) {
+	var mysnap = this.clientAssert(id)
+	snapshots.applySnapshot(this, snap.concat(mysnap))
 }
 
-Vanilla.prototype.serverMerge = function(id, data) {
-	var snap = snapshots.readSnapshot(data)
-	if (snap !== null)
-		snapshots.applySnapshot(this, snap)
+Vanilla.prototype.serverMerge = function(id, snap) {
+	snapshots.applySnapshot(this, snap)
+}
+
+Vanilla.prototype.serialiseAssertion = function(snap) {
+	return msgpack.pack(snapshots.deflateSnapshot(snap), true)
+}
+
+Vanilla.prototype.readAssertion = function(str) {
+	return snapshots.inflateSnapshot(msgpack.unpack(str))
 }
 /**** }}} continuous networking ****/
 
@@ -376,6 +386,4 @@ Vanilla.prototype.serverMerge = function(id, data) {
 Vanilla.prototype.modeId = "vanilla engine"
 
 Vanilla.prototype.hasEnded = function() { return false }
-
-
 /**** }}} misc ****/

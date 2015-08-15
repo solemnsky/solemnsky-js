@@ -22,7 +22,7 @@ var b2Vec2         = Box2D.Common.Math.b2Vec2
 /**** }}} box2d synonyms ****/
 
 /**** {{{ Player() ****/
-function Player(game, id, x, y, name) {
+function Player(game, id, pos, name) {
 	this.game = game;
 
 	this.name = name;
@@ -38,7 +38,7 @@ function Player(game, id, x, y, name) {
 
 	// read-only for clients
 	// basic physical values
-	this.position = {x: x, y: y};
+	this.position = pos
 	this.velocity = {x: 0, y: 0}
 	this.rotation = 0;
 	this.rotationVel = 0;
@@ -55,14 +55,14 @@ function Player(game, id, x, y, name) {
 	this.energy = 1;
 	
 	// spawn mechanics
-	this.spawnpoint = {x: x, y: y};
+	this.spawnpoint = pos
 	this.respawning = false;
 
 	// this value should *never* be accessed; instead, access
 	// the position, velocity, rotation, and rotationVel values above
 	this.block = 
 		this.game.createBody(
-			{x: x, y: y}
+			this.position
 			, this.game.createShape("triangle", 
 					{width: gameplay.playerWidth, height: gameplay.playerHeight}
 				)

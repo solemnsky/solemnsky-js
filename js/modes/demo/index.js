@@ -67,11 +67,11 @@ Demo.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Demo.prototype.clientAssert = function(id) {
-	this.vanilla.clientAssert(id)
+	return this.vanilla.clientAssert(id)
 }
 
 Demo.prototype.serverAssert = function() {
-	this.vanilla.serverAssert()
+	return this.vanilla.serverAssert()
 }
 
 Demo.prototype.clientMerge = function(id, snap) {
@@ -80,6 +80,14 @@ Demo.prototype.clientMerge = function(id, snap) {
 
 Demo.prototype.serverMerge = function(id, snap) {
 	this.vanilla.serverMerge(id, snap)
+}
+
+Demo.prototype.serialiseAssertion = function(snap) {
+	return this.vanilla.serialiseAssertion(snap)
+}
+
+Demo.prototype.readAssertion = function(str) {
+	return this.vanilla.readAssertion(str)
 }
 /**** }}} continuous networking ****/
 
