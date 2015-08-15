@@ -496,23 +496,26 @@ if (address === "")
 	address = "localhost"
 
 // allocate control object
-var client = require('../control/client-arena.js')(mode, address, 50042, "/")
+var Client = require('../control/client-arena.js')(mode) 
+var Splash = require('../control/splash.js')
+Splash.prototype.next = Client
+var ctrl = new Splash()
 
-ui.run(60, client)
+ui.run(60, ctrl)
 
-},{"../control/client-arena.js":5,"../modes/demo/":7,"../modes/demo/render.js":8,"../modes/vanilla/":10,"../modes/vanilla/render.js":13,"../resources/util.js":18,"../ui/index.js":19}],5:[function(require,module,exports){
+},{"../control/client-arena.js":5,"../control/splash.js":6,"../modes/demo/":8,"../modes/demo/render.js":9,"../modes/vanilla/":11,"../modes/vanilla/render.js":14,"../resources/util.js":19,"../ui/index.js":20}],5:[function(require,module,exports){
 /*									******** client-arena.js ********									 //
 \\ Online arena client.																								 \\
 //									******** client-arena.js ********									 */
 
 var PIXI = require('../../assets/pixi.min.js')
 var util = require('../resources/util.js')
-var renderPerf = require('./hud/performance.js')
+var renderPerf = require('./ui/performance.js')
 
 module.exports = function(mode, address, port, path) {
 
 /**** {{{ ConnectUI ****/
-	var ConnectUI = function() {
+	function ConnectUI() {
 		this.entered = false
 		this.countdown = 1
 	}
@@ -546,7 +549,7 @@ module.exports = function(mode, address, port, path) {
 /**** }}} ConnectUI ****/
 
 /**** {{{ Game ****/
-	var Game = function() {
+	function Game() {
 		this.id = null;
 		this.disconnected = false;
 		this.initialised = false;
@@ -649,7 +652,7 @@ module.exports = function(mode, address, port, path) {
 
 		renderPerf.initRender(this.perfStage)
 	}
-	var now 
+	var now, diff
 	Game.prototype.stepRender = function(stage, delta, performance) {
 		if (this.initialised) {
 			if (this.id !== null) {
@@ -797,10 +800,43 @@ module.exports = function(mode, address, port, path) {
 
 	ConnectUI.prototype.next = function() {return new Game()}
 	Game.prototype.next = function() {return new ConnectUI()}
-	return new ConnectUI
+	return ConnectUI
 }
 
-},{"../../assets/pixi.min.js":3,"../resources/util.js":18,"./hud/performance.js":6}],6:[function(require,module,exports){
+},{"../../assets/pixi.min.js":3,"../resources/util.js":19,"./ui/performance.js":7}],6:[function(require,module,exports){
+/*									******** splash.js ********									 //
+\\ Splash screen.                                                      \\
+//									******** splash.js ********									 */
+
+var PIXI = require('../../assets/pixi.min.js')
+
+function Splash() {
+	this.time = 0
+}
+
+Splash.prototype.init = function() {
+}
+
+Splash.prototype.initRender = function(stage) {
+	this.text = new PIXI.Text
+	this.text.position.set(800, 450)
+}
+
+Splash.prototype.step = function(delta) {
+	this.time += delta
+}
+
+Splash.prototype.stepRender = function() {
+	this.text.text = this.time
+}
+
+Splash.prototype.hasEnded = function() {
+	return this.time > 1000
+}
+
+exports = Splash
+
+},{"../../assets/pixi.min.js":3}],7:[function(require,module,exports){
 /*                  ******** performance.js ********                   //
 \\ Performance data display in top right of screen.                    \\
 //                  ******** performance.js ********                   */
@@ -824,7 +860,7 @@ exports.stepRender = function(stage, delta, performance) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":3}],7:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],8:[function(require,module,exports){
 /*                  ******** demo/index.js ********                   //
 \\ Development demo with fun features!                                \\
 //                  ******** demo/index.js ********                   */
@@ -920,7 +956,7 @@ Demo.prototype.readAssertion = function(str) {
 
 Demo.prototype.modeId = "demo dev"
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*                  ******** demo/render.js ********                  //
 \\ Rendering for the demo.                                            \\
 //                  ******** demo/render.js ********                  */
@@ -949,7 +985,7 @@ module.exports = function(Demo) {
 
 }
 
-},{"../../../assets/pixi.min.js":3}],9:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],10:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -1005,7 +1041,7 @@ module.exports = {
 	, graphicsNameClear: 35
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*									******** vanilla/index.js ********								//
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //									******** vanilla/index.js ********								*/
@@ -1385,11 +1421,9 @@ Vanilla.prototype.readAssertion = function(str) {
 Vanilla.prototype.modeId = "vanilla engine"
 
 Vanilla.prototype.hasEnded = function() { return false }
-
-
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":16,"../../resources/util.js":18,"./gameplay.js":9,"./player.js":11,"./projectile.js":12,"./snapshots.js":14}],11:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":17,"../../resources/util.js":19,"./gameplay.js":10,"./player.js":12,"./projectile.js":13,"./snapshots.js":15}],12:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
@@ -1613,7 +1647,7 @@ Player.prototype.step = function(delta) {
 	/**** }}} respawning ****/
 }
 
-},{"../../../assets/box2d.min.js":1,"../../resources/util.js":18,"./gameplay.js":9}],12:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":19,"./gameplay.js":10}],13:[function(require,module,exports){
 /*                  ******** vanilla/projectile.js ********        //
 \\ Projectile objective, with box2d interface and gameplay mechanics. \\
 //                  ******** vanilla/projectile.js ********        */
@@ -1681,7 +1715,7 @@ Projectile.prototype.step = function(delta) {
 	// for example, it could fade out
 }
 
-},{"../../../assets/box2d.min.js":1,"./gameplay.js":9}],13:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"./gameplay.js":10}],14:[function(require,module,exports){
 /*					******** vanilla/render.js ********				//
 \\ Client-sided renderer for the vanilla game mode.		\\
 //					******** vanilla/render.js ********				*/
@@ -1884,7 +1918,7 @@ module.exports = function(Vanilla) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":17,"./gameplay.js":9}],14:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":18,"./gameplay.js":10}],15:[function(require,module,exports){
 var util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1970,7 +2004,7 @@ exports.inflateSnapshot = function(snap) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":18}],15:[function(require,module,exports){
+},{"../../resources/util.js":19}],16:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1984,7 +2018,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -2015,7 +2049,7 @@ module.exports = {
 	}
 }
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
 		"http://solemnsky.github.io/multimedia/player.png"
@@ -2026,7 +2060,7 @@ module.exports = {
 			
 }
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*									******** util.js ********											 //
 \\ This file has a bunch of misc utility functions.								 \\
 //									******** util.js ********											 */
@@ -2299,7 +2333,7 @@ Util.prototype.getQueryStringValue = function(key) {
 
 /**** }}} elem id operations ****/
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ A collection of trivial UI object constructors.                     \\
 //                  ******** run.js ********                           */
@@ -2337,7 +2371,7 @@ exports.combineOverlay = function(overlay, object) {
 	return new Result()
 }
 
-},{"../../assets/pixi.min.js":3,"./run.js":20}],20:[function(require,module,exports){
+},{"../../assets/pixi.min.js":3,"./run.js":21}],21:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -2510,4 +2544,4 @@ function runWithStage(target, renderer, stage, object) {
 	update()
 }
 
-},{"../../assets/pixi.min.js":3,"../resources/keys.js":15}]},{},[4]);
+},{"../../assets/pixi.min.js":3,"../resources/keys.js":16}]},{},[4]);

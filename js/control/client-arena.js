@@ -9,7 +9,7 @@ var renderPerf = require('./ui/performance.js')
 module.exports = function(mode, address, port, path) {
 
 /**** {{{ ConnectUI ****/
-	var ConnectUI = function() {
+	function ConnectUI() {
 		this.entered = false
 		this.countdown = 1
 	}
@@ -43,7 +43,7 @@ module.exports = function(mode, address, port, path) {
 /**** }}} ConnectUI ****/
 
 /**** {{{ Game ****/
-	var Game = function() {
+	function Game() {
 		this.id = null;
 		this.disconnected = false;
 		this.initialised = false;
@@ -294,5 +294,5 @@ module.exports = function(mode, address, port, path) {
 
 	ConnectUI.prototype.next = function() {return new Game()}
 	Game.prototype.next = function() {return new ConnectUI()}
-	return new ConnectUI
+	return ConnectUI
 }

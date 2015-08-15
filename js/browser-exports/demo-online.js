@@ -17,6 +17,9 @@ if (address === "")
 	address = "localhost"
 
 // allocate control object
-var client = require('../control/client-arena.js')(mode, address, 50042, "/")
+var Client = require('../control/client-arena.js')(mode) 
+var Splash = require('../control/splash.js')
+Splash.prototype.next = Client
+var ctrl = new Splash()
 
-ui.run(60, client)
+ui.run(60, ctrl)

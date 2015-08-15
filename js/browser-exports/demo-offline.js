@@ -1,5 +1,4 @@
 var ui = require('../ui/index.js')
-var msgpack = require('../../assets/msgpack.min.js')
 
 // allocate mode
 var Vanilla = require('../modes/vanilla/')
@@ -10,9 +9,11 @@ var mode = new Demo(new Vanilla())
 	
 // write debug pointers
 window.MODE = mode
-window.MSGPACK = msgpack
 
 // allocate control object
-var client = require('../control/client-offline.js')(mode) 
+var Client = require('../control/client-offline.js')(mode) 
+var Splash = require('../control/splash.js')
+Splash.prototype.next = Client
+var ctrl = new Splash()
 
-ui.run(60, client)
+ui.run(60, ctrl)
