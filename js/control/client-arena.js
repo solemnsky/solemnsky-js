@@ -4,7 +4,7 @@
 
 var PIXI = require('../../assets/pixi.min.js')
 var util = require('../resources/util.js')
-var renderPerf = require('./hud/performance.js')
+var renderPerf = require('./ui/performance.js')
 
 module.exports = function(mode, address, port, path) {
 
@@ -146,7 +146,7 @@ module.exports = function(mode, address, port, path) {
 
 		renderPerf.initRender(this.perfStage)
 	}
-	var now 
+	var now, diff
 	Game.prototype.stepRender = function(stage, delta, performance) {
 		if (this.initialised) {
 			if (this.id !== null) {

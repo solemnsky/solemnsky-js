@@ -377,6 +377,4 @@ Vanilla.prototype.readAssertion = function(str) {
 Vanilla.prototype.modeId = "vanilla engine"
 
 Vanilla.prototype.hasEnded = function() { return false }
-
-
 /**** }}} misc ****/

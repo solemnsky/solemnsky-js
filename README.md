@@ -55,6 +55,21 @@ Top-level control structure deal with making game modes playable. control/offlin
 
 Top-level control structures do not define freeform functions, but rather ui control objects which are executed with the run method exported from the project's ui module. Similar to how the boilerplate of controls, UI, and networking is abstracted from mode objects, the boilerplate of running the rAF loop with render and simulation functions, reporting performance information, and managing transfer of control between ui objects (with the 'next' attribute) is abstracted from ui objects. 
 
+### ui object required methods 
+
+These are equal to the mode methods:
+
+- init
+- initRender
+- step
+- stepRender
+- hasEnded
+
+These are not:
+
+- acceptKey(key, state): accepts a key to position state, a boolean
+- next: the next ui control object to run (when hasEnded returns true)
+
 ## events
 
 'Events' may be passed into a mode with acceptEvent and the logical iteration method 'step' returns a list of events. These are used, respectively, to communicate the potentially large and variable set of information that may influence the game (from client's controls to their choices of planes to things they say in the chat) and the information that a game mode may make available for its clients, aside from the basic rendering method and the player listing (points being scored, kill interactions, and the like.) Events are never sent over the network. While team switching may be returned as an event from a game engine and subsequently rendered by the HUD, the communication of this information with other clients is to be done via the continuous networking methods.

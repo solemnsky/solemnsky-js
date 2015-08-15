@@ -4,7 +4,9 @@
 
 var PIXI = require('../../assets/pixi.min.js')
 
-var renderPerf = require('./hud/performance.js')
+var renderPerf = require('./ui/performance.js')
+
+var perf
 
 module.exports = function(mode) {
 	function Game() {
@@ -41,6 +43,9 @@ module.exports = function(mode) {
 	Game.prototype.acceptKey = function(key, state) {
 		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
 	}
+
+	var game = new Game()
+	game.next = 
 
 	return new Game() 
 }

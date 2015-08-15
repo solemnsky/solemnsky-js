@@ -561,7 +561,9 @@ exports.initRender = function(stage) {
 exports.stepRender = function(stage, delta, performance) {
 	counter += delta
 	if (counter > 500) {
-		fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime
+		fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime 
+		if (typeof performance.cueTime !== "undefined")
+			fps.text += "\ncue: " + performance.cueTime
 		counter -= 500
 	}
 }
