@@ -6,12 +6,13 @@
 
 var PIXI = require('../../../assets/pixi.min.js')
 
-module.exports = function(str) {
+module.exports = function(mode, key) {
 	function Loader() {
 		this.timer =  0
 	}
 
 	Loader.prototype.init = function() {
+		mode.loadAssets
 	}
 
 	Loader.prototype.initRender = function(stage) {

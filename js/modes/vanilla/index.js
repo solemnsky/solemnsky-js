@@ -43,6 +43,10 @@ function Vanilla() {
 			, playerStage: null }
 		// the three pixi stages, constructed with pixi data from the
 		// map, projectile and player arrays and updated each render tick
+
+	this.projectileDefs = []
+		// definitions of various callbacks and values for projectiles
+		// in function of their type, in the form of an array of records 
 }
 /**** }}} constructor ****/
 
@@ -231,6 +235,10 @@ Vanilla.prototype.addProjectile = function(owner, type, pos) {
 	this.projectiles.push(
 		new Projectile(this, newId, owner, pos)
 	)
+}
+
+Vanilla.prototype.addProjectileType = function(type, methods) {
+
 }
 /**** }}} mode-facing methods ****/
 
