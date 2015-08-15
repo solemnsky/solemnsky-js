@@ -347,13 +347,13 @@ Vanilla.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Vanilla.prototype.clientAssert = function(id) {
-	return snapshots.serialiseSnapshot(
+	return snapshots.deflateSnapshot(
 		snapshots.makePlayerSnapshot(this, id, 1, true, {})
 	)
 }
 
 Vanilla.prototype.serverAssert = function() {
-	return snapshots.serialiseSnapshot(
+	return snapshots.deflateSnapshot(
 		snapshots.makeTotalSnapshot(this, 0)
 	)
 }

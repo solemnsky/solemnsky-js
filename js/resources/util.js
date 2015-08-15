@@ -164,7 +164,7 @@ Util.prototype.deflateObject = function(deflationRules, object) {
 			var deflated = {}
 			Object.keys(inflated).forEach(
 				function(key) {
-					var pair = deflatePair({key: key, value: inflated[key]})
+					var pair = deflatePair(deflationRules, {key: key, value: inflated[key]})
 					deflated[pair.key] = pair.value	
 				}
 			, deflated)
@@ -183,7 +183,7 @@ Util.prototype.inflateObject = function(deflationRules, object) {
 			var inflated = {}
 			Object.keys(deflated).forEach(
 				function(key) {
-					var pair = inflatePair({key: key, value: deflated[key]})
+					var pair = inflatePair(deflationRules, {key: key, value: deflated[key]})
 					inflated[pair.key] = pair.value
 				}
 			)

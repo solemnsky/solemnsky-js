@@ -73,12 +73,12 @@ var deflationRules =
 	, { key: "speed", shortKey: "g", deflation: util.floatDeflation }
 	]
 
-exports.serialiseSnapshot = function(snap) {
-	return util.serialiseObject(deflationRules, snap)
+exports.deflateSnapshot = function(snap) {
+	return util.deflateObject(deflationRules, snap)
 }
 
-exports.readSnapshot = function(snap) {
-	return util.readObject(deflationRules, snap)
+exports.inflateSnapshot = function(snap) {
+	return util.inflateObject(deflationRules, snap)
 }
 
 exports.Snapshot = Snapshot

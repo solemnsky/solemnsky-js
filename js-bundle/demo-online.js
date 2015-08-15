@@ -1324,13 +1324,13 @@ Vanilla.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Vanilla.prototype.clientAssert = function(id) {
-	return snapshots.serialiseSnapshot(
+	return snapshots.deflateSnapshot(
 		snapshots.makePlayerSnapshot(this, id, 1, true, {})
 	)
 }
 
 Vanilla.prototype.serverAssert = function() {
-	return snapshots.serialiseSnapshot(
+	return snapshots.deflateSnapshot(
 		snapshots.makeTotalSnapshot(this, 0)
 	)
 }
@@ -1928,12 +1928,12 @@ var deflationRules =
 	, { key: "speed", shortKey: "g", deflation: util.floatDeflation }
 	]
 
-exports.serialiseSnapshot = function(snap) {
-	return util.serialiseObject(deflationRules, snap)
+exports.deflateSnapshot = function(snap) {
+	return util.deflateObject(deflationRules, snap)
 }
 
-exports.readSnapshot = function(snap) {
-	return util.readObject(deflationRules, snap)
+exports.inflateSnapshot = function(snap) {
+	return util.inflateObject(deflationRules, snap)
 }
 
 exports.Snapshot = Snapshot
@@ -2161,7 +2161,7 @@ Util.prototype.deflateObject = function(deflationRules, object) {
 			var deflated = {}
 			Object.keys(inflated).forEach(
 				function(key) {
-					var pair = deflatePair({key: key, value: inflated[key]})
+					var pair = deflatePair(deflationRules, {key: key, value: inflated[key]})
 					deflated[pair.key] = pair.value	
 				}
 			, deflated)
@@ -2180,7 +2180,7 @@ Util.prototype.inflateObject = function(deflationRules, object) {
 			var inflated = {}
 			Object.keys(deflated).forEach(
 				function(key) {
-					var pair = inflatePair({key: key, value: deflated[key]})
+					var pair = inflatePair(deflationRules, {key: key, value: deflated[key]})
 					inflated[pair.key] = pair.value
 				}
 			)
