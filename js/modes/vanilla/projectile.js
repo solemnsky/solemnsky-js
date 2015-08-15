@@ -21,13 +21,13 @@ var b2Vec2         = Box2D.Common.Math.b2Vec2
 /**** }}} box2d synonyms ****/
 
 /**** {{{ Projectile() ****/
-function Projectile(game, id, pos) {
+function Projectile(game, id, owner, pos) {
 	// TODO: expand definition
 	// this is just a placeholder, projectiles should be
 	// freely parameterized and definable through outer modes
 
 	this.game = game
-	this.id = id
+	this.owner = owner
 
 	this.position = pos
 	this.dimensions = {w: 5, h: 5}

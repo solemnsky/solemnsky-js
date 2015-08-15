@@ -63,7 +63,7 @@ Vanilla.prototype.addPlayer = function(id, name) {
 	if (this.players.some(function(player) {return player.id === id})) 
 		return null
 
-	var player = new Player(this, id, 900, 450, name);
+	var player = new Player(this, id, {x: 900, y: 450}, name);
 	this.players.push(player);
 	player.block.SetSleepingAllowed(false);
 	player.block.SetBullet(true);
@@ -225,9 +225,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 /**** }}} physics interface methods ****/
 
 /**** {{{ mode-facing methods ****/
-Vanilla.prototype.addProjectile = function(id, type, pos) {
+Vanilla.prototype.addProjectile = function(owner, type, pos) {
 	this.projectiles.push(
-		new Projectile(this, id, pos)
+		new Projectile(this, owner, pos)
 	)
 }
 /**** }}} mode-facing methods ****/
@@ -320,10 +320,7 @@ Vanilla.prototype.step = function(delta) {
 	this.projectiles = 
 		this.projectiles.filter(
 			function(projectile) {
-				var out = !this.pointInMap(projectile.position)
-				if (out)
-					console.log(projectile.position)
-				return !out
+				return this.pointInMap(projectile.position)
 			}
 	, this)
 

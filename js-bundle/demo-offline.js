@@ -922,7 +922,7 @@ Vanilla.prototype.addPlayer = function(id, name) {
 	if (this.players.some(function(player) {return player.id === id})) 
 		return null
 
-	var player = new Player(this, id, 900, 450, name);
+	var player = new Player(this, id, {x: 900, y: 450}, name);
 	this.players.push(player);
 	player.block.SetSleepingAllowed(false);
 	player.block.SetBullet(true);
@@ -1084,9 +1084,9 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 /**** }}} physics interface methods ****/
 
 /**** {{{ mode-facing methods ****/
-Vanilla.prototype.addProjectile = function(id, type, pos) {
+Vanilla.prototype.addProjectile = function(owner, type, pos) {
 	this.projectiles.push(
-		new Projectile(this, id, pos)
+		new Projectile(this, owner, pos)
 	)
 }
 /**** }}} mode-facing methods ****/
@@ -1179,10 +1179,7 @@ Vanilla.prototype.step = function(delta) {
 	this.projectiles = 
 		this.projectiles.filter(
 			function(projectile) {
-				var out = !this.pointInMap(projectile.position)
-				if (out)
-					console.log(projectile.position)
-				return !out
+				return this.pointInMap(projectile.position)
 			}
 	, this)
 
@@ -1275,7 +1272,7 @@ var b2Vec2         = Box2D.Common.Math.b2Vec2
 /**** }}} box2d synonyms ****/
 
 /**** {{{ Player() ****/
-function Player(game, id, x, y, name) {
+function Player(game, id, pos, name) {
 	this.game = game;
 
 	this.name = name;
@@ -1291,7 +1288,7 @@ function Player(game, id, x, y, name) {
 
 	// read-only for clients
 	// basic physical values
-	this.position = {x: x, y: y};
+	this.position = pos
 	this.velocity = {x: 0, y: 0}
 	this.rotation = 0;
 	this.rotationVel = 0;
@@ -1308,14 +1305,14 @@ function Player(game, id, x, y, name) {
 	this.energy = 1;
 	
 	// spawn mechanics
-	this.spawnpoint = {x: x, y: y};
+	this.spawnpoint = pos
 	this.respawning = false;
 
 	// this value should *never* be accessed; instead, access
 	// the position, velocity, rotation, and rotationVel values above
 	this.block = 
 		this.game.createBody(
-			{x: x, y: y}
+			this.position
 			, this.game.createShape("triangle", 
 					{width: gameplay.playerWidth, height: gameplay.playerHeight}
 				)
@@ -1498,13 +1495,13 @@ var b2Vec2         = Box2D.Common.Math.b2Vec2
 /**** }}} box2d synonyms ****/
 
 /**** {{{ Projectile() ****/
-function Projectile(game, id, pos) {
+function Projectile(game, id, owner, pos) {
 	// TODO: expand definition
 	// this is just a placeholder, projectiles should be
 	// freely parameterized and definable through outer modes
 
 	this.game = game
-	this.id = id
+	this.owner = owner
 
 	this.position = pos
 	this.dimensions = {w: 5, h: 5}
