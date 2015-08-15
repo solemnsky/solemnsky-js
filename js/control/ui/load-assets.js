@@ -4,7 +4,7 @@
 
 var PIXI = require('../../../assets/pixi.min.js')
 
-exports = function(str) {
+module.exports = function(str) {
 	function Loader() {
 		this.timer =  0
 	}

@@ -18,7 +18,7 @@ if (address === "")
 
 // allocate control object
 var Client = require('../control/client-arena.js')(mode) 
-var Splash = require('../control/splash.js')
+var Splash = require('../control/effects/splash.js')
 Splash.prototype.next = Client
 var ctrl = new Splash()
 

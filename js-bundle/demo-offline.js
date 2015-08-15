@@ -491,13 +491,13 @@ window.MODE = mode
 
 // allocate control object
 var Client = require('../control/client-offline.js')(mode) 
-var Splash = require('../control/splash.js')
-Splash.prototype.next = Client
+var Splash = require('../control/effects/splash.js')
+Splash.prototype.next = function(){return new Client()}
 var ctrl = new Splash()
 
 ui.run(60, ctrl)
 
-},{"../control/client-offline.js":5,"../control/splash.js":6,"../modes/demo/":8,"../modes/demo/render.js":9,"../modes/vanilla/":11,"../modes/vanilla/render.js":14,"../ui/index.js":20}],5:[function(require,module,exports){
+},{"../control/client-offline.js":5,"../control/effects/splash.js":6,"../modes/demo/":8,"../modes/demo/render.js":9,"../modes/vanilla/":11,"../modes/vanilla/render.js":14,"../ui/index.js":20}],5:[function(require,module,exports){
 /*                  ******** client-offline.js ********                //
 \\ Offline demo client.                                                \\
 //                  ******** client-offline.js ********                */
@@ -547,12 +547,12 @@ module.exports = function(mode) {
 
 },{"../../assets/pixi.min.js":3,"./ui/performance.js":7}],6:[function(require,module,exports){
 /*									******** splash.js ********									 //
-\\ Splash screen.                                                      \\
+\\ Branding splash screen.                                       \\
 //									******** splash.js ********									 */
 
 module.exports = Splash
 
-var PIXI = require('../../assets/pixi.min.js')
+var PIXI = require('../../../assets/pixi.min.js')
 
 function Splash() {
 	this.time = 0
@@ -562,7 +562,7 @@ Splash.prototype.init = function() {
 }
 
 Splash.prototype.initRender = function(stage) {
-	this.text = new PIXI.Text
+	this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
 	this.text.position.set(800, 450)
 	stage.addChild(this.text)
 }
@@ -571,15 +571,27 @@ Splash.prototype.step = function(delta) {
 	this.time += delta
 }
 
+var scale = 2000
+var third = scale / 3
+
 Splash.prototype.stepRender = function() {
-	this.text.text = this.time
+
+	if (this.time < third) {
+		this.text.alpha = this.time / third
+	} else {
+		if (this.time < third * 2) {
+			this.text.alpha = 1
+		} else {
+			this.text.alpha = (scale - this.time) / third
+		}
+	}
 }
 
 Splash.prototype.hasEnded = function() {
-	return this.time > 1000
+	return this.time > scale + third
 }
 
-},{"../../assets/pixi.min.js":3}],7:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],7:[function(require,module,exports){
 /*                  ******** performance.js ********                   //
 \\ Performance data display in top right of screen.                    \\
 //                  ******** performance.js ********                   */
