@@ -2,6 +2,8 @@
 \\ Loading screen during mode.loadLoader().                            \\
 //                  ******** load-assets.js ********                   */
 
+// TODO
+
 var PIXI = require('../../../assets/pixi.min.js')
 
 module.exports = function(str) {

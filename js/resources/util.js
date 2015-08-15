@@ -86,16 +86,6 @@ Util.prototype.floatDeflation =
 	{ deflate: function(f) { return exports.floatToChar(f) }
 	, inflate: function(val) { return exports.charToFloat(val) } }
 
-/*
-Util.prototype.vecDeflation =
-	{ deflate: function(vec) { 
-			return exports.floatToChar(vec.x) + exports.floatToChar(vec.y)
-		}
-	, inflate: function(val) { 
-			return {x: exports.charToFloat(val[0]), y: exports.charToFloat(val[2])}
-		} }
-*/
-
 Util.prototype.vecDeflation = 
 	{ deflate: 
 			function(x) {

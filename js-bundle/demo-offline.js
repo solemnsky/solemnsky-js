@@ -452,7 +452,7 @@ if(typeof(module)!=="undefined")module.exports=Box2D;
 // edited and minified for solemnsky
 
 module.exports={pack:c,unpack:k};var l={},m={},n=[],p=0,q=0,r=Array.isArray||function(e){return"[object Array]"===Object.prototype.toString.call(e)},t=String.fromCharCode,u=512;function c(e,b){q=0;var g=v([],e,0);return q?!1:b?w(g):g}function k(e){var b;if("string"===typeof e){b=[];var g=e.split(""),a=-1,f;f=g.length;for(e=f%8;e--;)++a,b[a]=l[g[a]];for(e=f>>3;e--;)b.push(l[g[++a]],l[g[++a]],l[g[++a]],l[g[++a]],l[g[++a]],l[g[++a]],l[g[++a]],l[g[++a]])}else b=e;n=b;p=-1;return x()}
-function v(e,b,g){var a,f,h;if(null==b)e.push(192);else if(!1===b)e.push(194);else if(!0===b)e.push(195);else switch(typeof b){case "number":b!==b?e.push(203,255,255,255,255,255,255,255,255):Infinity===b?e.push(203,127,240,0,0,0,0,0,0):Math.floor(b)===b?0>b?-32<=b?e.push(224+b+32):-128<b?e.push(208,b+256):-32768<b?(b+=65536,e.push(209,b>>8,b&255)):-2147483648<b?(b+=4294967296,e.push(210,b>>>24,b>>16&255,b>>8&255,b&255)):(f=Math.floor(b/4294967296),b&=4294967295,e.push(211,f>>24&255,f>>16&255,f>>8&
+function v(e,b,g){var a,f,h;if(null===b)e.push(192);else if(!1===b)e.push(194);else if(!0===b)e.push(195);else switch(typeof b){case "number":b!==b?e.push(203,255,255,255,255,255,255,255,255):Infinity===b?e.push(203,127,240,0,0,0,0,0,0):Math.floor(b)===b?0>b?-32<=b?e.push(224+b+32):-128<b?e.push(208,b+256):-32768<b?(b+=65536,e.push(209,b>>8,b&255)):-2147483648<b?(b+=4294967296,e.push(210,b>>>24,b>>16&255,b>>8&255,b&255)):(f=Math.floor(b/4294967296),b&=4294967295,e.push(211,f>>24&255,f>>16&255,f>>8&
 255,f&255,b>>24&255,b>>16&255,b>>8&255,b&255)):128>b?e.push(b):256>b?e.push(204,b):65536>b?e.push(205,b>>8,b&255):4294967296>b?e.push(206,b>>>24,b>>16&255,b>>8&255,b&255):(f=Math.floor(b/4294967296),b&=4294967295,e.push(207,f>>24&255,f>>16&255,f>>8&255,f&255,b>>24&255,b>>16&255,b>>8&255,b&255)):((f=0>b)&&(b*=-1),h=Math.log(b)/.6931471805599453+1023|0,g=b*Math.pow(2,1075-h),b=g&4294967295,f&&(h|=2048),f=g/4294967296&1048575|h<<20,e.push(203,f>>24&255,f>>16&255,f>>8&255,f&255,b>>24&255,b>>16&255,b>>
 8&255,b&255));break;case "string":g=b.length;h=e.length;e.push(0);for(f=0;f<g;++f)a=b.charCodeAt(f),128>a?e.push(a&127):2048>a?e.push(a>>>6&31|192,a&63|128):65536>a&&e.push(a>>>12&15|224,a>>>6&63|128,a&63|128);a=e.length-h-1;32>a?e[h]=160+a:256>a?e.splice(h,1,217,a):65536>a?e.splice(h,1,218,a>>8,a&255):4294967296>a&&e.splice(h,1,219,a>>>24,a>>16&255,a>>8&255,a&255);break;default:if("[object Uint8Array]"===Object.prototype.toString.call(b)){a=b.length;256>a?e.push(196,a):65536>a?e.push(197,a>>8,a&
 255):4294967296>a&&e.push(198,a>>>24,a>>16&255,a>>8&255,a&255);Array.prototype.push.apply(e,b);break}if(++g>=u)return q=1,[];if(r(b))for(a=b.length,16>a?e.push(144+a):65536>a?e.push(220,a>>8,a&255):4294967296>a&&e.push(221,a>>>24,a>>16&255,a>>8&255,a&255),f=0;f<a;++f)v(e,b[f],g);else{h=e.length;e.push(0);a=0;for(f in b)++a,v(e,f,g),v(e,b[f],g);16>a?e[h]=128+a:65536>a?e.splice(h,1,222,a>>8,a&255):4294967296>a&&e.splice(h,1,223,a>>>24,a>>16&255,a>>8&255,a&255)}}return e}
@@ -997,7 +997,10 @@ Vanilla.prototype.evaluateContact = function(contact) {
 }
 
 Vanilla.prototype.pointInMap = function(position) {
-	
+	var x = position.x, y = position.y 
+	var X = this.mapData.dimensions.width, Y = this.mapData.dimensions.height
+
+	return x > 0 && y > 0 && x < X && y < Y
 }
 /**** }}} internal utility methods ***/
 
@@ -1173,6 +1176,15 @@ Vanilla.prototype.step = function(delta) {
 		function(player) { player.readFromBlock() } )
 	this.projectiles.forEach(
 		function(projectile) { projectile.readFromBlock() } )
+	this.projectiles = 
+		this.projectiles.filter(
+			function(projectile) {
+				var out = !this.pointInMap(projectile.position)
+				if (out)
+					console.log(projectile.position)
+				return !out
+			}
+	, this)
 
 	// step players and projectiles forward
 	this.players.forEach(function(player) {
@@ -1840,7 +1852,7 @@ exports.keyCodeFromName = function(name) {
 module.exports = {
 	bloxMap: {
 		dimensions: 
-			{ width: 3200, height: 800 }
+			{ width: 3200, height: 900 }
 		, blocks: 	
 			[ 
 				// bounding blocks
@@ -1963,16 +1975,6 @@ Util.prototype.boolDeflation =
 Util.prototype.floatDeflation =
 	{ deflate: function(f) { return exports.floatToChar(f) }
 	, inflate: function(val) { return exports.charToFloat(val) } }
-
-/*
-Util.prototype.vecDeflation =
-	{ deflate: function(vec) { 
-			return exports.floatToChar(vec.x) + exports.floatToChar(vec.y)
-		}
-	, inflate: function(val) { 
-			return {x: exports.charToFloat(val[0]), y: exports.charToFloat(val[2])}
-		} }
-*/
 
 Util.prototype.vecDeflation = 
 	{ deflate: 

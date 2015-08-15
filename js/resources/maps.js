@@ -4,7 +4,7 @@
 module.exports = {
 	bloxMap: {
 		dimensions: 
-			{ width: 3200, height: 800 }
+			{ width: 3200, height: 900 }
 		, blocks: 	
 			[ 
 				// bounding blocks

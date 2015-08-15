@@ -138,7 +138,10 @@ Vanilla.prototype.evaluateContact = function(contact) {
 }
 
 Vanilla.prototype.pointInMap = function(position) {
-	
+	var x = position.x, y = position.y 
+	var X = this.mapData.dimensions.width, Y = this.mapData.dimensions.height
+
+	return x > 0 && y > 0 && x < X && y < Y
 }
 /**** }}} internal utility methods ***/
 
@@ -314,6 +317,15 @@ Vanilla.prototype.step = function(delta) {
 		function(player) { player.readFromBlock() } )
 	this.projectiles.forEach(
 		function(projectile) { projectile.readFromBlock() } )
+	this.projectiles = 
+		this.projectiles.filter(
+			function(projectile) {
+				var out = !this.pointInMap(projectile.position)
+				if (out)
+					console.log(projectile.position)
+				return !out
+			}
+	, this)
 
 	// step players and projectiles forward
 	this.players.forEach(function(player) {
