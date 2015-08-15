@@ -808,6 +808,8 @@ module.exports = function(mode, address, port, path) {
 \\ Splash screen.                                                      \\
 //									******** splash.js ********									 */
 
+module.exports = Splash
+
 var PIXI = require('../../assets/pixi.min.js')
 
 function Splash() {
@@ -820,6 +822,7 @@ Splash.prototype.init = function() {
 Splash.prototype.initRender = function(stage) {
 	this.text = new PIXI.Text
 	this.text.position.set(800, 450)
+	stage.addChild(this.text)
 }
 
 Splash.prototype.step = function(delta) {
@@ -833,8 +836,6 @@ Splash.prototype.stepRender = function() {
 Splash.prototype.hasEnded = function() {
 	return this.time > 1000
 }
-
-exports = Splash
 
 },{"../../assets/pixi.min.js":3}],7:[function(require,module,exports){
 /*                  ******** performance.js ********                   //
