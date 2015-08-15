@@ -67,19 +67,19 @@ Demo.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Demo.prototype.clientAssert = function(id) {
-	this.vanilla.clientAssert(id)
+	return this.vanilla.clientAssert(id)
 }
 
 Demo.prototype.serverAssert = function() {
-	this.vanilla.serverAssert()
+	return this.vanilla.serverAssert()
 }
 
 Demo.prototype.clientMerge = function(id, snap) {
-	this.vanilla.clientMerge(id, snap)
+	return this.vanilla.clientMerge(id, snap)
 }
 
 Demo.prototype.serverMerge = function(id, snap) {
-	this.vanilla.serverMerge(id, snap)
+	return this.vanilla.serverMerge(id, snap)
 }
 /**** }}} continuous networking ****/
 

@@ -8,8 +8,6 @@ Modes are objects that represent the essential game logic of a game mode, i.e. t
 
 The seperation of modes and control structures (see the relevant section later in this readme) seperate boilerplate and things not directly related to game mechanics design (chatting, HUDs, networking) from the game mode definition, making the latter easy to understand and modify without fear of breaking other elements of the whole game experience.
 
-All network functions in modes return and expect native javascript types, (they are not required to serialise them), but internally should use the util.deflateObject and util.inflateObject methods to minify their attribute labels and assure that the values use their space efficently. 
-
 To define a mode, a constructor must be exported along with the following prototypical methods:
 
 ### initialisation
@@ -37,6 +35,9 @@ To define a mode, a constructor must be exported along with the following protot
 - serverAssert(): make an assertion to be sent from the server to all clients (sent at ~50Hz)
 - clientMerge(id, snap): merge an assertion sent from the server to a client (runs at ~50Hz)
 - serverMerge(id, snap): merge an assertion sent from a client to the server (runs at ~50Hz)
+
+- serialiseAssertion(snap): assertion -> string
+- readAssertion(str): string -> assertion
 
 ### modeId
 

@@ -4,6 +4,7 @@
 
 module.exports = Vanilla
 
+var msgpack = require('../../../assets/msgpack.min.js')
 var Box2D = require('../../../assets/box2d.min.js')
 
 var util = require('../../resources/util.js')
@@ -347,28 +348,28 @@ Vanilla.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Vanilla.prototype.clientAssert = function(id) {
-	return snapshots.deflateSnapshot(
-		snapshots.makePlayerSnapshot(this, id, 1, true, {})
-	)
+	return snapshots.makePlayerSnapshot(this, id, 1, true, {})
 }
 
 Vanilla.prototype.serverAssert = function() {
-	return snapshots.deflateSnapshot(
-		snapshots.makeTotalSnapshot(this, 0)
-	)
+	return snapshots.makeTotalSnapshot(this, 0)
 }
 
-Vanilla.prototype.clientMerge = function(id, data) {
-	var snap = snapshots.readSnapshot(data)		
-	var mysnap = snapshots.readSnapshot(this.clientAssert(id))
-	if (snap !== null)
-		snapshots.applySnapshot(this, snap.concat(mysnap))
+Vanilla.prototype.clientMerge = function(id, snap) {
+	var mysnap = this.clientAssert(id)
+	snapshots.applySnapshot(this, snap.concat(mysnap))
 }
 
-Vanilla.prototype.serverMerge = function(id, data) {
-	var snap = snapshots.readSnapshot(data)
-	if (snap !== null)
-		snapshots.applySnapshot(this, snap)
+Vanilla.prototype.serverMerge = function(id, snap) {
+	snapshots.applySnapshot(this, snap)
+}
+
+Vanilla.prototype.serialiseAssertion = function(snap) {
+	return msgpack.pack(snapshots.deflateSnapshot(snap), true)
+}
+
+Vanilla.prototype.readAssertion = function(str) {
+	return snapshots.inflateSnapshot(msgpack.unpack(str))
 }
 /**** }}} continuous networking ****/
 

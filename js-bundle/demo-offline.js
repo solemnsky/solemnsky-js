@@ -636,19 +636,19 @@ Demo.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Demo.prototype.clientAssert = function(id) {
-	this.vanilla.clientAssert(id)
+	return this.vanilla.clientAssert(id)
 }
 
 Demo.prototype.serverAssert = function() {
-	this.vanilla.serverAssert()
+	return this.vanilla.serverAssert()
 }
 
 Demo.prototype.clientMerge = function(id, snap) {
-	this.vanilla.clientMerge(id, snap)
+	return this.vanilla.clientMerge(id, snap)
 }
 
 Demo.prototype.serverMerge = function(id, snap) {
-	this.vanilla.serverMerge(id, snap)
+	return this.vanilla.serverMerge(id, snap)
 }
 /**** }}} continuous networking ****/
 
@@ -746,6 +746,7 @@ module.exports = {
 
 module.exports = Vanilla
 
+var msgpack = require('../../../assets/msgpack.min.js')
 var Box2D = require('../../../assets/box2d.min.js')
 
 var util = require('../../resources/util.js')
@@ -1089,28 +1090,28 @@ Vanilla.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Vanilla.prototype.clientAssert = function(id) {
-	return snapshots.deflateSnapshot(
-		snapshots.makePlayerSnapshot(this, id, 1, true, {})
-	)
+	return snapshots.makePlayerSnapshot(this, id, 1, true, {})
 }
 
 Vanilla.prototype.serverAssert = function() {
-	return snapshots.deflateSnapshot(
-		snapshots.makeTotalSnapshot(this, 0)
-	)
+	return snapshots.makeTotalSnapshot(this, 0)
 }
 
-Vanilla.prototype.clientMerge = function(id, data) {
-	var snap = snapshots.readSnapshot(data)		
-	var mysnap = snapshots.readSnapshot(this.clientAssert(id))
-	if (snap !== null)
-		snapshots.applySnapshot(this, snap.concat(mysnap))
+Vanilla.prototype.clientMerge = function(id, snap) {
+	var mysnap = this.clientAssert(id)
+	snapshots.applySnapshot(this, snap.concat(mysnap))
 }
 
-Vanilla.prototype.serverMerge = function(id, data) {
-	var snap = snapshots.readSnapshot(data)
-	if (snap !== null)
-		snapshots.applySnapshot(this, snap)
+Vanilla.prototype.serverMerge = function(id, snap) {
+	snapshots.applySnapshot(this, snap)
+}
+
+Vanilla.prototype.serialiseAssertion = function(snap) {
+	return msgpack.pack(snapshots.deflateSnapshot(snap), true)
+}
+
+Vanilla.prototype.readAssertion = function(str) {
+	return snapshots.inflateSnapshot(msgpack.unpack(str))
 }
 /**** }}} continuous networking ****/
 
@@ -1122,7 +1123,7 @@ Vanilla.prototype.hasEnded = function() { return false }
 
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../resources/maps.js":16,"../../resources/util.js":18,"./gameplay.js":9,"./player.js":11,"./projectile.js":12,"./snapshots.js":14}],11:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":16,"../../resources/util.js":18,"./gameplay.js":9,"./player.js":11,"./projectile.js":12,"./snapshots.js":14}],11:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
