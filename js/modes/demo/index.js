@@ -75,11 +75,19 @@ Demo.prototype.serverAssert = function() {
 }
 
 Demo.prototype.clientMerge = function(id, snap) {
-	return this.vanilla.clientMerge(id, snap)
+	this.vanilla.clientMerge(id, snap)
 }
 
 Demo.prototype.serverMerge = function(id, snap) {
-	return this.vanilla.serverMerge(id, snap)
+	this.vanilla.serverMerge(id, snap)
+}
+
+Demo.prototype.serialiseAssertion = function(snap) {
+	return this.vanilla.serialiseAssertion(snap)
+}
+
+Demo.prototype.readAssertion = function(str) {
+	return this.vanilla.readAssertion(str)
 }
 /**** }}} continuous networking ****/
 
