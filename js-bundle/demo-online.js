@@ -1560,7 +1560,7 @@ module.exports = function(Vanilla) {
 				this.textures[pair.name] = new PIXI.Texture.fromImage(pair.url)
 				onProgress(index / loadPairs.length)
 			} , this)
-		onProgress(1)
+		setTimeout(function() {onProgress(1)}, 500)
 	}
 
 	Vanilla.prototype.initRender = function(stage) {
