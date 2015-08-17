@@ -8,11 +8,15 @@ var PIXI = require('../../../assets/pixi.min.js')
 
 module.exports = function(mode, key) {
 	function Loader() {
-		this.timer =  0
+		this.progress = 0
 	}
 
 	Loader.prototype.init = function() {
-		mode.loadAssets
+		mode.loadAssets(key, this.recieveProgress)
+	}
+
+	Loader.prototype.recieveProgress = function(progress) {
+		this.progress = progress
 	}
 
 	Loader.prototype.initRender = function(stage) {
@@ -21,16 +25,15 @@ module.exports = function(mode, key) {
 	}
 
 	Loader.prototype.step = function(delta) {
-		this.timer += delta
 	}
 
 	Loader.prototype.stepRender = function(stage) {
-		this.text.text = this.timer
+		this.text.text = this.progress
 	}
 
 	Loader.prototype.hasEnded = function() {
-		return false
+		return this.progress === 1
 	}
 
-	return Loader
+	return new Loader()
 }

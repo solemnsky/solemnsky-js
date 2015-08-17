@@ -136,3 +136,5 @@ This loop runs approximately every 50 ms.
 ## code style
 
 There is a .eslintrc in the root directory of this project. It's suggested you have eslint running in your editor, or at the very least running bin/lint.sh from the root directory before pushing commits. 
+
+Thou shalt always return a constructor, not an instance.
