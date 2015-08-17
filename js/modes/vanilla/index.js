@@ -371,16 +371,33 @@ Vanilla.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Vanilla.prototype.clientAssert = function(id) {
-	return snapshots.makePlayerSnapshot(this, id, 1, true, {})
+	var snapshot = snapshots.mkPlayerSnapshot(this.findPlayerById(id), id, 1, true, {})
+	this.projectiles.forEach(
+		function(projectile) {
+			if (projectile.owner === id) 
+				snapshot.push(snapshots.mkProjectileSnapshot(projectile, 1, true, {})[0])
+		}
+	)
+	return snapshot
 }
 
 Vanilla.prototype.serverAssert = function() {
-	return snapshots.makeTotalSnapshot(this, 0)
+	var snapshot = []
+	this.players.forEach(
+		function(player) {
+			snapshot.push(snapshots.mkPlayerSnapshot(player, 0, true, {})[0])
+		}
+	)
+	this.projectiles.forEach(
+		function(projectile) {
+			snapshot.push(snapshots.mkProjectileSnapshot(projectile, 0, true, {})[0])
+		}
+	)
+	return snapshot
 }
 
 Vanilla.prototype.clientMerge = function(id, snap) {
-	var mysnap = this.clientAssert(id)
-	snapshots.applySnapshot(this, snap.concat(mysnap))
+	snapshots.applySnapshot(this, snap.concat(this.clientAssert(id)))
 }
 
 Vanilla.prototype.serverMerge = function(id, snap) {

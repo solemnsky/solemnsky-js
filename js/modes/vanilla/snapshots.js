@@ -1,6 +1,10 @@
 var util = require('../../resources/util.js')
 
-function mkPlayerSnapshot(player, priority, defaultState, states) {
+/**** {{{ constructors ****/
+exports.mkPlayerSnapshot = function(player, priority, defaultState, states) {
+	if (player === null)
+		return null
+
 	if (typeof priority == "undefined") priority = 0
 	if (typeof defaultState == "undefined") defaultState = true
 	if (typeof states == "undefined") states = {}
@@ -12,16 +16,19 @@ function mkPlayerSnapshot(player, priority, defaultState, states) {
 
 	Object.keys(player).forEach(
 		function(key) {
-			if (["game", "block", "name", "anim"].indexOf(key) === -1)
+			if (["game", "shape", "block", "name", "anim"].indexOf(key) === -1)
 				if (states[key] || defaultState)
 					snap[key] = util.clone(player[key])
 		}
 	, this)
 
-	return snap
+	return [snap]
 }
 
-function mkProjectileSnapshot(projectile, priority, defaultState, states) {
+exports.mkProjectileSnapshot = function(projectile, priority, defaultState, states) {
+	if (projectile === null)
+		return null
+
 	if (typeof priority == "undefined") priority = 0
 	if (typeof defaultState == "undefined") defaultState = true
 	if (typeof states == "undefined") states = {}
@@ -29,71 +36,49 @@ function mkProjectileSnapshot(projectile, priority, defaultState, states) {
 	var snap = {}
 
 	snap.priority = priority
-	snap.p = false // is player
+	snap.p = false // is not player
 
 	Object.keys(projectile).forEach(
 		function(key) {
-			if (["game", "block", "anim"].indexOf(key) === -1)
+			if (["game", "shape", "block", "anim"].indexOf(key) === -1)
 				if (states[key] || defaultState)
 					snap[key] = util.clone(projectile[key])
 		}
 	, this)
 
-	return snap
+	return [snap]
 }
+/**** }}} constructors ****/
 
-// from this point down, a snapshot is an array of mkPlayerSnapshot or mkProjectileSnapshot
-
-exports.makePlayerSnapshot = 
-	function(world, id, priority, defaultState, states) {
-		var player = world.findPlayerById(id)
-		if (player !== null) 
-			return [mkPlayerSnapshot(player, priority, defaultState, states)]
-
-		return null 
-	}
-
-exports.makeProjectileShapshot =
-	function(world, id, priority, defaultState, states) {
-		var projectile = world.findProjectileById(id)
-		if (projectile !== null)
-			return [mkProjectileSnapshot(projectile, priority, defaultState, states)]
-	}
-
-exports.makeTotalSnapshot = function(world, priority) {
-	return world.players.reduce(function(list, player) {
-		return list.concat(exports.makePlayerSnapshot(world, player.id, priority, true, {}));
-	}, []);
-}
-
-exports.applySnapshot = function(world, snapshots) {
+/**** {{{ application ****/
+exports.applySnapshot = function(world, snapshot) {
 	//Don't try to use invalid snapshots.
-	if (typeof snapshot === "undefined" || snapshots === null)
-		return;
+	if (typeof snapshot === "undefined" || snapshot === null)
+		return
 
 	var compare = function(snapshot1, snapshot2) {
 		return snapshot1.priority - snapshot2.priority
 	}
-	snapshots.sort(compare).forEach(
-		function(snapshot) {
-			if (snapshot.p) {
-				var player = world.findPlayerById(snapshot.id);
+	snapshot.sort(compare).forEach(
+		function(point) {
+			if (point.p) {
+				var player = world.findPlayerById(point.id);
 				if (player !== null) {
-					Object.keys(snapshot).forEach(
+					Object.keys(point).forEach(
 						function(key) {
 							if (key !== "priority")
-								player[key] = util.clone(snapshot[key])
+								player[key] = util.clone(point[key])
 						}	
 					, this)
 					player.writeToBlock()
 				} 
 			} else {
-				var projectile = world.findProjectileById(snapshot.id)
+				var projectile = world.findProjectileById(point.id)
 				if (projectile !== null) {
-					Object.keys(snapshot).forEach(
+					Object.keys(point).forEach(
 						function(key) {
 							if (key !== "priority")
-								projectile[key] = util.clone(snapshot[key])
+								projectile[key] = util.clone(point[key])
 						}
 					, this)	
 					projectile.writeToBlock()
@@ -101,7 +86,9 @@ exports.applySnapshot = function(world, snapshots) {
 			}
 		}, this)
 }
+/**** }}} application ****/
 
+/**** {{{ deflation and inflation ****/
 var playerDeflationRules =
 	[ { key: "afterburner", shortKey: "a", deflation: util.boolDeflation }
 	, { key: "energy", shortKey: "e", deflation: util.floatDeflation } 
@@ -120,8 +107,14 @@ var playerDeflationRules =
 	, { key: "speed", shortKey: "g", deflation: util.floatDeflation }
 	]
 
-var projectileDeflationRules = [
-]
+var projectileDeflationRules = 
+	[ { key: "priority", shortKey: "x", deflation: util.noDeflation }
+	, { key: "position", shortKey: "p", deflation: util.vecDeflation }
+	, { key: "velocity", shortKey: "v", deflation: util.vecDeflation }
+	, { key: "owner", shortKey: "o", deflation: util.noDeflation }
+	, { key: "dimensions", shortKey: "d", deflation: util.noDeflation }
+	]
+
 
 exports.deflateSnapshot = function(snap) {
 	return snap.map(
@@ -142,3 +135,4 @@ exports.inflateSnapshot = function(snap) {
 		}	
 	, util)
 }
+/**** }}} deflation and inflation ****/
