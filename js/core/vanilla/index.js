@@ -79,6 +79,10 @@ Vanilla.prototype.findPlayerById = function(id) {
 	return util.findElemById(this.players, id)
 }
 
+Vanilla.prototype.findProjectileById = function(id) {
+	return util.findElemById(this.projectiles, id)
+}
+
 Vanilla.prototype.loadMap = function (map) {
 	this.mapData = map
 	this.map = []
@@ -187,7 +191,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	// if body is static, does not move
 	if (typeof props.isStatic == "undefined") props.isStatic = true
 	// if body is played, does not collide with other players
-	if (typeof props.isPlayer == "undefined") props.isPlayer = false
+	if (typeof props.doesCollide == "undefined") props.doesCollide  = false
 	
 	// parameters passed to body userdata
 	// "player" or "map" for the time being
@@ -203,7 +207,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.isPlayer) {
+	if (props.doesCollide) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {

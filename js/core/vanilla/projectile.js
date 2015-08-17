@@ -39,7 +39,7 @@ function Projectile(game, id, owner, pos, vel, type) {
 	this.block = game.createBody( this.position, this.shape, 
 		{
 			isStatic: false
-			, isPlayer: false
+			, doesCollide: false
 			, bodyType: "projectile"
 			, bodyId: id
 		}
