@@ -1841,11 +1841,7 @@ module.exports = function(mode, key) {
 	}
 
 	Loader.prototype.init = function() {
-		mode.loadAssets(key, this.recieveProgress)
-	}
-
-	Loader.prototype.recieveProgress = function(progress) {
-		this.progress = progress
+		mode.loadAssets(key, function(progress) { this.progress = progress } )
 	}
 
 	Loader.prototype.initRender = function(stage) {
