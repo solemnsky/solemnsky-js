@@ -480,10 +480,10 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 var runUI = require('../interface/run.js')
 
 // allocate mode
-var Vanilla = require('../core/vanilla/')
-require('../core/vanilla/render.js')(Vanilla)
-var Demo = require('../core/demo/')
-require('../core/demo/render.js')(Demo)
+var Vanilla = require('../modes/vanilla/')
+require('../modes/vanilla/render.js')(Vanilla)
+var Demo = require('../modes/demo/')
+require('../modes/demo/render.js')(Demo)
 var mode = new Demo(new Vanilla())
 	
 // write debug pointers
@@ -499,7 +499,409 @@ var ctrl = splash(fade(client, 250), 1500)
 
 runUI(60, ctrl)
 
-},{"../core/demo/":5,"../core/demo/render.js":6,"../core/vanilla/":8,"../core/vanilla/render.js":11,"../interface/client-offline.js":13,"../interface/effects/fade.js":14,"../interface/effects/splash.js":15,"../interface/run.js":18}],5:[function(require,module,exports){
+},{"../interface/client-offline.js":5,"../interface/effects/fade.js":6,"../interface/effects/splash.js":7,"../interface/run.js":10,"../modes/demo/":11,"../modes/demo/render.js":12,"../modes/vanilla/":14,"../modes/vanilla/render.js":17}],5:[function(require,module,exports){
+/*                  ******** client-offline.js ********                //
+\\ Offline demo client.                                                \\
+//                  ******** client-offline.js ********                */
+
+var PIXI = require('../../assets/pixi.min.js')
+
+var renderPerf = require('./elements/performance.js')
+var mkLoadAssets = require('./elements/load-assets.js')
+
+module.exports = function(mode) {
+	function Game() {
+		this.perfStage = new PIXI.Container()
+		this.modeStage = new PIXI.Container()
+
+		this.eventLog = []
+	}
+
+	Game.prototype.init = function() { 
+		mode.init(mode.createState(''))
+		mode.join('offline player')
+	}
+
+	Game.prototype.step = function(delta) {
+		this.eventLog = this.eventLog.concat(mode.step(delta))
+	}
+
+	Game.prototype.initRender = function(stage) {
+		stage.addChild(this.modeStage)
+		stage.addChild(this.perfStage)
+
+		mode.initRender(this.modeStage)
+		renderPerf.initRender(this.perfStage)
+	}
+
+	Game.prototype.stepRender = function(stage, delta, performance) {
+		mode.stepRender(0, this.modeStage, delta) 
+		renderPerf.stepRender(this.perfStage, delta, performance)
+	}
+
+	Game.prototype.hasEnded = function() { return false }
+
+	Game.prototype.acceptKey = function(key, state) {
+		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
+	}
+
+	var loadAssets = mkLoadAssets(mode, "")
+	loadAssets.next = function() {return new Game()}
+
+	return loadAssets
+}
+
+},{"../../assets/pixi.min.js":3,"./elements/load-assets.js":8,"./elements/performance.js":9}],6:[function(require,module,exports){
+/*									******** fade.js ********									   //
+\\ Fades the graphics in, good for entry transitions.            \\
+//									******** fade.js ********									   */
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+
+module.exports = function(ctrl, scale) {
+	function Fade() {
+		this.time = 0
+		this.fading = true
+	}
+
+	Fade.prototype.init = function() {
+		ctrl.init()
+	}
+
+	Fade.prototype.initRender = function(stage) {
+		this.ctrlStage = new PIXI.Container
+		ctrl.initRender(this.ctrlStage)
+
+		stage.addChild(this.ctrlStage)
+		this.ctrlStage.alpha = 0
+	}
+
+	Fade.prototype.step = function(delta) {
+		ctrl.step(delta)
+		if (this.fading)
+			this.time += delta
+		this.fading = this.time < scale
+	}
+	
+	Fade.prototype.stepRender = function(stage, delta, performance) {
+		ctrl.stepRender(this.ctrlStage, delta, performance)
+		if (this.fading) 
+			this.ctrlStage.alpha = this.time / scale
+		else 
+			this.ctrlStage.alpha = 1
+	}
+
+	Fade.prototype.hasEnded = function() {
+		return ctrl.hasEnded()
+	}
+
+	Fade.prototype.acceptKey = function(key, state) {
+		ctrl.acceptKey(key, state)
+	}
+
+	Fade.prototype.next = ctrl.next
+
+	return new Fade()
+}
+
+},{"../../../assets/pixi.min.js":3}],7:[function(require,module,exports){
+/*									******** splash.js ********									 //
+\\ Branding splash screen.                                       \\
+//									******** splash.js ********									 */
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+module.exports = function(ctrl, scale) {
+	var third = scale / 3
+
+	function Splash() {
+		this.time = 0
+	}
+
+	Splash.prototype.init = function() { } 
+
+	Splash.prototype.initRender = function(stage) {
+		this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
+		this.text.position.set(800, 450)
+		stage.addChild(this.text)
+	}
+
+	Splash.prototype.step = function(delta) {
+		this.time += delta
+	}
+
+	Splash.prototype.stepRender = function() {
+
+		if (this.time < third) {
+			this.text.alpha = this.time / third
+		} else {
+			if (this.time < third * 2) {
+				this.text.alpha = 1
+			} else {
+				this.text.alpha = (scale - this.time) / third
+			}
+		}
+	}
+
+	Splash.prototype.acceptKey = function() {}
+
+	Splash.prototype.hasEnded = function() {
+		return this.time > scale 
+	}
+
+	Splash.prototype.next = function() {return ctrl}
+
+	return new Splash()
+}
+
+},{"../../../assets/pixi.min.js":3}],8:[function(require,module,exports){
+/*                  ******** load-assets.js ********                   //
+\\ Loading screen during mode.loadLoader().                            \\
+//                  ******** load-assets.js ********                   */
+
+// TODO
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+module.exports = function(mode, key) {
+	function Loader() {
+		this.progress = 0
+
+		this.textAnim = 0
+	}
+
+	Loader.prototype.init = function() {
+		mode.loadAssets(key, 
+			(function(athis) {		
+				return function(progress) { athis.progress = progress }
+			})(this)				
+		)
+	}
+
+	Loader.prototype.initRender = function(stage) {
+		this.bar = new PIXI.Graphics()
+		this.text = new PIXI.Text("loading...", {fill: 0xFFFFFF})
+		this.text.position.set(450, 400)
+		stage.addChild(this.bar)
+		stage.addChild(this.text)
+	}
+
+	Loader.prototype.step = function(delta) {
+		
+	}
+
+	Loader.prototype.stepRender = function(stage) {
+		this.bar.clear()
+		this.bar.beginFill(0xFFFFFF)
+		this.bar.drawRect(400, 445, this.progress * 100 + 400, 10)
+	}
+
+	Loader.prototype.hasEnded = function() {
+		return this.progress === 1
+	}
+
+	return new Loader()
+}
+
+},{"../../../assets/pixi.min.js":3}],9:[function(require,module,exports){
+/*                  ******** performance.js ********                   //
+\\ Performance data display in top right of screen.                    \\
+//                  ******** performance.js ********                   */
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+var style = {fill: 0xFFFFFF}
+var fps = new PIXI.Text("fps", style)
+var counter = 0
+
+exports.initRender = function(stage) {
+	stage.addChild(fps)	
+}
+exports.stepRender = function(stage, delta, performance) {
+	counter += delta
+	if (counter > 500) {
+		fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime 
+		if (typeof performance.cueTime !== "undefined")
+			fps.text += "\ncue: " + performance.cueTime
+		counter -= 500
+	}
+}
+
+},{"../../../assets/pixi.min.js":3}],10:[function(require,module,exports){
+/*                  ******** run.js ********                           //
+\\ Runs a UI object.                                                   \\ 
+//                  ******** run.js ********                           */
+
+// object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities 
+
+var PIXI = require('../../assets/pixi.min.js')
+
+var Keys = require('../resources/keys.js')
+var nameFromKeyCode = Keys.nameFromKeyCode
+
+module.exports = function(target, object) {
+	var renderer =
+		PIXI.autoDetectRenderer(1600, 900, 
+			{backgroundColor : 0x000010, antialias : true})
+	document.body.appendChild(renderer.view)
+	var stage = new PIXI.Container()
+
+	/**** {{{ smartResize() ****/
+	function setMargins(mleft, mtop) {
+		document.body.style.setProperty("margin-left", mleft + "px")
+		document.body.style.setProperty("margin-top", mtop + "px")
+	}
+
+	function smartResize() {
+		var w = window.innerWidth; var h = window.innerHeight
+		var nw, nh
+		if (w / h > 16 / 9) {
+			nw = h * (16 / 9); nh = h
+			renderer.resize(nw, nh)
+			setMargins((w - nw) / 2, 0)
+		} else {
+			nh = w * (9 / 16); nw = w
+			renderer.resize(nw, nh)
+			setMargins(0, (h - nh) / 2)
+		}
+
+		stage.scale = new PIXI.Point(nw / 1600, nh / 900)
+	}
+	/**** }}} smartResize() ****/
+
+	window.onresize = smartResize
+	smartResize()
+	
+	runWithStage(target, renderer, stage, object)
+}
+
+	/**** {{{ requestAnimFrame ****/
+	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+var requestAnimFrame = (function(target) {
+	return window.requestAnimationFrame  || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame    || 
+		window.oRequestAnimationFrame      || 
+		window.msRequestAnimationFrame     || 
+		function(callback, /* DOMElement */ element){
+			window.setTimeout(callback, 1/target * 1000);
+		};
+})();
+	/**** }}} requestAnimFrame ****/
+
+function runWithStage(target, renderer, stage, object) {
+	stage.removeChildren()
+	renderer.render(stage)
+
+	object.initRender(stage)
+	object.init()
+
+	var blurred = false
+	var running = true
+
+	var accum = 0;
+
+	// performance data
+	var fps = 0; var fpsC = 0
+	var tps = 0; var tpsC = 0
+	var processStart = 0 // used for getting delta times
+	var logicTime = 0; var renderTime = 0; var sleepTime = 0
+	// the cycle deltas 
+
+	function resetFps() {
+		if (running) {
+			window.setTimeout(resetFps, 1000)
+			fps = fpsC; fpsC = 0
+			tps = tpsC; tpsC = 0
+		}
+	}
+
+	/**** {{{ step ****/
+	var interval = 1 / target * 1000
+	var then = Date.now()
+	function update() {
+		running = !object.hasEnded()
+
+		var now = Date.now()
+		var delta = now - then
+		then = now
+
+		if (running) { 
+			if (!blurred) {
+				requestAnimFrame(update) 
+			} else {
+				setTimeout(update, 1000 / target)
+			}
+
+			sleepTime = Date.now() - processStart
+			
+			accum += delta
+			
+			processStart = Date.now() // start logic
+			var needPaint = false;
+			while (accum >= interval) {
+				object.step(interval)
+				accum -= interval
+				needPaint = true
+				tpsC++
+			}
+			logicTime = Date.now() - processStart // end logic
+
+			if (needPaint) {
+				var performance = 
+					{ tps: tps
+					, fps: fps
+					, logicTime: logicTime
+					, renderTime: renderTime 
+					, sleepTime: sleepTime }
+				processStart = Date.now() // start render
+				object.stepRender(stage, delta, performance)
+				renderer.render(stage)
+				renderTime = Date.now() - processStart // end render
+				fpsC++
+			}
+
+			processStart = Date.now() // start sleep
+		} else {
+			window.removeEventListener("keyup", acceptKeyUp)
+			window.removeEventListener("keydown", acceptKeyDown)
+			window.removeEventListener("blur", onBlur)
+			window.removeEventListener("focus", onFocus)
+
+			if (typeof object.next !== "undefined")
+				runWithStage(target, renderer, stage, object.next())
+		}
+	} 
+	/**** }}} step ****/
+
+	function acceptKeyUp(e) { acceptKey(e, false) }
+	function acceptKeyDown(e) { acceptKey(e, true) }
+	function acceptKey(e, state) {
+		var name = nameFromKeyCode(e.keyCode)
+		object.acceptKey(name, state)
+		// some keys have quite obnoxious default cases
+		// while others, such as the debug terminal, do not
+		switch (name) {
+		case "back_space": 
+			e.preventDefault(); break
+		default: break
+		}
+	}	
+
+	function onBlur() { blurred = true }
+	function onFocus() { blurred = false }	
+
+	window.addEventListener("keyup", acceptKeyUp)
+	window.addEventListener("keydown", acceptKeyDown)
+	window.addEventListener("blur", onBlur)
+	window.addEventListener("focus", onFocus)
+
+	resetFps()
+	update()
+}
+
+},{"../../assets/pixi.min.js":3,"../resources/keys.js":19}],11:[function(require,module,exports){
 /*                  ******** demo/index.js ********                   //
 \\ Development demo with fun features!                                \\
 //                  ******** demo/index.js ********                   */
@@ -598,7 +1000,7 @@ Demo.prototype.readAssertion = function(str) {
 
 Demo.prototype.modeId = "demo dev"
 
-},{}],6:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*                  ******** demo/render.js ********                  //
 \\ Rendering for the demo.                                            \\
 //                  ******** demo/render.js ********                  */
@@ -627,7 +1029,7 @@ module.exports = function(Demo) {
 
 }
 
-},{"../../../assets/pixi.min.js":3}],7:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],13:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -683,7 +1085,7 @@ module.exports = {
 	, graphicsNameClear: 35
 }
 
-},{}],8:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*									******** vanilla/index.js ********								//
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //									******** vanilla/index.js ********								*/
@@ -777,7 +1179,7 @@ Vanilla.prototype.loadMap = function (map) {
 			var box = this.createBody(
 				{x: block.x, y: block.y}
 				, this.createShape("rectangle", {width: block.w, height: block.h})
-				, {isStatic: true, bodyType: "map"} 
+				, {isStatic: true, doesCollide: true, bodyType: "map"} 
 			)
 			this.map.push(
 				{ block: box
@@ -877,7 +1279,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	// if body is static, does not move
 	if (typeof props.isStatic == "undefined") props.isStatic = true
 	// if body is played, does not collide with other players
-	if (typeof props.doesCollide == "undefined") props.doesCollide  = false
+	if (typeof props.isObstacle  == "undefined") props.isObstacle  = false
 	
 	// parameters passed to body userdata
 	// "player" or "map" for the time being
@@ -893,7 +1295,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.doesCollide) {
+	if (props.isObstacle) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
@@ -1088,7 +1490,7 @@ Vanilla.prototype.modeId = "vanilla engine"
 Vanilla.prototype.hasEnded = function() { return false }
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":20,"../../resources/util.js":22,"./gameplay.js":7,"./player.js":9,"./projectile.js":10,"./snapshots.js":12}],9:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":20,"../../resources/util.js":22,"./gameplay.js":13,"./player.js":15,"./projectile.js":16,"./snapshots.js":18}],15:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
@@ -1157,7 +1559,7 @@ function Player(game, id, pos, name) {
 			, this.game.createShape("triangle", 
 					{width: gameplay.playerWidth, height: gameplay.playerHeight}
 				)
-			, {isStatic: false, doesCollide: true, bodyType: "player", bodyId: id} 
+			, {isStatic: false, isObstacle: true, bodyType: "player", bodyId: id} 
 		)
 }
 /**** }}} Player() ****/
@@ -1312,7 +1714,7 @@ Player.prototype.step = function(delta) {
 	/**** }}} respawning ****/
 }
 
-},{"../../../assets/box2d.min.js":1,"../../resources/util.js":22,"./gameplay.js":7}],10:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":22,"./gameplay.js":13}],16:[function(require,module,exports){
 /*                  ******** vanilla/projectile.js ********        //
 \\ Projectile objective, with box2d interface and gameplay mechanics. \\
 //                  ******** vanilla/projectile.js ********        */
@@ -1389,7 +1791,7 @@ Projectile.prototype.step = function(delta) {
 	// for example, it could fade out
 }
 
-},{"../../../assets/box2d.min.js":1,"./gameplay.js":7}],11:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"./gameplay.js":13}],17:[function(require,module,exports){
 /*					******** vanilla/render.js ********				//
 \\ Client-sided renderer for the vanilla game mode.		\\
 //					******** vanilla/render.js ********				*/
@@ -1599,33 +2001,67 @@ module.exports = function(Vanilla) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":21,"./gameplay.js":7}],12:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":21,"./gameplay.js":13}],18:[function(require,module,exports){
 var util = require('../../resources/util.js')
 
-function Snapshot(player, priority, defaultState, states) {
+function mkPlayerSnapshot(player, priority, defaultState, states) {
 	if (typeof priority == "undefined") priority = 0
 	if (typeof defaultState == "undefined") defaultState = true
 	if (typeof states == "undefined") states = {}
 
-	this.priority = priority;
-	this.id = player.id;
+	var snap = {}
+
+	snap.priority = priority
+	snap.p = true // is player
 
 	Object.keys(player).forEach(
 		function(key) {
 			if (["game", "block", "name", "anim"].indexOf(key) === -1)
 				if (states[key] || defaultState)
-					this[key] = util.clone(player[key])
+					snap[key] = util.clone(player[key])
 		}
 	, this)
+
+	return snap
 }
+
+function mkProjectileSnapshot(projectile, priority, defaultState, states) {
+	if (typeof priority == "undefined") priority = 0
+	if (typeof defaultState == "undefined") defaultState = true
+	if (typeof states == "undefined") states = {}
+
+	var snap = {}
+
+	snap.priority = priority
+	snap.p = false // is player
+
+	Object.keys(projectile).forEach(
+		function(key) {
+			if (["game", "block", "anim"].indexOf(key) === -1)
+				if (states[key] || defaultState)
+					snap[key] = util.clone(projectile[key])
+		}
+	, this)
+
+	return snap
+}
+
+// from this point down, a snapshot is an array of mkPlayerSnapshot or mkProjectileSnapshot
 
 exports.makePlayerSnapshot = 
 	function(world, id, priority, defaultState, states) {
-		var player = world.findPlayerById(id);
+		var player = world.findPlayerById(id)
 		if (player !== null) 
-			return [new Snapshot(player, priority, defaultState, states)]
+			return [mkPlayerSnapshot(player, priority, defaultState, states)]
 
 		return null 
+	}
+
+exports.makeProjectileShapshot =
+	function(world, id, priority, defaultState, states) {
+		var projectile = world.findProjectileById(id)
+		if (projectile !== null)
+			return [mkProjectileSnapshot(projectile, priority, defaultState, states)]
 	}
 
 exports.makeTotalSnapshot = function(world, priority) {
@@ -1644,20 +2080,33 @@ exports.applySnapshot = function(world, snapshots) {
 	}
 	snapshots.sort(compare).forEach(
 		function(snapshot) {
-			var player = world.findPlayerById(snapshot.id);
-			if (player !== null) {
-				Object.keys(snapshot).forEach(
-					function(key) {
-						if (key !== "priority")
-							player[key] = util.clone(snapshot[key])
-					}	
-				, this)
-				player.writeToBlock();
-			} 
+			if (snapshot.p) {
+				var player = world.findPlayerById(snapshot.id);
+				if (player !== null) {
+					Object.keys(snapshot).forEach(
+						function(key) {
+							if (key !== "priority")
+								player[key] = util.clone(snapshot[key])
+						}	
+					, this)
+					player.writeToBlock()
+				} 
+			} else {
+				var projectile = world.findProjectileById(snapshot.id)
+				if (projectile !== null) {
+					Object.keys(snapshot).forEach(
+						function(key) {
+							if (key !== "priority")
+								projectile[key] = util.clone(snapshot[key])
+						}
+					, this)	
+					projectile.writeToBlock()
+				}
+			}
 		}, this)
 }
 
-var deflationRules =
+var playerDeflationRules =
 	[ { key: "afterburner", shortKey: "a", deflation: util.boolDeflation }
 	, { key: "energy", shortKey: "e", deflation: util.floatDeflation } 
 	, { key: "health", shortKey: "h", deflation: util.floatDeflation }
@@ -1675,419 +2124,30 @@ var deflationRules =
 	, { key: "speed", shortKey: "g", deflation: util.floatDeflation }
 	]
 
+var projectileDeflationRules = [
+]
+
 exports.deflateSnapshot = function(snap) {
-	return util.deflateObject(deflationRules, snap)
+	return snap.map(
+		function(asnap) {
+			if (asnap.p)
+				return util.deflateObject(playerDeflationRules, asnap)
+			return util.deflateObject(projectileDeflationRules, asnap)
+		}	
+	, util)
 }
 
 exports.inflateSnapshot = function(snap) {
-	return util.inflateObject(deflationRules, snap)
+	return snap.map(
+		function(asnap) {
+			if (asnap.p)
+				return util.deflateObject(playerDeflationRules, asnap)
+			return util.deflateObject(projectileDeflationRules, asnap)
+		}	
+	, util)
 }
 
-exports.Snapshot = Snapshot
-
-},{"../../resources/util.js":22}],13:[function(require,module,exports){
-/*                  ******** client-offline.js ********                //
-\\ Offline demo client.                                                \\
-//                  ******** client-offline.js ********                */
-
-var PIXI = require('../../assets/pixi.min.js')
-
-var renderPerf = require('./elements/performance.js')
-var mkLoadAssets = require('./elements/load-assets.js')
-
-module.exports = function(mode) {
-	function Game() {
-		this.perfStage = new PIXI.Container()
-		this.modeStage = new PIXI.Container()
-
-		this.eventLog = []
-	}
-
-	Game.prototype.init = function() { 
-		mode.init(mode.createState(''))
-		mode.join('offline player')
-	}
-
-	Game.prototype.step = function(delta) {
-		this.eventLog = this.eventLog.concat(mode.step(delta))
-	}
-
-	Game.prototype.initRender = function(stage) {
-		stage.addChild(this.modeStage)
-		stage.addChild(this.perfStage)
-
-		mode.initRender(this.modeStage)
-		renderPerf.initRender(this.perfStage)
-	}
-
-	Game.prototype.stepRender = function(stage, delta, performance) {
-		mode.stepRender(0, this.modeStage, delta) 
-		renderPerf.stepRender(this.perfStage, delta, performance)
-	}
-
-	Game.prototype.hasEnded = function() { return false }
-
-	Game.prototype.acceptKey = function(key, state) {
-		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
-	}
-
-	var loadAssets = mkLoadAssets(mode, "")
-	loadAssets.next = function() {return new Game()}
-
-	return loadAssets
-}
-
-},{"../../assets/pixi.min.js":3,"./elements/load-assets.js":16,"./elements/performance.js":17}],14:[function(require,module,exports){
-/*									******** fade.js ********									   //
-\\ Fades the graphics in, good for entry transitions.            \\
-//									******** fade.js ********									   */
-
-var PIXI = require('../../../assets/pixi.min.js')
-
-
-module.exports = function(ctrl, scale) {
-	function Fade() {
-		this.time = 0
-		this.fading = true
-	}
-
-	Fade.prototype.init = function() {
-		ctrl.init()
-	}
-
-	Fade.prototype.initRender = function(stage) {
-		this.ctrlStage = new PIXI.Container
-		ctrl.initRender(this.ctrlStage)
-
-		stage.addChild(this.ctrlStage)
-		this.ctrlStage.alpha = 0
-	}
-
-	Fade.prototype.step = function(delta) {
-		ctrl.step(delta)
-		if (this.fading)
-			this.time += delta
-		this.fading = this.time < scale
-	}
-	
-	Fade.prototype.stepRender = function(stage, delta, performance) {
-		ctrl.stepRender(this.ctrlStage, delta, performance)
-		if (this.fading) 
-			this.ctrlStage.alpha = this.time / scale
-		else 
-			this.ctrlStage.alpha = 1
-	}
-
-	Fade.prototype.hasEnded = function() {
-		return ctrl.hasEnded()
-	}
-
-	Fade.prototype.acceptKey = function(key, state) {
-		ctrl.acceptKey(key, state)
-	}
-
-	Fade.prototype.next = ctrl.next
-
-	return new Fade()
-}
-
-},{"../../../assets/pixi.min.js":3}],15:[function(require,module,exports){
-/*									******** splash.js ********									 //
-\\ Branding splash screen.                                       \\
-//									******** splash.js ********									 */
-
-var PIXI = require('../../../assets/pixi.min.js')
-
-module.exports = function(ctrl, scale) {
-	var third = scale / 3
-
-	function Splash() {
-		this.time = 0
-	}
-
-	Splash.prototype.init = function() { } 
-
-	Splash.prototype.initRender = function(stage) {
-		this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
-		this.text.position.set(800, 450)
-		stage.addChild(this.text)
-	}
-
-	Splash.prototype.step = function(delta) {
-		this.time += delta
-	}
-
-	Splash.prototype.stepRender = function() {
-
-		if (this.time < third) {
-			this.text.alpha = this.time / third
-		} else {
-			if (this.time < third * 2) {
-				this.text.alpha = 1
-			} else {
-				this.text.alpha = (scale - this.time) / third
-			}
-		}
-	}
-
-	Splash.prototype.acceptKey = function() {}
-
-	Splash.prototype.hasEnded = function() {
-		return this.time > scale 
-	}
-
-	Splash.prototype.next = function() {return ctrl}
-
-	return new Splash()
-}
-
-},{"../../../assets/pixi.min.js":3}],16:[function(require,module,exports){
-/*                  ******** load-assets.js ********                   //
-\\ Loading screen during mode.loadLoader().                            \\
-//                  ******** load-assets.js ********                   */
-
-// TODO
-
-var PIXI = require('../../../assets/pixi.min.js')
-
-module.exports = function(mode, key) {
-	function Loader() {
-		this.progress = 0
-
-		this.textAnim = 0
-	}
-
-	Loader.prototype.init = function() {
-		mode.loadAssets(key, 
-			(function(athis) {		
-				return function(progress) { athis.progress = progress }
-			})(this)				
-		)
-	}
-
-	Loader.prototype.initRender = function(stage) {
-		this.bar = new PIXI.Graphics()
-		this.text = new PIXI.Text("loading...", {fill: 0xFFFFFF})
-		this.text.position.set(450, 400)
-		stage.addChild(this.bar)
-		stage.addChild(this.text)
-	}
-
-	Loader.prototype.step = function(delta) {
-		
-	}
-
-	Loader.prototype.stepRender = function(stage) {
-		this.bar.clear()
-		this.bar.beginFill(0xFFFFFF)
-		this.bar.drawRect(400, 445, this.progress * 100 + 400, 10)
-	}
-
-	Loader.prototype.hasEnded = function() {
-		return this.progress === 1
-	}
-
-	return new Loader()
-}
-
-},{"../../../assets/pixi.min.js":3}],17:[function(require,module,exports){
-/*                  ******** performance.js ********                   //
-\\ Performance data display in top right of screen.                    \\
-//                  ******** performance.js ********                   */
-
-var PIXI = require('../../../assets/pixi.min.js')
-
-var style = {fill: 0xFFFFFF}
-var fps = new PIXI.Text("fps", style)
-var counter = 0
-
-exports.initRender = function(stage) {
-	stage.addChild(fps)	
-}
-exports.stepRender = function(stage, delta, performance) {
-	counter += delta
-	if (counter > 500) {
-		fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime 
-		if (typeof performance.cueTime !== "undefined")
-			fps.text += "\ncue: " + performance.cueTime
-		counter -= 500
-	}
-}
-
-},{"../../../assets/pixi.min.js":3}],18:[function(require,module,exports){
-/*                  ******** run.js ********                           //
-\\ Runs a UI object.                                                   \\ 
-//                  ******** run.js ********                           */
-
-// object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities 
-
-var PIXI = require('../../assets/pixi.min.js')
-
-var Keys = require('../resources/keys.js')
-var nameFromKeyCode = Keys.nameFromKeyCode
-
-module.exports = function(target, object) {
-	var renderer =
-		PIXI.autoDetectRenderer(1600, 900, 
-			{backgroundColor : 0x000010, antialias : true})
-	document.body.appendChild(renderer.view)
-	var stage = new PIXI.Container()
-
-	/**** {{{ smartResize() ****/
-	function setMargins(mleft, mtop) {
-		document.body.style.setProperty("margin-left", mleft + "px")
-		document.body.style.setProperty("margin-top", mtop + "px")
-	}
-
-	function smartResize() {
-		var w = window.innerWidth; var h = window.innerHeight
-		var nw, nh
-		if (w / h > 16 / 9) {
-			nw = h * (16 / 9); nh = h
-			renderer.resize(nw, nh)
-			setMargins((w - nw) / 2, 0)
-		} else {
-			nh = w * (9 / 16); nw = w
-			renderer.resize(nw, nh)
-			setMargins(0, (h - nh) / 2)
-		}
-
-		stage.scale = new PIXI.Point(nw / 1600, nh / 900)
-	}
-	/**** }}} smartResize() ****/
-
-	window.onresize = smartResize
-	smartResize()
-	
-	runWithStage(target, renderer, stage, object)
-}
-
-	/**** {{{ requestAnimFrame ****/
-	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-var requestAnimFrame = (function(target) {
-	return window.requestAnimationFrame  || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
-		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, 1/target * 1000);
-		};
-})();
-	/**** }}} requestAnimFrame ****/
-
-function runWithStage(target, renderer, stage, object) {
-	stage.removeChildren()
-	renderer.render(stage)
-
-	object.initRender(stage)
-	object.init()
-
-	var blurred = false
-	var running = true
-
-	var accum = 0;
-
-	// performance data
-	var fps = 0; var fpsC = 0
-	var tps = 0; var tpsC = 0
-	var processStart = 0 // used for getting delta times
-	var logicTime = 0; var renderTime = 0; var sleepTime = 0
-	// the cycle deltas 
-
-	function resetFps() {
-		if (running) {
-			window.setTimeout(resetFps, 1000)
-			fps = fpsC; fpsC = 0
-			tps = tpsC; tpsC = 0
-		}
-	}
-
-	/**** {{{ step ****/
-	var interval = 1 / target * 1000
-	var then = Date.now()
-	function update() {
-		running = !object.hasEnded()
-
-		var now = Date.now()
-		var delta = now - then
-		then = now
-
-		if (running) { 
-			if (!blurred) {
-				requestAnimFrame(update) 
-			} else {
-				setTimeout(update, 1000 / target)
-			}
-
-			sleepTime = Date.now() - processStart
-			
-			accum += delta
-			
-			processStart = Date.now() // start logic
-			var needPaint = false;
-			while (accum >= interval) {
-				object.step(interval)
-				accum -= interval
-				needPaint = true
-				tpsC++
-			}
-			logicTime = Date.now() - processStart // end logic
-
-			if (needPaint) {
-				var performance = 
-					{ tps: tps
-					, fps: fps
-					, logicTime: logicTime
-					, renderTime: renderTime 
-					, sleepTime: sleepTime }
-				processStart = Date.now() // start render
-				object.stepRender(stage, delta, performance)
-				renderer.render(stage)
-				renderTime = Date.now() - processStart // end render
-				fpsC++
-			}
-
-			processStart = Date.now() // start sleep
-		} else {
-			window.removeEventListener("keyup", acceptKeyUp)
-			window.removeEventListener("keydown", acceptKeyDown)
-			window.removeEventListener("blur", onBlur)
-			window.removeEventListener("focus", onFocus)
-
-			if (typeof object.next !== "undefined")
-				runWithStage(target, renderer, stage, object.next())
-		}
-	} 
-	/**** }}} step ****/
-
-	function acceptKeyUp(e) { acceptKey(e, false) }
-	function acceptKeyDown(e) { acceptKey(e, true) }
-	function acceptKey(e, state) {
-		var name = nameFromKeyCode(e.keyCode)
-		object.acceptKey(name, state)
-		// some keys have quite obnoxious default cases
-		// while others, such as the debug terminal, do not
-		switch (name) {
-		case "back_space": 
-			e.preventDefault(); break
-		default: break
-		}
-	}	
-
-	function onBlur() { blurred = true }
-	function onFocus() { blurred = false }	
-
-	window.addEventListener("keyup", acceptKeyUp)
-	window.addEventListener("keydown", acceptKeyDown)
-	window.addEventListener("blur", onBlur)
-	window.addEventListener("focus", onFocus)
-
-	resetFps()
-	update()
-}
-
-},{"../../assets/pixi.min.js":3,"../resources/keys.js":19}],19:[function(require,module,exports){
+},{"../../resources/util.js":22}],19:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -2263,7 +2323,7 @@ Util.prototype.movementDeflation =
 	}
 /**** }}} deflation pairs ****/
 
-/**** {{{ serialising objects ****/ 
+/**** {{{ deflating and inflating ****/ 
 function deflatePair(deflationRules, pair) {
 	var matches = deflationRules.filter(
 		function(rule) { return rule.key === pair.key	} 
@@ -2292,44 +2352,28 @@ function inflatePair(deflationRules, pair) {
 	return pair 
 }
 
-Util.prototype.deflateObject = function(deflationRules, object) {
-	var result = []
-	
-	object.forEach(
-		function(inflated) {
-			var deflated = {}
-			Object.keys(inflated).forEach(
-				function(key) {
-					var pair = deflatePair(deflationRules, {key: key, value: inflated[key]})
-					deflated[pair.key] = pair.value	
-				}
-			, deflated)
-			result.push(deflated)
+Util.prototype.deflateObject = function(deflationRules, inflated) {
+	var deflated = {}
+	Object.keys(inflated).forEach(
+		function(key) {
+			var pair = deflatePair(deflationRules, {key: key, value: inflated[key]})
+			deflated[pair.key] = pair.value	
 		}
-	, result)
-
-	return result
+	, deflated)
+	return deflated
 }
 
-Util.prototype.inflateObject = function(deflationRules, object) {
-	var result = []
-
-	object.forEach(
-		function(deflated) {
-			var inflated = {}
-			Object.keys(deflated).forEach(
-				function(key) {
-					var pair = inflatePair(deflationRules, {key: key, value: deflated[key]})
-					inflated[pair.key] = pair.value
-				}
-			)
-			result.push(inflated)
+Util.prototype.inflateObject = function(deflationRules, deflated) {
+	var inflated = {}
+	Object.keys(deflated).forEach(
+		function(key) {
+			var pair = inflatePair(deflationRules, {key: key, value: deflated[key]})
+			inflated[pair.key] = pair.value
 		}
-	, result)
-	
-	return result
+	)
+	return inflated
 }
-/**** }}} serialising objects ****/ 
+/**** }}} deflating and inflating ****/ 
 
 /**** {{{ vector math ****/
 Util.prototype.getAngle = function(vec) {

@@ -91,7 +91,7 @@ Vanilla.prototype.loadMap = function (map) {
 			var box = this.createBody(
 				{x: block.x, y: block.y}
 				, this.createShape("rectangle", {width: block.w, height: block.h})
-				, {isStatic: true, bodyType: "map"} 
+				, {isStatic: true, doesCollide: true, bodyType: "map"} 
 			)
 			this.map.push(
 				{ block: box
@@ -191,7 +191,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	// if body is static, does not move
 	if (typeof props.isStatic == "undefined") props.isStatic = true
 	// if body is played, does not collide with other players
-	if (typeof props.doesCollide == "undefined") props.doesCollide  = false
+	if (typeof props.isObstacle  == "undefined") props.isObstacle  = false
 	
 	// parameters passed to body userdata
 	// "player" or "map" for the time being
@@ -207,7 +207,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.doesCollide) {
+	if (props.isObstacle) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
