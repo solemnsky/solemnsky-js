@@ -4,7 +4,8 @@
 
 var PIXI = require('../../assets/pixi.min.js')
 
-var renderPerf = require('./ui/performance.js')
+var renderPerf = require('./elements/performance.js')
+var mkLoadAssets = require('./elements/load-assets.js')
 
 module.exports = function(mode) {
 	function Game() {
@@ -42,5 +43,8 @@ module.exports = function(mode) {
 		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
 	}
 
-	return Game
+	var loadAssets = mkLoadAssets(mode, "")
+	loadAssets.next = function() {return new Game()}
+
+	return loadAssets
 }

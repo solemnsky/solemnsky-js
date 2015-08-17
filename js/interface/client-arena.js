@@ -4,7 +4,9 @@
 
 var PIXI = require('../../assets/pixi.min.js')
 var util = require('../resources/util.js')
-var renderPerf = require('./ui/performance.js')
+var renderPerf = require('./elements/performance.js')
+
+// FIXME: does not respect new mode loadAssets methods, so textures are not loaded
 
 module.exports = function(mode, address, port, path) {
 
@@ -294,5 +296,5 @@ module.exports = function(mode, address, port, path) {
 
 	ConnectUI.prototype.next = function() {return new Game()}
 	Game.prototype.next = function() {return new ConnectUI()}
-	return ConnectUI
+	return new ConnectUI()
 }

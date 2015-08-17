@@ -43,6 +43,10 @@ function Vanilla() {
 			, playerStage: null }
 		// the three pixi stages, constructed with pixi data from the
 		// map, projectile and player arrays and updated each render tick
+
+	this.projectileDefs = []
+		// definitions of various callbacks and values for projectiles
+		// in function of their type, in the form of an array of records 
 }
 /**** }}} constructor ****/
 
@@ -73,6 +77,10 @@ Vanilla.prototype.addPlayer = function(id, name) {
 
 Vanilla.prototype.findPlayerById = function(id) {
 	return util.findElemById(this.players, id)
+}
+
+Vanilla.prototype.findProjectileById = function(id) {
+	return util.findElemById(this.projectiles, id)
 }
 
 Vanilla.prototype.loadMap = function (map) {
@@ -183,7 +191,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	// if body is static, does not move
 	if (typeof props.isStatic == "undefined") props.isStatic = true
 	// if body is played, does not collide with other players
-	if (typeof props.isPlayer == "undefined") props.isPlayer = false
+	if (typeof props.doesCollide == "undefined") props.doesCollide  = false
 	
 	// parameters passed to body userdata
 	// "player" or "map" for the time being
@@ -199,7 +207,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.isPlayer) {
+	if (props.doesCollide) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
@@ -225,12 +233,16 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 /**** }}} physics interface methods ****/
 
 /**** {{{ mode-facing methods ****/
-Vanilla.prototype.addProjectile = function(owner, type, pos) {
+Vanilla.prototype.addProjectile = function(owner, type, pos, vel) {
 	var ids = this.projectiles.map(function(projectile) {return projectile.id})
 	var newId = util.findAvailableId(ids)
 	this.projectiles.push(
-		new Projectile(this, newId, owner, pos)
+		new Projectile(this, newId, owner, pos, vel, type)
 	)
+}
+
+Vanilla.prototype.addProjectileType = function(type, methods) {
+
 }
 /**** }}} mode-facing methods ****/
 

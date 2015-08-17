@@ -477,205 +477,29 @@ this._font.tint="number"==typeof t&&t>=0?t:16777215,this.dirty=!0}},align:{get:f
 this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMouseUp,!0),this.eventsAdded=!1)},i.prototype.update=function(t){if(this._deltaTime+=t,!(this._deltaTime<this.interactionFrequency)&&(this._deltaTime=0,this.interactionDOMElement)){if(this.didMove)return void(this.didMove=!1);this.cursor="inherit",this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseOverOut,!0),this.currentCursorStyle!==this.cursor&&(this.currentCursorStyle=this.cursor,this.interactionDOMElement.style.cursor=this.cursor)}},i.prototype.dispatchEvent=function(t,e,r){r.stopped||(r.target=t,r.type=e,t.emit(e,r),t[e]&&t[e](r))},i.prototype.mapPositionToPoint=function(t,e,r){var i=this.interactionDOMElement.getBoundingClientRect();t.x=(e-i.left)*(this.interactionDOMElement.width/i.width)/this.resolution,t.y=(r-i.top)*(this.interactionDOMElement.height/i.height)/this.resolution},i.prototype.processInteractive=function(t,e,r,i,n){if(!e.visible)return!1;var o=e.children,s=!1;if(n=n||e.interactive,e.interactiveChildren)for(var a=o.length-1;a>=0;a--)!s&&i?s=this.processInteractive(t,o[a],r,!0,n):this.processInteractive(t,o[a],r,!1,!1);return n&&(i&&(e.hitArea?(e.worldTransform.applyInverse(t,this._tempPoint),s=e.hitArea.contains(this._tempPoint.x,this._tempPoint.y)):e.containsPoint&&(s=e.containsPoint(t))),e.interactive&&r(e,s)),s},i.prototype.onMouseDown=function(t){this.mouse.originalEvent=t,this.eventData.data=this.mouse,this.eventData.stopped=!1,this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.autoPreventDefault&&this.mouse.originalEvent.preventDefault(),this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseDown,!0)},i.prototype.processMouseDown=function(t,e){var r=this.mouse.originalEvent,i=2===r.button||3===r.which;e&&(t[i?"_isRightDown":"_isLeftDown"]=!0,this.dispatchEvent(t,i?"rightdown":"mousedown",this.eventData))},i.prototype.onMouseUp=function(t){this.mouse.originalEvent=t,this.eventData.data=this.mouse,this.eventData.stopped=!1,this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseUp,!0)},i.prototype.processMouseUp=function(t,e){var r=this.mouse.originalEvent,i=2===r.button||3===r.which,n=i?"_isRightDown":"_isLeftDown";e?(this.dispatchEvent(t,i?"rightup":"mouseup",this.eventData),t[n]&&(t[n]=!1,this.dispatchEvent(t,i?"rightclick":"click",this.eventData))):t[n]&&(t[n]=!1,this.dispatchEvent(t,i?"rightupoutside":"mouseupoutside",this.eventData))},i.prototype.onMouseMove=function(t){this.mouse.originalEvent=t,this.eventData.data=this.mouse,this.eventData.stopped=!1,this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.didMove=!0,this.cursor="inherit",this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseMove,!0),this.currentCursorStyle!==this.cursor&&(this.currentCursorStyle=this.cursor,this.interactionDOMElement.style.cursor=this.cursor)},i.prototype.processMouseMove=function(t,e){this.dispatchEvent(t,"mousemove",this.eventData),this.processMouseOverOut(t,e)},i.prototype.onMouseOut=function(t){this.mouse.originalEvent=t,this.eventData.stopped=!1,this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.interactionDOMElement.style.cursor="inherit",this.mapPositionToPoint(this.mouse.global,t.clientX,t.clientY),this.processInteractive(this.mouse.global,this.renderer._lastObjectRendered,this.processMouseOverOut,!1)},i.prototype.processMouseOverOut=function(t,e){e?(t._over||(t._over=!0,this.dispatchEvent(t,"mouseover",this.eventData)),t.buttonMode&&(this.cursor=t.defaultCursor)):t._over&&(t._over=!1,this.dispatchEvent(t,"mouseout",this.eventData))},i.prototype.onTouchStart=function(t){this.autoPreventDefault&&t.preventDefault();for(var e=t.changedTouches,r=e.length,i=0;r>i;i++){var n=e[i],o=this.getTouchData(n);o.originalEvent=t,this.eventData.data=o,this.eventData.stopped=!1,this.processInteractive(o.global,this.renderer._lastObjectRendered,this.processTouchStart,!0),this.returnTouchData(o)}},i.prototype.processTouchStart=function(t,e){e&&(t._touchDown=!0,this.dispatchEvent(t,"touchstart",this.eventData))},i.prototype.onTouchEnd=function(t){this.autoPreventDefault&&t.preventDefault();for(var e=t.changedTouches,r=e.length,i=0;r>i;i++){var n=e[i],o=this.getTouchData(n);o.originalEvent=t,this.eventData.data=o,this.eventData.stopped=!1,this.processInteractive(o.global,this.renderer._lastObjectRendered,this.processTouchEnd,!0),this.returnTouchData(o)}},i.prototype.processTouchEnd=function(t,e){e?(this.dispatchEvent(t,"touchend",this.eventData),t._touchDown&&(t._touchDown=!1,this.dispatchEvent(t,"tap",this.eventData))):t._touchDown&&(t._touchDown=!1,this.dispatchEvent(t,"touchendoutside",this.eventData))},i.prototype.onTouchMove=function(t){this.autoPreventDefault&&t.preventDefault();for(var e=t.changedTouches,r=e.length,i=0;r>i;i++){var n=e[i],o=this.getTouchData(n);o.originalEvent=t,this.eventData.data=o,this.eventData.stopped=!1,this.processInteractive(o.global,this.renderer._lastObjectRendered,this.processTouchMove,!1),this.returnTouchData(o)}},i.prototype.processTouchMove=function(t,e){e=e,this.dispatchEvent(t,"touchmove",this.eventData)},i.prototype.getTouchData=function(t){var e=this.interactiveDataPool.pop();return e||(e=new o),e.identifier=t.identifier,this.mapPositionToPoint(e.global,t.clientX,t.clientY),navigator.isCocoonJS&&(e.global.x=e.global.x/this.resolution,e.global.y=e.global.y/this.resolution),t.globalX=e.global.x,t.globalY=e.global.y,e},i.prototype.returnTouchData=function(t){this.interactiveDataPool.push(t)},i.prototype.destroy=function(){this.removeEvents(),this.renderer=null,this.mouse=null,this.eventData=null,this.interactiveDataPool=null,this.interactionDOMElement=null,this.onMouseUp=null,this.processMouseUp=null,this.onMouseDown=null,this.processMouseDown=null,this.onMouseMove=null,this.processMouseMove=null,this.onMouseOut=null,this.processMouseOverOut=null,this.onTouchStart=null,this.processTouchStart=null,this.onTouchEnd=null,this.processTouchEnd=null,this.onTouchMove=null,this.processTouchMove=null,this._tempPoint=null},n.WebGLRenderer.registerPlugin("interaction",i),n.CanvasRenderer.registerPlugin("interaction",i)},{"../core":29,"./InteractionData":115,"./interactiveTarget":118}],117:[function(t,e,r){e.exports={InteractionData:t("./InteractionData"),InteractionManager:t("./InteractionManager"),interactiveTarget:t("./interactiveTarget")}},{"./InteractionData":115,"./InteractionManager":116,"./interactiveTarget":118}],118:[function(t,e,r){var i={interactive:!1,buttonMode:!1,interactiveChildren:!0,defaultCursor:"pointer",_over:!1,_touchDown:!1};e.exports=i},{}],119:[function(t,e,r){function i(t,e){var r={},i=t.data.getElementsByTagName("info")[0],n=t.data.getElementsByTagName("common")[0];r.font=i.getAttribute("face"),r.size=parseInt(i.getAttribute("size"),10),r.lineHeight=parseInt(n.getAttribute("lineHeight"),10),r.chars={};for(var a=t.data.getElementsByTagName("char"),h=0;h<a.length;h++){var l=parseInt(a[h].getAttribute("id"),10),u=new o.Rectangle(parseInt(a[h].getAttribute("x"),10)+e.frame.x,parseInt(a[h].getAttribute("y"),10)+e.frame.y,parseInt(a[h].getAttribute("width"),10),parseInt(a[h].getAttribute("height"),10));r.chars[l]={xOffset:parseInt(a[h].getAttribute("xoffset"),10),yOffset:parseInt(a[h].getAttribute("yoffset"),10),xAdvance:parseInt(a[h].getAttribute("xadvance"),10),kerning:{},texture:new o.Texture(e.baseTexture,u)}}var c=t.data.getElementsByTagName("kerning");for(h=0;h<c.length;h++){var p=parseInt(c[h].getAttribute("first"),10),d=parseInt(c[h].getAttribute("second"),10),f=parseInt(c[h].getAttribute("amount"),10);r.chars[d].kerning[p]=f}t.bitmapFont=r,s.BitmapText.fonts[r.font]=r}var n=t("resource-loader").Resource,o=t("../core"),s=t("../extras"),a=t("path");e.exports=function(){return function(t,e){if(!t.data||!t.isXml)return e();if(0===t.data.getElementsByTagName("page").length||0===t.data.getElementsByTagName("info").length||null===t.data.getElementsByTagName("info")[0].getAttribute("face"))return e();var r=a.dirname(t.url);"."===r&&(r=""),this.baseUrl&&r&&("/"===this.baseUrl.charAt(this.baseUrl.length-1)&&(r+="/"),r=r.replace(this.baseUrl,"")),r&&"/"!==r.charAt(r.length-1)&&(r+="/");var s=r+t.data.getElementsByTagName("page")[0].getAttribute("file");if(o.utils.TextureCache[s])i(t,o.utils.TextureCache[s]),e();else{var h={crossOrigin:t.crossOrigin,loadType:n.LOAD_TYPE.IMAGE};this.add(t.name+"_image",s,h,function(r){i(t,r.texture),e()})}}}},{"../core":29,"../extras":85,path:3,"resource-loader":18}],120:[function(t,e,r){e.exports={Loader:t("./loader"),bitmapFontParser:t("./bitmapFontParser"),spritesheetParser:t("./spritesheetParser"),textureParser:t("./textureParser"),Resource:t("resource-loader").Resource}},{"./bitmapFontParser":119,"./loader":121,"./spritesheetParser":122,"./textureParser":123,"resource-loader":18}],121:[function(t,e,r){function i(t,e){n.call(this,t,e);for(var r=0;r<i._pixiMiddleware.length;++r)this.use(i._pixiMiddleware[r]())}var n=t("resource-loader"),o=t("./textureParser"),s=t("./spritesheetParser"),a=t("./bitmapFontParser");i.prototype=Object.create(n.prototype),i.prototype.constructor=i,e.exports=i,i._pixiMiddleware=[n.middleware.parsing.blob,o,s,a],i.addPixiMiddleware=function(t){i._pixiMiddleware.push(t)};var h=n.Resource;h.setExtensionXhrType("fnt",h.XHR_RESPONSE_TYPE.DOCUMENT)},{"./bitmapFontParser":119,"./spritesheetParser":122,"./textureParser":123,"resource-loader":18}],122:[function(t,e,r){var i=t("resource-loader").Resource,n=t("path"),o=t("../core");e.exports=function(){return function(t,e){if(!t.data||!t.isJson||!t.data.frames)return e();var r={crossOrigin:t.crossOrigin,loadType:i.LOAD_TYPE.IMAGE},s=n.dirname(t.url.replace(this.baseUrl,"")),a=o.utils.getResolutionOfUrl(t.url);this.add(t.name+"_image",s+"/"+t.data.meta.image,r,function(r){t.textures={};var i=t.data.frames;for(var n in i){var s=i[n].frame;if(s){var h=null,l=null;if(h=i[n].rotated?new o.Rectangle(s.x,s.y,s.h,s.w):new o.Rectangle(s.x,s.y,s.w,s.h),i[n].trimmed&&(l=new o.Rectangle(i[n].spriteSourceSize.x/a,i[n].spriteSourceSize.y/a,i[n].sourceSize.w/a,i[n].sourceSize.h/a)),i[n].rotated){var u=h.width;h.width=h.height,h.height=u}h.x/=a,h.y/=a,h.width/=a,h.height/=a,t.textures[n]=new o.Texture(r.texture.baseTexture,h,h.clone(),l,i[n].rotated),o.utils.TextureCache[n]=t.textures[n]}}e()})}}},{"../core":29,path:3,"resource-loader":18}],123:[function(t,e,r){var i=t("../core");e.exports=function(){return function(t,e){t.data&&t.isImage&&(t.texture=new i.Texture(new i.BaseTexture(t.data,null,i.utils.getResolutionOfUrl(t.url))),i.utils.TextureCache[t.url]=t.texture),e()}}},{"../core":29}],124:[function(t,e,r){function i(t,e,r,o,s){n.Container.call(this),this._texture=null,this.uvs=r||new Float32Array([0,1,1,1,1,0,0,1]),this.vertices=e||new Float32Array([0,0,100,0,100,100,0,100]),this.indices=o||new Uint16Array([0,1,2,3]),this.dirty=!0,this.blendMode=n.BLEND_MODES.NORMAL,this.canvasPadding=0,this.drawMode=s||i.DRAW_MODES.TRIANGLE_MESH,this.texture=t}var n=t("../core"),o=new n.Point,s=new n.Polygon;i.prototype=Object.create(n.Container.prototype),i.prototype.constructor=i,e.exports=i,Object.defineProperties(i.prototype,{texture:{get:function(){return this._texture},set:function(t){this._texture!==t&&(this._texture=t,t&&(t.baseTexture.hasLoaded?this._onTextureUpdate():t.once("update",this._onTextureUpdate,this)))}}}),i.prototype._renderWebGL=function(t){t.setObjectRenderer(t.plugins.mesh),t.plugins.mesh.render(this)},i.prototype._renderCanvas=function(t){var e=t.context,r=this.worldTransform;t.roundPixels?e.setTransform(r.a,r.b,r.c,r.d,0|r.tx,0|r.ty):e.setTransform(r.a,r.b,r.c,r.d,r.tx,r.ty),this.drawMode===i.DRAW_MODES.TRIANGLE_MESH?this._renderCanvasTriangleMesh(e):this._renderCanvasTriangles(e)},i.prototype._renderCanvasTriangleMesh=function(t){for(var e=this.vertices,r=this.uvs,i=e.length/2,n=0;i-2>n;n++){var o=2*n;this._renderCanvasDrawTriangle(t,e,r,o,o+2,o+4)}},i.prototype._renderCanvasTriangles=function(t){for(var e=this.vertices,r=this.uvs,i=this.indices,n=i.length,o=0;n>o;o+=3){var s=2*i[o],a=2*i[o+1],h=2*i[o+2];this._renderCanvasDrawTriangle(t,e,r,s,a,h)}},i.prototype._renderCanvasDrawTriangle=function(t,e,r,i,n,o){var s=this._texture.baseTexture.source,a=this._texture.baseTexture.width,h=this._texture.baseTexture.height,l=e[i],u=e[n],c=e[o],p=e[i+1],d=e[n+1],f=e[o+1],v=r[i]*a,g=r[n]*a,m=r[o]*a,y=r[i+1]*h,x=r[n+1]*h,b=r[o+1]*h;if(this.canvasPadding>0){var _=this.canvasPadding/this.worldTransform.a,T=this.canvasPadding/this.worldTransform.d,E=(l+u+c)/3,S=(p+d+f)/3,A=l-E,w=p-S,C=Math.sqrt(A*A+w*w);l=E+A/C*(C+_),p=S+w/C*(C+T),A=u-E,w=d-S,C=Math.sqrt(A*A+w*w),u=E+A/C*(C+_),d=S+w/C*(C+T),A=c-E,w=f-S,C=Math.sqrt(A*A+w*w),c=E+A/C*(C+_),f=S+w/C*(C+T)}t.save(),t.beginPath(),t.moveTo(l,p),t.lineTo(u,d),t.lineTo(c,f),t.closePath(),t.clip();var M=v*x+y*m+g*b-x*m-y*g-v*b,R=l*x+y*c+u*b-x*c-y*u-l*b,D=v*u+l*m+g*c-u*m-l*g-v*c,F=v*x*c+y*u*m+l*g*b-l*x*m-y*g*c-v*u*b,P=p*x+y*f+d*b-x*f-y*d-p*b,O=v*d+p*m+g*f-d*m-p*g-v*f,B=v*x*f+y*d*m+p*g*b-p*x*m-y*g*f-v*d*b;t.transform(R/M,P/M,D/M,O/M,F/M,B/M),t.drawImage(s,0,0),t.restore()},i.prototype.renderMeshFlat=function(t){var e=this.context,r=t.vertices,i=r.length/2;e.beginPath();for(var n=1;i-2>n;n++){var o=2*n,s=r[o],a=r[o+2],h=r[o+4],l=r[o+1],u=r[o+3],c=r[o+5];e.moveTo(s,l),e.lineTo(a,u),e.lineTo(h,c)}e.fillStyle="#FF0000",e.fill(),e.closePath()},i.prototype._onTextureUpdate=function(){this.updateFrame=!0},i.prototype.getBounds=function(t){if(!this._currentBounds){for(var e=t||this.worldTransform,r=e.a,i=e.b,o=e.c,s=e.d,a=e.tx,h=e.ty,l=-(1/0),u=-(1/0),c=1/0,p=1/0,d=this.vertices,f=0,v=d.length;v>f;f+=2){var g=d[f],m=d[f+1],y=r*g+o*m+a,x=s*m+i*g+h;c=c>y?y:c,p=p>x?x:p,l=y>l?y:l,u=x>u?x:u}if(c===-(1/0)||u===1/0)return n.Rectangle.EMPTY;var b=this._bounds;b.x=c,b.width=l-c,b.y=p,b.height=u-p,this._currentBounds=b}return this._currentBounds},i.prototype.containsPoint=function(t){if(!this.getBounds().contains(t.x,t.y))return!1;this.worldTransform.applyInverse(t,o);var e,r,n=this.vertices,a=s.points;if(this.drawMode===i.DRAW_MODES.TRIANGLES){var h=this.indices;for(r=this.indices.length,e=0;r>e;e+=3){var l=2*h[e],u=2*h[e+1],c=2*h[e+2];if(a[0]=n[l],a[1]=n[l+1],a[2]=n[u],a[3]=n[u+1],a[4]=n[c],a[5]=n[c+1],s.contains(o.x,o.y))return!0}}else for(r=n.length,e=0;r>e;e+=6)if(a[0]=n[e],a[1]=n[e+1],a[2]=n[e+2],a[3]=n[e+3],a[4]=n[e+4],a[5]=n[e+5],s.contains(o.x,o.y))return!0;return!1},i.DRAW_MODES={TRIANGLE_MESH:0,TRIANGLES:1}},{"../core":29}],125:[function(t,e,r){function i(t,e){n.call(this,t),this.points=e,this.vertices=new Float32Array(4*e.length),this.uvs=new Float32Array(4*e.length),this.colors=new Float32Array(2*e.length),this.indices=new Uint16Array(2*e.length),this._ready=!0,this.refresh()}var n=t("./Mesh"),o=t("../core");i.prototype=Object.create(n.prototype),i.prototype.constructor=i,e.exports=i,i.prototype.refresh=function(){var t=this.points;if(!(t.length<1)&&this._texture._uvs){var e=this.uvs,r=this.indices,i=this.colors,n=this._texture._uvs,s=new o.Point(n.x0,n.y0),a=new o.Point(n.x2-n.x0,n.y2-n.y0);e[0]=0+s.x,e[1]=0+s.y,e[2]=0+s.x,e[3]=1*a.y+s.y,i[0]=1,i[1]=1,r[0]=0,r[1]=1;for(var h,l,u,c=t.length,p=1;c>p;p++)h=t[p],l=4*p,u=p/(c-1),e[l]=u*a.x+s.x,e[l+1]=0+s.y,e[l+2]=u*a.x+s.x,e[l+3]=1*a.y+s.y,l=2*p,i[l]=1,i[l+1]=1,l=2*p,r[l]=l,r[l+1]=l+1;this.dirty=!0}},i.prototype._onTextureUpdate=function(){n.prototype._onTextureUpdate.call(this),this._ready&&this.refresh()},i.prototype.updateTransform=function(){var t=this.points;if(!(t.length<1)){for(var e,r,i,n,o,s,a=t[0],h=0,l=0,u=this.vertices,c=t.length,p=0;c>p;p++)r=t[p],i=4*p,e=p<t.length-1?t[p+1]:r,l=-(e.x-a.x),h=e.y-a.y,n=10*(1-p/(c-1)),n>1&&(n=1),o=Math.sqrt(h*h+l*l),s=this._texture.height/2,h/=o,l/=o,h*=s,l*=s,u[i]=r.x+h,u[i+1]=r.y+l,u[i+2]=r.x-h,u[i+3]=r.y-l,a=r;this.containerUpdateTransform()}}},{"../core":29,"./Mesh":124}],126:[function(t,e,r){e.exports={Mesh:t("./Mesh"),Rope:t("./Rope"),MeshRenderer:t("./webgl/MeshRenderer"),MeshShader:t("./webgl/MeshShader")}},{"./Mesh":124,"./Rope":125,"./webgl/MeshRenderer":127,"./webgl/MeshShader":128}],127:[function(t,e,r){function i(t){n.ObjectRenderer.call(this,t),this.indices=new Uint16Array(15e3);for(var e=0,r=0;15e3>e;e+=6,r+=4)this.indices[e+0]=r+0,this.indices[e+1]=r+1,this.indices[e+2]=r+2,this.indices[e+3]=r+0,this.indices[e+4]=r+2,this.indices[e+5]=r+3}var n=t("../../core"),o=t("../Mesh");i.prototype=Object.create(n.ObjectRenderer.prototype),i.prototype.constructor=i,e.exports=i,n.WebGLRenderer.registerPlugin("mesh",i),i.prototype.onContextChange=function(){},i.prototype.render=function(t){t._vertexBuffer||this._initWebGL(t);var e=this.renderer,r=e.gl,i=t._texture.baseTexture,n=e.shaderManager.plugins.meshShader,s=t.drawMode===o.DRAW_MODES.TRIANGLE_MESH?r.TRIANGLE_STRIP:r.TRIANGLES;e.blendModeManager.setBlendMode(t.blendMode),r.uniformMatrix3fv(n.uniforms.translationMatrix._location,!1,t.worldTransform.toArray(!0)),r.uniformMatrix3fv(n.uniforms.projectionMatrix._location,!1,e.currentRenderTarget.projectionMatrix.toArray(!0)),r.uniform1f(n.uniforms.alpha._location,t.worldAlpha),t.dirty?(t.dirty=!1,r.bindBuffer(r.ARRAY_BUFFER,t._vertexBuffer),r.bufferData(r.ARRAY_BUFFER,t.vertices,r.STATIC_DRAW),r.vertexAttribPointer(n.attributes.aVertexPosition,2,r.FLOAT,!1,0,0),r.bindBuffer(r.ARRAY_BUFFER,t._uvBuffer),r.bufferData(r.ARRAY_BUFFER,t.uvs,r.STATIC_DRAW),r.vertexAttribPointer(n.attributes.aTextureCoord,2,r.FLOAT,!1,0,0),r.activeTexture(r.TEXTURE0),i._glTextures[r.id]?r.bindTexture(r.TEXTURE_2D,i._glTextures[r.id]):this.renderer.updateTexture(i),r.bindBuffer(r.ELEMENT_ARRAY_BUFFER,t._indexBuffer),r.bufferData(r.ELEMENT_ARRAY_BUFFER,t.indices,r.STATIC_DRAW)):(r.bindBuffer(r.ARRAY_BUFFER,t._vertexBuffer),r.bufferSubData(r.ARRAY_BUFFER,0,t.vertices),r.vertexAttribPointer(n.attributes.aVertexPosition,2,r.FLOAT,!1,0,0),r.bindBuffer(r.ARRAY_BUFFER,t._uvBuffer),r.vertexAttribPointer(n.attributes.aTextureCoord,2,r.FLOAT,!1,0,0),r.activeTexture(r.TEXTURE0),i._glTextures[r.id]?r.bindTexture(r.TEXTURE_2D,i._glTextures[r.id]):this.renderer.updateTexture(i),r.bindBuffer(r.ELEMENT_ARRAY_BUFFER,t._indexBuffer),r.bufferSubData(r.ELEMENT_ARRAY_BUFFER,0,t.indices)),r.drawElements(s,t.indices.length,r.UNSIGNED_SHORT,0)},i.prototype._initWebGL=function(t){var e=this.renderer.gl;t._vertexBuffer=e.createBuffer(),t._indexBuffer=e.createBuffer(),t._uvBuffer=e.createBuffer(),e.bindBuffer(e.ARRAY_BUFFER,t._vertexBuffer),e.bufferData(e.ARRAY_BUFFER,t.vertices,e.DYNAMIC_DRAW),e.bindBuffer(e.ARRAY_BUFFER,t._uvBuffer),e.bufferData(e.ARRAY_BUFFER,t.uvs,e.STATIC_DRAW),t.colors&&(t._colorBuffer=e.createBuffer(),e.bindBuffer(e.ARRAY_BUFFER,t._colorBuffer),e.bufferData(e.ARRAY_BUFFER,t.colors,e.STATIC_DRAW)),e.bindBuffer(e.ELEMENT_ARRAY_BUFFER,t._indexBuffer),e.bufferData(e.ELEMENT_ARRAY_BUFFER,t.indices,e.STATIC_DRAW)},i.prototype.flush=function(){},i.prototype.start=function(){var t=this.renderer.shaderManager.plugins.meshShader;this.renderer.shaderManager.setShader(t)},i.prototype.destroy=function(){}},{"../../core":29,"../Mesh":124}],128:[function(t,e,r){function i(t){n.Shader.call(this,t,["precision lowp float;","attribute vec2 aVertexPosition;","attribute vec2 aTextureCoord;","uniform mat3 translationMatrix;","uniform mat3 projectionMatrix;","varying vec2 vTextureCoord;","void main(void){","   gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);","   vTextureCoord = aTextureCoord;","}"].join("\n"),["precision lowp float;","varying vec2 vTextureCoord;","uniform float alpha;","uniform sampler2D uSampler;","void main(void){","   gl_FragColor = texture2D(uSampler, vTextureCoord) * alpha ;","}"].join("\n"),{alpha:{type:"1f",value:0},translationMatrix:{type:"mat3",value:new Float32Array(9)},projectionMatrix:{type:"mat3",value:new Float32Array(9)}},{aVertexPosition:0,aTextureCoord:0})}var n=t("../../core");i.prototype=Object.create(n.Shader.prototype),i.prototype.constructor=i,e.exports=i,n.ShaderManager.registerPlugin("meshShader",i)},{"../../core":29}],129:[function(t,e,r){Object.assign||(Object.assign=t("object-assign"))},{"object-assign":12}],130:[function(t,e,r){t("./Object.assign"),t("./requestAnimationFrame")},{"./Object.assign":129,"./requestAnimationFrame":131}],131:[function(t,e,r){(function(t){if(Date.now&&Date.prototype.getTime||(Date.now=function(){return(new Date).getTime()}),!t.performance||!t.performance.now){var e=Date.now();t.performance||(t.performance={}),t.performance.now=function(){return Date.now()-e}}for(var r=Date.now(),i=["ms","moz","webkit","o"],n=0;n<i.length&&!t.requestAnimationFrame;++n)t.requestAnimationFrame=t[i[n]+"RequestAnimationFrame"],t.cancelAnimationFrame=t[i[n]+"CancelAnimationFrame"]||t[i[n]+"CancelRequestAnimationFrame"];t.requestAnimationFrame||(t.requestAnimationFrame=function(t){if("function"!=typeof t)throw new TypeError(t+"is not a function");var e=Date.now(),i=16+r-e;return 0>i&&(i=0),r=e,setTimeout(function(){r=Date.now(),t(performance.now())},i)}),t.cancelAnimationFrame||(t.cancelAnimationFrame=function(t){clearTimeout(t)})}).call(this,"undefined"!=typeof global?global:"undefined"!=typeof self?self:"undefined"!=typeof window?window:{})},{}]},{},[1])(1)});
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],4:[function(require,module,exports){
-var ui = require('../ui/index.js')
+var runUI = require('../interface/run.js')
 
 // allocate mode
-var Vanilla = require('../modes/vanilla/')
-require('../modes/vanilla/render.js')(Vanilla)
-var Demo = require('../modes/demo/')
-require('../modes/demo/render.js')(Demo)
+var Vanilla = require('../core/vanilla/')
+require('../core/vanilla/render.js')(Vanilla)
+var Demo = require('../core/demo/')
+require('../core/demo/render.js')(Demo)
 var mode = new Demo(new Vanilla())
 	
 // write debug pointers
 window.MODE = mode
 
 // effects
-var splash = require('../control/effects/splash.js')
-var fade = require('../control/effects/fade.js')
+var splash = require('../interface/effects/splash.js')
+var fade = require('../interface/effects/fade.js')
 
 // allocate control object
-var Client = require('../control/client-offline.js')(mode) 
-var ctrl = splash(fade(new Client(), 250), 1500)
+var client = require('../interface/client-offline.js')(mode) 
+var ctrl = splash(fade(client, 250), 1500)
 
-ui.run(60, ctrl)
+runUI(60, ctrl)
 
-},{"../control/client-offline.js":5,"../control/effects/fade.js":6,"../control/effects/splash.js":7,"../modes/demo/":9,"../modes/demo/render.js":10,"../modes/vanilla/":12,"../modes/vanilla/render.js":15,"../ui/index.js":21}],5:[function(require,module,exports){
-/*                  ******** client-offline.js ********                //
-\\ Offline demo client.                                                \\
-//                  ******** client-offline.js ********                */
-
-var PIXI = require('../../assets/pixi.min.js')
-
-var renderPerf = require('./ui/performance.js')
-
-module.exports = function(mode) {
-	function Game() {
-		this.perfStage = new PIXI.Container()
-		this.modeStage = new PIXI.Container()
-
-		this.eventLog = []
-	}
-
-	Game.prototype.init = function() { 
-		mode.init(mode.createState(''))
-		mode.join('offline player')
-	}
-
-	Game.prototype.step = function(delta) {
-		this.eventLog = this.eventLog.concat(mode.step(delta))
-	}
-
-	Game.prototype.initRender = function(stage) {
-		stage.addChild(this.modeStage)
-		stage.addChild(this.perfStage)
-
-		mode.initRender(this.modeStage)
-		renderPerf.initRender(this.perfStage)
-	}
-
-	Game.prototype.stepRender = function(stage, delta, performance) {
-		mode.stepRender(0, this.modeStage, delta) 
-		renderPerf.stepRender(this.perfStage, delta, performance)
-	}
-
-	Game.prototype.hasEnded = function() { return false }
-
-	Game.prototype.acceptKey = function(key, state) {
-		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
-	}
-
-	return Game
-}
-
-},{"../../assets/pixi.min.js":3,"./ui/performance.js":8}],6:[function(require,module,exports){
-/*									******** fade.js ********									   //
-\\ Fades the graphics in, good for entry transitions.            \\
-//									******** fade.js ********									   */
-
-var PIXI = require('../../../assets/pixi.min.js')
-
-
-module.exports = function(ctrl, scale) {
-	function Fade() {
-		this.time = 0
-		this.fading = true
-	}
-
-	Fade.prototype.init = function() {
-		ctrl.init()
-	}
-
-	Fade.prototype.initRender = function(stage) {
-		this.ctrlStage = new PIXI.Container
-		ctrl.initRender(this.ctrlStage)
-
-		stage.addChild(this.ctrlStage)
-		this.ctrlStage.alpha = 0
-	}
-
-	Fade.prototype.step = function(delta) {
-		ctrl.step(delta)
-		if (this.fading)
-			this.time += delta
-		this.fading = this.time < scale
-	}
-	
-	Fade.prototype.stepRender = function(stage, delta, performance) {
-		ctrl.stepRender(this.ctrlStage, delta, performance)
-		if (this.fading) 
-			this.ctrlStage.alpha = this.time / scale
-		else 
-			this.ctrlStage.alpha = 1
-	}
-
-	Fade.prototype.hasEnded = function() {
-		return ctrl.hasEnded()
-	}
-
-	Fade.prototype.acceptKey = function(key, state) {
-		ctrl.acceptKey(key, state)
-	}
-
-	Fade.prototype.next = ctrl.next
-
-	return new Fade()
-}
-
-},{"../../../assets/pixi.min.js":3}],7:[function(require,module,exports){
-/*									******** splash.js ********									 //
-\\ Branding splash screen.                                       \\
-//									******** splash.js ********									 */
-
-var PIXI = require('../../../assets/pixi.min.js')
-
-module.exports = function(ctrl, scale) {
-	var third = scale / 3
-
-	function Splash() {
-		this.time = 0
-	}
-
-	Splash.prototype.init = function() { } 
-
-	Splash.prototype.initRender = function(stage) {
-		this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
-		this.text.position.set(800, 450)
-		stage.addChild(this.text)
-	}
-
-	Splash.prototype.step = function(delta) {
-		this.time += delta
-	}
-
-	Splash.prototype.stepRender = function() {
-
-		if (this.time < third) {
-			this.text.alpha = this.time / third
-		} else {
-			if (this.time < third * 2) {
-				this.text.alpha = 1
-			} else {
-				this.text.alpha = (scale - this.time) / third
-			}
-		}
-	}
-
-	Splash.prototype.acceptKey = function() {}
-
-	Splash.prototype.hasEnded = function() {
-		return this.time > scale 
-	}
-
-	Splash.prototype.next = function() {return ctrl}
-
-	return new Splash()
-}
-
-},{"../../../assets/pixi.min.js":3}],8:[function(require,module,exports){
-/*                  ******** performance.js ********                   //
-\\ Performance data display in top right of screen.                    \\
-//                  ******** performance.js ********                   */
-
-var PIXI = require('../../../assets/pixi.min.js')
-
-var style = {fill: 0xFFFFFF}
-var fps = new PIXI.Text("fps", style)
-var counter = 0
-
-exports.initRender = function(stage) {
-	stage.addChild(fps)	
-}
-exports.stepRender = function(stage, delta, performance) {
-	counter += delta
-	if (counter > 500) {
-		fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime 
-		if (typeof performance.cueTime !== "undefined")
-			fps.text += "\ncue: " + performance.cueTime
-		counter -= 500
-	}
-}
-
-},{"../../../assets/pixi.min.js":3}],9:[function(require,module,exports){
+},{"../core/demo/":5,"../core/demo/render.js":6,"../core/vanilla/":8,"../core/vanilla/render.js":11,"../interface/client-offline.js":13,"../interface/effects/fade.js":14,"../interface/effects/splash.js":15,"../interface/run.js":18}],5:[function(require,module,exports){
 /*                  ******** demo/index.js ********                   //
 \\ Development demo with fun features!                                \\
 //                  ******** demo/index.js ********                   */
@@ -715,7 +539,10 @@ Demo.prototype.acceptEvent = function(theEvent) {
 		if (player !== null) 
 			this.vanilla.addProjectile(
 				theEvent.id, null
-				, {x: player.position.x, y: player.position.y + 50})
+				, {x: player.position.x + Math.cos(player.rotation) * 30 
+					, y: player.position.y + Math.sin(player.rotation) * 30}
+				, {x: player.velocity.x + Math.cos(player.rotation) * 200
+					, y: player.velocity.y + Math.sin(player.rotation) * 200})
 	}
 	this.vanilla.acceptEvent(theEvent)
 }
@@ -771,7 +598,7 @@ Demo.prototype.readAssertion = function(str) {
 
 Demo.prototype.modeId = "demo dev"
 
-},{}],10:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*                  ******** demo/render.js ********                  //
 \\ Rendering for the demo.                                            \\
 //                  ******** demo/render.js ********                  */
@@ -800,7 +627,7 @@ module.exports = function(Demo) {
 
 }
 
-},{"../../../assets/pixi.min.js":3}],11:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],7:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -856,7 +683,7 @@ module.exports = {
 	, graphicsNameClear: 35
 }
 
-},{}],12:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*									******** vanilla/index.js ********								//
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //									******** vanilla/index.js ********								*/
@@ -902,6 +729,10 @@ function Vanilla() {
 			, playerStage: null }
 		// the three pixi stages, constructed with pixi data from the
 		// map, projectile and player arrays and updated each render tick
+
+	this.projectileDefs = []
+		// definitions of various callbacks and values for projectiles
+		// in function of their type, in the form of an array of records 
 }
 /**** }}} constructor ****/
 
@@ -932,6 +763,10 @@ Vanilla.prototype.addPlayer = function(id, name) {
 
 Vanilla.prototype.findPlayerById = function(id) {
 	return util.findElemById(this.players, id)
+}
+
+Vanilla.prototype.findProjectileById = function(id) {
+	return util.findElemById(this.projectiles, id)
 }
 
 Vanilla.prototype.loadMap = function (map) {
@@ -1042,7 +877,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	// if body is static, does not move
 	if (typeof props.isStatic == "undefined") props.isStatic = true
 	// if body is played, does not collide with other players
-	if (typeof props.isPlayer == "undefined") props.isPlayer = false
+	if (typeof props.doesCollide == "undefined") props.doesCollide  = false
 	
 	// parameters passed to body userdata
 	// "player" or "map" for the time being
@@ -1058,7 +893,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.isPlayer) {
+	if (props.doesCollide) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
@@ -1084,12 +919,16 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 /**** }}} physics interface methods ****/
 
 /**** {{{ mode-facing methods ****/
-Vanilla.prototype.addProjectile = function(owner, type, pos) {
+Vanilla.prototype.addProjectile = function(owner, type, pos, vel) {
 	var ids = this.projectiles.map(function(projectile) {return projectile.id})
 	var newId = util.findAvailableId(ids)
 	this.projectiles.push(
-		new Projectile(this, newId, owner, pos)
+		new Projectile(this, newId, owner, pos, vel, type)
 	)
+}
+
+Vanilla.prototype.addProjectileType = function(type, methods) {
+
 }
 /**** }}} mode-facing methods ****/
 
@@ -1249,7 +1088,7 @@ Vanilla.prototype.modeId = "vanilla engine"
 Vanilla.prototype.hasEnded = function() { return false }
 /**** }}} misc ****/
 
-},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":18,"../../resources/util.js":20,"./gameplay.js":11,"./player.js":13,"./projectile.js":14,"./snapshots.js":16}],13:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":20,"../../resources/util.js":22,"./gameplay.js":7,"./player.js":9,"./projectile.js":10,"./snapshots.js":12}],9:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
@@ -1318,7 +1157,7 @@ function Player(game, id, pos, name) {
 			, this.game.createShape("triangle", 
 					{width: gameplay.playerWidth, height: gameplay.playerHeight}
 				)
-			, {isStatic: false, isPlayer: true, bodyType: "player", bodyId: id} 
+			, {isStatic: false, doesCollide: true, bodyType: "player", bodyId: id} 
 		)
 }
 /**** }}} Player() ****/
@@ -1473,7 +1312,7 @@ Player.prototype.step = function(delta) {
 	/**** }}} respawning ****/
 }
 
-},{"../../../assets/box2d.min.js":1,"../../resources/util.js":20,"./gameplay.js":11}],14:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":22,"./gameplay.js":7}],10:[function(require,module,exports){
 /*                  ******** vanilla/projectile.js ********        //
 \\ Projectile objective, with box2d interface and gameplay mechanics. \\
 //                  ******** vanilla/projectile.js ********        */
@@ -1497,7 +1336,7 @@ var b2Vec2         = Box2D.Common.Math.b2Vec2
 /**** }}} box2d synonyms ****/
 
 /**** {{{ Projectile() ****/
-function Projectile(game, id, owner, pos) {
+function Projectile(game, id, owner, pos, vel, type) {
 	// TODO: expand definition
 	// this is just a placeholder, projectiles should be
 	// freely parameterized and definable through outer modes
@@ -1505,15 +1344,17 @@ function Projectile(game, id, owner, pos) {
 	this.game = game
 	this.owner = owner
 
-	this.position = pos
 	this.dimensions = {w: 5, h: 5}
+
+	this.position = pos
+	this.velocity = vel
 
 	this.shape = 
 		game.createShape("rectangle" , {width: 5, height: 5})
 	this.block = game.createBody( this.position, this.shape, 
 		{
 			isStatic: false
-			, isPlayer: false
+			, doesCollide: false
 			, bodyType: "projectile"
 			, bodyId: id
 		}
@@ -1527,13 +1368,20 @@ Projectile.prototype.writeToBlock = function() {
 		this.position.x / gameplay.physicsScale
 		, this.position.y / gameplay.physicsScale
 	))
+	this.block.SetLinearVelocity(new b2Vec2(
+		this.velocity.x / gameplay.physicsScale
+		, this.velocity.y / gameplay.physicsScale
+	))
 }
 
 Projectile.prototype.readFromBlock = function() {
 	var pos = this.block.GetPosition()
+	var vel = this.block.GetLinearVelocity()
 
 	this.position.x = pos.x * gameplay.physicsScale
 	this.position.y = pos.y * gameplay.physicsScale
+	this.velocity.x = vel.x * gameplay.physicsScale
+	this.velocity.y = vel.y * gameplay.physicsScale
 }
 /**** }}} box2d interface ****/
 
@@ -1541,7 +1389,7 @@ Projectile.prototype.step = function(delta) {
 	// for example, it could fade out
 }
 
-},{"../../../assets/box2d.min.js":1,"./gameplay.js":11}],15:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"./gameplay.js":7}],11:[function(require,module,exports){
 /*					******** vanilla/render.js ********				//
 \\ Client-sided renderer for the vanilla game mode.		\\
 //					******** vanilla/render.js ********				*/
@@ -1710,14 +1558,21 @@ module.exports = function(Vanilla) {
 	}
 /**** }}} renderPlayers ****/
 
-	Vanilla.prototype.initRender = function(stage) {
+	Vanilla.prototype.loadAssets = function(key, onProgress) {
 		this.textures = {}
-		this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
-		this.textures.playerThrust = 
-			new PIXI.Texture.fromImage(urls.playerThrustSprite)
-		this.textures.playerSpeed = 
-			new PIXI.Texture.fromImage(urls.playerSpeedSprite)
-		
+		var loadPairs =
+			[ {name: "player", url: urls.playerSprite}
+			, {name: "playerThrust", url: urls.playerThrustSprite}
+			, {name: "playerSpeed", url: urls.playerSpeedSprite} ]
+		loadPairs.forEach(
+			function(pair, index) {
+				this.textures[pair.name] = new PIXI.Texture.fromImage(pair.url)
+				onProgress(index / loadPairs.length)
+			} , this)
+		setTimeout(function() {onProgress(1)}, 500)
+	}
+
+	Vanilla.prototype.initRender = function(stage) {
 		this.graphics.mapStage = new PIXI.Container()
 		this.graphics.projectileStage = new PIXI.Container()
 		this.graphics.playerStage = new PIXI.Container()
@@ -1744,7 +1599,7 @@ module.exports = function(Vanilla) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":19,"./gameplay.js":11}],16:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":21,"./gameplay.js":7}],12:[function(require,module,exports){
 var util = require('../../resources/util.js')
 
 function Snapshot(player, priority, defaultState, states) {
@@ -1830,7 +1685,409 @@ exports.inflateSnapshot = function(snap) {
 
 exports.Snapshot = Snapshot
 
-},{"../../resources/util.js":20}],17:[function(require,module,exports){
+},{"../../resources/util.js":22}],13:[function(require,module,exports){
+/*                  ******** client-offline.js ********                //
+\\ Offline demo client.                                                \\
+//                  ******** client-offline.js ********                */
+
+var PIXI = require('../../assets/pixi.min.js')
+
+var renderPerf = require('./elements/performance.js')
+var mkLoadAssets = require('./elements/load-assets.js')
+
+module.exports = function(mode) {
+	function Game() {
+		this.perfStage = new PIXI.Container()
+		this.modeStage = new PIXI.Container()
+
+		this.eventLog = []
+	}
+
+	Game.prototype.init = function() { 
+		mode.init(mode.createState(''))
+		mode.join('offline player')
+	}
+
+	Game.prototype.step = function(delta) {
+		this.eventLog = this.eventLog.concat(mode.step(delta))
+	}
+
+	Game.prototype.initRender = function(stage) {
+		stage.addChild(this.modeStage)
+		stage.addChild(this.perfStage)
+
+		mode.initRender(this.modeStage)
+		renderPerf.initRender(this.perfStage)
+	}
+
+	Game.prototype.stepRender = function(stage, delta, performance) {
+		mode.stepRender(0, this.modeStage, delta) 
+		renderPerf.stepRender(this.perfStage, delta, performance)
+	}
+
+	Game.prototype.hasEnded = function() { return false }
+
+	Game.prototype.acceptKey = function(key, state) {
+		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
+	}
+
+	var loadAssets = mkLoadAssets(mode, "")
+	loadAssets.next = function() {return new Game()}
+
+	return loadAssets
+}
+
+},{"../../assets/pixi.min.js":3,"./elements/load-assets.js":16,"./elements/performance.js":17}],14:[function(require,module,exports){
+/*									******** fade.js ********									   //
+\\ Fades the graphics in, good for entry transitions.            \\
+//									******** fade.js ********									   */
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+
+module.exports = function(ctrl, scale) {
+	function Fade() {
+		this.time = 0
+		this.fading = true
+	}
+
+	Fade.prototype.init = function() {
+		ctrl.init()
+	}
+
+	Fade.prototype.initRender = function(stage) {
+		this.ctrlStage = new PIXI.Container
+		ctrl.initRender(this.ctrlStage)
+
+		stage.addChild(this.ctrlStage)
+		this.ctrlStage.alpha = 0
+	}
+
+	Fade.prototype.step = function(delta) {
+		ctrl.step(delta)
+		if (this.fading)
+			this.time += delta
+		this.fading = this.time < scale
+	}
+	
+	Fade.prototype.stepRender = function(stage, delta, performance) {
+		ctrl.stepRender(this.ctrlStage, delta, performance)
+		if (this.fading) 
+			this.ctrlStage.alpha = this.time / scale
+		else 
+			this.ctrlStage.alpha = 1
+	}
+
+	Fade.prototype.hasEnded = function() {
+		return ctrl.hasEnded()
+	}
+
+	Fade.prototype.acceptKey = function(key, state) {
+		ctrl.acceptKey(key, state)
+	}
+
+	Fade.prototype.next = ctrl.next
+
+	return new Fade()
+}
+
+},{"../../../assets/pixi.min.js":3}],15:[function(require,module,exports){
+/*									******** splash.js ********									 //
+\\ Branding splash screen.                                       \\
+//									******** splash.js ********									 */
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+module.exports = function(ctrl, scale) {
+	var third = scale / 3
+
+	function Splash() {
+		this.time = 0
+	}
+
+	Splash.prototype.init = function() { } 
+
+	Splash.prototype.initRender = function(stage) {
+		this.text = new PIXI.Text("The Solemnsky Project", {fill: 0xFFFFFF})
+		this.text.position.set(800, 450)
+		stage.addChild(this.text)
+	}
+
+	Splash.prototype.step = function(delta) {
+		this.time += delta
+	}
+
+	Splash.prototype.stepRender = function() {
+
+		if (this.time < third) {
+			this.text.alpha = this.time / third
+		} else {
+			if (this.time < third * 2) {
+				this.text.alpha = 1
+			} else {
+				this.text.alpha = (scale - this.time) / third
+			}
+		}
+	}
+
+	Splash.prototype.acceptKey = function() {}
+
+	Splash.prototype.hasEnded = function() {
+		return this.time > scale 
+	}
+
+	Splash.prototype.next = function() {return ctrl}
+
+	return new Splash()
+}
+
+},{"../../../assets/pixi.min.js":3}],16:[function(require,module,exports){
+/*                  ******** load-assets.js ********                   //
+\\ Loading screen during mode.loadLoader().                            \\
+//                  ******** load-assets.js ********                   */
+
+// TODO
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+module.exports = function(mode, key) {
+	function Loader() {
+		this.progress = 0
+
+		this.textAnim = 0
+	}
+
+	Loader.prototype.init = function() {
+		mode.loadAssets(key, 
+			(function(athis) {		
+				return function(progress) { athis.progress = progress }
+			})(this)				
+		)
+	}
+
+	Loader.prototype.initRender = function(stage) {
+		this.bar = new PIXI.Graphics()
+		this.text = new PIXI.Text("loading...", {fill: 0xFFFFFF})
+		this.text.position.set(450, 400)
+		stage.addChild(this.bar)
+		stage.addChild(this.text)
+	}
+
+	Loader.prototype.step = function(delta) {
+		
+	}
+
+	Loader.prototype.stepRender = function(stage) {
+		this.bar.clear()
+		this.bar.beginFill(0xFFFFFF)
+		this.bar.drawRect(400, 445, this.progress * 100 + 400, 10)
+	}
+
+	Loader.prototype.hasEnded = function() {
+		return this.progress === 1
+	}
+
+	return new Loader()
+}
+
+},{"../../../assets/pixi.min.js":3}],17:[function(require,module,exports){
+/*                  ******** performance.js ********                   //
+\\ Performance data display in top right of screen.                    \\
+//                  ******** performance.js ********                   */
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+var style = {fill: 0xFFFFFF}
+var fps = new PIXI.Text("fps", style)
+var counter = 0
+
+exports.initRender = function(stage) {
+	stage.addChild(fps)	
+}
+exports.stepRender = function(stage, delta, performance) {
+	counter += delta
+	if (counter > 500) {
+		fps.text = performance.fps + "fps, " + performance.fps + "tps\n" + "l/r/s: " + performance.logicTime + "/" + performance.renderTime + "/" + performance.sleepTime 
+		if (typeof performance.cueTime !== "undefined")
+			fps.text += "\ncue: " + performance.cueTime
+		counter -= 500
+	}
+}
+
+},{"../../../assets/pixi.min.js":3}],18:[function(require,module,exports){
+/*                  ******** run.js ********                           //
+\\ Runs a UI object.                                                   \\ 
+//                  ******** run.js ********                           */
+
+// object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities 
+
+var PIXI = require('../../assets/pixi.min.js')
+
+var Keys = require('../resources/keys.js')
+var nameFromKeyCode = Keys.nameFromKeyCode
+
+module.exports = function(target, object) {
+	var renderer =
+		PIXI.autoDetectRenderer(1600, 900, 
+			{backgroundColor : 0x000010, antialias : true})
+	document.body.appendChild(renderer.view)
+	var stage = new PIXI.Container()
+
+	/**** {{{ smartResize() ****/
+	function setMargins(mleft, mtop) {
+		document.body.style.setProperty("margin-left", mleft + "px")
+		document.body.style.setProperty("margin-top", mtop + "px")
+	}
+
+	function smartResize() {
+		var w = window.innerWidth; var h = window.innerHeight
+		var nw, nh
+		if (w / h > 16 / 9) {
+			nw = h * (16 / 9); nh = h
+			renderer.resize(nw, nh)
+			setMargins((w - nw) / 2, 0)
+		} else {
+			nh = w * (9 / 16); nw = w
+			renderer.resize(nw, nh)
+			setMargins(0, (h - nh) / 2)
+		}
+
+		stage.scale = new PIXI.Point(nw / 1600, nh / 900)
+	}
+	/**** }}} smartResize() ****/
+
+	window.onresize = smartResize
+	smartResize()
+	
+	runWithStage(target, renderer, stage, object)
+}
+
+	/**** {{{ requestAnimFrame ****/
+	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+var requestAnimFrame = (function(target) {
+	return window.requestAnimationFrame  || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame    || 
+		window.oRequestAnimationFrame      || 
+		window.msRequestAnimationFrame     || 
+		function(callback, /* DOMElement */ element){
+			window.setTimeout(callback, 1/target * 1000);
+		};
+})();
+	/**** }}} requestAnimFrame ****/
+
+function runWithStage(target, renderer, stage, object) {
+	stage.removeChildren()
+	renderer.render(stage)
+
+	object.initRender(stage)
+	object.init()
+
+	var blurred = false
+	var running = true
+
+	var accum = 0;
+
+	// performance data
+	var fps = 0; var fpsC = 0
+	var tps = 0; var tpsC = 0
+	var processStart = 0 // used for getting delta times
+	var logicTime = 0; var renderTime = 0; var sleepTime = 0
+	// the cycle deltas 
+
+	function resetFps() {
+		if (running) {
+			window.setTimeout(resetFps, 1000)
+			fps = fpsC; fpsC = 0
+			tps = tpsC; tpsC = 0
+		}
+	}
+
+	/**** {{{ step ****/
+	var interval = 1 / target * 1000
+	var then = Date.now()
+	function update() {
+		running = !object.hasEnded()
+
+		var now = Date.now()
+		var delta = now - then
+		then = now
+
+		if (running) { 
+			if (!blurred) {
+				requestAnimFrame(update) 
+			} else {
+				setTimeout(update, 1000 / target)
+			}
+
+			sleepTime = Date.now() - processStart
+			
+			accum += delta
+			
+			processStart = Date.now() // start logic
+			var needPaint = false;
+			while (accum >= interval) {
+				object.step(interval)
+				accum -= interval
+				needPaint = true
+				tpsC++
+			}
+			logicTime = Date.now() - processStart // end logic
+
+			if (needPaint) {
+				var performance = 
+					{ tps: tps
+					, fps: fps
+					, logicTime: logicTime
+					, renderTime: renderTime 
+					, sleepTime: sleepTime }
+				processStart = Date.now() // start render
+				object.stepRender(stage, delta, performance)
+				renderer.render(stage)
+				renderTime = Date.now() - processStart // end render
+				fpsC++
+			}
+
+			processStart = Date.now() // start sleep
+		} else {
+			window.removeEventListener("keyup", acceptKeyUp)
+			window.removeEventListener("keydown", acceptKeyDown)
+			window.removeEventListener("blur", onBlur)
+			window.removeEventListener("focus", onFocus)
+
+			if (typeof object.next !== "undefined")
+				runWithStage(target, renderer, stage, object.next())
+		}
+	} 
+	/**** }}} step ****/
+
+	function acceptKeyUp(e) { acceptKey(e, false) }
+	function acceptKeyDown(e) { acceptKey(e, true) }
+	function acceptKey(e, state) {
+		var name = nameFromKeyCode(e.keyCode)
+		object.acceptKey(name, state)
+		// some keys have quite obnoxious default cases
+		// while others, such as the debug terminal, do not
+		switch (name) {
+		case "back_space": 
+			e.preventDefault(); break
+		default: break
+		}
+	}	
+
+	function onBlur() { blurred = true }
+	function onFocus() { blurred = false }	
+
+	window.addEventListener("keyup", acceptKeyUp)
+	window.addEventListener("keydown", acceptKeyDown)
+	window.addEventListener("blur", onBlur)
+	window.addEventListener("focus", onFocus)
+
+	resetFps()
+	update()
+}
+
+},{"../../assets/pixi.min.js":3,"../resources/keys.js":19}],19:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -1844,7 +2101,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -1875,7 +2132,7 @@ module.exports = {
 	}
 }
 
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
 		"http://solemnsky.github.io/multimedia/player.png"
@@ -1886,7 +2143,7 @@ module.exports = {
 			
 }
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /*									******** util.js ********											 //
 \\ This file has a bunch of misc utility functions.								 \\
 //									******** util.js ********											 */
@@ -2149,215 +2406,4 @@ Util.prototype.getQueryStringValue = function(key) {
 
 /**** }}} elem id operations ****/
 
-},{}],21:[function(require,module,exports){
-/*                  ******** run.js ********                           //
-\\ A collection of trivial UI object constructors.                     \\
-//                  ******** run.js ********                           */
-
-var PIXI = require('../../assets/pixi.min.js')
-var run = require('./run.js')
-
-exports.run = run
-
-exports.combineOverlay = function(overlay, object) {
-	function Result() { 
-		this.overlay = new PIXI.Container()
-		this.main = new PIXI.Container()
-	}
-
-	Result.prototype.init = function() {
-		overlay.init(); object.init()
-	}
-	Result.prototype.step = function(delta) {
-		overlay.step(delta); object.step(delta)
-	}
-	Result.prototype.initRender = function(stage) {
-		overlay.initRender(this.overlay); object.initRender(this.main)
-		stage.addChild(this.overlay); stage.addChild(this.main)
-	}
-	Result.prototype.stepRender = function(stage, delta, x, y) {
-		overlay.stepRender(this.overlay, delta, x, y)
-		object.stepRender(this.main, delta, x, y)
-	}
-	Result.prototype.acceptKey = function(key, state){
-		object.acceptKey(key, state)
-	}
-	Result.prototype.hasEnded = function() { return object.hasEnded() }
-
-	return new Result()
-}
-
-},{"../../assets/pixi.min.js":3,"./run.js":22}],22:[function(require,module,exports){
-/*                  ******** run.js ********                           //
-\\ Runs a UI object.                                                   \\ 
-//                  ******** run.js ********                           */
-
-// object: an object containing init, step, initRender, stepRender, hasEnded, and acceptKey properities 
-
-var PIXI = require('../../assets/pixi.min.js')
-
-var Keys = require('../resources/keys.js')
-var nameFromKeyCode = Keys.nameFromKeyCode
-
-module.exports = function(target, object) {
-	var renderer =
-		PIXI.autoDetectRenderer(1600, 900, 
-			{backgroundColor : 0x000010, antialias : true})
-	document.body.appendChild(renderer.view)
-	var stage = new PIXI.Container()
-
-	/**** {{{ smartResize() ****/
-	function setMargins(mleft, mtop) {
-		document.body.style.setProperty("margin-left", mleft + "px")
-		document.body.style.setProperty("margin-top", mtop + "px")
-	}
-
-	function smartResize() {
-		var w = window.innerWidth; var h = window.innerHeight
-		var nw, nh
-		if (w / h > 16 / 9) {
-			nw = h * (16 / 9); nh = h
-			renderer.resize(nw, nh)
-			setMargins((w - nw) / 2, 0)
-		} else {
-			nh = w * (9 / 16); nw = w
-			renderer.resize(nw, nh)
-			setMargins(0, (h - nh) / 2)
-		}
-
-		stage.scale = new PIXI.Point(nw / 1600, nh / 900)
-	}
-	/**** }}} smartResize() ****/
-
-	window.onresize = smartResize
-	smartResize()
-	
-	runWithStage(target, renderer, stage, object)
-}
-
-	/**** {{{ requestAnimFrame ****/
-	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-var requestAnimFrame = (function(target) {
-	return window.requestAnimationFrame  || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame    || 
-		window.oRequestAnimationFrame      || 
-		window.msRequestAnimationFrame     || 
-		function(callback, /* DOMElement */ element){
-			window.setTimeout(callback, 1/target * 1000);
-		};
-})();
-	/**** }}} requestAnimFrame ****/
-
-function runWithStage(target, renderer, stage, object) {
-	stage.removeChildren()
-	renderer.render(stage)
-
-	object.initRender(stage)
-	object.init()
-
-	var blurred = false
-	var running = true
-
-	var accum = 0;
-
-	// performance data
-	var fps = 0; var fpsC = 0
-	var tps = 0; var tpsC = 0
-	var processStart = 0 // used for getting delta times
-	var logicTime = 0; var renderTime = 0; var sleepTime = 0
-	// the cycle deltas 
-
-	function resetFps() {
-		if (running) {
-			window.setTimeout(resetFps, 1000)
-			fps = fpsC; fpsC = 0
-			tps = tpsC; tpsC = 0
-		}
-	}
-
-	/**** {{{ step ****/
-	var interval = 1 / target * 1000
-	var then = Date.now()
-	function update() {
-		running = !object.hasEnded()
-
-		var now = Date.now()
-		var delta = now - then
-		then = now
-
-		if (running) { 
-			if (!blurred) {
-				requestAnimFrame(update) 
-			} else {
-				setTimeout(update, 1000 / target)
-			}
-
-			sleepTime = Date.now() - processStart
-			
-			accum += delta
-			
-			processStart = Date.now() // start logic
-			var needPaint = false;
-			while (accum >= interval) {
-				object.step(interval)
-				accum -= interval
-				needPaint = true
-				tpsC++
-			}
-			logicTime = Date.now() - processStart // end logic
-
-			if (needPaint) {
-				var performance = 
-					{ tps: tps
-					, fps: fps
-					, logicTime: logicTime
-					, renderTime: renderTime 
-					, sleepTime: sleepTime }
-				processStart = Date.now() // start render
-				object.stepRender(stage, delta, performance)
-				renderer.render(stage)
-				renderTime = Date.now() - processStart // end render
-				fpsC++
-			}
-
-			processStart = Date.now() // start sleep
-		} else {
-			window.removeEventListener("keyup", acceptKeyUp)
-			window.removeEventListener("keydown", acceptKeyDown)
-			window.removeEventListener("blur", onBlur)
-			window.removeEventListener("focus", onFocus)
-
-			if (typeof object.next !== "undefined")
-				runWithStage(target, renderer, stage, object.next())
-		}
-	} 
-	/**** }}} step ****/
-
-	function acceptKeyUp(e) { acceptKey(e, false) }
-	function acceptKeyDown(e) { acceptKey(e, true) }
-	function acceptKey(e, state) {
-		var name = nameFromKeyCode(e.keyCode)
-		object.acceptKey(name, state)
-		// some keys have quite obnoxious default cases
-		// while others, such as the debug terminal, do not
-		switch (name) {
-		case "back_space": 
-			e.preventDefault(); break
-		default: break
-		}
-	}	
-
-	function onBlur() { blurred = true }
-	function onFocus() { blurred = false }	
-
-	window.addEventListener("keyup", acceptKeyUp)
-	window.addEventListener("keydown", acceptKeyDown)
-	window.addEventListener("blur", onBlur)
-	window.addEventListener("focus", onFocus)
-
-	resetFps()
-	update()
-}
-
-},{"../../assets/pixi.min.js":3,"../resources/keys.js":17}]},{},[4]);
+},{}]},{},[4]);

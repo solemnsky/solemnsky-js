@@ -166,14 +166,21 @@ module.exports = function(Vanilla) {
 	}
 /**** }}} renderPlayers ****/
 
-	Vanilla.prototype.initRender = function(stage) {
+	Vanilla.prototype.loadAssets = function(key, onProgress) {
 		this.textures = {}
-		this.textures.player = new PIXI.Texture.fromImage(urls.playerSprite)
-		this.textures.playerThrust = 
-			new PIXI.Texture.fromImage(urls.playerThrustSprite)
-		this.textures.playerSpeed = 
-			new PIXI.Texture.fromImage(urls.playerSpeedSprite)
-		
+		var loadPairs =
+			[ {name: "player", url: urls.playerSprite}
+			, {name: "playerThrust", url: urls.playerThrustSprite}
+			, {name: "playerSpeed", url: urls.playerSpeedSprite} ]
+		loadPairs.forEach(
+			function(pair, index) {
+				this.textures[pair.name] = new PIXI.Texture.fromImage(pair.url)
+				onProgress(index / loadPairs.length)
+			} , this)
+		setTimeout(function() {onProgress(1)}, 500)
+	}
+
+	Vanilla.prototype.initRender = function(stage) {
 		this.graphics.mapStage = new PIXI.Container()
 		this.graphics.projectileStage = new PIXI.Container()
 		this.graphics.playerStage = new PIXI.Container()
