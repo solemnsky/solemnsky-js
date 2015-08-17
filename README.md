@@ -12,10 +12,12 @@ To define a mode, a constructor must be exported along with the following protot
 
 ### initialisation
 
-- createState(key): this provides an initial state value, given a key, to be used when the game starts up from nothing
 - init(initdata): called exactly once at the beginning of the game, with an initial state value
-- describeAssets(): what assets (client-side and large) are necessary?
+
+- createState(key): this provides an initial state value, given a key, to be used when the game starts up from nothing
 - describeState(): describes the current state of the game to a new client
+
+- describeAssets(): what assets (client-side and large) are necessary? Returns a string.
 
 ### simulation
 
@@ -36,11 +38,15 @@ To define a mode, a constructor must be exported along with the following protot
 - clientMerge(id, snap): merge an assertion sent from the server to a client (runs at ~50Hz)
 - serverMerge(id, snap): merge an assertion sent from a client to the server (runs at ~50Hz)
 
+### network compression
+
+- serialiseState: serialises the state value emitted by describeState and createState
+- readState: reads the state value
+
 - serialiseAssertion(snap): assertion -> string
 - readAssertion(str): string -> assertion
 
 ### modeId
-
 - modeId: the id of the mode, to check if a client and a server are compatible
 
 ### rendering (defined in seperate file, only for clients)

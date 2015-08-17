@@ -1122,21 +1122,21 @@ function Demo(vanilla) {
 /**** }}} constructor ****/
 
 /**** {{{ initialisation ****/ 
+Demo.prototype.init = function(initdata) {
+	this.vanilla.init(initdata)
+}
+
 Demo.prototype.createState = function(key) {
 	return this.vanilla.createState(key)
 }
 
-Demo.prototype.init = function(initdata) {
-	this.vanilla.init(initdata)
+Demo.prototype.describeState = function() {
+	return this.vanilla.describeState()
 }
 
 Demo.prototype.describeAssets = function() {
 	return this.vanilla.describeAssets()
 }	
-
-Demo.prototype.describeState = function() {
-	return this.vanilla.describeState()
-}
 /**** }}} initialisation ****/
 
 /**** {{{ simulation****/
@@ -1195,6 +1195,16 @@ Demo.prototype.clientMerge = function(id, snap) {
 Demo.prototype.serverMerge = function(id, snap) {
 	this.vanilla.serverMerge(id, snap)
 }
+/**** }}} continuous networking ****/
+
+/**** {{{ network compression ****/
+Demo.prototype.serialiseState = function(state) {
+	return this.vanilla.serialiseState(state)
+}
+
+Demo.prototype.readState = function(str) {
+	return this.vanilla.readState(str)
+}
 
 Demo.prototype.serialiseAssertion = function(snap) {
 	return this.vanilla.serialiseAssertion(snap)
@@ -1203,7 +1213,7 @@ Demo.prototype.serialiseAssertion = function(snap) {
 Demo.prototype.readAssertion = function(str) {
 	return this.vanilla.readAssertion(str)
 }
-/**** }}} continuous networking ****/
+/**** }}} network compression ****/
 
 Demo.prototype.modeId = "demo dev"
 
@@ -1542,9 +1552,6 @@ Vanilla.prototype.addProjectileType = function(type, methods) {
 /**** }}} mode-facing methods ****/
 
 /**** {{{ initialisation ****/
-Vanilla.prototype.createState = function(key) {
-	return {map: "bloxMap", players: []}
-}
 
 Vanilla.prototype.init = function(state) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
@@ -1562,8 +1569,8 @@ Vanilla.prototype.init = function(state) {
 	, this)
 }
 
-Vanilla.prototype.describeAssets = function() {
-	return {map: ""}
+Vanilla.prototype.createState = function(key) {
+	return {map: "bloxMap", players: []}
 }
 
 Vanilla.prototype.describeState = function() {
@@ -1575,6 +1582,10 @@ Vanilla.prototype.describeState = function() {
 			}
 		)
 	}
+}
+
+Vanilla.prototype.describeAssets = function() {
+	return "default"
 }
 /**** }}} initialisation ****/
 
@@ -1644,6 +1655,7 @@ Vanilla.prototype.step = function(delta) {
 	return [] // event log, currently STUB
 }
 
+Vanilla.prototype.hasEnded = function() { return false }
 /**** }}} simulation ****/
 
 /**** {{{ discrete networking ****/
@@ -1699,6 +1711,17 @@ Vanilla.prototype.serverMerge = function(id, snap) {
 	snapshots.applySnapshot(this, snap)
 }
 
+/**** }}} continuous networking ****/
+
+/**** {{{ network compression ****/
+Vanilla.prototype.serialiseState = function(state) {
+	return msgpack.pack(state)
+}
+
+Vanilla.prototype.readState = function(str) {
+	return msgpack.unpack(str)
+}
+
 Vanilla.prototype.serialiseAssertion = function(snap) {
 	return msgpack.pack(snapshots.deflateSnapshot(snap), true)
 }
@@ -1706,13 +1729,9 @@ Vanilla.prototype.serialiseAssertion = function(snap) {
 Vanilla.prototype.readAssertion = function(str) {
 	return snapshots.inflateSnapshot(msgpack.unpack(str))
 }
-/**** }}} continuous networking ****/
+/**** }}} network compression ****/
 
-/**** {{{ misc ****/
 Vanilla.prototype.modeId = "vanilla engine"
-
-Vanilla.prototype.hasEnded = function() { return false }
-/**** }}} misc ****/
 
 },{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":19,"../../resources/util.js":21,"./gameplay.js":12,"./player.js":14,"./projectile.js":15,"./snapshots.js":17}],14:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
