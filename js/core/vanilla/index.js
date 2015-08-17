@@ -229,11 +229,11 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 /**** }}} physics interface methods ****/
 
 /**** {{{ mode-facing methods ****/
-Vanilla.prototype.addProjectile = function(owner, type, pos) {
+Vanilla.prototype.addProjectile = function(owner, type, pos, vel) {
 	var ids = this.projectiles.map(function(projectile) {return projectile.id})
 	var newId = util.findAvailableId(ids)
 	this.projectiles.push(
-		new Projectile(this, newId, owner, pos)
+		new Projectile(this, newId, owner, pos, vel, type)
 	)
 }
 

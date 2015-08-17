@@ -32,6 +32,7 @@ function Projectile(game, id, owner, pos, vel, type) {
 	this.dimensions = {w: 5, h: 5}
 
 	this.position = pos
+	this.velocity = vel
 
 	this.shape = 
 		game.createShape("rectangle" , {width: 5, height: 5})
@@ -52,13 +53,20 @@ Projectile.prototype.writeToBlock = function() {
 		this.position.x / gameplay.physicsScale
 		, this.position.y / gameplay.physicsScale
 	))
+	this.block.SetLinearVelocity(new b2Vec2(
+		this.velocity.x / gameplay.physicsScale
+		, this.velocity.y / gameplay.physicsScale
+	))
 }
 
 Projectile.prototype.readFromBlock = function() {
 	var pos = this.block.GetPosition()
+	var vel = this.block.GetLinearVelocity()
 
 	this.position.x = pos.x * gameplay.physicsScale
 	this.position.y = pos.y * gameplay.physicsScale
+	this.velocity.x = vel.x * gameplay.physicsScale
+	this.velocity.y = vel.y * gameplay.physicsScale
 }
 /**** }}} box2d interface ****/
 

@@ -539,7 +539,10 @@ Demo.prototype.acceptEvent = function(theEvent) {
 		if (player !== null) 
 			this.vanilla.addProjectile(
 				theEvent.id, null
-				, {x: player.position.x, y: player.position.y + 50})
+				, {x: player.position.x + Math.cos(player.rotation) * 30 
+					, y: player.position.y + Math.sin(player.rotation) * 30}
+				, {x: player.velocity.x + Math.cos(player.rotation) * 200
+					, y: player.velocity.y + Math.sin(player.rotation) * 200})
 	}
 	this.vanilla.acceptEvent(theEvent)
 }
@@ -912,11 +915,11 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 /**** }}} physics interface methods ****/
 
 /**** {{{ mode-facing methods ****/
-Vanilla.prototype.addProjectile = function(owner, type, pos) {
+Vanilla.prototype.addProjectile = function(owner, type, pos, vel) {
 	var ids = this.projectiles.map(function(projectile) {return projectile.id})
 	var newId = util.findAvailableId(ids)
 	this.projectiles.push(
-		new Projectile(this, newId, owner, pos)
+		new Projectile(this, newId, owner, pos, vel, type)
 	)
 }
 
@@ -1340,6 +1343,7 @@ function Projectile(game, id, owner, pos, vel, type) {
 	this.dimensions = {w: 5, h: 5}
 
 	this.position = pos
+	this.velocity = vel
 
 	this.shape = 
 		game.createShape("rectangle" , {width: 5, height: 5})
@@ -1360,13 +1364,20 @@ Projectile.prototype.writeToBlock = function() {
 		this.position.x / gameplay.physicsScale
 		, this.position.y / gameplay.physicsScale
 	))
+	this.block.SetLinearVelocity(new b2Vec2(
+		this.velocity.x / gameplay.physicsScale
+		, this.velocity.y / gameplay.physicsScale
+	))
 }
 
 Projectile.prototype.readFromBlock = function() {
 	var pos = this.block.GetPosition()
+	var vel = this.block.GetLinearVelocity()
 
 	this.position.x = pos.x * gameplay.physicsScale
 	this.position.y = pos.y * gameplay.physicsScale
+	this.velocity.x = vel.x * gameplay.physicsScale
+	this.velocity.y = vel.y * gameplay.physicsScale
 }
 /**** }}} box2d interface ****/
 

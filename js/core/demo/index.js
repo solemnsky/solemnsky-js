@@ -37,7 +37,10 @@ Demo.prototype.acceptEvent = function(theEvent) {
 		if (player !== null) 
 			this.vanilla.addProjectile(
 				theEvent.id, null
-				, {x: player.position.x, y: player.position.y + 50})
+				, {x: player.position.x + Math.cos(player.rotation) * 30 
+					, y: player.position.y + Math.sin(player.rotation) * 30}
+				, {x: player.velocity.x + Math.cos(player.rotation) * 200
+					, y: player.velocity.y + Math.sin(player.rotation) * 200})
 	}
 	this.vanilla.acceptEvent(theEvent)
 }
