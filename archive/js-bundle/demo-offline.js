@@ -478,7 +478,6 @@ this.interactionDOMElement=null,window.removeEventListener("mouseup",this.onMous
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],4:[function(require,module,exports){
 var runUI = require('../interface/run.js')
-var util = require('../resources/util.js')
 
 // allocate mode
 var Vanilla = require('../modes/vanilla/')
@@ -487,327 +486,72 @@ var Demo = require('../modes/demo/')
 require('../modes/demo/render.js')(Demo)
 var mode = new Demo(new Vanilla())
 	
-// write debug pointer
+// write debug pointers
 window.MODE = mode
 
 // effects
 var splash = require('../interface/effects/splash.js')
 var fade = require('../interface/effects/fade.js')
 
-// read address from url
-var address = util.getQueryStringValue("address")
-if (address === "")
-	address = "localhost"
-
 // allocate control object
-var client = require('../interface/client-arena.js')(mode, address, 50042, '/') 
+var client = require('../interface/client-offline.js')(mode) 
 var ctrl = splash(fade(client, 250), 1500)
 
 runUI(60, ctrl)
 
-},{"../interface/client-arena.js":5,"../interface/effects/fade.js":6,"../interface/effects/splash.js":7,"../interface/run.js":9,"../modes/demo/":10,"../modes/demo/render.js":11,"../modes/vanilla/":13,"../modes/vanilla/render.js":16,"../resources/util.js":21}],5:[function(require,module,exports){
-/*									******** client-arena.js ********									 //
-\\ Online arena client.																								 \\
-//									******** client-arena.js ********									 */
+},{"../interface/client-offline.js":5,"../interface/effects/fade.js":6,"../interface/effects/splash.js":7,"../interface/run.js":10,"../modes/demo/":11,"../modes/demo/render.js":12,"../modes/vanilla/":14,"../modes/vanilla/render.js":17}],5:[function(require,module,exports){
+/*                  ******** client-offline.js ********                //
+\\ Offline demo client.                                                \\
+//                  ******** client-offline.js ********                */
 
 var PIXI = require('../../assets/pixi.min.js')
-var util = require('../resources/util.js')
+
 var renderPerf = require('./elements/performance.js')
+var mkLoadAssets = require('./elements/load-assets.js')
 
-// FIXME: does not respect new mode loadAssets methods, so textures are not loaded
-
-module.exports = function(mode, address, port, path) {
-
-/**** {{{ ConnectUI ****/
-	function ConnectUI() {
-		this.entered = false
-		this.countdown = 1
-	}
-
-	ConnectUI.prototype.init = function() {
-	}
-	ConnectUI.prototype.step = function(delta) {
-		if (this.entered) 
-			this.countdown -= delta / 1000
-	}
-	ConnectUI.prototype.initRender = function(stage) {
-		this.text = 
-			new PIXI.Text(
-				'press enter to start\nuse arrow keys to fly'
-				, {fill: 0xFFFFFF})
-		this.text.position = new PIXI.Point(800, 450)
-		stage.addChild(this.text)
-	}
-	ConnectUI.prototype.stepRender = function() { 
-		if (this.entered) {
-			this.text.position = 
-				new PIXI.Point(800, 550 * this.countdown - 100)
-		} 
-	}
-	ConnectUI.prototype.acceptKey = function(key, state) {
-		if (state && key === 'enter') this.entered = true 
-	}
-	ConnectUI.prototype.hasEnded = function() {
-		return this.countdown < 0
-	}
-/**** }}} ConnectUI ****/
-
-/**** {{{ Game ****/
+module.exports = function(mode) {
 	function Game() {
-		this.id = null;
-		this.disconnected = false;
-		this.initialised = false;
-		this.serverValid = false;
-
-		this.messageCue = []
-		this.processingCue = false;
-
-		this.chatting = false
-		this.chatBuffer = ""
-		this.eventLog = []
-
-		this.modeStage = new PIXI.Container()
 		this.perfStage = new PIXI.Container()
-		this.chatStage = new PIXI.Container()
+		this.modeStage = new PIXI.Container()
+
+		this.eventLog = []
 	}
 
-/**** {{{ processCue ****/
-	Game.prototype.processCue = function() {
-		if (this.processingCue === false && this.messageCue.length > 0) {
-			this.processingCue = true;
-
-			var message = this.messageCue.pop()
-			var type = message.split(" ")[0]
-			var data = message.split(" ").splice(1).join(" ")
-
-			if (!this.serverValid) {
-				if (type === "WHO") {
-					if (data === mode.modeId) {
-						this.send("CONNECT " + this.name)
-						this.serverValid = true
-					} else {
-						console.log("invalid server response from WHO request")
-						this.disconnected = true
-					}
-				}
-			} else {
-				if (!this.initialised) {
-					if (type === "INIT") {
-						mode.init(data); 
-						mode.initRender(this.modeStage)
-						this.initialised = true;
-						this.broadcastLoop()
-					}
-				} else {
-					var split = data.split(" ")
-					switch (type) {
-					case "CONNECTED":
-						this.id = data;
-						break;
-					case "SNAP":
-						if (this.id !== null)
-							mode.clientMerge(this.id, mode.readAssertion(data)); 
-						break
-					case "JOIN":
-						mode.join(split[1], split[0]); 
-						break;
-					case "QUIT":
-						mode.quit(data); break
-					case "CHAT":
-						var id = split[0]
-						var player = util.findElemById(mode.listPlayers(), id)
-						if (player !== null)	
-							this.eventLog.push(
-								{ type: "chat"
-								, from: player.name
-								, chat: split.slice(1).join(" ") }
-							)
-						break;
-					default:
-						break
-					}
-				}
-			}
-
-			this.processingCue = false;
-			if (this.messageCue.length !== 0) 
-				this.processCue()
-		}
+	Game.prototype.init = function() { 
+		mode.init(mode.createState(''))
+		mode.join('offline player')
 	}
-/**** }}} processCue ****/
 
-/**** {{{ ui control methods ****/
-	Game.prototype.init = function(){
-		this.name = prompt("enter desired player name") 
+	Game.prototype.step = function(delta) {
+		this.eventLog = this.eventLog.concat(mode.step(delta))
+	}
 
-		this.socket = new WebSocket("ws://" + address + ":" + port + path);
-		this.socket.onopen = this.onConnected.bind(this);
-		this.socket.onclose = this.onDisconnected.bind(this);
-		this.socket.onmessage = this.onMessage.bind(this);
-	}
-	Game.prototype.step = function(delta) { 
-		if (this.initialised)
-			this.eventLog = this.eventLog.concat(mode.step(delta))
-	}
-	Game.prototype.initRender = function(stage) { 
-		stage.addChild(this.modeStage);
+	Game.prototype.initRender = function(stage) {
+		stage.addChild(this.modeStage)
 		stage.addChild(this.perfStage)
-		stage.addChild(this.chatStage)
 
+		mode.initRender(this.modeStage)
 		renderPerf.initRender(this.perfStage)
 	}
-	var now, diff
+
 	Game.prototype.stepRender = function(stage, delta, performance) {
-		if (this.initialised) {
-			if (this.id !== null) {
-				mode.stepRender(this.id, this.modeStage, delta)
-			} else {
-				mode.stepRender(null, this.modeStage, delta)
-			}
-			this.displayChat()
-		}
-
-		now = Date.now()
-		this.processCue()
-		diff = Date.now() - now
-
-		performance.cueTime = diff
+		mode.stepRender(0, this.modeStage, delta) 
 		renderPerf.stepRender(this.perfStage, delta, performance)
 	}
+
+	Game.prototype.hasEnded = function() { return false }
+
 	Game.prototype.acceptKey = function(key, state) {
-		if (this.initialised) {
-			if (key === "enter") { //Enter: Open chat
-				if (state) {
-					if (this.chatting) {
-						this.sendChat();
-					} else {
-						this.openChat();
-					}
-				}
-			}
-			if (this.chatting) {
-				//Espace for closing
-				if (key === "escape") {
-					this.closeChat();
-				}
-				if (key === "shift") this.shiftKey = state
-				if (state) {
-					if ("abcdefghijklmnopqrstuvwxyz123456789".indexOf(key) !== -1) 
-						if (this.shiftKey) 
-							this.chatBuffer = this.chatBuffer + key.toUpperCase()
-						else 
-							this.chatBuffer = this.chatBuffer + key
-					if (key === "space")
-						this.chatBuffer = this.chatBuffer.concat(" ")
-					if (key === "back_space")
-						this.chatBuffer = this.chatBuffer.slice(0, this.chatBuffer.length - 1)
-				}
-			}
-			if (this.id !== null) 
-				mode.acceptEvent({id: this.id, type: "control", name: key, state: state})
-		}
+		mode.acceptEvent({id: 0, type: 'control', name: key, state: state})
 	}
-	Game.prototype.hasEnded = function() {
-		return this.disconnected
-	}
-/**** }}} ui control methods ****/
 
-/**** {{{ chat ****/
-	var size = 25
-	var style = {fill: 0xFFFFFF, font: size + "px arial"}
-	var height = (new PIXI.Text("I", style)).height
-	var chatEntry = new PIXI.Text("", style)
-	var backlog = new PIXI.Text("", style)
-	var chatPrompt = new PIXI.Text("(press enter to chat)", style)
-	Game.prototype.displayChat = function() {
-		// WIP, will make prettier later
-		
-		var chatLog = this.eventLog.filter(
-			function(event) {
-				return event.type === "chat"
-			}
-		)
+	var loadAssets = mkLoadAssets(mode, "")
+	loadAssets.next = function() {return new Game()}
 
-		this.chatStage.removeChildren()
-
-		var chatLines = chatLog.map(
-			function(value) { return value.from + ": " + value.chat }
-		).join("\n")
-
-		if (this.chatting) {
-		/**** {{{ when chatting ****/
-			backlog.text = chatLines
-			backlog.position.set(15, 880 - height - backlog.height)
-			this.chatStage.addChild(backlog)
-
-			chatEntry.text = ">>" + this.chatBuffer + "|"
-			chatEntry.position.set(15, 880 - height)
-			this.chatStage.addChild(chatEntry)
-		/**** }}} when chatting ****/
-		} else {
-		/**** {{{ when not chatting ****/
-			backlog.text = chatLines
-			backlog.position.set(15, 880 - height - backlog.height)
-			backlog.alpha = 0.5
-			this.chatStage.addChild(backlog)
-
-			chatPrompt.position.set(15, 880 - height)
-			chatPrompt.alpha = 0.3
-			this.chatStage.addChild(chatPrompt)
-		/**** }}} when not chatting ****/
-		}
-	}
-	Game.prototype.openChat = function() {
-		this.chatting = true;
-		this.chatBuffer = ""
-	}
-	Game.prototype.closeChat = function() {
-		this.chatting = false;
-	}
-	Game.prototype.sendChat = function() {
-		this.closeChat();
-		this.send("CHAT " + this.chatBuffer);
-	}
-/**** }}} chat ****/
-
-/**** {{{ network control ****/
-	Game.prototype.send = function(msg) {
-		if (this.socket.readyState !== this.socket.OPEN) {
-			//We're done here
-			return false;
-		}
-		if (msg.split(" ")[0] !== "SNAP")
-			console.log(">>>" + msg)
-		this.socket.send(msg)
-		return true;
-	}
-	Game.prototype.onConnected = function(event) {
-		this.send("WHO")
-	}
-	Game.prototype.onDisconnected = function() {
-		this.disconnected = true;
-	}
-	Game.prototype.onMessage = function(message) {
-		if (message.data.split(" ")[0] !== "SNAP") 
-			console.log("<<<" + message.data)
-		this.messageCue.push(message.data)
-	}
-	Game.prototype.broadcastLoop = function() {
-		setTimeout(this.broadcastLoop.bind(this), 20)
-
-		//Don't send snapshots if we don't have an id yet
-		if (this.id !== null)
-			this.send("SNAP " + mode.serialiseAssertion(mode.clientAssert(this.id)))
-	}
-/**** }}} network control ****/
-/**** }}} Game ****/
-
-	ConnectUI.prototype.next = function() {return new Game()}
-	Game.prototype.next = function() {return new ConnectUI()}
-	return new ConnectUI()
+	return loadAssets
 }
 
-},{"../../assets/pixi.min.js":3,"../resources/util.js":21,"./elements/performance.js":8}],6:[function(require,module,exports){
+},{"../../assets/pixi.min.js":3,"./elements/load-assets.js":8,"./elements/performance.js":9}],6:[function(require,module,exports){
 /*									******** fade.js ********									   //
 \\ Fades the graphics in, good for entry transitions.            \\
 //									******** fade.js ********									   */
@@ -912,6 +656,55 @@ module.exports = function(ctrl, scale) {
 }
 
 },{"../../../assets/pixi.min.js":3}],8:[function(require,module,exports){
+/*                  ******** load-assets.js ********                   //
+\\ Loading screen during mode.loadLoader().                            \\
+//                  ******** load-assets.js ********                   */
+
+// TODO
+
+var PIXI = require('../../../assets/pixi.min.js')
+
+module.exports = function(mode, key) {
+	function Loader() {
+		this.progress = 0
+
+		this.textAnim = 0
+	}
+
+	Loader.prototype.init = function() {
+		mode.loadAssets(key, 
+			(function(athis) {		
+				return function(progress) { athis.progress = progress }
+			})(this)				
+		)
+	}
+
+	Loader.prototype.initRender = function(stage) {
+		this.bar = new PIXI.Graphics()
+		this.text = new PIXI.Text("loading...", {fill: 0xFFFFFF})
+		this.text.position.set(450, 400)
+		stage.addChild(this.bar)
+		stage.addChild(this.text)
+	}
+
+	Loader.prototype.step = function(delta) {
+		
+	}
+
+	Loader.prototype.stepRender = function(stage) {
+		this.bar.clear()
+		this.bar.beginFill(0xFFFFFF)
+		this.bar.drawRect(400, 445, this.progress * 100 + 400, 10)
+	}
+
+	Loader.prototype.hasEnded = function() {
+		return this.progress === 1
+	}
+
+	return new Loader()
+}
+
+},{"../../../assets/pixi.min.js":3}],9:[function(require,module,exports){
 /*                  ******** performance.js ********                   //
 \\ Performance data display in top right of screen.                    \\
 //                  ******** performance.js ********                   */
@@ -935,7 +728,7 @@ exports.stepRender = function(stage, delta, performance) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":3}],9:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],10:[function(require,module,exports){
 /*                  ******** run.js ********                           //
 \\ Runs a UI object.                                                   \\ 
 //                  ******** run.js ********                           */
@@ -1004,7 +797,6 @@ function runWithStage(target, renderer, stage, object) {
 	object.initRender(stage)
 	object.init()
 
-	var blurred = false
 	var running = true
 
 	var accum = 0;
@@ -1035,13 +827,8 @@ function runWithStage(target, renderer, stage, object) {
 		then = now
 
 		if (running) { 
-			if (!blurred) {
-				requestAnimFrame(update) 
-			} else {
-				setTimeout(update, 1000 / target)
-			}
-
 			sleepTime = Date.now() - processStart
+			window.requestAnimationFrame(update)
 			
 			accum += delta
 			
@@ -1073,8 +860,6 @@ function runWithStage(target, renderer, stage, object) {
 		} else {
 			window.removeEventListener("keyup", acceptKeyUp)
 			window.removeEventListener("keydown", acceptKeyDown)
-			window.removeEventListener("blur", onBlur)
-			window.removeEventListener("focus", onFocus)
 
 			if (typeof object.next !== "undefined")
 				runWithStage(target, renderer, stage, object.next())
@@ -1096,19 +881,14 @@ function runWithStage(target, renderer, stage, object) {
 		}
 	}	
 
-	function onBlur() { blurred = true }
-	function onFocus() { blurred = false }	
-
 	window.addEventListener("keyup", acceptKeyUp)
 	window.addEventListener("keydown", acceptKeyDown)
-	window.addEventListener("blur", onBlur)
-	window.addEventListener("focus", onFocus)
 
 	resetFps()
 	update()
 }
 
-},{"../../assets/pixi.min.js":3,"../resources/keys.js":18}],10:[function(require,module,exports){
+},{"../../assets/pixi.min.js":3,"../resources/keys.js":19}],11:[function(require,module,exports){
 /*                  ******** demo/index.js ********                   //
 \\ Development demo with fun features!                                \\
 //                  ******** demo/index.js ********                   */
@@ -1217,7 +997,7 @@ Demo.prototype.readAssertion = function(str) {
 
 Demo.prototype.modeId = "demo dev"
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*                  ******** demo/render.js ********                  //
 \\ Rendering for the demo.                                            \\
 //                  ******** demo/render.js ********                  */
@@ -1246,7 +1026,7 @@ module.exports = function(Demo) {
 
 }
 
-},{"../../../assets/pixi.min.js":3}],12:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3}],13:[function(require,module,exports){
 /*                  ******** vanilla/gameplay.js ********          //
 \\ Magic gameplay values.                                          \\
 //                  ******** vanilla/gameplay.js ********          */
@@ -1302,7 +1082,7 @@ module.exports = {
 	, graphicsNameClear: 35
 }
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*									******** vanilla/index.js ********								//
 \\ General purpose base mode with mechanics, exposing useful bindings.\\
 //									******** vanilla/index.js ********								*/
@@ -1733,7 +1513,7 @@ Vanilla.prototype.readAssertion = function(str) {
 
 Vanilla.prototype.modeId = "vanilla engine"
 
-},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":19,"../../resources/util.js":21,"./gameplay.js":12,"./player.js":14,"./projectile.js":15,"./snapshots.js":17}],14:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../../assets/msgpack.min.js":2,"../../resources/maps.js":20,"../../resources/util.js":22,"./gameplay.js":13,"./player.js":15,"./projectile.js":16,"./snapshots.js":18}],15:[function(require,module,exports){
 /*                  ******** vanilla/player.js ********            //
 \\ Player object, with box2d interface and gameplay mechanics.     \\
 //                  ******** vanilla/player.js ********            */
@@ -1957,7 +1737,7 @@ Player.prototype.step = function(delta) {
 	/**** }}} respawning ****/
 }
 
-},{"../../../assets/box2d.min.js":1,"../../resources/util.js":21,"./gameplay.js":12}],15:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"../../resources/util.js":22,"./gameplay.js":13}],16:[function(require,module,exports){
 /*                  ******** vanilla/projectile.js ********        //
 \\ Projectile objective, with box2d interface and gameplay mechanics. \\
 //                  ******** vanilla/projectile.js ********        */
@@ -2034,7 +1814,7 @@ Projectile.prototype.step = function(delta) {
 	// for example, it could fade out
 }
 
-},{"../../../assets/box2d.min.js":1,"./gameplay.js":12}],16:[function(require,module,exports){
+},{"../../../assets/box2d.min.js":1,"./gameplay.js":13}],17:[function(require,module,exports){
 /*					******** vanilla/render.js ********				//
 \\ Client-sided renderer for the vanilla game mode.		\\
 //					******** vanilla/render.js ********				*/
@@ -2244,7 +2024,7 @@ module.exports = function(Vanilla) {
 	}
 }
 
-},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":20,"./gameplay.js":12}],17:[function(require,module,exports){
+},{"../../../assets/pixi.min.js":3,"../../resources/urls.js":21,"./gameplay.js":13}],18:[function(require,module,exports){
 var util = require('../../resources/util.js')
 
 /**** {{{ constructors ****/
@@ -2300,13 +2080,14 @@ exports.mkProjectileSnapshot = function(projectile, priority, defaultState, stat
 /**** {{{ application ****/
 exports.applySnapshot = function(world, snapshot) {
 	//Don't try to use invalid snapshots.
-	if (typeof snapshot === "undefined" || snapshot === null)
-		return
+	function nullFilter(point) {
+		return point !== null
+	}
 
 	var compare = function(snapshot1, snapshot2) {
 		return snapshot1.priority - snapshot2.priority
 	}
-	snapshot.sort(compare).forEach(
+	snapshot.filter(nullFilter).sort(compare).forEach(
 		function(point) {
 			if (point.p) {
 				var player = world.findPlayerById(point.id);
@@ -2384,7 +2165,7 @@ exports.inflateSnapshot = function(snap) {
 }
 /**** }}} deflation and inflation ****/
 
-},{"../../resources/util.js":21}],18:[function(require,module,exports){
+},{"../../resources/util.js":22}],19:[function(require,module,exports){
 /*                  ******** keys.js ********                      //
 \\ Defines a function that translates key codes into names.        \\
 //                  ******** keys.js ********                      */
@@ -2398,7 +2179,7 @@ exports.keyCodeFromName = function(name) {
 	return keyboardMap.indexOf(name)
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*                  ******** maps.js ********                      //
 \\ This file defines a set of maps.                                \\
 //                  ******** maps.js ********                      */
@@ -2429,7 +2210,7 @@ module.exports = {
 	}
 }
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 module.exports = {
 	playerSprite: 
 		"http://solemnsky.github.io/multimedia/player.png"
@@ -2440,7 +2221,7 @@ module.exports = {
 			
 }
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /*									******** util.js ********											 //
 \\ This file has a bunch of misc utility functions.								 \\
 //									******** util.js ********											 */

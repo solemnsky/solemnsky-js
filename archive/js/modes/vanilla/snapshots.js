@@ -53,13 +53,14 @@ exports.mkProjectileSnapshot = function(projectile, priority, defaultState, stat
 /**** {{{ application ****/
 exports.applySnapshot = function(world, snapshot) {
 	//Don't try to use invalid snapshots.
-	if (typeof snapshot === "undefined" || snapshot === null)
-		return
+	function nullFilter(point) {
+		return point !== null
+	}
 
 	var compare = function(snapshot1, snapshot2) {
 		return snapshot1.priority - snapshot2.priority
 	}
-	snapshot.sort(compare).forEach(
+	snapshot.filter(nullFilter).sort(compare).forEach(
 		function(point) {
 			if (point.p) {
 				var player = world.findPlayerById(point.id);

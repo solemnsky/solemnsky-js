@@ -66,7 +66,6 @@ function runWithStage(target, renderer, stage, object) {
 	object.initRender(stage)
 	object.init()
 
-	var blurred = false
 	var running = true
 
 	var accum = 0;
@@ -97,13 +96,8 @@ function runWithStage(target, renderer, stage, object) {
 		then = now
 
 		if (running) { 
-			if (!blurred) {
-				requestAnimFrame(update) 
-			} else {
-				setTimeout(update, 1000 / target)
-			}
-
 			sleepTime = Date.now() - processStart
+			requestAnimFrame(update)
 			
 			accum += delta
 			
@@ -135,8 +129,6 @@ function runWithStage(target, renderer, stage, object) {
 		} else {
 			window.removeEventListener("keyup", acceptKeyUp)
 			window.removeEventListener("keydown", acceptKeyDown)
-			window.removeEventListener("blur", onBlur)
-			window.removeEventListener("focus", onFocus)
 
 			if (typeof object.next !== "undefined")
 				runWithStage(target, renderer, stage, object.next())
@@ -158,13 +150,8 @@ function runWithStage(target, renderer, stage, object) {
 		}
 	}	
 
-	function onBlur() { blurred = true }
-	function onFocus() { blurred = false }	
-
 	window.addEventListener("keyup", acceptKeyUp)
 	window.addEventListener("keydown", acceptKeyDown)
-	window.addEventListener("blur", onBlur)
-	window.addEventListener("focus", onFocus)
 
 	resetFps()
 	update()
