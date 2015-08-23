@@ -117,7 +117,7 @@ Util.prototype.movementDeflation =
 	}
 /**** }}} deflation pairs ****/
 
-/**** {{{ serialising objects ****/ 
+/**** {{{ deflating and inflating ****/ 
 function deflatePair(deflationRules, pair) {
 	var matches = deflationRules.filter(
 		function(rule) { return rule.key === pair.key	} 
@@ -146,44 +146,28 @@ function inflatePair(deflationRules, pair) {
 	return pair 
 }
 
-Util.prototype.deflateObject = function(deflationRules, object) {
-	var result = []
-	
-	object.forEach(
-		function(inflated) {
-			var deflated = {}
-			Object.keys(inflated).forEach(
-				function(key) {
-					var pair = deflatePair(deflationRules, {key: key, value: inflated[key]})
-					deflated[pair.key] = pair.value	
-				}
-			, deflated)
-			result.push(deflated)
+Util.prototype.deflateObject = function(deflationRules, inflated) {
+	var deflated = {}
+	Object.keys(inflated).forEach(
+		function(key) {
+			var pair = deflatePair(deflationRules, {key: key, value: inflated[key]})
+			deflated[pair.key] = pair.value	
 		}
-	, result)
-
-	return result
+	, deflated)
+	return deflated
 }
 
-Util.prototype.inflateObject = function(deflationRules, object) {
-	var result = []
-
-	object.forEach(
-		function(deflated) {
-			var inflated = {}
-			Object.keys(deflated).forEach(
-				function(key) {
-					var pair = inflatePair(deflationRules, {key: key, value: deflated[key]})
-					inflated[pair.key] = pair.value
-				}
-			)
-			result.push(inflated)
+Util.prototype.inflateObject = function(deflationRules, deflated) {
+	var inflated = {}
+	Object.keys(deflated).forEach(
+		function(key) {
+			var pair = inflatePair(deflationRules, {key: key, value: deflated[key]})
+			inflated[pair.key] = pair.value
 		}
-	, result)
-	
-	return result
+	)
+	return inflated
 }
-/**** }}} serialising objects ****/ 
+/**** }}} deflating and inflating ****/ 
 
 /**** {{{ vector math ****/
 Util.prototype.getAngle = function(vec) {

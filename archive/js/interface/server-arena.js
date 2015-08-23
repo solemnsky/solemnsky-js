@@ -56,21 +56,35 @@ module.exports = function(port, mode, key) {
 		var data = message.split(" ").splice(1).join(" ")
 
 		switch (type) {
+		// query methods
 		case "PING":
 			client.send("PONG"); break
+		case "DESC":
+			client.send("DESC first solemnsky server"); break
 		case "WHO":
 			client.send("WHO " + mode.modeId); break
+				
+		// assets
+		case "ASSETS":
+			client.send("ASSETS " + mode.describeAssets); break
+
+		// connection
 		case "CONNECT":
-			client.send("INIT " + mode.describeState())
+			client.send("INIT " + mode.serialiseState(mode.describeState()))
 			client.id = mode.join(data); 
 			broadcast("JOIN " + client.id + " " + data); 
 			client.send("CONNECTED " + client.id); 
 			break
+
+		// snapshots
 		case "SNAP":
-			mode.serverMerge(client.id, data); break
+			mode.serverMerge(client.id, mode.readAssertion(data)); break
+
+		// chat				
 		case "CHAT":
 			broadcast("CHAT " + client.id + " " + data);
 			break;
+
 		default:
 			client.send("ECHO " + data)
 		}
@@ -89,13 +103,13 @@ module.exports = function(port, mode, key) {
 
 	function snapBroadcast() {
 		console.log("broadcasting: " + mode.serverAssert())
-		broadcast("SNAP " + mode.serverAssert())	
+		broadcast("SNAP " + mode.serialiseAssertion(mode.serverAssert()))	
 		setTimeout(snapBroadcast, 20)
 	}
 /**** }}} simulation / broadcast ****/
 
 	openSocket(port) // initialise websocket
-	mode.init(mode.makeInitData(key)) // initialise mode
+	mode.init(mode.createState(key)) // initialise mode
 	snapBroadcast() // snapshot broadcast loop
 	logicLoop() // mode simulation loop
 }

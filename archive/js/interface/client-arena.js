@@ -42,6 +42,13 @@ module.exports = function(mode, address, port, path) {
 	ConnectUI.prototype.hasEnded = function() {
 		return this.countdown < 0
 	}
+
+	ConnectUI.prototype.next = function() {
+		// TODO: progress bar
+		mode.loadAssets("")
+
+		return new Game()
+	}
 /**** }}} ConnectUI ****/
 
 /**** {{{ Game ****/
@@ -294,7 +301,6 @@ module.exports = function(mode, address, port, path) {
 /**** }}} network control ****/
 /**** }}} Game ****/
 
-	ConnectUI.prototype.next = function() {return new Game()}
 	Game.prototype.next = function() {return new ConnectUI()}
 	return new ConnectUI()
 }

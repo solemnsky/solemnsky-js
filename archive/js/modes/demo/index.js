@@ -11,21 +11,21 @@ function Demo(vanilla) {
 /**** }}} constructor ****/
 
 /**** {{{ initialisation ****/ 
+Demo.prototype.init = function(initdata) {
+	this.vanilla.init(initdata)
+}
+
 Demo.prototype.createState = function(key) {
 	return this.vanilla.createState(key)
 }
 
-Demo.prototype.init = function(initdata) {
-	this.vanilla.init(initdata)
+Demo.prototype.describeState = function() {
+	return this.vanilla.describeState()
 }
 
 Demo.prototype.describeAssets = function() {
 	return this.vanilla.describeAssets()
 }	
-
-Demo.prototype.describeState = function() {
-	return this.vanilla.describeState()
-}
 /**** }}} initialisation ****/
 
 /**** {{{ simulation****/
@@ -84,6 +84,16 @@ Demo.prototype.clientMerge = function(id, snap) {
 Demo.prototype.serverMerge = function(id, snap) {
 	this.vanilla.serverMerge(id, snap)
 }
+/**** }}} continuous networking ****/
+
+/**** {{{ network compression ****/
+Demo.prototype.serialiseState = function(state) {
+	return this.vanilla.serialiseState(state)
+}
+
+Demo.prototype.readState = function(str) {
+	return this.vanilla.readState(str)
+}
 
 Demo.prototype.serialiseAssertion = function(snap) {
 	return this.vanilla.serialiseAssertion(snap)
@@ -92,6 +102,6 @@ Demo.prototype.serialiseAssertion = function(snap) {
 Demo.prototype.readAssertion = function(str) {
 	return this.vanilla.readAssertion(str)
 }
-/**** }}} continuous networking ****/
+/**** }}} network compression ****/
 
 Demo.prototype.modeId = "demo dev"

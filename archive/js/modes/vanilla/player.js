@@ -66,7 +66,7 @@ function Player(game, id, pos, name) {
 			, this.game.createShape("triangle", 
 					{width: gameplay.playerWidth, height: gameplay.playerHeight}
 				)
-			, {isStatic: false, doesCollide: true, bodyType: "player", bodyId: id} 
+			, {isStatic: false, isObstacle: true, bodyType: "player", bodyId: id} 
 		)
 }
 /**** }}} Player() ****/

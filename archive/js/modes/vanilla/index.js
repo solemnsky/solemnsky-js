@@ -91,7 +91,7 @@ Vanilla.prototype.loadMap = function (map) {
 			var box = this.createBody(
 				{x: block.x, y: block.y}
 				, this.createShape("rectangle", {width: block.w, height: block.h})
-				, {isStatic: true, bodyType: "map"} 
+				, {isStatic: true, doesCollide: true, bodyType: "map"} 
 			)
 			this.map.push(
 				{ block: box
@@ -191,7 +191,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	// if body is static, does not move
 	if (typeof props.isStatic == "undefined") props.isStatic = true
 	// if body is played, does not collide with other players
-	if (typeof props.doesCollide == "undefined") props.doesCollide  = false
+	if (typeof props.isObstacle  == "undefined") props.isObstacle  = false
 	
 	// parameters passed to body userdata
 	// "player" or "map" for the time being
@@ -207,7 +207,7 @@ Vanilla.prototype.createBody = function(pos, shape, props) {
 	fixDef.restitution = props.restitution
 	fixDef.shape = shape
 
-	if (props.doesCollide) {
+	if (props.isObstacle) {
 		fixDef.filter.categoryBits = 0x0002
 		fixDef.filter.maskBits = 0x0001
 	} else {
@@ -247,9 +247,6 @@ Vanilla.prototype.addProjectileType = function(type, methods) {
 /**** }}} mode-facing methods ****/
 
 /**** {{{ initialisation ****/
-Vanilla.prototype.createState = function(key) {
-	return {map: "bloxMap", players: []}
-}
 
 Vanilla.prototype.init = function(state) {
 	this.gravity = new b2Vec2(0, gameplay.gravity);
@@ -267,8 +264,8 @@ Vanilla.prototype.init = function(state) {
 	, this)
 }
 
-Vanilla.prototype.describeAssets = function() {
-	return {map: ""}
+Vanilla.prototype.createState = function(key) {
+	return {map: "bloxMap", players: []}
 }
 
 Vanilla.prototype.describeState = function() {
@@ -280,6 +277,10 @@ Vanilla.prototype.describeState = function() {
 			}
 		)
 	}
+}
+
+Vanilla.prototype.describeAssets = function() {
+	return "default"
 }
 /**** }}} initialisation ****/
 
@@ -349,6 +350,7 @@ Vanilla.prototype.step = function(delta) {
 	return [] // event log, currently STUB
 }
 
+Vanilla.prototype.hasEnded = function() { return false }
 /**** }}} simulation ****/
 
 /**** {{{ discrete networking ****/
@@ -371,20 +373,48 @@ Vanilla.prototype.quit = function(id) {
 
 /**** {{{ continuous networking ****/
 Vanilla.prototype.clientAssert = function(id) {
-	return snapshots.makePlayerSnapshot(this, id, 1, true, {})
+	var snapshot = snapshots.mkPlayerSnapshot(this.findPlayerById(id), id, 1, true, {})
+	this.projectiles.forEach(
+		function(projectile) {
+			if (projectile.owner === id) 
+				snapshot.push(snapshots.mkProjectileSnapshot(projectile, 1, true, {})[0])
+		}
+	)
+	return snapshot
 }
 
 Vanilla.prototype.serverAssert = function() {
-	return snapshots.makeTotalSnapshot(this, 0)
+	var snapshot = []
+	this.players.forEach(
+		function(player) {
+			snapshot.push(snapshots.mkPlayerSnapshot(player, 0, true, {})[0])
+		}
+	)
+	this.projectiles.forEach(
+		function(projectile) {
+			snapshot.push(snapshots.mkProjectileSnapshot(projectile, 0, true, {})[0])
+		}
+	)
+	return snapshot
 }
 
 Vanilla.prototype.clientMerge = function(id, snap) {
-	var mysnap = this.clientAssert(id)
-	snapshots.applySnapshot(this, snap.concat(mysnap))
+	snapshots.applySnapshot(this, snap.concat(this.clientAssert(id)))
 }
 
 Vanilla.prototype.serverMerge = function(id, snap) {
 	snapshots.applySnapshot(this, snap)
+}
+
+/**** }}} continuous networking ****/
+
+/**** {{{ network compression ****/
+Vanilla.prototype.serialiseState = function(state) {
+	return msgpack.pack(state)
+}
+
+Vanilla.prototype.readState = function(str) {
+	return msgpack.unpack(str)
 }
 
 Vanilla.prototype.serialiseAssertion = function(snap) {
@@ -394,10 +424,6 @@ Vanilla.prototype.serialiseAssertion = function(snap) {
 Vanilla.prototype.readAssertion = function(str) {
 	return snapshots.inflateSnapshot(msgpack.unpack(str))
 }
-/**** }}} continuous networking ****/
+/**** }}} network compression ****/
 
-/**** {{{ misc ****/
 Vanilla.prototype.modeId = "vanilla engine"
-
-Vanilla.prototype.hasEnded = function() { return false }
-/**** }}} misc ****/
