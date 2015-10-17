@@ -20,7 +20,7 @@ Demo.prototype.createState = function(key) {
 }
 
 Demo.prototype.describeState = function() {
-	return this.vanilla.describeState()
+	return this.vanilla.describeState() 
 }
 
 Demo.prototype.describeAssets = function() {
